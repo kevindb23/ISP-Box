@@ -1,0 +1,40 @@
+# Environment files
+.env
+.env.local
+.env.*
+
+# Logs
+*.log
+logs/
+storage/logs/
+
+# Cache
+cache/
+tmp/
+storage/cache/
+
+# Composer
+vendor/
+
+# NodeJS
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Backup Files
+*.zip
+*.bak
+*.old
+
+# Uploads (optional)
+public/uploads/
+
+# Database Dumps
+*.sql
+*.dump

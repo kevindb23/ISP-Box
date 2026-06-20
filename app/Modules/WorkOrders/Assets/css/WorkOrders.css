@@ -1,0 +1,48 @@
+.work-orders-page .work-order-detail-card {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.work-orders-page .work-order-detail-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #2563eb;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.work-orders-page .work-order-list-item {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.work-orders-page .work-order-list-item:last-child {
+    border-bottom: 0;
+}
+
+.work-orders-page .nx-icon-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.work-orders-page .nx-cell-stack {
+    line-height: 1.25;
+}
+
+.work-orders-page .nx-cell-title {
+    font-weight: 600;
+}
+
+.work-orders-page .nx-cell-sub {
+    font-size: 0.78rem;
+    color: #64748b;
+}
+
+.work-orders-page .nx-text-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}

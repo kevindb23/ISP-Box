@@ -1,0 +1,500 @@
+#subscriberPlansApp {
+    --plans-blue: #2563eb;
+    --plans-blue-dark: #1d4ed8;
+    --plans-ink: #0f172a;
+    --plans-muted: #64748b;
+    --plans-line: #e2e8f0;
+    --plans-surface: #ffffff;
+    --plans-surface-soft: #f8fafc;
+    --plans-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.05);
+    --plans-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+#subscriberPlansApp .plans-hero-card,
+#subscriberPlansApp .plans-toolbar-card,
+#subscriberPlansApp .plans-table-card {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+#subscriberPlansApp .plans-hero-card {
+    border: 1px solid rgba(37, 99, 235, 0.08);
+    background:
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
+            linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.94) 100%);
+    box-shadow: var(--plans-shadow-lg);
+}
+
+#subscriberPlansApp .plans-hero-body {
+    min-height: 132px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 26px 28px;
+}
+
+#subscriberPlansApp .plans-hero-left {
+    max-width: 780px;
+}
+
+#subscriberPlansApp .plans-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--plans-blue-dark);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+#subscriberPlansApp .plans-hero-badge i {
+    font-size: 11px;
+}
+
+#subscriberPlansApp .plans-hero-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--plans-ink);
+    line-height: 1.2;
+}
+
+#subscriberPlansApp .plans-hero-text {
+    margin: 0;
+    font-size: 14px;
+    color: var(--plans-muted);
+    line-height: 1.55;
+}
+
+#subscriberPlansApp .plans-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-secondary {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .nx-btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+}
+
+#subscriberPlansApp .nx-btn-primary:hover,
+#subscriberPlansApp .nx-btn-primary:focus {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border-color: #1d4ed8;
+}
+
+#subscriberPlansApp .nx-btn-secondary {
+    background: #fff;
+    border-color: #dbe3ef;
+    color: #0f172a;
+}
+
+#subscriberPlansApp .nx-btn-secondary:hover,
+#subscriberPlansApp .nx-btn-secondary:focus {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+#subscriberPlansApp .nx-btn-primary i,
+#subscriberPlansApp .nx-btn-secondary i {
+    font-size: 14px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#subscriberPlansApp .plans-summary-row {
+    margin-bottom: 18px;
+}
+
+#subscriberPlansApp .plans-summary-card {
+    position: relative;
+    min-height: 152px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: var(--plans-shadow-soft);
+    overflow: hidden;
+}
+
+#subscriberPlansApp .plans-summary-card .card-body {
+    position: relative;
+    z-index: 1;
+    padding: 24px 28px;
+}
+
+#subscriberPlansApp .plans-summary-accent {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    border-radius: 0 10px 10px 0;
+}
+
+#subscriberPlansApp .plans-summary-card--primary .plans-summary-accent {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+#subscriberPlansApp .plans-summary-card--success .plans-summary-accent {
+    background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+}
+
+#subscriberPlansApp .plans-summary-card--cyan .plans-summary-accent {
+    background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+}
+
+#subscriberPlansApp .plans-summary-card--slate .plans-summary-accent {
+    background: linear-gradient(180deg, #64748b 0%, #334155 100%);
+}
+
+#subscriberPlansApp .plans-summary-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+}
+
+#subscriberPlansApp .plans-summary-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+#subscriberPlansApp .plans-summary-text {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.45;
+}
+
+#subscriberPlansApp .plans-toolbar-card {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--plans-shadow-soft);
+}
+
+#subscriberPlansApp .plans-toolbar-body {
+    padding: 20px 22px;
+}
+
+#subscriberPlansApp .plans-toolbar-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 0.65fr) auto;
+    gap: 12px;
+    align-items: center;
+}
+
+#subscriberPlansApp .plans-search-wrap {
+    position: relative;
+}
+
+#subscriberPlansApp .plans-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+#subscriberPlansApp .plans-toolbar-control {
+    height: 42px;
+    min-height: 42px;
+    border-radius: 14px;
+    border-color: #dbe3ef;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-search-control {
+    padding-left: 40px;
+}
+
+#subscriberPlansApp .plans-toolbar-control:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+#subscriberPlansApp .plans-toolbar-meta {
+    text-align: right;
+    white-space: nowrap;
+}
+
+#subscriberPlansApp .plans-pagination-top {
+    display: inline-block;
+    font-size: 13px;
+    color: #64748b;
+}
+
+#subscriberPlansApp .plans-table-card {
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--plans-shadow-lg);
+}
+
+#subscriberPlansApp .plans-table-topline {
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 25%, rgba(37,99,235,0.10) 100%);
+}
+
+#subscriberPlansApp .plans-table-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+#subscriberPlansApp .plans-table-actions .btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-table-actions .btn i {
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary {
+    border-color: #d9e1ec;
+    color: #64748b;
+    background: #fff;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-primary {
+    border-color: #bfdbfe;
+    color: #2563eb;
+    background: #fff;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-primary:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-danger {
+    border-color: #fecaca;
+    color: #ef4444;
+    background: #fff;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-danger:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+#subscriberPlansApp .badge {
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+/* =========================
+   NX MODAL (FINAL - SCROLLABLE)
+========================= */
+
+#subscriberPlansApp .nx-modal .modal-dialog {
+    max-width: 1100px;
+}
+
+#subscriberPlansApp .nx-modal .modal-dialog-scrollable {
+    height: calc(100vh - 40px);
+}
+
+#subscriberPlansApp .nx-modal-content {
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#subscriberPlansApp .nx-modal-content > form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#subscriberPlansApp .nx-modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+#subscriberPlansApp .nx-modal-body {
+    background: #f8fafc;
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#subscriberPlansApp .nx-modal-content > form .nx-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#subscriberPlansApp .nx-modal-footer {
+    padding: 16px 22px;
+    border-top: 1px solid #eef2f7;
+    background: #fff;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+#subscriberPlansApp .sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+#subscriberPlansApp .nx-section-card {
+    background: #fff;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    padding: 18px 18px 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+}
+
+#subscriberPlansApp .nx-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+#subscriberPlansApp .nx-section-title span {
+    font-size: 18px;
+}
+
+#subscriberPlansApp .nx-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+}
+
+#subscriberPlansApp .nx-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+#subscriberPlansApp .nx-field div {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    color: #111827;
+    word-break: break-word;
+}
+
+#subscriberPlansApp .form-control,
+#subscriberPlansApp .form-select,
+#subscriberPlansApp textarea.form-control {
+    font-size: 14px;
+}
+
+@media (max-width: 1199px) {
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #subscriberPlansApp .plans-toolbar-meta {
+        text-align: left;
+    }
+}
+
+@media (max-width: 992px) {
+    #subscriberPlansApp .plans-hero-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #subscriberPlansApp .plans-hero-actions {
+        width: 100%;
+    }
+
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #subscriberPlansApp .nx-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    #subscriberPlansApp .nx-modal .modal-dialog {
+        max-width: calc(100% - 24px);
+        margin: 12px auto;
+    }
+}

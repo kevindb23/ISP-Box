@@ -1,0 +1,36 @@
+.staff-attendance-page .staff-attendance-status {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 14px;
+    padding: 16px;
+    background: #f8fafc;
+}
+
+.staff-attendance-page .staff-attendance-mini {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 12px;
+    background: #ffffff;
+}
+
+.staff-attendance-page table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.staff-attendance-page .staff-attendance-log-list {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.staff-attendance-page .staff-attendance-log-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+}
+
+.staff-attendance-page .staff-attendance-log-item:hover {
+    background: #f8fafc;
+}
+
+.staff-attendance-page .staff-attendance-log-item:last-child {
+    border-bottom: 0;
+}
