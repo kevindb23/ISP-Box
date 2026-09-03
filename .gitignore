@@ -42,6 +42,7 @@ Thumbs.db
 public/uploads/
 
 # Database Dumps
+billing.sql
 *.sql
 *.dump
 
