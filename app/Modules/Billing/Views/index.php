@@ -1,6 +1,5 @@
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="billing"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The billing interface is not built.</div><?php endif;return;?>
 <div id="billingPage" class="container-fluid nx-page billing-page">
-    <link rel="stylesheet" href="/module-assets/Billing/css/billing.css?v=<?= time() ?>">
-
     <style>
         #billingPage .billing-panel {
             display: none;
@@ -18,14 +17,13 @@
         <div class="card-body nx-page-header">
             <div class="nx-page-header-left">
                 <div class="billing-eyebrow">
-                    <i class="bi bi-receipt-cutoff"></i>
-                    <span>ISP Billing Center</span>
+                    <span>Finance operations</span>
                 </div>
 
-                <h5 class="nx-page-title">Billing</h5>
+                <h5 class="nx-page-title">Billing center</h5>
 
                 <div class="nx-page-subtitle">
-                    Manage invoices, payments, adjustments, balances, collections aging, billing runs, and billing settings.
+                    Invoices, collections, adjustments, balances, and scheduled billing runs.
                 </div>
 
                 <div class="billing-ph-note">
@@ -263,7 +261,7 @@
 
         <div class="row g-3">
             <div class="col-12 col-xxl-6">
-                <div class="card border-0 shadow-sm nx-content-card billing-card">
+                <div class="card border-0 shadow-sm nx-content-card billing-card billing-recent-card">
                     <div class="billing-card-header">
                         <div>
                             <h6 class="mb-0 fw-semibold">Recent Invoices</h6>
@@ -299,7 +297,7 @@
             </div>
 
             <div class="col-12 col-xxl-6">
-                <div class="card border-0 shadow-sm nx-content-card billing-card">
+                <div class="card border-0 shadow-sm nx-content-card billing-card billing-recent-card">
                     <div class="billing-card-header">
                         <div>
                             <h6 class="mb-0 fw-semibold">Recent Payments</h6>
@@ -776,7 +774,7 @@
                                 <small class="text-muted">Apply tax rate during invoice calculation later.</small>
                             </div>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="settingTaxEnabled" name="tax_enabled">
+                                <input class="form-check-input" type="checkbox" id="settingTaxEnabled" name="tax_enabled" role="switch" aria-label="Enable tax computation">
                             </div>
                         </div>
                     </div>
@@ -788,7 +786,7 @@
                                 <small class="text-muted">Keep disabled until billing workflow is stable.</small>
                             </div>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="settingAutoSuspend" name="auto_suspend_enabled">
+                                <input class="form-check-input" type="checkbox" id="settingAutoSuspend" name="auto_suspend_enabled" role="switch" aria-label="Automatically suspend overdue accounts">
                             </div>
                         </div>
                     </div>

@@ -4,6 +4,7 @@ use App\Modules\Subscribers\Controllers\SubscriberApiController;
 
 $router->get('/api/v1/subscribers', [SubscriberApiController::class, 'index']);
 $router->get('/api/v1/subscribers/sessions', [SubscriberApiController::class, 'sessions']);
+$router->get('/api/v1/subscribers/plans', [SubscriberApiController::class, 'plans']);
 $router->post('/api/v1/subscribers/create', [SubscriberApiController::class, 'create']);
 $router->post('/api/v1/subscribers/update/{id}', [SubscriberApiController::class, 'update']);
 $router->post('/api/v1/subscribers/suspend', [SubscriberApiController::class, 'suspend']);

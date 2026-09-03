@@ -1,0 +1,47 @@
+{
+  "name": "nexusbox/operations-portal",
+  "description": "NexusBox ISP operations, billing, provisioning and workforce portal",
+  "type": "project",
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-fileinfo": "*",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-sodium": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Framework\\": "framework/"
+    }
+  },
+  "scripts": {
+    "test": [
+      "@php tests/Architecture/module_contract_test.php",
+      "@php tests/Architecture/audit_contract_test.php",
+      "@php tests/Architecture/route_contract_test.php",
+      "@php tests/Architecture/subscriber_provisioning_contract_test.php",
+      "@php tests/Architecture/service_provisioning_safety_contract_test.php",
+      "@php tests/Architecture/provisioning_work_order_contract_test.php",
+      "@php tests/Architecture/technician_management_workforce_contract_test.php",
+      "@php tests/Architecture/attendance_workforce_integration_contract_test.php",
+      "@php tests/Architecture/subscriber_acs_password_reset_contract_test.php",
+      "@php tests/Architecture/vlan_bng_integration_contract_test.php",
+      "@php tests/Architecture/api_token_integration_contract_test.php",
+      "@php tests/Architecture/monitoring_api_contract_test.php",
+      "@php tests/Architecture/frontend_modal_contract_test.php",
+      "@php tests/Architecture/ui_next_boundary_contract_test.php",
+      "@php tests/Architecture/frontend_api_access_contract_test.php",
+      "@php tests/Architecture/dom_selector_contract_test.php",
+      "@php tests/Architecture/cgnat_runtime_ui_contract_test.php",
+      "@php tests/Architecture/nap_map_tile_contract_test.php",
+      "@php tests/Architecture/nap_nodes_table_contract_test.php",
+      "@php tests/Security/network_command_runner_test.php",
+      "@php tests/Security/network_credential_contract_test.php",
+      "@php tests/Security/provisioning_secret_contract_test.php",
+      "@php tests/Security/secret_cipher_test.php",
+      "@php tests/Security/role_authorization_contract_test.php"
+    ]
+  }
+}

@@ -13,12 +13,15 @@ class OntDevices
             'serial_number' => $data['serial_number'] ?? null,
             'model' => $data['model'] ?? null,
             'vendor' => $data['vendor'] ?? null,
-            'mac_address' => $data['mac_address'] ?? null,
             'status' => $data['status'] ?? 'UNASSIGNED',
             'created_at' => $data['created_at'] ?? null,
-            'equipment_id' => $data['equipment_id'] ?? null,
             'subscriber_id' => $data['subscriber_id'] ?? null,
             'subscriber_name' => $data['subscriber_name'] ?? null,
+            'olt_id' => $data['olt_id'] ?? null,
+            'frame' => $data['frame'] ?? null,
+            'slot' => $data['slot'] ?? null,
+            'port' => $data['port'] ?? null,
+            'ont_id' => $data['ont_id'] ?? null,
         ];
     }
 

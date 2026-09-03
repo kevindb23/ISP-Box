@@ -3,22 +3,28 @@
 namespace App\Modules\SubscriberPlans\Repositories;
 
 use App\Infrastructure\Database\DatabaseConnection;
+use App\Modules\Radius\Repositories\RadiusSettingsRepository;
 use PDO;
 use PDOException;
 
 class SubscriberPlansRepository
 {
     private PDO $db;
-    private PDO $radiusDb;
+    private ?PDO $radiusDb = null;
+    private array $radiusConfig;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(DatabaseConnection $database, RadiusSettingsRepository $radiusSettings)
     {
         $this->db = $database->get();
 
-        $config = require __DIR__ . '/../../../../config/database.php';
-        $radius = $config['radius_db'];
+        $this->radiusConfig = $radiusSettings->getConnectionConfig();
+    }
 
-        $this->radiusDb = new PDO(
+    private function radiusDb(): PDO
+    {
+        if ($this->radiusDb instanceof PDO) return $this->radiusDb;
+        $radius = $this->radiusConfig;
+        return $this->radiusDb = new PDO(
             "mysql:host={$radius['host']};dbname={$radius['name']};charset=utf8mb4",
             $radius['user'],
             $radius['pass'],
@@ -225,14 +231,14 @@ class SubscriberPlansRepository
         $speedKbps = $speedMbps * 1024;
         $value = $speedKbps . '/' . $speedKbps;
 
-        $delete = $this->radiusDb->prepare("
+        $delete = $this->radiusDb()->prepare("
             DELETE FROM radgroupreply
             WHERE groupname = ?
               AND attribute = 'Filter-Id'
         ");
         $delete->execute([$planName]);
 
-        $insert = $this->radiusDb->prepare("
+        $insert = $this->radiusDb()->prepare("
             INSERT INTO radgroupreply (groupname, attribute, op, value)
             VALUES (?, 'Filter-Id', ':=', ?)
         ");
@@ -242,7 +248,7 @@ class SubscriberPlansRepository
 
     public function deleteRadiusProfile(string $planName): bool
     {
-        $stmt = $this->radiusDb->prepare("
+        $stmt = $this->radiusDb()->prepare("
             DELETE FROM radgroupreply
             WHERE groupname = ?
         ");

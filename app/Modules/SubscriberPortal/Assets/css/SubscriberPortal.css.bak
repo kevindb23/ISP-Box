@@ -1,0 +1,689 @@
+/* =========================================================
+   Subscriber Portal
+   ========================================================= */
+
+.subscriber-portal-page {
+    --sp-ink: #0f172a;
+    --sp-muted: #64748b;
+    --sp-line: #e5e7eb;
+    --sp-soft: #f8fafc;
+    --sp-blue: #2563eb;
+    --sp-green: #16a34a;
+    --sp-red: #dc2626;
+    --sp-amber: #f59e0b;
+}
+
+.subscriber-portal-page .card {
+    border-radius:3px;
+}
+
+.subscriber-portal-page .card-header {
+    padding: 16px 18px;
+}
+
+.subscriber-portal-page .table td,
+.subscriber-portal-page .table th {
+    vertical-align: middle;
+}
+
+.subscriber-portal-page .table thead th {
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.subscriber-portal-page .badge-status {
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    padding: 0.35rem 0.55rem;
+}
+
+/* =========================================================
+   Page Header Cards
+   ========================================================= */
+
+.sp-page-title-card {
+    border-radius:3px;
+}
+
+.sp-page-title-card .card-body {
+    padding: 18px 20px;
+}
+
+.sp-page-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+    color: #2563eb;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* =========================================================
+   Stat Cards
+   ========================================================= */
+
+.subscriber-portal-page .sp-stat-card {
+    min-height: 120px;
+    border-radius:3px;
+    overflow: hidden;
+}
+
+.subscriber-portal-page .sp-stat-card .card-body {
+    padding: 18px;
+}
+
+.subscriber-portal-page .sp-stat-card .fs-4,
+.subscriber-portal-page .sp-stat-card .fs-5 {
+    color: #0f172a;
+}
+
+/* =========================================================
+   Account Status Banner
+   ========================================================= */
+
+.sp-status-banner {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+.sp-status-banner .card-body {
+    padding: 18px 20px;
+}
+
+.sp-status-icon {
+    width: 46px;
+    height: 46px;
+    border-radius:3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex: 0 0 auto;
+}
+
+.sp-status-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.sp-status-message {
+    font-size: 0.875rem;
+    margin-top: 2px;
+}
+
+.sp-status-meta {
+    min-width: 150px;
+}
+
+.sp-status-good {
+    border-left: 1px solid var(--border, #dbe2ea) !important;
+}
+
+.sp-status-good .sp-status-icon {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.sp-status-warning {
+    border-left: 1px solid var(--border, #dbe2ea) !important;
+}
+
+.sp-status-warning .sp-status-icon {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.sp-status-danger {
+    border-left: 1px solid var(--border, #dbe2ea) !important;
+}
+
+.sp-status-danger .sp-status-icon {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* =========================================================
+   Account Page
+   ========================================================= */
+
+.subscriber-portal-page .sp-profile-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.sp-profile-list {
+    display: grid;
+    gap: 12px;
+}
+
+.sp-profile-item {
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 12px;
+    background: #ffffff;
+}
+
+.sp-quick-card {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    height: 100%;
+    text-decoration: none;
+    color: #0f172a;
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 14px;
+    background: #ffffff;
+    transition: all 0.15s ease;
+}
+
+.sp-quick-card:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+.sp-quick-icon {
+    width: 38px;
+    height: 38px;
+    border-radius:3px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-size: 1.1rem;
+}
+
+.sp-account-note {
+    border: 1px dashed #cbd5e1;
+    border-radius:3px;
+    padding: 14px;
+    background: #f8fafc;
+}
+
+.sp-latest-invoice {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 14px;
+    background: #ffffff;
+}
+
+/* =========================================================
+   Services Page
+   ========================================================= */
+
+.sp-service-card {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+.sp-service-card .card-body {
+    padding: 18px;
+}
+
+.sp-service-plan {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 14px;
+    background: #f8fafc;
+}
+
+.sp-service-icon {
+    width: 42px;
+    height: 42px;
+    border-radius:3px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    font-size: 1.15rem;
+}
+
+.sp-mini-info {
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 11px 12px;
+    background: #ffffff;
+    min-height: 66px;
+}
+
+/* =========================================================
+   Invoices / Payments Tables
+   ========================================================= */
+
+.subscriber-portal-page .sp-clickable-row {
+    cursor: pointer;
+}
+
+.subscriber-portal-page .sp-clickable-row:hover {
+    background: #f8fafc;
+}
+
+.sp-filter-bar {
+    min-width: 280px;
+}
+
+.sp-filter-bar select {
+    width: 150px;
+}
+
+.sp-filter-bar input {
+    width: 240px;
+}
+
+/* =========================================================
+   Table Pagination
+   ========================================================= */
+
+.sp-table-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    border-top: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.sp-pager-summary {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.sp-pager-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sp-pager-btn {
+    min-width: 34px;
+    height: 32px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sp-pager-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.sp-pager-ellipsis {
+    color: #64748b;
+    font-size: 0.85rem;
+    padding: 0 4px;
+}
+
+/* =========================================================
+   Invoice Details Modal
+   ========================================================= */
+
+.sp-detail-card {
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 16px;
+    background: #ffffff;
+}
+
+.sp-detail-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.sp-balance-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.sp-invoice-modal .modal-xl {
+    max-width: 1080px;
+}
+
+.sp-invoice-modal .modal-content {
+    border-radius:3px;
+    border: 0;
+}
+
+.sp-invoice-modal .modal-header,
+.sp-invoice-modal .modal-footer {
+    border-color: #e5e7eb;
+}
+
+/* =========================================================
+   Buttons / General UX
+   ========================================================= */
+
+.subscriber-portal-page .btn {
+    border-radius:3px;
+}
+
+.subscriber-portal-page .form-control,
+.subscriber-portal-page .form-select {
+    border-radius:3px;
+}
+
+.subscriber-portal-page .alert {
+    border-radius:3px;
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+
+@media (max-width: 992px) {
+    .sp-filter-bar {
+        width: 100%;
+    }
+
+    .sp-filter-bar select,
+    .sp-filter-bar input {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .subscriber-portal-page .nx-page-header {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .subscriber-portal-page .card-header {
+        align-items: flex-start !important;
+    }
+
+    .sp-status-meta {
+        text-align: left !important;
+        width: 100%;
+        padding-left: 59px;
+    }
+
+    .sp-latest-invoice {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sp-latest-invoice .text-end {
+        text-align: left !important;
+    }
+
+    .sp-filter-bar {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #spInvoiceSearch,
+    #spInvoiceStatusFilter,
+    #spPaymentSearch {
+        width: 100% !important;
+    }
+
+    .sp-table-pager {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sp-pager-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .sp-pager-summary {
+        text-align: center;
+    }
+
+    .sp-invoice-modal .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sp-invoice-modal .modal-footer .btn {
+        width: 100%;
+    }
+
+    .sp-service-plan {
+        align-items: flex-start;
+    }
+}
+/* =========================================================
+   SUBSCRIBER PORTAL DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .subscriber-portal-page {
+    --sp-ink: #f8fafc;
+    --sp-muted: #9aabc1;
+    --sp-line: #2b3d56;
+    --sp-soft: #101827;
+    --sp-blue: #60a5fa;
+    --sp-green: #4ade80;
+    --sp-red: #f87171;
+    --sp-amber: #fbbf24;
+}
+
+/* Cards / surfaces */
+html[data-theme="dark"] .subscriber-portal-page .card,
+html[data-theme="dark"] .subscriber-portal-page .sp-page-title-card,
+html[data-theme="dark"] .subscriber-portal-page .sp-status-banner,
+html[data-theme="dark"] .subscriber-portal-page .sp-stat-card,
+html[data-theme="dark"] .subscriber-portal-page .sp-service-card {
+    background: linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border-color: rgba(255,255,255,.06) !important;
+    color: var(--sp-ink) !important;
+    box-shadow: 0 12px 26px rgba(0,0,0,.28) !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .card-header,
+html[data-theme="dark"] .subscriber-portal-page .card-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+    color: var(--sp-ink) !important;
+}
+
+/* Text */
+html[data-theme="dark"] .subscriber-portal-page .sp-status-title,
+html[data-theme="dark"] .subscriber-portal-page .sp-profile-name,
+html[data-theme="dark"] .subscriber-portal-page .sp-stat-card .fs-4,
+html[data-theme="dark"] .subscriber-portal-page .sp-stat-card .fs-5,
+html[data-theme="dark"] .subscriber-portal-page h1,
+html[data-theme="dark"] .subscriber-portal-page h2,
+html[data-theme="dark"] .subscriber-portal-page h3,
+html[data-theme="dark"] .subscriber-portal-page h4,
+html[data-theme="dark"] .subscriber-portal-page h5,
+html[data-theme="dark"] .subscriber-portal-page h6 {
+    color: var(--sp-ink) !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .text-muted,
+html[data-theme="dark"] .subscriber-portal-page small,
+html[data-theme="dark"] .subscriber-portal-page .sp-status-message,
+html[data-theme="dark"] .subscriber-portal-page .sp-pager-summary,
+html[data-theme="dark"] .subscriber-portal-page .sp-detail-label {
+    color: var(--sp-muted) !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-page-kicker {
+    color: #93c5fd !important;
+}
+
+/* Inner boxes */
+html[data-theme="dark"] .subscriber-portal-page .sp-profile-item,
+html[data-theme="dark"] .subscriber-portal-page .sp-quick-card,
+html[data-theme="dark"] .subscriber-portal-page .sp-account-note,
+html[data-theme="dark"] .subscriber-portal-page .sp-latest-invoice,
+html[data-theme="dark"] .subscriber-portal-page .sp-service-plan,
+html[data-theme="dark"] .subscriber-portal-page .sp-mini-info,
+html[data-theme="dark"] .subscriber-portal-page .sp-detail-card,
+html[data-theme="dark"] .subscriber-portal-page .sp-balance-card {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: var(--sp-ink) !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-quick-card:hover,
+html[data-theme="dark"] .subscriber-portal-page .sp-clickable-row:hover {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+/* Icons */
+html[data-theme="dark"] .subscriber-portal-page .sp-quick-icon,
+html[data-theme="dark"] .subscriber-portal-page .sp-service-icon {
+    background: rgba(59,130,246,.14) !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-status-good .sp-status-icon {
+    background: rgba(34,197,94,.14) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-status-warning .sp-status-icon {
+    background: rgba(245,158,11,.16) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-status-danger .sp-status-icon {
+    background: rgba(239,68,68,.14) !important;
+    color: #f87171 !important;
+}
+
+/* Tables */
+html[data-theme="dark"] .subscriber-portal-page table,
+html[data-theme="dark"] .subscriber-portal-page .table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .table thead th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .table tbody td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255,255,255,.06) !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .table tbody tr:hover td {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+/* Pagination */
+html[data-theme="dark"] .subscriber-portal-page .sp-table-pager {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-pager-ellipsis {
+    color: var(--sp-muted) !important;
+}
+
+/* Forms / buttons */
+html[data-theme="dark"] .subscriber-portal-page .form-control,
+html[data-theme="dark"] .subscriber-portal-page .form-select {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .form-control::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .btn-light,
+html[data-theme="dark"] .subscriber-portal-page .btn-outline-secondary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .btn-light:hover,
+html[data-theme="dark"] .subscriber-portal-page .btn-outline-secondary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Modal */
+html[data-theme="dark"] .subscriber-portal-page .sp-invoice-modal .modal-content {
+    background: #182235 !important;
+    color: #f8fafc !important;
+    border: 1px solid #2b3d56 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-invoice-modal .modal-header,
+html[data-theme="dark"] .subscriber-portal-page .sp-invoice-modal .modal-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page .sp-invoice-modal .modal-body {
+    background: #0b1220 !important;
+}
+/* =========================================================
+   SUBSCRIBER PORTAL - PRINT INVOICE BUTTON DARK FIX
+========================================================= */
+
+html[data-theme="dark"] .subscriber-portal-page #spPrintInvoiceBtn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+
+    background: #2563eb !important;
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: none !important;
+    box-shadow: 0 10px 22px rgba(37, 99, 235, .25) !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page #spPrintInvoiceBtn i,
+html[data-theme="dark"] .subscriber-portal-page #spPrintInvoiceBtn span {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+html[data-theme="dark"] .subscriber-portal-page #spPrintInvoiceBtn:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    color: #ffffff !important;
+}

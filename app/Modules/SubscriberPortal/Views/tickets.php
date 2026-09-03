@@ -1,7 +1,4 @@
 <div class="container-fluid nx-page subscriber-portal-page sp-page" data-sp-page="tickets">
-
-    <link rel="stylesheet" href="/module-assets/SubscriberPortal/css/SubscriberPortal.css">
-
     <div id="subscriberPortalAlert"></div>
 
     <div class="card border-0 shadow-sm mb-3 sp-page-title-card">
@@ -248,6 +245,13 @@
                     </div>
 
                     <div class="modal-body nx-modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Affected Service</label>
+                            <select name="service_id" id="spTicketServiceId" class="form-select">
+                                <option value="">General account concern</option>
+                            </select>
+                            <div class="form-text">Select the connection affected by this concern.</div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Concern Type</label>
                             <select name="category" class="form-select" required>

@@ -147,13 +147,14 @@ def create_service_port_idempotent(conn, cmd: str, requested_service_port: int, 
 
 
 def main():
-    if len(sys.argv) != 2:
-        fail("Usage: python3 ztp_provision_ont.py '<json_payload>'")
+    raw = sys.stdin.read()
+    if not raw.strip():
+        fail("Missing JSON payload.")
 
     try:
-        data = json.loads(sys.argv[1])
-    except Exception as e:
-        fail(f"Invalid JSON payload: {e}")
+        data = json.loads(raw)
+    except Exception:
+        fail("Invalid JSON payload.")
 
     required = [
         "host", "username", "password",

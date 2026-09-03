@@ -529,8 +529,8 @@ window.NX = (() => {
         `).join('');
             return `
             <div class="card border-0 shadow-sm nx-surface-card">
-                <div class="table-responsive nx-table-wrap">
-                    <table class="table align-middle mb-0">
+                <div class="table-responsive nx-table-wrap nx-data-table-wrap">
+                    <table class="table align-middle mb-0 nx-data-table">
                         <thead class="nx-sticky-head"><tr>${head}</tr></thead>
                         <tbody>${body}</tbody>
                     </table>
@@ -971,10 +971,12 @@ window.NX = (() => {
             };
         },
         sortIndicator: (current, key) => {
-            if (!current || current.key !== key) return '<span class="sort-indicator">↕</span>';
+            if (!current || current.key !== key) {
+                return '<span class="sort-indicator sort-indicator--unsorted" aria-hidden="true">↕</span>';
+            }
             return current.dir === 'asc'
-                ? '<span class="sort-indicator">↑</span>'
-                : '<span class="sort-indicator">↓</span>';
+                ? '<span class="sort-indicator sort-indicator--ascending" aria-hidden="true">↑</span>'
+                : '<span class="sort-indicator sort-indicator--descending" aria-hidden="true">↓</span>';
         },
         process: ({
                       rows = [],
@@ -1021,21 +1023,26 @@ window.NX = (() => {
                 });
 
                 const pagerHtml = paginate ? `
-                <div class="card-body pt-3">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <small class="text-muted">
-                            Page ${processed.currentPage} of ${processed.totalPages} (${processed.totalRows} record${processed.totalRows !== 1 ? 's' : ''})
-                        </small>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <label class="small text-muted mb-0" for="">Rows per page</label>
-                            <select class="form-select form-select-sm nx-dt-rows" style="width:auto;">
-                                <option value="10" ${processed.rowsPerPage === 10 ? 'selected' : ''}>10</option>
-                                <option value="20" ${processed.rowsPerPage === 20 ? 'selected' : ''}>20</option>
-                                <option value="50" ${processed.rowsPerPage === 50 ? 'selected' : ''}>50</option>
-                                <option value="100" ${processed.rowsPerPage === 100 ? 'selected' : ''}>100</option>
-                            </select>
-                            <button class="btn btn-sm btn-light border nx-dt-prev" type="button" ${processed.currentPage <= 1 ? 'disabled' : ''}>Prev</button>
-                            <button class="btn btn-sm btn-light border nx-dt-next" type="button" ${processed.currentPage >= processed.totalPages ? 'disabled' : ''}>Next</button>
+                <div class="nx-table-footer-shell">
+                    <div class="nx-table-footer">
+                        <div class="nx-table-footer__summary">
+                            <span class="nx-table-footer__page">Page ${processed.currentPage} of ${processed.totalPages}</span>
+                            <span class="nx-table-footer__records">${processed.totalRows} record${processed.totalRows !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="nx-table-footer__controls">
+                            <div class="nx-table-footer__per-page">
+                                <label class="nx-table-footer__label mb-0" for="">Rows per page</label>
+                                <select class="form-select form-select-sm nx-dt-rows nx-table-footer__select">
+                                    <option value="10" ${processed.rowsPerPage === 10 ? 'selected' : ''}>10</option>
+                                    <option value="20" ${processed.rowsPerPage === 20 ? 'selected' : ''}>20</option>
+                                    <option value="50" ${processed.rowsPerPage === 50 ? 'selected' : ''}>50</option>
+                                    <option value="100" ${processed.rowsPerPage === 100 ? 'selected' : ''}>100</option>
+                                </select>
+                            </div>
+                            <div class="nx-table-footer__actions">
+                                <button class="btn btn-sm nx-table-footer__btn nx-dt-prev" type="button" ${processed.currentPage <= 1 ? 'disabled' : ''}>Prev</button>
+                                <button class="btn btn-sm nx-table-footer__btn nx-dt-next" type="button" ${processed.currentPage >= processed.totalPages ? 'disabled' : ''}>Next</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1868,6 +1875,712 @@ window.NX = (() => {
         };
     };
     /* =========================================================
+ * SIDEBAR COLLAPSE
+ * ========================================================= */
+    const sidebar = (() => {
+        const storageKey = 'nexusbox.sidebar.collapsed';
+        const mobileMedia = window.matchMedia('(max-width: 767.98px)');
+        let tooltipEl = null;
+
+        const isMobile = () => mobileMedia.matches;
+
+        const updateControl = ({ collapsed = false, mobileOpen = false } = {}) => {
+            const btn = document.getElementById('sidebarToggleBtn');
+            const icon = btn?.querySelector('i');
+
+            if (btn) {
+                btn.setAttribute('aria-expanded', isMobile() ? String(mobileOpen) : String(!collapsed));
+                btn.setAttribute(
+                    'title',
+                    isMobile()
+                        ? (mobileOpen ? 'Close navigation' : 'Open navigation')
+                        : (collapsed ? 'Expand sidebar' : 'Collapse sidebar')
+                );
+            }
+
+            if (icon) {
+                icon.classList.toggle('bi-x-lg', isMobile() && mobileOpen);
+                icon.classList.toggle('bi-list', isMobile() ? !mobileOpen : !collapsed);
+                icon.classList.toggle('bi-layout-sidebar-inset', !isMobile() && collapsed);
+            }
+        };
+
+        const apply = (collapsed, initial = false) => {
+            // The preload class prevents a first-paint animation. It must not
+            // be reintroduced during a user toggle, otherwise collapsing the
+            // sidebar skips the transition entirely.
+            if (initial) {
+                document.documentElement.classList.toggle('sidebar-collapsed-preload', Boolean(collapsed));
+            } else {
+                document.documentElement.classList.remove('sidebar-collapsed-preload');
+            }
+            document.body.classList.toggle('sidebar-collapsed', Boolean(collapsed));
+            updateControl({ collapsed: Boolean(collapsed) });
+        };
+
+        const setMobileOpen = (open) => {
+            const next = Boolean(open) && isMobile();
+            const scrim = document.getElementById('sidebarScrim');
+            const primarySidebar = document.getElementById('primarySidebar');
+
+            if (isMobile()) {
+                document.documentElement.classList.remove('sidebar-collapsed-preload');
+                document.body.classList.remove('sidebar-collapsed');
+            }
+
+            document.body.classList.toggle('sidebar-mobile-open', next);
+            scrim?.setAttribute('aria-hidden', String(!next));
+            primarySidebar?.setAttribute('aria-hidden', String(isMobile() && !next));
+            primarySidebar?.toggleAttribute('inert', isMobile() && !next);
+            updateControl({
+                collapsed: document.body.classList.contains('sidebar-collapsed'),
+                mobileOpen: next
+            });
+        };
+
+        const ensureTooltip = () => {
+            tooltipEl = document.getElementById('nxSidebarTooltip');
+
+            if (!tooltipEl) {
+                tooltipEl = document.createElement('div');
+                tooltipEl.id = 'nxSidebarTooltip';
+                document.body.appendChild(tooltipEl);
+            }
+
+            return tooltipEl;
+        };
+
+        const hideTooltip = () => {
+            const tooltip = ensureTooltip();
+            tooltip.classList.remove('show');
+        };
+
+        const showTooltip = (link) => {
+            if (isMobile()) return;
+            if (!document.body.classList.contains('sidebar-collapsed')) return;
+
+            const label =
+                link.dataset.label ||
+                link.querySelector('span')?.textContent?.trim() ||
+                link.getAttribute('title') ||
+                '';
+
+            if (!label) return;
+
+            const tooltip = ensureTooltip();
+            const rect = link.getBoundingClientRect();
+
+            tooltip.textContent = label;
+            tooltip.style.left = `${rect.right + 10}px`;
+            tooltip.style.top = `${rect.top + rect.height / 2}px`;
+            tooltip.classList.add('show');
+        };
+
+        const initLabels = () => {
+            document.querySelectorAll('.sidebar .menu-item > a').forEach((link) => {
+                if (link.dataset.label) return;
+
+                const label =
+                    link.querySelector('span')?.textContent?.trim() ||
+                    link.getAttribute('title') ||
+                    '';
+
+                if (label) {
+                    link.dataset.label = label;
+                    link.setAttribute('aria-label', label);
+                }
+            });
+        };
+
+        const sectionStorageKey = 'nexusbox.sidebar.sections';
+
+        const setSectionExpanded = (sectionId, expanded) => {
+            const toggle = document.querySelector(`[data-sidebar-section="${sectionId}"]`);
+            if (!toggle) return;
+
+            toggle.setAttribute('aria-expanded', String(Boolean(expanded)));
+            toggle.closest('.menu-section')?.classList.toggle('is-collapsed', !expanded);
+            toggle.querySelector('i')?.classList.toggle('bi-chevron-right', !expanded);
+            toggle.querySelector('i')?.classList.toggle('bi-chevron-down', Boolean(expanded));
+
+            document.querySelectorAll(`[data-sidebar-section-item="${sectionId}"]`).forEach((item) => {
+                item.hidden = false;
+                item.classList.toggle('is-collapsed-item', !expanded);
+            });
+        };
+
+        const initSections = () => {
+            const savedSections = storage.get(sectionStorageKey, {});
+            const toggles = Array.from(document.querySelectorAll('.sidebar .menu-section-toggle'));
+            const activeToggle = toggles.find((toggle) => {
+                const sectionId = toggle.dataset.sidebarSection;
+                return sectionId && document.querySelector(`[data-sidebar-section-item="${sectionId}"].active`);
+            });
+            const operationsId = 'sidebar-group-operations';
+            const networkId = 'sidebar-group-network';
+            const hasStoredNetworkState = Object.prototype.hasOwnProperty.call(savedSections, networkId);
+            const usesDefaultSectionState = !Object.keys(savedSections).length || !hasStoredNetworkState;
+            const savedOpenIds = toggles
+                .filter((toggle) => savedSections[toggle.dataset.sidebarSection] === true)
+                .map((toggle) => toggle.dataset.sidebarSection);
+            const defaultOpenIds = [operationsId, networkId]
+                .filter((sectionId) => toggles.some((toggle) => toggle.dataset.sidebarSection === sectionId));
+            const openSectionIds = new Set([
+                ...(usesDefaultSectionState ? defaultOpenIds : savedOpenIds),
+                ...(usesDefaultSectionState ? [] : [activeToggle?.dataset.sidebarSection]),
+            ].filter(Boolean).slice(0, 2));
+
+            if (!openSectionIds.size && toggles[0]?.dataset.sidebarSection) {
+                openSectionIds.add(toggles[0].dataset.sidebarSection);
+            }
+
+            toggles.forEach((toggle) => {
+                const sectionId = toggle.dataset.sidebarSection;
+                if (!sectionId) return;
+
+                setSectionExpanded(sectionId, openSectionIds.has(sectionId));
+
+                if (toggle.dataset.nxSectionBound === '1') return;
+                toggle.dataset.nxSectionBound = '1';
+                toggle.addEventListener('click', () => {
+                    const next = toggle.getAttribute('aria-expanded') !== 'true';
+                    if (next) {
+                        openSectionIds.add(sectionId);
+                        while (openSectionIds.size > 2) {
+                            openSectionIds.delete(openSectionIds.values().next().value);
+                        }
+                    } else {
+                        openSectionIds.delete(sectionId);
+                    }
+
+                    const nextState = {};
+                    toggles.forEach((candidate) => {
+                        const candidateId = candidate.dataset.sidebarSection;
+                        if (!candidateId) return;
+                        const isOpen = openSectionIds.has(candidateId);
+                        setSectionExpanded(candidateId, isOpen);
+                        nextState[candidateId] = isOpen;
+                    });
+                    storage.set(sectionStorageKey, nextState);
+                });
+            });
+        };
+
+        const bindTooltipEvents = () => {
+            if (document.body.dataset.nxSidebarTooltipBound === '1') return;
+            document.body.dataset.nxSidebarTooltipBound = '1';
+
+            document.addEventListener('mouseover', (e) => {
+                const link = e.target.closest('.sidebar .menu-item > a');
+                if (!link) return;
+                showTooltip(link);
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                const link = e.target.closest('.sidebar .menu-item > a');
+                if (!link) return;
+                showTooltip(link);
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                const link = e.target.closest('.sidebar .menu-item > a');
+                if (!link) return;
+                hideTooltip();
+            });
+        };
+
+        const init = () => {
+            initLabels();
+            initSections();
+            bindTooltipEvents();
+
+            document.querySelectorAll('form[action="/logout"]').forEach((form) => {
+                if (form.dataset.nxStorageClearBound === '1') return;
+                form.dataset.nxStorageClearBound = '1';
+                form.addEventListener('submit', () => {
+                    try {
+                        localStorage.clear();
+                    } catch {
+                        // Storage may be unavailable in restricted browser modes.
+                    }
+                });
+            });
+
+            const saved = storage.get(storageKey, false);
+            apply(Boolean(saved), true);
+            setMobileOpen(false);
+
+            const btn = document.getElementById('sidebarToggleBtn');
+            const scrim = document.getElementById('sidebarScrim');
+
+            if (!btn) return;
+
+            if (btn.dataset.nxSidebarBound === '1') return;
+
+            btn.dataset.nxSidebarBound = '1';
+
+            btn.addEventListener('click', () => {
+                if (isMobile()) {
+                    setMobileOpen(!document.body.classList.contains('sidebar-mobile-open'));
+                    hideTooltip();
+                    return;
+                }
+
+                const next = !document.body.classList.contains('sidebar-collapsed');
+
+                storage.set(storageKey, next);
+                apply(next);
+                hideTooltip();
+            });
+
+            scrim?.addEventListener('click', () => setMobileOpen(false));
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && document.body.classList.contains('sidebar-mobile-open')) {
+                    setMobileOpen(false);
+                    btn.focus();
+                }
+            });
+
+            document.querySelector('.sidebar')?.addEventListener('click', (event) => {
+                if (isMobile() && event.target.closest('a[href]')) {
+                    setMobileOpen(false);
+                }
+            });
+
+            mobileMedia.addEventListener?.('change', () => {
+                setMobileOpen(false);
+                apply(Boolean(storage.get(storageKey, false)));
+                if (isMobile()) setMobileOpen(false);
+            });
+        };
+
+        return {
+            init,
+            apply,
+            closeMobile: () => setMobileOpen(false),
+            isCollapsed: () => document.body.classList.contains('sidebar-collapsed')
+        };
+    })();
+
+    /* =========================================================
+* AJAX MODULE NAVIGATION
+* ========================================================= */
+    const navigation = (() => {
+        let busy = false;
+        let currentController = null;
+
+        const cache = new Map();
+        const scrollPositions = new Map();
+
+        const cacheMax = 20;
+
+        const getKey = (url) => {
+            const u = new URL(url, window.location.origin);
+            return u.pathname + u.search;
+        };
+
+        const clearCache = () => {
+            cache.clear();
+        };
+
+        const invalidate = (url) => {
+            cache.delete(getKey(url));
+        };
+
+        const cancelCurrentRequest = () => {
+            if (currentController) {
+                currentController.abort();
+                currentController = null;
+            }
+        };
+
+        const isAjaxableLink = (a) => {
+            if (!a || a.target || a.hasAttribute('download')) return false;
+
+            const href = a.getAttribute('href') || '';
+            if (!href || href.startsWith('#')) return false;
+            if (href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+
+            const url = new URL(a.href, window.location.origin);
+
+            if (url.origin !== window.location.origin) return false;
+            if (url.pathname === '/logout') return false;
+            if (url.pathname.startsWith('/api/')) return false;
+            if (url.pathname.startsWith('/module-assets/')) return false;
+
+            return true;
+        };
+
+        const startLoading = () => {
+            const bar = document.getElementById('nxTopLoader');
+
+            document.body.classList.add('nx-page-transitioning');
+
+            if (!bar) return;
+
+            bar.style.display = 'block';
+            bar.style.opacity = '1';
+            bar.style.width = '0';
+            bar.style.height = '4px';
+            bar.style.background = '#2563eb';
+            bar.style.position = 'fixed';
+            bar.style.top = '0';
+            bar.style.left = '0';
+            bar.style.zIndex = '2147483647';
+            bar.style.transition = 'none';
+
+            requestAnimationFrame(() => {
+                bar.style.transition = 'width 350ms ease, opacity 200ms ease';
+                bar.style.width = '70%';
+            });
+        };
+
+        const finishLoading = () => {
+            const bar = document.getElementById('nxTopLoader');
+
+            if (bar) {
+                bar.style.width = '100%';
+                bar.style.opacity = '1';
+
+                setTimeout(() => {
+                    bar.style.opacity = '0';
+
+                    setTimeout(() => {
+                        bar.style.width = '0';
+                        bar.style.display = 'none';
+                    }, 250);
+                }, 350);
+            }
+
+            setTimeout(() => {
+                document.body.classList.remove('nx-page-transitioning');
+            }, 350);
+        };
+
+        const setActiveSidebar = (path) => {
+            document.querySelectorAll('.sidebar a[href]').forEach((link) => {
+                const item = link.closest('.menu-item, li, .nav-item');
+                if (!item) return;
+
+                const linkPath = new URL(link.href, window.location.origin).pathname;
+
+                const active =
+                    path === linkPath ||
+                    (linkPath !== '/' && path.startsWith(linkPath + '/'));
+
+                item.classList.toggle('active', active);
+            });
+        };
+
+        const executeScripts = async (container) => {
+            const scripts = [...container.querySelectorAll('script')];
+
+            for (const oldScript of scripts) {
+                const newScript = document.createElement('script');
+
+                [...oldScript.attributes].forEach((attr) => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+
+                oldScript.replaceWith(newScript);
+
+                if (newScript.src) {
+                    await new Promise((resolve) => {
+                        newScript.onload = resolve;
+                        newScript.onerror = resolve;
+                    });
+                }
+            }
+        };
+
+        const rememberScroll = () => {
+            scrollPositions.set(getKey(window.location.href), window.scrollY || 0);
+        };
+
+        const restoreScroll = (url, push) => {
+            const key = getKey(url);
+
+            if (!push && scrollPositions.has(key)) {
+                window.scrollTo(0, scrollPositions.get(key));
+                return;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        };
+
+        const saveCache = (key, data) => {
+            if (cache.has(key)) cache.delete(key);
+
+            cache.set(key, data);
+
+            while (cache.size > cacheMax) {
+                const oldestKey = cache.keys().next().value;
+                cache.delete(oldestKey);
+            }
+        };
+
+        const fetchPage = async (url, useCache = true) => {
+            const key = getKey(url);
+
+            if (useCache && cache.has(key)) {
+                return cache.get(key);
+            }
+
+            cancelCurrentRequest();
+
+            currentController = new AbortController();
+
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                    signal: currentController.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-NexusBox-Ajax': '1'
+                    }
+                });
+
+                const json = await res.json();
+
+                if (!res.ok || !json.success) {
+                    throw new Error(json.message || 'Page failed to load.');
+                }
+
+                saveCache(key, json);
+
+                return json;
+            } finally {
+                currentController = null;
+            }
+        };
+
+        const load = async (url, push = true, options = {}) => {
+            const target = document.querySelector('[data-nx-main-content]');
+
+            if (!target) {
+                window.location.href = url;
+                return;
+            }
+
+            if (busy) {
+                cancelCurrentRequest();
+            }
+
+            busy = true;
+            rememberScroll();
+            startLoading();
+
+            try {
+                await module.destroyAll?.();
+                await lifecycle.run?.('page:before-load', { url });
+
+                const startedAt = Date.now();
+
+                const json = await fetchPage(url, options.cache !== false);
+
+                const elapsed = Date.now() - startedAt;
+                const minimumVisibleMs = 450;
+
+                if (elapsed < minimumVisibleMs) {
+                    await new Promise(resolve =>
+                        setTimeout(resolve, minimumVisibleMs - elapsed)
+                    );
+                }
+
+                target.innerHTML = json.content || '';
+
+                // The shell stays mounted during AJAX navigation, so refresh
+                // the shared breadcrumb from the server-resolved route.
+                if (json.breadcrumb) {
+                    const breadcrumb = document.querySelector('.workspace-breadcrumb');
+                    const group = breadcrumb?.querySelector('.workspace-breadcrumb-group');
+                    const current = breadcrumb?.querySelector('.workspace-breadcrumb-current');
+                    if (group && json.breadcrumb.group) group.textContent = json.breadcrumb.group;
+                    if (current && json.breadcrumb.current) current.textContent = json.breadcrumb.current;
+                }
+
+                if (json.title) {
+                    document.title = json.title;
+                }
+
+                if (push) {
+                    history.pushState({ nxAjax: true, url }, '', url);
+                }
+
+                const path = new URL(url, window.location.origin).pathname;
+
+                setActiveSidebar(path);
+
+                await executeScripts(target);
+
+                document.dispatchEvent(new CustomEvent('nx:page-load', {
+                    detail: { url, content: target }
+                }));
+
+                document.dispatchEvent(new Event('DOMContentLoaded'));
+
+                await lifecycle.run?.('page:after-load', {
+                    url,
+                    content: target
+                });
+
+                restoreScroll(url, push);
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    return;
+                }
+
+                console.error('[NX navigation]', err);
+                window.location.href = url;
+            } finally {
+                busy = false;
+                finishLoading();
+            }
+        };
+
+        const prefetch = async (url) => {
+            const key = getKey(url);
+
+            if (cache.has(key)) return;
+            if (currentController) return;
+
+            try {
+                await fetchPage(url, true);
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.warn('[NX prefetch skipped]', err);
+                }
+            }
+        };
+
+        const init = () => {
+            if (document.body.dataset.nxAjaxNavigationBound === '1') return;
+
+            document.body.dataset.nxAjaxNavigationBound = '1';
+
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('a[href]');
+                if (!isAjaxableLink(a)) return;
+
+                e.preventDefault();
+
+                load(a.href, true);
+            });
+
+            document.addEventListener('mouseover', (e) => {
+                const a = e.target.closest('a[href]');
+                if (!isAjaxableLink(a)) return;
+
+                prefetch(a.href);
+            });
+
+            window.addEventListener('popstate', () => {
+                load(window.location.href, false);
+            });
+
+            history.replaceState(
+                { nxAjax: true, url: window.location.href },
+                '',
+                window.location.href
+            );
+        };
+
+        return {
+            init,
+            load,
+            prefetch,
+            clearCache,
+            invalidate,
+            cancelCurrentRequest
+        };
+    })();
+    const theme = (() => {
+        const storageKey = 'nexusbox.theme';
+
+        const normalize = (value) => {
+            return value === 'dark' ? 'dark' : 'light';
+        };
+
+        const current = () => {
+            return normalize(document.documentElement.getAttribute('data-theme') || storage.get(storageKey, 'light'));
+        };
+
+        const apply = (value, animate = true) => {
+            const mode = normalize(value);
+
+            const root = document.documentElement;
+            if (animate) {
+                // Keep the class on the document for the full interpolation
+                // window so interactive theme changes remain smooth.
+                root.classList.add('nx-theme-transition');
+                window.clearTimeout(root.__nxThemeTransitionTimer);
+                root.__nxThemeTransitionTimer = window.setTimeout(() => {
+                    root.classList.remove('nx-theme-transition');
+                }, 1200);
+            } else {
+                // Initial page hydration must be instantaneous; otherwise
+                // borders are painted after the rest of the page on reload.
+                root.classList.remove('nx-theme-transition');
+                window.clearTimeout(root.__nxThemeTransitionTimer);
+            }
+            root.setAttribute('data-theme', mode);
+            storage.set(storageKey, mode);
+
+            const btn = document.getElementById('themeToggleBtn');
+            const icon = btn?.querySelector('i');
+
+            if (btn) {
+                btn.setAttribute('aria-label', mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+                btn.setAttribute('title', mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            }
+
+            if (icon) {
+                icon.classList.toggle('bi-sun', mode === 'dark');
+                icon.classList.toggle('bi-moon-stars', mode !== 'dark');
+            }
+
+            document.dispatchEvent(new CustomEvent('nx:theme-change', {
+                detail: { theme: mode }
+            }));
+
+            return mode;
+        };
+
+        const toggle = () => {
+            return apply(current() === 'dark' ? 'light' : 'dark');
+        };
+
+        const init = () => {
+            apply(storage.get(storageKey, current()), false);
+
+            const btn = document.getElementById('themeToggleBtn');
+
+            if (!btn) return;
+
+            if (btn.dataset.nxThemeBound === '1') return;
+
+            btn.dataset.nxThemeBound = '1';
+
+            btn.addEventListener('click', toggle);
+        };
+
+        return {
+            init,
+            apply,
+            set: apply,
+            toggle,
+            current
+        };
+    })();
+    /* =========================================================
      * PUBLIC API
      * ========================================================= */
     const publicAPI = {
@@ -1906,12 +2619,242 @@ window.NX = (() => {
         layout,
         dialog,
         sync,
+        sidebar,
         dev,
         middleware,
         lifecycle,
         plugin,
+        navigation,
+        theme,
         module
     };
+    document.addEventListener('DOMContentLoaded', () => {
+        sidebar.init();
+        navigation.init();
+        theme.init();
+
+        const searchInput = document.getElementById('globalSearchInput');
+        const suggestions = document.getElementById('globalSearchSuggestions');
+        if (searchInput && suggestions) {
+            let activeIndex = -1;
+            let renderedMatches = [];
+            const normalize = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+            const menuItems = Array.from(document.querySelectorAll('#primarySidebar .sidebar-menu a[href]'))
+                .map((link) => {
+                    let section = '';
+                    let sibling = link.closest('li')?.previousElementSibling;
+                    while (sibling) {
+                        if (sibling.classList.contains('menu-section')) {
+                            section = sibling.textContent.trim();
+                            break;
+                        }
+                        sibling = sibling.previousElementSibling;
+                    }
+                    const label = link.querySelector('span')?.textContent.trim() || link.textContent.trim();
+                    const path = new URL(link.href, window.location.origin).pathname;
+                    return {
+                        label,
+                        section,
+                        href: link.href,
+                        path,
+                        icon: link.querySelector('i')?.className || 'bi bi-arrow-right',
+                        searchText: normalize(`${label} ${section} ${path.replaceAll('/', ' ')}`)
+                    };
+                })
+                .filter((item, index, items) => item.label && items.findIndex((candidate) => candidate.href === item.href) === index);
+            let searchRequestId = 0;
+            const recordCache = new Map();
+
+            const recordMatches = async (query) => {
+                if (query.length < 2) return [];
+                if (recordCache.has(query)) return recordCache.get(query);
+
+                const encode = encodeURIComponent(query);
+                const requests = [
+                    api.get(`/api/v1/subscribers?search=${encode}`).then((rows) => (Array.isArray(rows) ? rows : []).slice(0, 6).map((row) => ({
+                        label: row.full_name || `Subscriber ${row.account_number || row.id}`,
+                        detail: ['Subscribers', row.account_number, row.ppp_username, row.email].filter(Boolean).join(' · '),
+                        section: 'Subscribers',
+                        href: '/subscribers',
+                        icon: 'bi bi-people'
+                    }))),
+                    api.get('/api/v1/subscriber-plans').then((rows) => (Array.isArray(rows) ? rows : []).filter((row) => normalize(Object.values(row).join(' ')).includes(query)).slice(0, 4).map((row) => ({
+                        label: row.plan_name || `Plan ${row.id}`,
+                        detail: ['Plans', row.plan_type, row.speed_mbps ? `${row.speed_mbps} Mbps` : ''].filter(Boolean).join(' · '),
+                        section: 'Plans',
+                        href: '/subscriber-plans',
+                        icon: 'bi bi-tags'
+                    }))),
+                    api.get('/api/v1/users').then((rows) => (Array.isArray(rows) ? rows : []).filter((row) => normalize(Object.values(row).join(' ')).includes(query)).slice(0, 4).map((row) => ({
+                        label: row.name || row.username || `User ${row.id}`,
+                        detail: ['Users', row.email, row.role].filter(Boolean).join(' · '),
+                        section: 'Users',
+                        href: '/users',
+                        icon: 'bi bi-person'
+                    }))),
+                    api.get('/api/v1/olt-management/devices').then((rows) => (Array.isArray(rows) ? rows : []).filter((row) => normalize(Object.values(row).join(' ')).includes(query)).slice(0, 4).map((row) => ({
+                        label: row.name || row.device_name || `OLT ${row.id}`,
+                        detail: ['OLT Management', row.ip_address, row.vendor].filter(Boolean).join(' · '),
+                        section: 'OLT Management',
+                        href: '/olt-management',
+                        icon: 'bi bi-hdd-network'
+                    })))
+                ];
+
+                const results = (await Promise.allSettled(requests))
+                    .filter((result) => result.status === 'fulfilled')
+                    .flatMap((result) => result.value);
+                recordCache.set(query, results);
+                return results;
+            };
+
+            const closeSuggestions = () => {
+                activeIndex = -1;
+                renderedMatches = [];
+                suggestions.hidden = true;
+                suggestions.replaceChildren();
+                searchInput.setAttribute('aria-expanded', 'false');
+                searchInput.removeAttribute('aria-activedescendant');
+            };
+
+            const setActive = (nextIndex) => {
+                const options = Array.from(suggestions.querySelectorAll('[role="option"]'));
+                if (!options.length) return;
+                activeIndex = (nextIndex + options.length) % options.length;
+                options.forEach((option, index) => {
+                    const selected = index === activeIndex;
+                    option.classList.toggle('is-active', selected);
+                    option.setAttribute('aria-selected', selected ? 'true' : 'false');
+                });
+                const active = options[activeIndex];
+                searchInput.setAttribute('aria-activedescendant', active.id);
+                active.scrollIntoView({ block: 'nearest' });
+            };
+
+            const addTextElement = (parent, tag, className, text) => {
+                const node = document.createElement(tag);
+                if (className) node.className = className;
+                node.textContent = text;
+                parent.appendChild(node);
+                return node;
+            };
+
+            const renderSuggestions = async () => {
+                const query = normalize(searchInput.value);
+                if (!query) { closeSuggestions(); return; }
+                const requestId = ++searchRequestId;
+                const terms = query.split(' ');
+                const navigationMatches = menuItems
+                    .filter((item) => terms.every((term) => item.searchText.includes(term)))
+                    .sort((left, right) => {
+                        const leftLabel = normalize(left.label);
+                        const rightLabel = normalize(right.label);
+                        const leftScore = leftLabel === query ? 0 : leftLabel.startsWith(query) ? 1 : 2;
+                        const rightScore = rightLabel === query ? 0 : rightLabel.startsWith(query) ? 1 : 2;
+                        return leftScore - rightScore || left.label.localeCompare(right.label);
+                    })
+                    .slice(0, 8)
+                    .map((item) => ({ ...item, type: 'navigation' }));
+                const records = await recordMatches(query);
+                if (requestId !== searchRequestId || normalize(searchInput.value) !== query) return;
+                renderedMatches = [...navigationMatches, ...records.map((item) => ({ ...item, type: 'record' }))].slice(0, 12);
+
+                suggestions.replaceChildren();
+                if (renderedMatches.length) {
+                    const heading = document.createElement('div');
+                    heading.className = 'nx-search-section';
+                    addTextElement(heading, 'span', '', records.length ? 'Matches' : 'Navigation');
+                    addTextElement(heading, 'span', '', `${renderedMatches.length} result${renderedMatches.length === 1 ? '' : 's'}`);
+                    suggestions.appendChild(heading);
+
+                    renderedMatches.forEach((item, index) => {
+                        const option = document.createElement('button');
+                        option.type = 'button';
+                        option.id = `globalSearchOption-${index}`;
+                        option.className = 'nx-search-suggestion';
+                        option.dataset.index = String(index);
+                        option.setAttribute('role', 'option');
+                        option.setAttribute('aria-selected', 'false');
+                        const icon = document.createElement('i');
+                        icon.className = item.icon;
+                        icon.setAttribute('aria-hidden', 'true');
+                        option.appendChild(icon);
+                        const copy = document.createElement('span');
+                        addTextElement(copy, 'span', 'nx-search-suggestion-label', item.label);
+                        if (item.detail) addTextElement(copy, 'small', 'nx-search-suggestion-section', item.detail);
+                        else if (item.section) addTextElement(copy, 'small', 'nx-search-suggestion-section', item.section);
+                        option.appendChild(copy);
+                        const enter = document.createElement('i');
+                        enter.className = 'bi bi-arrow-return-left nx-search-enter';
+                        enter.setAttribute('aria-hidden', 'true');
+                        option.appendChild(enter);
+                        suggestions.appendChild(option);
+                    });
+                } else {
+                    const empty = document.createElement('div');
+                    empty.className = 'nx-search-empty';
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-search';
+                    icon.setAttribute('aria-hidden', 'true');
+                    empty.appendChild(icon);
+                    addTextElement(empty, 'span', '', 'No matching record or module found');
+                    suggestions.appendChild(empty);
+                }
+                const footer = document.createElement('div');
+                footer.className = 'nx-search-footer';
+                addTextElement(footer, 'span', '', '↑ ↓ Navigate · Enter Open');
+                addTextElement(footer, 'span', '', 'Esc Close');
+                suggestions.appendChild(footer);
+                suggestions.hidden = false;
+                searchInput.setAttribute('aria-expanded', 'true');
+                activeIndex = -1;
+            };
+
+            searchInput.addEventListener('input', renderSuggestions);
+            searchInput.addEventListener('focus', renderSuggestions);
+            suggestions.addEventListener('click', (event) => {
+                const option = event.target.closest('[data-index]');
+                if (!option) return;
+                const item = renderedMatches[Number(option.dataset.index)];
+                if (!item) return;
+                closeSuggestions();
+                searchInput.value = '';
+                navigation.load(item.href, true);
+            });
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeSuggestions();
+                    searchInput.blur();
+                    return;
+                }
+                if (suggestions.hidden || !renderedMatches.length) return;
+                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    setActive(activeIndex + (event.key === 'ArrowDown' ? 1 : -1));
+                    return;
+                }
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const item = renderedMatches[activeIndex < 0 ? 0 : activeIndex];
+                    if (item) {
+                        closeSuggestions();
+                        searchInput.value = '';
+                        navigation.load(item.href, true);
+                    }
+                }
+            });
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.nx-header-search')) closeSuggestions();
+            });
+            document.addEventListener('keydown', (event) => {
+                if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+                    event.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
+        }
+    });
     maps.fixLeafletDefaultIcons();
     return publicAPI;
 })();

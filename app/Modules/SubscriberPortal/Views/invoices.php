@@ -1,7 +1,4 @@
 <div class="container-fluid nx-page subscriber-portal-page sp-page" data-sp-page="invoices">
-
-    <link rel="stylesheet" href="/module-assets/SubscriberPortal/css/SubscriberPortal.css">
-
     <div id="subscriberPortalAlert"></div>
 
     <div class="card border-0 shadow-sm mb-3 sp-page-title-card">
@@ -241,9 +238,28 @@
                         <i class="bi bi-credit-card"></i>
                         <span>Pay Now</span>
                     </button>
+                    <button type="button" class="btn btn-outline-primary d-none" id="spManualPayBtn" disabled data-bs-toggle="modal" data-bs-target="#spManualPaymentModal">
+                        <i class="bi bi-upload"></i><span>Submit Manual Payment</span>
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="modal fade nx-modal" id="spManualPaymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content nx-modal-content">
+            <form id="spManualPaymentForm" enctype="multipart/form-data">
+                <div class="modal-header nx-modal-header"><h5 class="modal-title">Submit Payment Proof</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body nx-modal-body">
+                    <input type="hidden" name="invoice_id" id="spManualPaymentInvoiceId">
+                    <div class="mb-3"><label class="form-label">Payment Method</label><select class="form-select" name="method" required><option value="CASH">Cash</option><option value="BANK_TRANSFER">Bank Transfer</option><option value="GCASH">GCash</option><option value="MAYA">Maya</option></select></div>
+                    <div class="mb-3"><label class="form-label">Amount</label><input type="number" min="0.01" step="0.01" class="form-control" name="amount" id="spManualPaymentAmount" required></div>
+                    <div class="mb-3"><label class="form-label">Reference Number</label><input type="text" class="form-control" name="reference_no" maxlength="255"></div>
+                    <div><label class="form-label">Payment Screenshot</label><input type="file" class="form-control" name="payment_proof" accept="image/jpeg,image/png,image/webp" required><div class="form-text">JPG, PNG, or WEBP, maximum 5 MB. Payment remains pending until Billing confirms receipt.</div></div>
+                </div>
+                <div class="modal-footer nx-modal-footer"><button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary" id="spManualPaymentSubmitBtn">Submit for Review</button></div>
+            </form>
+        </div></div>
     </div>
 
     <script src="/module-assets/SubscriberPortal/js/SubscriberPortal.js"></script>

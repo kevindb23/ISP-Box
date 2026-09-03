@@ -2,11 +2,14 @@
 
 namespace App\Modules\ServiceProvisioning\Services;
 
+use App\Infrastructure\NetworkAutomation\NetworkCommandRunner;
 use App\Modules\Audit\Services\AuditService;
 use App\Modules\Billing\Services\BillingAutomationService;
 use App\Modules\OntDevices\Services\AcsService;
 use App\Modules\ServiceProvisioning\DTOs\CreateProvisioningDTO;
 use App\Modules\ServiceProvisioning\Repositories\ServiceProvisioningRepository;
+use App\Modules\ServiceProvisioning\Validators\CreateProvisioningValidator;
+use App\Modules\WorkOrders\Services\WorkOrdersService;
 use Exception;
 use Throwable;
 
@@ -21,7 +24,11 @@ class ServiceProvisioningService
     public function __construct(
         ServiceProvisioningRepository $repo,
         AcsService $acsService,
-        AuditService $audit
+        AuditService $audit,
+        private BillingAutomationService $billingAutomation,
+        private WorkOrdersService $workOrders,
+        private CreateProvisioningValidator $validator,
+        private NetworkCommandRunner $networkRunner
     ) {
         $this->repo = $repo;
         $this->acsService = $acsService;
@@ -224,6 +231,10 @@ class ServiceProvisioningService
             throw new Exception('Selected OLT port does not belong to the selected OLT.');
         }
 
+        if (!str_contains(strtoupper((string)($oltPort['port_type'] ?? '')), 'GPON')) {
+            throw new Exception('Only GPON subscriber ports can be used for provisioning.');
+        }
+
         $reportedCount = (int)($oltPort['reported_ont_count'] ?? $oltPort['ont_count'] ?? 0);
         $boundCount = $this->repo->getActiveBindingCountForOltPort($normalized->olt_port_id);
         $effectiveCount = max($reportedCount, $boundCount);
@@ -319,6 +330,21 @@ class ServiceProvisioningService
 
     public function createProvisioningJob($dto): array
     {
+        $lockName = 'nexusbox:provisioning:allocation';
+        $this->repo->acquireLock($lockName);
+
+        try {
+            return $this->repo->transaction(fn() => $this->createProvisioningJobAtomic($dto));
+        } catch (Throwable $e) {
+            $this->auditSafe('CREATE_FAILED', 'Provisioning job creation failed: ' . $e->getMessage());
+            throw $e;
+        } finally {
+            $this->repo->releaseLock($lockName);
+        }
+    }
+
+    private function createProvisioningJobAtomic($dto): array
+    {
         $normalized = $this->normalizeDto($dto);
         $validation = $this->validateProvisioning($normalized);
 
@@ -336,8 +362,8 @@ class ServiceProvisioningService
 
         $existingBinding = $this->repo->findBindingByServiceId($serviceId);
 
-        if ($existingBinding && !empty($existingBinding['activated_at'])) {
-            throw new Exception('This service already has a provisioning binding.');
+        if ($existingBinding) {
+            throw new Exception('This service already has a provisioning binding or reservation.');
         }
 
         $oltPort = $this->repo->getOltPort($normalized->olt_port_id);
@@ -402,6 +428,34 @@ class ServiceProvisioningService
             'completed_at' => null,
         ]);
 
+        $this->repo->reserveSplitterOutputPort($normalized->splitter_output_port_id, $serviceId);
+        $this->repo->upsertProvisioningBinding([
+            'service_id' => $serviceId,
+            'ont_id' => $normalized->ont_id,
+            'ont_serial' => $normalized->ont_serial,
+            'olt_id' => $normalized->olt_id,
+            'olt_port_id' => $normalized->olt_port_id,
+            'network_box_id' => $normalized->network_box_id,
+            'splitter_id' => $normalized->splitter_id,
+            'splitter_output_port_id' => $normalized->splitter_output_port_id,
+            'parent_box_id' => null,
+            'cvlan_network_vlan_id' => (int)$validation['cvlan_network_vlan_id'],
+            'cvlan' => (int)$validation['cvlan'],
+            'svlan' => (int)$validation['svlan'],
+            'ont_assigned_id' => null,
+            'global_id' => null,
+            'pppoe_service_port' => $pppoeServicePort,
+            'tr069_service_port' => $tr069ServicePort,
+            'lineprofile_id' => (int)$validation['lineprofile_id'],
+            'srvprofile_id' => (int)$validation['srvprofile_id'],
+            'tr069_profile_id' => (int)$validation['tr069_profile_id'],
+            'internet_wan_profile_id' => (int)$validation['internet_wan_profile_id'],
+            'tr069_wan_profile_id' => (int)$validation['tr069_wan_profile_id'],
+            'assigned_at' => null,
+            'installed_at' => null,
+            'activated_at' => null,
+        ]);
+
         $this->repo->addJobLog([
             'job_id' => $jobId,
             'stage' => 'CREATE',
@@ -449,7 +503,7 @@ class ServiceProvisioningService
         ];
     }
 
-    public function runProvisioningJob(int $jobId): array
+    public function runProvisioningJob(int $jobId, bool $isRetry = false): array
     {
         if ($jobId <= 0) {
             throw new Exception('Invalid job ID.');
@@ -461,8 +515,14 @@ class ServiceProvisioningService
             throw new Exception('Provisioning job not found.');
         }
 
-        if (in_array((string)($job['job_status'] ?? ''), ['SUCCESS', 'CANCELLED'], true)) {
-            throw new Exception('This provisioning job can no longer be executed.');
+        $jobStatus = strtoupper((string)($job['job_status'] ?? ''));
+        $currentStage = strtoupper((string)($job['current_stage'] ?? ''));
+        $canRun = $isRetry
+            ? ($jobStatus === 'FAILED' && $currentStage === 'OLT_PROVISIONING')
+            : ($jobStatus === 'READY' && $currentStage === 'CREATED');
+
+        if (!$canRun) {
+            throw new Exception('The provisioning job is not in a valid stage for OLT execution.');
         }
 
         $requestPayload = $this->decodeJsonField($job['request_payload'] ?? null) ?: [];
@@ -476,15 +536,26 @@ class ServiceProvisioningService
         );
 
         $pythonPayload = $this->buildPythonPayloadFromJob($job);
-        $command = $this->buildPythonCommand($pythonPayload);
-
-        $output = [];
-        $exitCode = 0;
-
-        exec($command, $output, $exitCode);
-
-        $resultText = trim(implode("\n", $output));
+        $script = $this->provisioningScriptPath();
+        $ponLock = sprintf(
+            'nexusbox:provisioning:pon:%d:%d:%d:%d',
+            (int)($job['olt_id'] ?? 0),
+            (int)($job['frame'] ?? 0),
+            (int)($job['slot'] ?? 0),
+            (int)($job['port'] ?? 0)
+        );
+        $this->repo->acquireLock($ponLock, 30);
+        try {
+            $execution = $this->networkRunner->runPythonJson($script, $pythonPayload, 120);
+        } finally {
+            $this->repo->releaseLock($ponLock);
+        }
+        $exitCode = $execution->exitCode;
+        $resultText = $execution->stdout !== '' ? $execution->stdout : $execution->stderr;
         $decoded = json_decode($resultText, true);
+        $safeOutput = $this->networkRunner->redact($resultText, [
+            $pythonPayload['password'] ?? '',
+        ]);
 
         $this->repo->addJobLog([
             'job_id' => $jobId,
@@ -495,9 +566,11 @@ class ServiceProvisioningService
                 ? 'OLT provisioning script executed successfully.'
                 : 'OLT provisioning script failed.',
             'payload_json' => json_encode([
-                'command' => $command,
+                'operation' => 'ztp_provision_ont',
                 'exit_code' => $exitCode,
-                'output' => $output,
+                'duration_ms' => $execution->durationMs,
+                'timed_out' => $execution->timedOut,
+                'output' => $safeOutput,
             ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             'created_by' => null,
         ]);
@@ -507,12 +580,13 @@ class ServiceProvisioningService
                 $jobId,
                 'FAILED',
                 'OLT_PROVISIONING',
-                $resultText ?: 'OLT provisioning failed.',
+                $safeOutput ?: 'OLT provisioning failed.',
                 false,
                 true
             );
 
-            throw new Exception($resultText ?: 'OLT provisioning failed.');
+            $this->auditSafe('OLT_PROVISIONING_FAILED', sprintf('Provisioning job %d failed: %s', $jobId, $safeOutput ?: 'OLT provisioning failed.'));
+            throw new Exception($safeOutput ?: 'OLT provisioning failed.');
         }
 
         if (!is_array($decoded) || empty($decoded['ok'])) {
@@ -523,10 +597,12 @@ class ServiceProvisioningService
                 $decoded['message'] ?? 'Invalid provisioning response.',
                 false,
                 true,
-                $resultText
+                $safeOutput
             );
 
-            throw new Exception($decoded['message'] ?? 'Invalid provisioning response.');
+            $failureMessage = $decoded['message'] ?? 'Invalid provisioning response.';
+            $this->auditSafe('OLT_PROVISIONING_FAILED', sprintf('Provisioning job %d failed: %s', $jobId, $failureMessage));
+            throw new Exception($failureMessage);
         }
 
         $responseData = is_array($decoded['data'] ?? null) ? $decoded['data'] : [];
@@ -672,6 +748,10 @@ class ServiceProvisioningService
             ];
         }
 
+        if ($jobStatus !== 'VERIFYING' || !in_array($currentStage, ['WAITING_FOR_ACS', 'ACS_PUSH_FAILED'], true)) {
+            throw new Exception('ACS verification is only allowed after successful OLT provisioning.');
+        }
+
         $serial = strtoupper(trim((string)($job['ont_serial'] ?? '')));
 
         if ($serial === '') {
@@ -694,6 +774,8 @@ class ServiceProvisioningService
                 'payload_json' => json_encode(['serial' => $serial], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 'created_by' => null,
             ]);
+
+            $this->auditSafe('ACS_WAITING', sprintf('Provisioning job %d is waiting for ONT %s to appear in ACS.', $jobId, $serial));
 
             return [
                 'job_id' => $jobId,
@@ -733,7 +815,7 @@ class ServiceProvisioningService
         }
 
         $pppUsername = trim((string)($service['ppp_username'] ?? $job['ppp_username'] ?? ''));
-        $pppPassword = trim((string)($service['ppp_password'] ?? $job['ppp_password'] ?? ''));
+        $pppPassword = trim((string)($service['ppp_password'] ?? ''));
 
         if ($pppUsername === '' || $pppPassword === '') {
             throw new Exception('PPP username/password is missing from subscriber service.');
@@ -784,13 +866,21 @@ class ServiceProvisioningService
                 false
             );
 
+            $this->auditSafe('ACS_PUSH_FAILED', sprintf('Provisioning job %d ACS credential push failed: %s', $jobId, $e->getMessage()));
+
             throw new Exception('ACS PPP credential push failed: ' . $e->getMessage());
         }
 
         $activatedAt = date('Y-m-d H:i:s');
 
-        $this->repo->activateProvisioningBinding($serviceId, $activatedAt);
-        $this->repo->updateServiceStatus($serviceId, 'ACTIVE');
+        $this->repo->transaction(function () use ($serviceId, $activatedAt, $job): void {
+            $this->repo->activateProvisioningBinding($serviceId, $activatedAt);
+            $this->repo->updateServiceStatus($serviceId, 'ACTIVE');
+            $this->repo->assignOntToSubscriber(
+                (int)($job['ont_id'] ?? 0),
+                (int)($job['subscriber_id'] ?? 0)
+            );
+        });
 
         $billingResult = [
             'created' => false,
@@ -800,10 +890,7 @@ class ServiceProvisioningService
         ];
 
         try {
-            $pdo = $this->repo->getPdo();
-
-            $billingAutomation = new BillingAutomationService($pdo);
-            $billingResult = $billingAutomation->createInvoiceAfterProvisioning(
+            $billingResult = $this->billingAutomation->createInvoiceAfterProvisioning(
                 $serviceId,
                 $activatedAt
             );
@@ -836,6 +923,41 @@ class ServiceProvisioningService
                 'payload_json' => json_encode($billingResult, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                 'created_by' => null,
             ]);
+            $this->auditSafe('BILLING_WARNING', sprintf('Provisioning job %d activated service %d but billing failed: %s', $jobId, $serviceId, $e->getMessage()));
+        }
+
+        $workOrderResult = [
+            'created' => false,
+            'reason' => 'Installation work order generation did not run.',
+        ];
+        try {
+            $workOrderResult = $this->workOrders->createFromProvisioning($job);
+            $this->repo->addJobLog([
+                'job_id' => $jobId,
+                'stage' => 'WORK_ORDER',
+                'action' => 'AUTO_CREATE_INSTALLATION_WORK_ORDER',
+                'status' => 'SUCCESS',
+                'message' => !empty($workOrderResult['created'])
+                    ? 'Installation confirmation work order created.'
+                    : 'Existing installation confirmation work order reused.',
+                'payload_json' => json_encode($workOrderResult, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'created_by' => null,
+            ]);
+        } catch (Throwable $e) {
+            $workOrderResult = [
+                'created' => false,
+                'error' => $e->getMessage(),
+            ];
+            $this->repo->addJobLog([
+                'job_id' => $jobId,
+                'stage' => 'WORK_ORDER',
+                'action' => 'AUTO_CREATE_INSTALLATION_WORK_ORDER',
+                'status' => 'WARNING',
+                'message' => 'Service activated, but installation work order creation failed: ' . $e->getMessage(),
+                'payload_json' => json_encode($workOrderResult, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'created_by' => null,
+            ]);
+            $this->auditSafe('WORK_ORDER_WARNING', sprintf('Provisioning job %d completed but installation work order creation failed: %s', $jobId, $e->getMessage()));
         }
 
         $resultPayload = json_encode([
@@ -844,6 +966,7 @@ class ServiceProvisioningService
             'ppp_username' => $pppUsername,
             'activated_at' => $activatedAt,
             'billing' => $billingResult,
+            'installation_work_order' => $workOrderResult,
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         $this->repo->updateJobExecutionState(
@@ -874,6 +997,7 @@ class ServiceProvisioningService
             'acs_push' => $acsPush,
             'ppp_username' => $pppUsername,
             'billing' => $billingResult,
+            'installation_work_order' => $workOrderResult,
             'status' => 'SUCCESS',
             'current_stage' => 'COMPLETE',
             'message' => !empty($billingResult['created'])
@@ -918,7 +1042,20 @@ class ServiceProvisioningService
             throw new Exception('Provisioning job not found.');
         }
 
-        return $this->runProvisioningJob($jobId);
+        $status = strtoupper((string)($job['job_status'] ?? ''));
+        $stage = strtoupper((string)($job['current_stage'] ?? ''));
+
+        if ($status === 'FAILED' && $stage === 'OLT_PROVISIONING') {
+            $this->auditSafe('RETRY_OLT', sprintf('Retrying OLT provisioning for job %d.', $jobId));
+            return $this->runProvisioningJob($jobId, true);
+        }
+
+        if ($status === 'VERIFYING' && in_array($stage, ['WAITING_FOR_ACS', 'ACS_PUSH_FAILED'], true)) {
+            $this->auditSafe('RETRY_ACS', sprintf('Retrying ACS verification for job %d.', $jobId));
+            return $this->checkAcs($jobId);
+        }
+
+        throw new Exception('This job is not in a retryable stage.');
     }
 
     public function cancelJob(int $jobId): array
@@ -931,18 +1068,26 @@ class ServiceProvisioningService
 
         $status = strtoupper((string)($job['job_status'] ?? ''));
 
-        if (in_array($status, ['SUCCESS', 'FAILED', 'CANCELLED'], true)) {
-            throw new Exception('This job can no longer be cancelled.');
+        $stage = strtoupper((string)($job['current_stage'] ?? ''));
+        if ($status !== 'READY' || $stage !== 'CREATED') {
+            throw new Exception('Only jobs that have not started OLT provisioning can be cancelled safely.');
         }
 
-        $this->repo->updateJobExecutionState(
-            $jobId,
-            'CANCELLED',
-            'CANCELLED',
-            'Provisioning cancelled by user.',
-            false,
-            true
-        );
+        $this->repo->transaction(function () use ($jobId, $job): void {
+            $this->repo->releaseSplitterOutputPortReservation(
+                (int)($job['splitter_output_port_id'] ?? 0),
+                (int)($job['service_id'] ?? 0)
+            );
+            $this->repo->deleteUnactivatedBinding((int)($job['service_id'] ?? 0));
+            $this->repo->updateJobExecutionState(
+                $jobId,
+                'CANCELLED',
+                'CANCELLED',
+                'Provisioning cancelled by user.',
+                false,
+                true
+            );
+        });
 
         $this->repo->addJobLog([
             'job_id' => $jobId,
@@ -1053,7 +1198,7 @@ class ServiceProvisioningService
         ];
     }
 
-    private function buildPythonCommand(array $payload): string
+    private function provisioningScriptPath(): string
     {
         $script = BASE_PATH . '/app/Modules/ServiceProvisioning/Scripts/ztp_provision_ont.py';
 
@@ -1061,13 +1206,7 @@ class ServiceProvisioningService
             throw new Exception('Provisioning script not found: ' . $script);
         }
 
-        $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-        if ($json === false) {
-            throw new Exception('Failed to encode provisioning payload.');
-        }
-
-        return 'python3 ' . escapeshellarg($script) . ' ' . escapeshellarg($json);
+        return $script;
     }
 
     private function ensureSubscriberService(
@@ -1100,41 +1239,39 @@ class ServiceProvisioningService
             throw new Exception('Plan not found.');
         }
 
-        return $this->repo->createSubscriberServiceForProvisioning(
+        $createdServiceId = $this->repo->createSubscriberServiceForProvisioning(
             $subscriberId,
+            $planId,
             $plan
         );
+
+        $createdService = $this->repo->getServiceById($createdServiceId);
+        if (!$createdService) {
+            throw new Exception('Subscriber service was created but could not be reloaded.');
+        }
+
+        return $createdService;
+    }
+
+    private function auditSafe(string $action, string $message): void
+    {
+        try {
+            $this->audit->log('PROVISIONING', $action, $message);
+        } catch (Throwable $auditError) {
+            error_log(sprintf(
+                '[ServiceProvisioning] Audit failure for %s: %s',
+                $action,
+                $auditError->getMessage()
+            ));
+        }
     }
 
     private function validateRequiredPayload(CreateProvisioningDTO $dto): void
     {
-        if ($dto->subscriber_id <= 0) {
-            throw new Exception('Subscriber is required.');
-        }
-
-        if ($dto->plan_id <= 0) {
-            throw new Exception('Plan is required.');
-        }
-
-        if ($dto->ont_id <= 0 || trim($dto->ont_serial) === '') {
-            throw new Exception('ONT is required.');
-        }
-
-        if ($dto->olt_id <= 0 || $dto->olt_port_id <= 0) {
-            throw new Exception('OLT and PON port are required.');
-        }
-
-        if ($dto->network_box_id <= 0) {
-            throw new Exception('NAP box is required.');
-        }
-
-        if ($dto->splitter_id <= 0) {
-            throw new Exception('Splitter is required.');
-        }
-
-        if ($dto->splitter_output_port_id <= 0) {
-            throw new Exception('Splitter output port is required.');
-        }
+        $errors = $this->validator->validate($this->provisioningDtoToArray($dto));
+        if ($errors === []) return;
+        $messages = (array)reset($errors);
+        throw new Exception((string)reset($messages));
     }
 
     private function resolveSvlanForOltPort(int $oltId, int $oltPortId): array
@@ -1222,7 +1359,10 @@ class ServiceProvisioningService
         $cvlan = $this->repo->findAvailableCvlanForOlt($oltId);
 
         if (!$cvlan) {
-            throw new Exception('No available deployed C-VLAN found for the selected OLT.');
+            throw new Exception(
+                'No unallocated deployed C-VLAN is available for the selected OLT. '
+                . 'Deploy an unused C-VLAN in VLAN Management, then retry provisioning.'
+            );
         }
 
         return $cvlan;

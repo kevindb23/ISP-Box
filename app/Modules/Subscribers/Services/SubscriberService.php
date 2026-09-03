@@ -2,7 +2,9 @@
 
 namespace App\Modules\Subscribers\Services;
 
+use App\Infrastructure\NetworkAutomation\NetworkCommandRunner;
 use App\Modules\Audit\Services\AuditService;
+use App\Modules\OntDevices\Services\AcsService;
 use App\Modules\Subscribers\DTOs\CreateSubscriberDTO;
 use App\Modules\Subscribers\DTOs\UpdateSubscriberDTO;
 use App\Modules\Subscribers\Entities\Subscriber;
@@ -17,7 +19,9 @@ class SubscriberService
 
     public function __construct(
         SubscriberRepository $repo,
-        AuditService $audit
+        AuditService $audit,
+        private NetworkCommandRunner $networkRunner,
+        private AcsService $acs
     ) {
         $this->repo = $repo;
         $this->audit = $audit;
@@ -71,8 +75,7 @@ class SubscriberService
             return ['ok' => false, 'message' => 'A portal user already exists with this email.'];
         }
 
-        $serviceNumber = $this->repo->nextServiceNumber();
-        $pppUsername = sprintf('CST%07d', $serviceNumber);
+        $pppUsername = '';
         $pppPassword = $this->genPassword(10);
 
         $portalUsername = $email;
@@ -91,6 +94,8 @@ class SubscriberService
             return $created;
         }
 
+        $pppUsername = (string)($created['ppp_username'] ?? '');
+
         try {
             $this->repo->syncRadiusCreate(
                 $pppUsername,
@@ -100,6 +105,19 @@ class SubscriberService
                 $created['expires_at'] ?? null
             );
         } catch (\Throwable $e) {
+            try {
+                $this->repo->radiusDelete($pppUsername);
+                $this->repo->rollbackCreatedSubscriber(
+                    (int)($created['subscriber_id'] ?? 0),
+                    (int)($created['user_id'] ?? 0)
+                );
+            } catch (\Throwable $cleanupError) {
+                return [
+                    'ok' => false,
+                    'message' => 'Radius provisioning failed and automatic cleanup also failed. Manual review is required.',
+                ];
+            }
+
             return ['ok' => false, 'message' => 'Radius provisioning failed.'];
         }
 
@@ -163,6 +181,20 @@ class SubscriberService
                 $expiresAt
             );
         } catch (\Throwable $e) {
+            try {
+                $this->repo->syncRadiusPlan(
+                    (string)$existing['ppp_username'],
+                    (string)$existing['plan_name'],
+                    $existing['expires_at'] ?? null
+                );
+                $this->repo->restoreProfileAndService($id, $existing);
+            } catch (\Throwable $restoreError) {
+                return [
+                    'ok' => false,
+                    'message' => 'Radius update failed and the portal rollback failed. Manual review is required.',
+                ];
+            }
+
             return ['ok' => false, 'message' => 'Radius update failed.'];
         }
 
@@ -187,18 +219,31 @@ class SubscriberService
             return ['ok' => false, 'message' => 'Subscriber not found.'];
         }
 
-        $this->repo->updateSubscriberStatus($id, 'INACTIVE');
-        $this->repo->updateServiceStatus($id, 'SUSPENDED');
-
         try {
             $this->repo->syncRadiusStatus(
                 $existing['ppp_username'],
                 'SUSPENDED',
                 $existing['expires_at'] ?? null
             );
-            $this->disconnect($existing['ppp_username']);
         } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => 'Radius suspension failed. No portal changes were made.'];
         }
+
+        if (!$this->repo->updateAccountStatuses($id, 'INACTIVE', 'SUSPENDED')) {
+            try {
+                $this->repo->syncRadiusStatus(
+                    $existing['ppp_username'],
+                    (string)($existing['service_status'] ?? 'ACTIVE'),
+                    $existing['expires_at'] ?? null
+                );
+            } catch (\Throwable $e) {
+                error_log('[Subscribers] Radius suspension rollback failed: ' . $e->getMessage());
+            }
+
+            return ['ok' => false, 'message' => 'Portal suspension failed.'];
+        }
+
+        $this->disconnect($existing['ppp_username']);
 
         $this->audit->log(
             'SUBSCRIBERS',
@@ -216,9 +261,6 @@ class SubscriberService
             return ['ok' => false, 'message' => 'Subscriber not found.'];
         }
 
-        $this->repo->updateSubscriberStatus($id, 'ACTIVE');
-        $this->repo->updateServiceStatus($id, 'ACTIVE');
-
         try {
             $this->repo->syncRadiusStatus(
                 $existing['ppp_username'],
@@ -226,6 +268,21 @@ class SubscriberService
                 $existing['expires_at'] ?? null
             );
         } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => 'Radius reactivation failed. No portal changes were made.'];
+        }
+
+        if (!$this->repo->updateAccountStatuses($id, 'ACTIVE', 'ACTIVE')) {
+            try {
+                $this->repo->syncRadiusStatus(
+                    $existing['ppp_username'],
+                    (string)($existing['service_status'] ?? 'SUSPENDED'),
+                    $existing['expires_at'] ?? null
+                );
+            } catch (\Throwable $e) {
+                error_log('[Subscribers] Radius reactivation rollback failed: ' . $e->getMessage());
+            }
+
+            return ['ok' => false, 'message' => 'Portal reactivation failed.'];
         }
 
         $this->audit->log(
@@ -244,27 +301,67 @@ class SubscriberService
             return ['ok' => false, 'message' => 'Subscriber not found.'];
         }
 
+        $credentialContext = $this->repo->findPppCredentialContext($id);
+        if (!$credentialContext) {
+            return ['ok' => false, 'message' => 'Subscriber PPP service was not found.'];
+        }
+
+        $pppUsername = trim((string)($credentialContext['ppp_username'] ?? ''));
+        $serviceId = (int)($credentialContext['service_id'] ?? 0);
+        $oldPassword = (string)($credentialContext['ppp_password'] ?? '');
+        $ontSerial = trim((string)($credentialContext['ont_serial'] ?? ''));
+        if ($serviceId <= 0 || $pppUsername === '' || $oldPassword === '') {
+            return ['ok' => false, 'message' => 'Existing PPP credentials are incomplete.'];
+        }
+        if ($ontSerial === '') {
+            return ['ok' => false, 'message' => 'No provisioned ONT is linked to this subscriber. PPP password was not changed.'];
+        }
+
+        $acsDevice = $this->acs->findDeviceBySerial($ontSerial);
+        $acsDeviceId = trim((string)($acsDevice['device_id'] ?? $acsDevice['id'] ?? ''));
+        if ($acsDeviceId === '') {
+            return ['ok' => false, 'message' => 'The subscriber ONT was not found in ACS. PPP password was not changed.'];
+        }
+
         $newPassword = $this->genPassword(10);
 
-        $this->repo->updatePppPassword($id, $newPassword);
+        $this->repo->updateServicePppPassword($serviceId, $newPassword);
 
         try {
-            $this->repo->syncRadiusPassword($existing['ppp_username'], $newPassword);
-            $this->disconnect($existing['ppp_username']);
+            $this->repo->syncRadiusPassword($pppUsername, $newPassword);
+            $acsResult = $this->acs->setPppCredentials($acsDeviceId, $pppUsername, $newPassword);
+            $this->disconnect($pppUsername);
         } catch (\Throwable $e) {
-            return ['ok' => false, 'message' => 'Radius password update failed.'];
+            $this->repo->updateServicePppPassword($serviceId, $oldPassword);
+            try {
+                $this->repo->syncRadiusPassword($pppUsername, $oldPassword);
+            } catch (\Throwable $rollbackError) {
+                error_log('[Subscribers] PPP password rollback failed: ' . $rollbackError->getMessage());
+                return ['ok' => false, 'message' => 'PPP reset failed and RADIUS rollback also failed. Manual review is required.'];
+            }
+            return ['ok' => false, 'message' => 'PPP reset failed before completion: ' . $e->getMessage()];
         }
 
         $this->audit->log(
             'SUBSCRIBERS',
             'RESET_PPP_PASSWORD',
-            "Reset PPP password for subscriber {$this->subscriberName($existing)} with username {$existing['ppp_username']}"
+            "Reset PPP password for subscriber {$this->subscriberName($existing)} with username {$pppUsername} and pushed it to ACS device {$acsDeviceId}"
         );
+
+        $acsDelivery = (string)($acsResult['delivery'] ?? 'IMMEDIATE');
 
         return [
             'ok' => true,
-            'message' => 'PPP password reset.',
+            'message' => $acsDelivery === 'QUEUED'
+                ? 'PPP password reset and queued in ACS for the ONT next inform.'
+                : 'PPP password reset and pushed to the ONT through ACS.',
             'ppp_password' => $newPassword,
+            'acs' => [
+                'ok' => (bool)($acsResult['ok'] ?? true),
+                'device_id' => $acsDeviceId,
+                'ppp_path' => $acsResult['ppp_path'] ?? null,
+                'delivery' => $acsDelivery,
+            ],
         ];
     }
 
@@ -275,12 +372,27 @@ class SubscriberService
             return ['ok' => false, 'message' => 'Subscriber not found.'];
         }
 
-        $this->repo->softDelete($id);
-
         try {
             $this->disconnect($existing['ppp_username']);
             $this->repo->radiusDelete($existing['ppp_username']);
         } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => 'Radius removal failed. No portal changes were made.'];
+        }
+
+        if (!$this->repo->softDelete($id)) {
+            try {
+                $this->repo->syncRadiusCreate(
+                    (string)$existing['ppp_username'],
+                    (string)$existing['ppp_password'],
+                    (string)$existing['plan_name'],
+                    (string)($existing['service_status'] ?? 'ACTIVE'),
+                    $existing['expires_at'] ?? null
+                );
+            } catch (\Throwable $e) {
+                error_log('[Subscribers] Radius deletion rollback failed: ' . $e->getMessage());
+            }
+
+            return ['ok' => false, 'message' => 'Portal deletion failed.'];
         }
 
         $this->audit->log(
@@ -301,14 +413,36 @@ class SubscriberService
             return;
         }
 
-        $host = escapeshellarg((string)$coa['host']);
+        $host = trim((string)$coa['host']);
         $port = (int)($coa['port'] ?? 3799);
-        $secret = escapeshellarg((string)$coa['secret']);
-        $radclient = escapeshellcmd((string)$coa['radclient_path']);
+        $secret = (string)$coa['secret'];
+        $radclient = (string)$coa['radclient_path'];
         $payload = "User-Name={$username}\nAcct-Session-Id=1";
 
-        $cmd = "printf %s " . escapeshellarg($payload) . " | {$radclient} -x {$host}:{$port} disconnect {$secret} >/dev/null 2>&1";
-        @shell_exec($cmd);
+        if ($host === '' || $secret === '' || !is_executable($radclient)) {
+            return;
+        }
+
+        $secretFile = tempnam(sys_get_temp_dir(), 'nexusbox-coa-');
+        if ($secretFile === false) {
+            return;
+        }
+
+        try {
+            chmod($secretFile, 0600);
+            file_put_contents($secretFile, $secret);
+            $this->networkRunner->run(
+                [$radclient, '-x', '-S', $secretFile, $host . ':' . $port, 'disconnect'],
+                $payload,
+                10
+            );
+        } catch (\Throwable $e) {
+            error_log('[Subscribers] RADIUS disconnect failed: ' . $e->getMessage());
+        } finally {
+            if (is_file($secretFile)) {
+                @unlink($secretFile);
+            }
+        }
     }
 
     private function genPassword(int $length = 10): string

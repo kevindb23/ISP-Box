@@ -158,6 +158,41 @@ class InvoiceRepository
         return $row ?: null;
     }
 
+    /**
+     * Fetch an invoice while holding a row lock for the current transaction.
+     * Payment writers must use this method before validating the balance.
+     */
+    public function findForUpdate(int $id): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                i.*,
+                s.full_name AS subscriber_name,
+                s.account_number,
+                s.contact_number,
+                s.email,
+                s.address,
+                ss.service_number,
+                ss.ppp_username,
+                ss.account_type,
+                ss.status AS service_status,
+                p.plan_name,
+                p.price AS plan_price
+            FROM invoices i
+            LEFT JOIN subscribers s ON s.id = i.subscriber_id
+            LEFT JOIN subscriber_services ss ON ss.id = i.service_id
+            LEFT JOIN plans p ON p.id = i.plan_id
+            WHERE i.id = :id
+            LIMIT 1
+            FOR UPDATE
+        ");
+
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
     public function findByInvoiceNo(string $invoiceNo): ?array
     {
         $stmt = $this->db->prepare("
@@ -293,6 +328,28 @@ class InvoiceRepository
         ]);
 
         return (int)$this->db->lastInsertId();
+    }
+
+    /**
+     * Assign the public invoice number after insertion so its sequence is based
+     * on the database-generated primary key and cannot race another request.
+     */
+    public function assignInvoiceNo(int $invoiceId, string $invoiceNo): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE invoices
+            SET invoice_no = :invoice_no
+            WHERE id = :id
+              AND invoice_no IS NULL
+        ");
+        $stmt->execute([
+            ':id' => $invoiceId,
+            ':invoice_no' => $invoiceNo,
+        ]);
+
+        if ($stmt->rowCount() !== 1) {
+            throw new \RuntimeException('Unable to assign invoice number.');
+        }
     }
 
     public function createItem(int $invoiceId, array $item): int
@@ -488,28 +545,10 @@ class InvoiceRepository
         return $row ?: null;
     }
 
-    public function generateInvoiceNo(string $prefix = 'INV'): string
+    public function cancelPendingGatewayTransactions(int $invoiceId): void
     {
-        $stmt = $this->db->prepare("
-            SELECT invoice_no
-            FROM invoices
-            WHERE invoice_no LIKE :prefix_like
-            ORDER BY id DESC
-            LIMIT 1
-        ");
-
-        $stmt->execute([
-            ':prefix_like' => $prefix . '-%',
-        ]);
-
-        $last = (string)$stmt->fetchColumn();
-        $next = 1;
-
-        if ($last && preg_match('/(\d+)$/', $last, $matches)) {
-            $next = ((int)$matches[1]) + 1;
-        }
-
-        return sprintf('%s-%s-%06d', $prefix, date('Y'), $next);
+        $stmt=$this->db->prepare("UPDATE payment_gateway_transactions SET gateway_status='CANCELLED',updated_at=NOW() WHERE invoice_id=:invoice_id AND gateway_status IN ('PENDING','UPDATED')");
+        $stmt->execute([':invoice_id'=>$invoiceId]);
     }
 
     public function findByServiceAndPeriod(int $serviceId, string $periodStart, string $periodEnd): ?array

@@ -2,7 +2,9 @@
 
 namespace App\Modules\VlanManagement\Services;
 
+use App\Infrastructure\NetworkAutomation\NetworkCommandRunner;
 use App\Modules\Audit\Services\AuditService;
+use App\Modules\BngManagement\Services\BngConnectionService;
 use App\Modules\VlanManagement\DTOs\CreateVlanDTO;
 use App\Modules\VlanManagement\DTOs\UpdateVlanDTO;
 use App\Modules\VlanManagement\Repositories\VlanManagementRepository;
@@ -20,12 +22,16 @@ class VlanManagementService
 
     public function __construct(
         VlanManagementRepository $repo,
+        CreateVlanValidator $createVlanValidator,
+        UpdateVlanValidator $updateVlanValidator,
+        private NetworkCommandRunner $networkRunner,
+        private BngConnectionService $bng,
         ?AuditService $audit = null
     ) {
         $this->repo = $repo;
         $this->audit = $audit;
-        $this->createVlanValidator = new CreateVlanValidator();
-        $this->updateVlanValidator = new UpdateVlanValidator();
+        $this->createVlanValidator = $createVlanValidator;
+        $this->updateVlanValidator = $updateVlanValidator;
     }
 
     public function getSummary(): array
@@ -47,6 +53,7 @@ class VlanManagementService
     {
         $id = (int)($payload['id'] ?? 0);
         $oltId = (int)($payload['olt_id'] ?? 0);
+        $oltPortId = (int)($payload['olt_port_id'] ?? 0);
         $mgmtVlan = (int)($payload['mgmt_vlan'] ?? $payload['vlan_id'] ?? 0);
         $description = isset($payload['description']) ? trim((string)$payload['description']) : null;
 
@@ -56,6 +63,19 @@ class VlanManagementService
 
         if ($mgmtVlan < 1 || $mgmtVlan > 4094) {
             throw new RuntimeException('MGMT-VLAN must be between 1 and 4094.');
+        }
+
+        $oltPort = $this->repo->findOltPortById($oltPortId);
+        if (!$oltPort || (int)($oltPort['olt_id'] ?? 0) !== $oltId) {
+            throw new RuntimeException('Select a valid OLT port belonging to the selected OLT.');
+        }
+        $portIdentity = strtoupper(implode(' ', [
+            (string)($oltPort['board_type'] ?? ''),
+            (string)($oltPort['board_name'] ?? ''),
+            (string)($oltPort['board'] ?? ''),
+        ]));
+        if (!str_contains($portIdentity, 'H901MPSA')) {
+            throw new RuntimeException('MGMT-VLAN can only be applied to a port under the H901MPSA board.');
         }
 
         $olt = $this->repo->findOltById($oltId);
@@ -74,18 +94,24 @@ class VlanManagementService
             if (!$existing) {
                 throw new RuntimeException('MGMT-VLAN record not found.');
             }
+            if ((int)($existing['olt_port_id'] ?? 0) > 0 && (
+                (int)$existing['olt_id'] !== $oltId
+                || (int)$existing['olt_port_id'] !== $oltPortId
+                || (int)$existing['mgmt_vlan'] !== $mgmtVlan
+            )) {
+                throw new RuntimeException('The OLT, H901MPSA port, and VLAN ID cannot be changed after deployment. Delete and recreate the MGMT-VLAN instead.');
+            }
 
-            $this->repo->updateMgmtVlan($id, $oltId, $mgmtVlan, $description);
+            $this->repo->updateMgmtVlan($id, $oltId, $oltPortId, $mgmtVlan, $description);
             $row = $this->repo->findMgmtVlanById($id);
         } else {
-            $id = $this->repo->createMgmtVlan($oltId, $mgmtVlan, $description);
+            $id = $this->repo->createMgmtVlan($oltId, $oltPortId, $mgmtVlan, $description);
             $row = $this->repo->findMgmtVlanById($id);
         }
 
         if (!$row) {
             throw new RuntimeException('Failed to load MGMT-VLAN record.');
         }
-
         $this->safeAudit(
             'VLAN',
             $action,
@@ -97,7 +123,7 @@ class VlanManagementService
         );
 
         try {
-            $deployment = $this->deployMgmtVlanToOlt($oltId, $mgmtVlan);
+            $deployment = $this->deployMgmtVlanToOlt($oltId, $oltPort, $mgmtVlan);
 
             $this->safeAudit(
                 'VLAN',
@@ -143,7 +169,7 @@ class VlanManagementService
         }
     }
 
-    private function deployMgmtVlanToOlt(int $oltId, int $mgmtVlan): array
+    private function deployMgmtVlanToOlt(int $oltId, array $oltPort, int $mgmtVlan): array
     {
         $olt = $this->repo->findOltById($oltId);
         if (!$olt) {
@@ -162,6 +188,9 @@ class VlanManagementService
             'port' => 22,
             'vlan_id' => $mgmtVlan,
             'vlan_type' => 'MGMT_VLAN',
+            'frame' => (int)($oltPort['frame'] ?? 0),
+            'slot' => (int)($oltPort['slot'] ?? 0),
+            'port_no' => (int)($oltPort['port'] ?? 0),
             'save_config' => true,
         ];
 
@@ -177,18 +206,7 @@ class VlanManagementService
             throw new RuntimeException('OLT password is missing.');
         }
 
-        $command = 'python3 ' . escapeshellarg($script) . ' ' . escapeshellarg(json_encode($payload, JSON_UNESCAPED_SLASHES));
-        $rawOutput = shell_exec($command);
-
-        if ($rawOutput === null || trim($rawOutput) === '') {
-            throw new RuntimeException('No response from deploy script.');
-        }
-
-        $decoded = json_decode($rawOutput, true);
-
-        if (!is_array($decoded)) {
-            throw new RuntimeException('Invalid deploy script response: ' . $rawOutput);
-        }
+        $decoded = $this->executeVlanScript($script, $payload);
 
         if (($decoded['success'] ?? false) !== true) {
             throw new RuntimeException($decoded['message'] ?? 'MGMT-VLAN deployment failed.');
@@ -210,6 +228,7 @@ class VlanManagementService
 
         $oltId = (int)($row['olt_id'] ?? 0);
         $vlanId = (int)($row['mgmt_vlan'] ?? 0);
+        $oltPortId = (int)($row['olt_port_id'] ?? 0);
 
         if ($oltId <= 0) {
             throw new RuntimeException('This MGMT-VLAN has no assigned OLT.');
@@ -217,6 +236,10 @@ class VlanManagementService
 
         if ($vlanId <= 0) {
             throw new RuntimeException('Invalid MGMT-VLAN value.');
+        }
+        $oltPort = $this->repo->findOltPortById($oltPortId);
+        if (!$oltPort || (int)($oltPort['olt_id'] ?? 0) !== $oltId) {
+            throw new RuntimeException('Assigned MGMT-VLAN OLT port was not found.');
         }
 
         $olt = $this->repo->findOltById($oltId);
@@ -236,6 +259,9 @@ class VlanManagementService
             'port' => 22,
             'vlan_id' => $vlanId,
             'vlan_type' => 'MGMT_VLAN',
+            'frame' => (int)($oltPort['frame'] ?? 0),
+            'slot' => (int)($oltPort['slot'] ?? 0),
+            'port_no' => (int)($oltPort['port'] ?? 0),
             'save_config' => true,
         ];
 
@@ -251,18 +277,7 @@ class VlanManagementService
             throw new RuntimeException('OLT password is missing.');
         }
 
-        $command = 'python3 ' . escapeshellarg($script) . ' ' . escapeshellarg(json_encode($payload, JSON_UNESCAPED_SLASHES));
-        $rawOutput = shell_exec($command);
-
-        if ($rawOutput === null || trim($rawOutput) === '') {
-            throw new RuntimeException('No response from delete script.');
-        }
-
-        $decoded = json_decode($rawOutput, true);
-
-        if (!is_array($decoded)) {
-            throw new RuntimeException('Invalid delete script response: ' . $rawOutput);
-        }
+        $decoded = $this->executeVlanScript($script, $payload);
 
         if (($decoded['success'] ?? false) !== true) {
             throw new RuntimeException($decoded['message'] ?? 'MGMT-VLAN delete failed.');
@@ -468,6 +483,17 @@ class VlanManagementService
 
         $data['olt_id'] = $oltId;
         $data['olt_port_id'] = $oltPortId;
+        $data['parent_svlan_id'] = $vlanType === 'C_VLAN'
+            ? ((int)($data['parent_svlan_id'] ?? 0) > 0
+                ? (int)$data['parent_svlan_id']
+                : (isset($existing['parent_svlan_id']) ? (int)$existing['parent_svlan_id'] : null))
+            : null;
+        if ($vlanType === 'C_VLAN' && empty($data['parent_svlan_id'])) {
+            throw new RuntimeException('Parent S-VLAN is required for a C-VLAN.');
+        }
+        if ($vlanType === 'C_VLAN' && !$this->repo->findParentSvlan((int)$data['parent_svlan_id'], $oltId)) {
+            throw new RuntimeException('Selected parent S-VLAN is not deployed on the selected OLT.');
+        }
         $data['vlan_id'] = $vlanId;
         $data['vlan_type'] = $vlanType;
         $data['name'] = (string)($data['name'] ?? $existing['name'] ?? '');
@@ -543,21 +569,12 @@ class VlanManagementService
             throw new RuntimeException('OLT password is missing.');
         }
 
-        $command = 'python3 ' . escapeshellarg($script) . ' ' . escapeshellarg(json_encode($payload, JSON_UNESCAPED_SLASHES));
-        $rawOutput = shell_exec($command);
-
-        if ($rawOutput === null || trim($rawOutput) === '') {
-            $this->repo->updateDeploymentState($id, 'FAILED', null, 'No response from deploy script.');
-            throw new RuntimeException('No response from deploy script.');
+        try {
+            $decoded = $this->executeVlanScript($script, $payload);
+        } catch (RuntimeException $e) {
+            $this->repo->updateDeploymentState($id, 'FAILED', null, $e->getMessage());
+            throw $e;
         }
-
-        $decoded = json_decode($rawOutput, true);
-
-        if (!is_array($decoded)) {
-            $this->repo->updateDeploymentState($id, 'FAILED', null, $rawOutput);
-            throw new RuntimeException('Invalid deploy script response: ' . $rawOutput);
-        }
-
         if (($decoded['success'] ?? false) !== true) {
             $this->repo->updateDeploymentState(
                 $id,
@@ -568,6 +585,15 @@ class VlanManagementService
 
             throw new RuntimeException($decoded['message'] ?? 'Deployment failed.');
         }
+
+        try {
+            $bngDeployment = $this->deployVlanToBng($row);
+        } catch (Throwable $e) {
+            $this->repo->updateDeploymentState($id, 'FAILED', null, $e->getMessage());
+            throw new RuntimeException('OLT deployment succeeded but BNG interface creation failed: ' . $e->getMessage(), 0, $e);
+        }
+
+        $decoded['bng'] = $bngDeployment;
 
         $this->repo->updateDeploymentState(
             $id,
@@ -588,6 +614,34 @@ class VlanManagementService
         );
 
         return $decoded;
+    }
+
+    private function deployVlanToBng(array $row): array
+    {
+        $vlanType = strtoupper((string)($row['vlan_type'] ?? ''));
+        $vlanId = (int)($row['vlan_id'] ?? 0);
+        $oltId = (int)($row['olt_id'] ?? 0);
+
+        if ($vlanType === 'S_VLAN') {
+            $result = $this->bng->ensureSvlanInterface($vlanId);
+            if (($result['ok'] ?? false) !== true || ($result['skipped'] ?? false) === true) {
+                throw new RuntimeException((string)($result['message'] ?? 'BNG S-VLAN interface creation failed.'));
+            }
+            return ['mode' => 'S_VLAN', 'interfaces' => [$result]];
+        }
+
+        if ($vlanType !== 'C_VLAN') {
+            throw new RuntimeException('Unsupported BNG VLAN type: ' . $vlanType);
+        }
+
+        $parent=$this->repo->findParentSvlan((int)($row['parent_svlan_id']??0),$oltId);
+        if(!$parent)throw new RuntimeException('The selected parent S-VLAN does not belong to this OLT.');
+        if(strtoupper((string)$parent['deployment_status'])!=='DEPLOYED')throw new RuntimeException('The selected parent S-VLAN must be deployed first.');
+        $result=$this->bng->ensureCvlanInterface((int)$parent['vlan_id'],$vlanId);
+        if(($result['ok']??false)!==true)throw new RuntimeException((string)($result['message']??'BNG C-VLAN interface creation failed.'));
+        $interfaces=[$result];
+
+        return ['mode' => 'C_VLAN', 'interfaces' => $interfaces];
     }
 
     public function deleteVlan(int $id): array
@@ -638,24 +692,14 @@ class VlanManagementService
             throw new RuntimeException('OLT password is missing.');
         }
 
-        $command = 'python3 ' . escapeshellarg($script) . ' ' . escapeshellarg(json_encode($payload, JSON_UNESCAPED_SLASHES));
-        $rawOutput = shell_exec($command);
-
-        if ($rawOutput === null || trim($rawOutput) === '') {
-            throw new RuntimeException('No response from delete script.');
-        }
-
-        $decoded = json_decode($rawOutput, true);
-
-        if (!is_array($decoded)) {
-            throw new RuntimeException('Invalid delete script response: ' . $rawOutput);
-        }
+        $decoded = $this->executeVlanScript($script, $payload);
 
         if (($decoded['success'] ?? false) !== true) {
             throw new RuntimeException($decoded['message'] ?? 'Delete failed.');
         }
 
         $this->repo->deleteVlan($id);
+        $parentSvlan=null;if(strtoupper((string)$row['vlan_type'])==='C_VLAN'){$parent=$this->repo->findParentSvlan((int)($row['parent_svlan_id']??0),$oltId);$parentSvlan=(int)($parent['vlan_id']??0);}$this->bng->forgetVlanInterface((string)$row['vlan_type'],(int)$row['vlan_id'],$parentSvlan);
 
         $this->safeAudit(
             'VLAN',
@@ -694,7 +738,24 @@ class VlanManagementService
         try {
             $this->audit->log($module, $action, $description);
         } catch (Throwable $e) {
-            // Audit must not break VLAN operations.
+            error_log('[Audit][' . $module . '] ' . $e->getMessage());
         }
+    }
+
+    private function executeVlanScript(string $script, array $payload): array
+    {
+        $execution = $this->networkRunner->runPythonJson($script, $payload);
+        $output = $execution->stdout !== '' ? $execution->stdout : $execution->stderr;
+        $decoded = json_decode($output, true);
+
+        if (!is_array($decoded)) {
+            throw new RuntimeException('Invalid response from VLAN automation process.');
+        }
+
+        if (!$execution->succeeded() && !isset($decoded['success'])) {
+            throw new RuntimeException('VLAN automation process failed.');
+        }
+
+        return $decoded;
     }
 }

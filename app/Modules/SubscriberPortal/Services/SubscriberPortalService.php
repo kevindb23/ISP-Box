@@ -2,6 +2,8 @@
 
 namespace App\Modules\SubscriberPortal\Services;
 
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\Services\AuditService;
 use App\Modules\SubscriberPortal\DTOs\SubscriberInvoiceFilterDTO;
 use App\Modules\SubscriberPortal\DTOs\SubscriberPortalSessionDTO;
 use App\Modules\SubscriberPortal\Entities\SubscriberPortalInvoice;
@@ -10,6 +12,8 @@ use App\Modules\SubscriberPortal\Entities\SubscriberPortalProfile;
 use App\Modules\SubscriberPortal\Entities\SubscriberPortalServiceAccount;
 use App\Modules\SubscriberPortal\Repositories\SubscriberPortalRepository;
 use App\Modules\SubscriberPortal\Validators\SubscriberPortalAccessValidator;
+use App\Modules\WorkOrders\Services\WorkOrdersService;
+use App\Modules\Billing\Services\PaymentService;
 use DateTime;
 use Exception;
 use Throwable;
@@ -21,10 +25,13 @@ class SubscriberPortalService
 
     public function __construct(
         SubscriberPortalRepository $repo,
-        ?SubscriberPortalAccessValidator $validator = null
+        SubscriberPortalAccessValidator $validator,
+        private WorkOrdersService $workOrders,
+        private ?AuditService $audit = null,
+        private ?PaymentService $paymentsService = null
     ) {
         $this->repo = $repo;
-        $this->validator = $validator ?: new SubscriberPortalAccessValidator();
+        $this->validator = $validator;
     }
 
     public function getSessionSubscriber(array $sessionData): array
@@ -59,6 +66,15 @@ class SubscriberPortalService
                 fn(array $row) => (new SubscriberPortalServiceAccount($row))->toArray(),
                 $this->repo->getServices($subscriberId)
             ),
+        ];
+    }
+
+    public function summary(array $sessionData): array
+    {
+        $context = $this->getSessionSubscriber($sessionData);
+        return [
+            'profile' => $context['subscriber'],
+            'overview' => $this->repo->getOverview((int)$context['subscriber']['id']),
         ];
     }
 
@@ -145,8 +161,33 @@ class SubscriberPortalService
                 $rows
             ),
             'total' => $this->repo->countPayments($subscriberId, $filterArray),
+            'summary' => $this->repo->getPaymentSummary($subscriberId),
             'filters' => $filterArray,
         ];
+    }
+
+    public function submitManualPayment(array $sessionData, array $input, array $files): array
+    {
+        if (!$this->paymentsService) throw new Exception('Billing payment service is unavailable.');
+        $context=$this->getSessionSubscriber($sessionData); $subscriberId=(int)$context['subscriber']['id']; $userId=(int)$context['session']['user_id'];
+        $invoiceId=(int)($input['invoice_id']??0); $amount=(float)($input['amount']??0); $method=strtoupper(trim((string)($input['method']??''))); $reference=trim((string)($input['reference_no']??''));
+        if(!in_array($method,['CASH','BANK_TRANSFER','GCASH','MAYA'],true)) throw new Exception('Invalid payment method.');
+        $invoice=$this->repo->findInvoiceForSubscriber($invoiceId,$subscriberId); $this->validator->validateInvoiceOwnership($invoice?:[],$subscriberId);
+        if($amount<=0 || $amount>(float)$invoice['balance_amount']) throw new Exception('Payment amount must be within the remaining invoice balance.');
+        if($this->repo->hasPendingPaymentForInvoice($invoiceId,$subscriberId)) throw new Exception('This invoice already has a payment waiting for review.');
+        $file=$files['payment_proof']??null; if(!is_array($file)||(int)($file['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK) throw new Exception('Payment screenshot is required.');
+        if((int)($file['size']??0)<=0||(int)$file['size']>5*1024*1024) throw new Exception('Payment screenshot must not exceed 5 MB.');
+        $tmp=(string)($file['tmp_name']??''); if($tmp===''||!is_uploaded_file($tmp)) throw new Exception('Invalid payment screenshot.');
+        $mime=(new \finfo(FILEINFO_MIME_TYPE))->file($tmp)?:''; $extensions=['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp'];
+        if(!isset($extensions[$mime])) throw new Exception('Payment screenshot must be JPG, PNG, or WEBP.');
+        $dir=BASE_PATH.'/storage/uploads/payment-proofs/'.$subscriberId; if(!is_dir($dir)&&!mkdir($dir,0770,true)&&!is_dir($dir)) throw new Exception('Unable to prepare payment proof storage.');
+        $name=bin2hex(random_bytes(20)).'.'.$extensions[$mime]; $target=$dir.'/'.$name;
+        if(!move_uploaded_file($tmp,$target)) throw new Exception('Unable to save payment screenshot.');
+        try {
+            $result=$this->paymentsService->create(['invoice_id'=>$invoiceId,'amount'=>$amount,'method'=>$method,'reference_no'=>$reference?:null,'payment_status'=>'PENDING','remarks'=>'Submitted through subscriber portal for Billing review.','proof_file_path'=>'/storage/uploads/payment-proofs/'.$subscriberId.'/'.$name,'proof_file_name'=>basename((string)($file['name']??'payment-proof.'.$extensions[$mime])),'proof_file_type'=>$mime,'submitted_by_user_id'=>$userId]);
+        } catch(Throwable $e) { @unlink($target); throw $e; }
+        $paymentId=(int)($result['payment']['id']??0); $this->auditEvent('SUBMIT_MANUAL_PAYMENT','Subscriber submitted payment proof for Billing review.','PAYMENT',$paymentId,['invoice_id'=>$invoiceId,'amount'=>$amount,'method'=>$method]);
+        return ['message'=>'Payment submitted and is pending Billing confirmation.','payment'=>$result['payment']??null,'invoice'=>$result['invoice']??null];
     }
 
     public function changePassword(array $sessionData, array $input): array
@@ -202,6 +243,8 @@ class SubscriberPortalService
         if (!$ok) {
             throw new Exception('Failed to update portal password.');
         }
+
+        $this->auditEvent('CHANGE_PASSWORD', 'Subscriber changed the portal password.', 'USER', $userId);
 
         return [
             'message' => 'Portal password changed successfully.',
@@ -314,6 +357,7 @@ class SubscriberPortalService
         $category = strtoupper(trim((string)($input['category'] ?? 'INTERNET')));
         $subject = trim((string)($input['subject'] ?? ''));
         $description = trim((string)($input['description'] ?? ''));
+        $requestedServiceId = (int)($input['service_id'] ?? 0);
 
         $allowedCategories = [
             'INTERNET',
@@ -337,13 +381,25 @@ class SubscriberPortalService
         if ($description === '') {
             throw new Exception('Description is required.');
         }
+        if (strlen($description) > 5000) {
+            throw new Exception('Description must not exceed 5000 characters.');
+        }
 
-        $ticketNo = $this->repo->generateTicketNo();
-
-        $ticketId = $this->repo->createTicket([
+        $lockName = 'nexusbox:ticket-number:' . date('Y');
+        $this->repo->acquireLock($lockName);
+        try {
+            [$ticketId, $ticketNo, $autoAssignment] = $this->repo->transaction(function () use ($subscriberId, $userId, $category, $subject, $description, $requestedServiceId): array {
+                $ticketNo = $this->repo->generateTicketNo();
+                $service = $requestedServiceId > 0
+                    ? $this->repo->findServiceForSubscriber($requestedServiceId, $subscriberId)
+                    : $this->repo->findPreferredServiceForSubscriber($subscriberId);
+                if ($requestedServiceId > 0 && !$service) {
+                    throw new Exception('Selected service does not belong to your account.');
+                }
+                $ticketId = $this->repo->createTicket([
             'ticket_no' => $ticketNo,
             'subscriber_id' => $subscriberId,
-            'service_id' => null,
+            'service_id' => !empty($service['id']) ? (int)$service['id'] : null,
             'category' => $category,
             'subject' => $subject,
             'description' => $description,
@@ -354,21 +410,34 @@ class SubscriberPortalService
             'status' => 'OPEN',
             'created_by_type' => 'SUBSCRIBER',
             'created_by_user_id' => $userId,
-        ]);
+                ]);
 
         if ($ticketId <= 0) {
             throw new Exception('Failed to create ticket.');
         }
 
-        $this->repo->createTicketMessage([
+                $this->repo->createTicketMessage([
             'ticket_id' => $ticketId,
             'sender_type' => 'SUBSCRIBER',
             'sender_user_id' => $userId,
             'message' => $description,
             'is_internal' => 0,
-        ]);
+                ]);
+                $this->repo->createStatusLog(['ticket_id' => $ticketId, 'old_status' => null, 'new_status' => 'OPEN', 'changed_by_user_id' => $userId, 'note' => 'Ticket created by subscriber.']);
+                $autoAssignment = $this->autoAssignTicketAfterCreation($ticketId, $category);
+                return [$ticketId, $ticketNo, $autoAssignment];
+            });
+        } finally {
+            $this->repo->releaseLock($lockName);
+        }
 
-        $autoAssignment = $this->autoAssignTicketAfterCreation($ticketId, $category);
+        $this->auditEvent(
+            'CREATE_TICKET',
+            "Subscriber created ticket {$ticketNo}.",
+            'TICKET',
+            $ticketId,
+            ['category' => $category, 'subject' => $subject]
+        );
 
         return [
             'message' => "Ticket {$ticketNo} created successfully.",
@@ -429,6 +498,11 @@ class SubscriberPortalService
             throw new Exception('Visit notes must not exceed 1000 characters.');
         }
 
+        $lockName = 'nexusbox:ticket-schedule:' . $ticketId . ':' . $date . ':' . $time;
+        $this->repo->acquireLock($lockName);
+        try {
+
+        return $this->repo->transaction(function () use ($sessionData, $subscriberId, $userId, $ticketId, $date, $time, $notes): array {
         $ticket = $this->repo->findTicketForSubscriber($ticketId, $subscriberId);
 
         if (!$ticket) {
@@ -439,6 +513,9 @@ class SubscriberPortalService
 
         if ($status !== 'WAITING_CUSTOMER_SCHEDULE') {
             throw new Exception('This ticket is not waiting for visit schedule.');
+        }
+        if (strtoupper((string)($ticket['category'] ?? '')) !== 'INTERNET') {
+            throw new Exception('Technician visits can only be scheduled for Internet-support tickets.');
         }
 
         if (!empty($ticket['work_order_id'])) {
@@ -492,6 +569,15 @@ class SubscriberPortalService
         }
 
         $this->repo->updateTicketWorkOrderId($ticketId, $workOrderId);
+        $this->repo->createStatusLog(['ticket_id' => $ticketId, 'old_status' => 'WAITING_CUSTOMER_SCHEDULE', 'new_status' => 'VISIT_SCHEDULED', 'changed_by_user_id' => $userId, 'note' => 'Subscriber selected a technician visit schedule.']);
+
+        $this->auditEvent(
+            'SCHEDULE_VISIT',
+            'Subscriber scheduled a technician visit.',
+            'TICKET',
+            $ticketId,
+            ['date' => $date, 'time' => $time, 'work_order_id' => $workOrderId]
+        );
 
         return [
             'message' => 'Visit schedule submitted successfully. Work order has been created.',
@@ -501,6 +587,10 @@ class SubscriberPortalService
             'work_order_id' => $workOrderId,
             'work_order' => $workOrder,
         ];
+        });
+        } finally {
+            $this->repo->releaseLock($lockName);
+        }
     }
 
     public function ticketDetails(array $sessionData, int $ticketId): array
@@ -541,6 +631,9 @@ class SubscriberPortalService
         if ($message === '') {
             throw new Exception('Reply message is required.');
         }
+        if (strlen($message) > 5000) {
+            throw new Exception('Reply message must not exceed 5000 characters.');
+        }
 
         $ticket = $this->repo->findTicketForSubscriber($ticketId, $subscriberId);
 
@@ -550,10 +643,11 @@ class SubscriberPortalService
 
         $status = strtoupper((string)($ticket['status'] ?? ''));
 
-        if (in_array($status, ['CLOSED', 'CANCELLED'], true)) {
-            throw new Exception('This ticket is already closed and cannot be replied to.');
+        if (in_array($status, ['RESOLVED', 'CLOSED', 'CANCELLED'], true)) {
+            throw new Exception('This ticket must be reopened before it can be replied to.');
         }
 
+        $messageId = $this->repo->transaction(function () use ($ticketId, $userId, $message, $status): int {
         $messageId = $this->repo->createTicketMessage([
             'ticket_id' => $ticketId,
             'sender_type' => 'SUBSCRIBER',
@@ -564,7 +658,18 @@ class SubscriberPortalService
 
         if ($status === 'WAITING_CUSTOMER') {
             $this->repo->updateTicketStatus($ticketId, 'OPEN');
+            $this->repo->createStatusLog(['ticket_id' => $ticketId, 'old_status' => 'WAITING_CUSTOMER', 'new_status' => 'OPEN', 'changed_by_user_id' => $userId, 'note' => 'Ticket reopened when subscriber replied.']);
         }
+        return $messageId;
+        });
+
+        $this->auditEvent(
+            'REPLY_TICKET',
+            'Subscriber replied to a ticket.',
+            'TICKET',
+            $ticketId,
+            ['message_id' => $messageId]
+        );
 
         return [
             'message' => 'Reply sent successfully.',
@@ -572,6 +677,20 @@ class SubscriberPortalService
             'ticket_id' => $ticketId,
             'ticket_no' => $ticket['ticket_no'] ?? null,
         ];
+    }
+
+    private function auditEvent(
+        string $action,
+        string $description,
+        string $objectType,
+        int $objectId,
+        array $metadata = []
+    ): void {
+        if ($this->audit === null) return;
+        $this->audit->logEvent(new AuditEventDTO(
+            module: 'SUBSCRIBER_PORTAL', action: $action, description: $description,
+            objectType: $objectType, objectId: $objectId, metadata: $metadata
+        ));
     }
 
     private function autoAssignTicketAfterCreation(int $ticketId, string $category): ?array
@@ -624,17 +743,11 @@ class SubscriberPortalService
 
     private function createWorkOrderFromTicket(int $ticketId, int $userId): ?array
     {
-        $workOrdersRepo = new \App\Modules\WorkOrders\Repositories\WorkOrdersRepository(
-            new \Framework\DatabaseConnection()
-        );
-
-        $workOrdersService = new \App\Modules\WorkOrders\Services\WorkOrdersService($workOrdersRepo);
-
-        return $workOrdersService->createFromTicket([
+        return $this->workOrders->createFromSubscriberTicket([
             'id' => $userId,
             'user_id' => $userId,
             'username' => 'subscriber_portal',
-            'role' => 'SUPPORT',
+            'role' => 'SUBSCRIBER',
         ], [
             'ticket_id' => $ticketId,
         ]);

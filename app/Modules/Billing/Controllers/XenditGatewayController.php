@@ -3,83 +3,45 @@
 namespace App\Modules\Billing\Controllers;
 
 use App\Modules\Billing\Services\XenditGatewayService;
-use Framework\Controller;
-use Framework\DatabaseConnection;
+use Framework\ApiController;
 use Throwable;
 
-class XenditGatewayController extends Controller
+class XenditGatewayController extends ApiController
 {
     private XenditGatewayService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(XenditGatewayService $service)
     {
-        $this->service = new XenditGatewayService($database->get());
+        $this->service = $service;
     }
 
     public function createPaymentLink(): void
     {
         try {
-            $payload = $this->input();
-            $invoiceId = (int)($payload['invoice_id'] ?? $_POST['invoice_id'] ?? 0);
+            $payload = $this->request()->input();
+            $invoiceId = (int)($payload['invoice_id'] ?? 0);
 
             if ($invoiceId <= 0) {
                 throw new \Exception('Invoice ID is required.');
             }
 
-            $this->respond([
-                'success' => true,
-                'message' => 'Xendit payment link created.',
-                'data' => $this->service->createPaymentLink($invoiceId),
-            ]);
+            $this->success($this->service->createPaymentLink($invoiceId), 'Xendit payment link created.');
         } catch (Throwable $e) {
-            http_response_code(422);
-
-            $this->respond([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            $this->error($e->getMessage(), 422);
         }
     }
 
     public function webhook(): void
     {
         try {
-            $payload = $this->input();
-            $callbackToken = $_SERVER['HTTP_X_CALLBACK_TOKEN'] ?? null;
+            $payload = $this->request()->input();
+            $callbackToken = $this->request()->header('X-Callback-Token');
 
             $result = $this->service->handleWebhook($payload, $callbackToken);
 
-            $this->respond([
-                'success' => true,
-                'message' => 'Webhook received.',
-                'data' => $result,
-            ]);
+            $this->success($result, 'Webhook received.');
         } catch (Throwable $e) {
-            http_response_code(400);
-
-            $this->respond([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
+            $this->error($e->getMessage(), 400);
         }
-    }
-
-    private function input(): array
-    {
-        $raw = file_get_contents('php://input');
-        $json = json_decode($raw ?: '', true);
-
-        if (is_array($json)) {
-            return $json;
-        }
-
-        return $_POST ?: [];
-    }
-
-    private function respond(array $payload): void
-    {
-        header('Content-Type: application/json');
-        echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        exit;
     }
 }

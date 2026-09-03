@@ -13,5 +13,6 @@ if (!defined('POWERED_BY')) {
 return [
 
     'app_name' => 'ISP-In-A-BOX',
+    'app_url' => rtrim((string)(getenv('APP_URL') ?: ''), '/'),
 
 ];

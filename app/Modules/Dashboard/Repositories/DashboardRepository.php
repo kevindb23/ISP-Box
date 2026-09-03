@@ -22,6 +22,7 @@ class DashboardRepository
             'active_services' => $this->countWhere('subscriber_services', "status = 'ACTIVE'"),
             'suspended_services' => $this->countWhere('subscriber_services', "status = 'SUSPENDED'"),
             'unpaid_invoices' => $this->countWhere('invoices', "status IN ('UNPAID','OVERDUE')"),
+            'unpaid_subscribers' => $this->countUnpaidSubscribers(),
             'paid_invoices' => $this->countWhere('invoices', "status = 'PAID'"),
             'today_revenue' => $this->sumTodayRevenue(),
             'active_sessions' => $this->countWhere('radius_accounting', 'session_stop IS NULL'),
@@ -49,6 +50,18 @@ class DashboardRepository
     {
         $sql = "SELECT COUNT(*) FROM `{$table}` WHERE {$where}";
         $stmt = $this->db->query($sql);
+        return (int)$stmt->fetchColumn();
+    }
+
+    private function countUnpaidSubscribers(): int
+    {
+        $stmt = $this->db->query(
+            "SELECT COUNT(DISTINCT subscriber_id)
+             FROM invoices
+             WHERE subscriber_id IS NOT NULL
+               AND status IN ('UNPAID', 'OVERDUE', 'PARTIAL')"
+        );
+
         return (int)$stmt->fetchColumn();
     }
 

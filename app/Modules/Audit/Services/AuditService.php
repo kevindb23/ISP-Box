@@ -2,26 +2,39 @@
 
 namespace App\Modules\Audit\Services;
 
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\DTOs\AuditFilterDTO;
+use App\Modules\Audit\Entities\AuditLog;
 use App\Modules\Audit\Repositories\AuditRepository;
+use App\Modules\Audit\Validators\AuditEventValidator;
 use Framework\SessionManager;
 
 class AuditService
 {
     private AuditRepository $repo;
+    private AuditEventValidator $validator;
 
-    public function __construct(AuditRepository $repo)
+    public function __construct(
+        AuditRepository $repo,
+        AuditEventValidator $validator
+    )
     {
         $this->repo = $repo;
+        $this->validator = $validator;
     }
 
-    public function latest(): array
+    public function latest(?AuditFilterDTO $filter = null): array
     {
-        return $this->repo->latest();
+        return array_map(
+            static fn(array $row): array => (new AuditLog($row))->toArray(),
+            $this->repo->latest(($filter ?? new AuditFilterDTO())->toArray())
+        );
     }
 
     public function find(int $id): ?array
     {
-        return $this->repo->find($id);
+        $row = $this->repo->find($id);
+        return $row ? (new AuditLog($row))->toArray() : null;
     }
 
     public function log(
@@ -31,14 +44,29 @@ class AuditService
     ): void {
         $user = $this->resolveCurrentUser();
 
-        $this->repo->create([
-            'user_id'     => (int)($user['id'] ?? 0),
-            'username'    => (string)($user['username'] ?? 'SYSTEM'),
-            'module'      => strtoupper($module),
-            'action'      => strtoupper($action),
-            'description' => $description,
-            'ip_address'  => $_SERVER['REMOTE_ADDR'] ?? null,
-        ]);
+        $this->logEvent(new AuditEventDTO(
+            module: $module,
+            action: $action,
+            description: $description,
+            userId: (int)($user['id'] ?? 0),
+            username: (string)($user['username'] ?? 'SYSTEM'),
+            actorRole: isset($user['role']) ? (string)$user['role'] : null,
+            ipAddress: $_SERVER['REMOTE_ADDR'] ?? null
+        ));
+    }
+
+    public function logEvent(AuditEventDTO $event): void
+    {
+        if ($event->userId === 0 && $event->username === 'SYSTEM') {
+            $user = $this->resolveCurrentUser();
+            $event->userId = (int)($user['id'] ?? 0);
+            $event->username = (string)($user['username'] ?? 'SYSTEM');
+            $event->actorRole ??= isset($user['role']) ? (string)$user['role'] : null;
+        }
+
+        $event->ipAddress ??= $_SERVER['REMOTE_ADDR'] ?? null;
+        $this->validator->validate($event);
+        $this->repo->create($event->toArray());
     }
 
     private function resolveCurrentUser(): array

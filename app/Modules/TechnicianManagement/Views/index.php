@@ -1,9 +1,7 @@
-<div class="container-fluid nx-page technician-management-page" data-technician-management-page="index">
-
-    <link rel="stylesheet" href="/module-assets/TechnicianManagement/css/TechnicianManagement.css">
-
-    <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="technicians"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The technician interface is not built.</div><?php endif;return;?>
+<div class="container-fluid nx-page technician-management-page" id="technicianManagementPage" data-technician-management-page="index">
+    <div class="card border-0 shadow-sm mb-3 nx-page-header-card technician-hero-card">
+        <div class="card-body nx-page-header technician-hero-body">
             <div>
                 <div class="text-primary small fw-bold text-uppercase">
                     <i class="bi bi-person-workspace"></i>
@@ -13,7 +11,7 @@
                 <small class="text-muted">Monitor technician availability, workload, and assigned work orders.</small>
             </div>
 
-            <button id="technicianRefreshBtn" class="btn btn-light border">
+            <button id="technicianRefreshBtn" class="btn btn-light border nx-header-btn">
                 <i class="bi bi-arrow-clockwise"></i>
                 Refresh
             </button>
@@ -62,7 +60,7 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-3">
+    <div class="card border-0 shadow-sm mb-3 nx-toolbar-card technician-toolbar-card">
         <div class="card-body">
             <div class="row g-2">
                 <div class="col-12 col-md-6">
@@ -92,10 +90,40 @@
 
     <div id="technicianManagementAlert"></div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div id="technicianTableHost">
-                <div class="text-center py-5 text-muted">Loading technicians...</div>
+    <div class="card border-0 shadow-sm nx-content-card content-card">
+        <div class="technician-table-topline"></div>
+        <div class="card-body">
+            <ul class="nav nav-tabs technician-main-tabs mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#techniciansListPane" type="button">
+                        <i class="bi bi-people me-1"></i> Technicians
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#technicianDispatchPane" type="button">
+                        <i class="bi bi-send-check me-1"></i> Dispatch Board
+                        <span class="badge text-bg-primary ms-1" id="technicianDispatchCount">0</span>
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="techniciansListPane">
+                    <div class="technician-section-head">
+                        <div><h2>Technicians</h2><p>Availability, assignments, workload, and field profile</p></div>
+                        <div class="technician-record-count" id="technicianRecordCount">0 technicians</div>
+                    </div>
+                    <div id="technicianTableHost">
+                        <div class="text-center py-5 text-muted">Loading technicians...</div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="technicianDispatchPane">
+                    <div class="technician-section-head">
+                        <div><h2>Unassigned Work Orders</h2><p>Assign open field work only to clocked-in, available technicians</p></div>
+                    </div>
+                    <div id="technicianDispatchContent">
+                        <div class="text-center py-5 text-muted">Loading dispatch board...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

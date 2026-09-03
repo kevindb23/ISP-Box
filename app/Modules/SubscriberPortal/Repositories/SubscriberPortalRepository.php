@@ -14,6 +14,47 @@ class SubscriberPortalRepository
         $this->db = $connection->get();
     }
 
+    public function transaction(callable $callback): mixed
+    {
+        if ($this->db->inTransaction()) return $callback();
+        $this->db->beginTransaction();
+        try {
+            $result = $callback();
+            $this->db->commit();
+            return $result;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    public function acquireLock(string $name, int $timeout = 10): void
+    {
+        $stmt = $this->db->prepare('SELECT GET_LOCK(:name, :timeout)');
+        $stmt->execute([':name' => $name, ':timeout' => $timeout]);
+        if ((int)$stmt->fetchColumn() !== 1) throw new \RuntimeException('The operation is busy. Please retry.');
+    }
+
+    public function releaseLock(string $name): void
+    {
+        $stmt = $this->db->prepare('SELECT RELEASE_LOCK(:name)');
+        $stmt->execute([':name' => $name]);
+    }
+
+    public function findPreferredServiceForSubscriber(int $subscriberId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id, subscriber_id, service_number, status FROM subscriber_services WHERE subscriber_id = :subscriber_id ORDER BY CASE status WHEN 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1");
+        $stmt->execute([':subscriber_id' => $subscriberId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function findServiceForSubscriber(int $serviceId, int $subscriberId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id, subscriber_id, service_number, ppp_username, status FROM subscriber_services WHERE id = :service_id AND subscriber_id = :subscriber_id LIMIT 1");
+        $stmt->execute([':service_id' => $serviceId, ':subscriber_id' => $subscriberId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
     public function findSubscriberByUserId(int $userId): ?array
     {
         $stmt = $this->db->prepare("
@@ -124,7 +165,12 @@ class SubscriberPortalRepository
             sop.status AS nap_box_port_status,
 
             od.name AS olt_name,
-            CONCAT_WS('/', op.frame, op.slot, op.port) AS olt_port_label
+            CONCAT_WS('/', op.frame, op.slot, op.port) AS olt_port_label,
+
+            oa.status AS acs_status,
+            oa.wan_ip AS wan_ip,
+            oa.last_seen AS acs_last_seen,
+            oa.firmware_version AS acs_firmware_version
 
         FROM subscriber_services ss
 
@@ -147,6 +193,9 @@ class SubscriberPortalRepository
 
         LEFT JOIN olt_ports op 
             ON op.id = spb.olt_port_id
+
+        LEFT JOIN ont_acs oa
+            ON UPPER(oa.serial_number) = UPPER(spb.ont_serial)
 
         WHERE ss.subscriber_id = :subscriber_id
 
@@ -525,6 +574,18 @@ class SubscriberPortalRepository
         return (int)$stmt->fetchColumn();
     }
 
+    public function getPaymentSummary(int $subscriberId): array
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) AS payment_count, COALESCE(SUM(CASE WHEN payment_status = 'POSTED' THEN amount ELSE 0 END), 0) AS posted_amount, MAX(payment_date) AS latest_payment_date FROM payments WHERE subscriber_id = :subscriber_id");
+        $stmt->execute([':subscriber_id' => $subscriberId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        return [
+            'payment_count' => (int)($row['payment_count'] ?? 0),
+            'posted_amount' => (float)($row['posted_amount'] ?? 0),
+            'latest_payment_date' => $row['latest_payment_date'] ?? null,
+        ];
+    }
+
     public function findPaymentReceiptForSubscriber(int $paymentId, int $subscriberId): ?array
     {
         $stmt = $this->db->prepare("
@@ -566,6 +627,12 @@ class SubscriberPortalRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $row ?: null;
+    }
+
+    public function hasPendingPaymentForInvoice(int $invoiceId, int $subscriberId): bool
+    {
+        $stmt=$this->db->prepare("SELECT COUNT(*) FROM payments WHERE invoice_id=:invoice_id AND subscriber_id=:subscriber_id AND payment_status='PENDING'");
+        $stmt->execute([':invoice_id'=>$invoiceId,':subscriber_id'=>$subscriberId]); return (int)$stmt->fetchColumn()>0;
     }
 
     public function findUserForPasswordChange(int $userId): ?array
@@ -941,6 +1008,13 @@ class SubscriberPortalRepository
         ]);
     }
 
+    public function createStatusLog(array $data): int
+    {
+        $stmt = $this->db->prepare("INSERT INTO ticket_status_logs (ticket_id, old_status, new_status, changed_by_user_id, note) VALUES (:ticket_id,:old_status,:new_status,:changed_by_user_id,:note)");
+        $stmt->execute([':ticket_id'=>$data['ticket_id'], ':old_status'=>$data['old_status'], ':new_status'=>$data['new_status'], ':changed_by_user_id'=>$data['changed_by_user_id'], ':note'=>$data['note']]);
+        return (int)$this->db->lastInsertId();
+    }
+
     public function getVisitSlotUsageByDate(string $date): array
     {
         $stmt = $this->db->prepare("
@@ -990,7 +1064,7 @@ class SubscriberPortalRepository
           AND status = 'ACTIVE'
     ");
 
-        return max(1, (int)$stmt->fetchColumn());
+        return max(0, (int)$stmt->fetchColumn());
     }
 
     public function updateTicketWorkOrderId(int $ticketId, int $workOrderId): bool

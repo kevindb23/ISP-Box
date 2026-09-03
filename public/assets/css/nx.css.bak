@@ -1,0 +1,6056 @@
+:root{
+    --nx-font-body:"DM Sans", "Segoe UI", Arial, sans-serif;
+    --nx-font-heading:"DM Sans", "Segoe UI", Arial, sans-serif;
+    --bs-font-sans-serif:var(--nx-font-body);
+    --bs-body-font-family:var(--nx-font-body);
+
+    --nx-primary:#1d4ed8;
+    --nx-primary-2:#2563eb;
+    --nx-primary-3:#3b82f6;
+
+    --nx-slate:#1e293b;
+    --nx-success:#16a34a;
+    --nx-online:#0284c7;
+    --nx-danger:#dc2626;
+    --nx-warning:#d97706;
+    --nx-cyan:#0f766e;
+
+    --nx-text:#0f172a;
+    --nx-text-soft:#334155;
+    --nx-text-muted:#64748b;
+    --nx-text-faint:#94a3b8;
+
+    --nx-border:#e2e8f0;
+    --nx-border-soft:#edf2f7;
+    --nx-border-strong:#d7e0ea;
+
+    --nx-bg-page:#f4f7fb;
+    --nx-bg-soft:#f8fafc;
+    --nx-bg-softer:#f1f5f9;
+    --nx-bg-tint:#eef4ff;
+    --nx-white:#ffffff;
+
+    --nx-panel-surface-light:#ffffff;
+    --nx-panel-surface-dark:#0c2439;
+    --nx-table-head-surface-light:#f8fafc;
+    --nx-table-head-surface-dark:#252d36;
+    --nx-table-row-surface-dark:#28323c;
+    --nx-table-row-surface-dark-alt:#2c3742;
+    --nx-control-surface-dark:#212a34;
+    --nx-control-border-light:#dbe3ef;
+    --nx-control-border-dark:#2f3a46;
+    --nx-control-focus:#64748b;
+
+    --nx-radius-sm:10px;
+    --nx-radius-md:12px;
+    --nx-radius-lg:16px;
+    --nx-radius-xl:18px;
+    --nx-radius-2xl:20px;
+
+    --nx-shadow-xs:0 1px 2px rgba(15,23,42,.03);
+    --nx-shadow-sm:0 4px 14px rgba(15,23,42,.04);
+    --nx-shadow-md:0 10px 28px rgba(15,23,42,.06);
+    --nx-shadow-lg:0 18px 40px rgba(15,23,42,.10);
+    --nx-shadow-xl:0 24px 60px rgba(15,23,42,.14);
+    --nx-shadow-focus:0 0 0 4px rgba(37,99,235,.12);
+
+    --nx-transition-fast:all .16s ease;
+    --nx-transition-base:all .2s ease;
+
+    --dash-surface: #5e7edd1c;
+}
+
+/* ======================================================
+   BASE / GLOBAL
+====================================================== */
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:var(--nx-bg-page);
+    margin:0;
+    font-family:var(--nx-font-body) !important;
+    overflow-y:scroll;
+    color:var(--nx-text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+
+/* ======================================================
+   SIDEBAR
+====================================================== */
+
+.sidebar{
+    width:var(--sidebar-width, 260px);
+    height:100vh;
+    background:#ffffff;
+    border-right:1px solid #e7edf5;
+    position:fixed;
+    top:0;
+    left:0;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 0 0 1px rgba(255,255,255,.8);
+}
+
+.sidebar-header{
+    padding:20px 20px 18px;
+    border-bottom:1px solid #edf2f7;
+}
+
+.sidebar-logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.sidebar-logo i{
+    width:40px;
+    height:40px;
+    border-radius:3px;
+    background:linear-gradient(180deg,#4f8cff,#2563eb);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    box-shadow:0 8px 20px rgba(37,99,235,.18);
+}
+
+.logo-title{
+    font-size:16px;
+    font-weight:700;
+    color:var(--nx-text);
+}
+
+.logo-subtitle{
+    font-size:12px;
+    color:var(--nx-text-muted);
+    margin-top:2px;
+}
+
+.sidebar-menu{
+    list-style:none;
+    padding:12px;
+    margin:0;
+    flex:1;
+}
+
+.menu-item{
+    margin-bottom:6px;
+}
+
+.menu-item a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 14px;
+    border-radius:3px;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:500;
+    color:#334155;
+    transition:var(--nx-transition-base);
+}
+
+.menu-item a:hover{
+    background:#f4f8fd;
+    color:var(--nx-text);
+}
+
+.menu-item.active a{
+    background:linear-gradient(180deg,#edf4ff,#e7f0ff);
+    color:#2563eb;
+    font-weight:700;
+    box-shadow:inset 0 0 0 1px rgba(37,99,235,.08);
+}
+
+.menu-group{
+    margin-bottom:6px;
+}
+
+.menu-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 14px;
+    border-radius:3px;
+    font-size:14px;
+    font-weight:500;
+    color:#334155;
+    cursor:pointer;
+    transition:var(--nx-transition-base);
+}
+
+.menu-title:hover{
+    background:#f4f8fd;
+    color:var(--nx-text);
+}
+
+.menu-title i{
+    width:18px;
+    text-align:center;
+}
+
+.menu-title .arrow{
+    margin-left:auto;
+    font-size:12px;
+    transition:transform .25s ease;
+}
+
+.menu-group.active .arrow{
+    transform:rotate(90deg);
+}
+
+.menu-group.active .menu-title{
+    background:#f4f8fd;
+    color:var(--nx-text);
+}
+
+.submenu{
+    list-style:none;
+    padding-left:38px;
+    margin-top:6px;
+    display:none;
+}
+
+.menu-group.active .submenu{
+    display:block;
+}
+
+.submenu li{
+    margin:4px 0;
+}
+
+.submenu li a{
+    display:block;
+    padding:7px 0;
+    font-size:13px;
+    font-weight:500;
+    color:#64748b;
+    text-decoration:none;
+    transition:var(--nx-transition-fast);
+}
+
+.submenu li a:hover{
+    color:#2563eb;
+}
+
+.submenu a.active{
+    color:#2563eb;
+    font-weight:700;
+}
+
+.sidebar-footer{
+    padding:16px;
+    border-top:1px solid #edf2f7;
+    background:linear-gradient(180deg,rgba(255,255,255,0),#ffffff 35%);
+}
+
+.sidebar-user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user-info{
+    display:flex;
+    flex-direction:column;
+}
+
+/* ======================================================
+   MAIN LAYOUT
+====================================================== */
+
+.main-wrapper{
+    margin-left:var(--sidebar-width, 260px);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+.topbar{
+    position:fixed;
+    top:0;
+    left:var(--sidebar-width, 260px);
+    right:0;
+    height:64px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 24px;
+    border-bottom:1px solid #e8eef5;
+    box-shadow:0 1px 2px rgba(0,0,0,0.04);
+    z-index:1000;
+}
+
+.portal-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.portal-icon{
+    width:36px;
+    height:36px;
+    background:linear-gradient(180deg,#4f8cff,#2563eb);
+    color:white;
+    border-radius:3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    box-shadow:0 8px 20px rgba(37,99,235,.16);
+}
+
+.portal-title{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
+}
+
+.portal-name{
+    font-size:16px;
+    font-weight:700;
+    color:var(--nx-text);
+}
+
+.portal-powered{
+    font-size:11px;
+    color:var(--nx-text-muted);
+}
+
+.user-menu{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.user-avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:linear-gradient(180deg,#4f8cff,#2563eb);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-weight:700;
+    font-size:14px;
+    box-shadow:0 6px 14px rgba(37,99,235,.16);
+}
+
+.user-name{
+    font-size:14px;
+    font-weight:700;
+    color:var(--nx-text);
+}
+
+.user-role{
+    font-size:11px;
+    color:var(--nx-text-faint);
+}
+
+.logout-btn{
+    margin-left:auto;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    text-decoration:none;
+    color:#64748b;
+}
+
+.logout-top{
+    padding:7px 14px;
+    border-radius:3px;
+    border:1px solid #e6edf5;
+    background:white;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:var(--nx-transition-base);
+}
+
+.logout-top:hover{
+    background:#f8fbff;
+    border-color:#d8e3f2;
+    box-shadow:var(--nx-shadow-xs);
+}
+
+.main-content{
+    flex:1;
+    padding-top:88px;
+}
+
+.page-container{
+    padding:24px 24px 36px;
+    max-width:1440px;
+    margin:0 auto;
+}
+
+/* ======================================================
+   COLLAPSIBLE SIDEBAR
+====================================================== */
+
+body {
+    --sidebar-width: 260px;
+}
+
+html.sidebar-collapsed-preload body,
+body.sidebar-collapsed {
+    --sidebar-width: 78px;
+}
+
+.sidebar,
+.main-wrapper,
+.topbar {
+    transition: width .22s ease, left .22s ease, margin-left .22s ease;
+}
+
+.sidebar {
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.sidebar-menu {
+    width: 100%;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e2e8f0;
+    border-radius:3px;
+    background: #ffffff;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--nx-transition-base);
+}
+
+.sidebar-toggle-btn:hover {
+    background: #f8fbff;
+    border-color: #cbd5e1;
+    color: #2563eb;
+    box-shadow: var(--nx-shadow-xs);
+}
+
+/* Brand Logo Fix */
+.sidebar-logo,
+.portal-brand {
+    min-width: 0;
+}
+
+.logo-text,
+.portal-title {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.logo-title,
+.logo-subtitle,
+.portal-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-logo .sidebar-brand-logo {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 4px;
+    object-fit: contain;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius:3px;
+    display: block;
+}
+
+.portal-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+
+.portal-icon .topbar-brand-logo {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    max-width: 36px;
+    padding: 4px;
+    object-fit: contain;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius:3px;
+    display: block;
+}
+
+.sidebar .menu-item {
+    width: 100%;
+}
+
+.sidebar .menu-item a {
+    max-width: 100%;
+}
+
+body.sidebar-collapsed .sidebar .menu-item,
+html.sidebar-collapsed-preload .sidebar .menu-item {
+    width: 100%;
+}
+
+/* Collapsed State */
+html.sidebar-collapsed-preload .sidebar,
+body.sidebar-collapsed .sidebar {
+    width: 78px;
+}
+
+html.sidebar-collapsed-preload .main-wrapper,
+body.sidebar-collapsed .main-wrapper {
+    margin-left: 78px;
+}
+
+html.sidebar-collapsed-preload .topbar,
+body.sidebar-collapsed .topbar {
+    left: 78px;
+}
+
+html.sidebar-collapsed-preload .sidebar-header,
+body.sidebar-collapsed .sidebar-header {
+    padding: 18px 12px;
+}
+
+html.sidebar-collapsed-preload .sidebar-logo,
+body.sidebar-collapsed .sidebar-logo {
+    justify-content: center;
+}
+
+html.sidebar-collapsed-preload .logo-text,
+html.sidebar-collapsed-preload .menu-item span,
+html.sidebar-collapsed-preload .sidebar-user .user-info,
+html.sidebar-collapsed-preload .sidebar-user .logout-btn,
+html.sidebar-collapsed-preload .menu-section,
+body.sidebar-collapsed .logo-text,
+body.sidebar-collapsed .menu-item span,
+body.sidebar-collapsed .sidebar-user .user-info,
+body.sidebar-collapsed .sidebar-user .logout-btn,
+body.sidebar-collapsed .menu-section {
+    display: none !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-menu,
+body.sidebar-collapsed .sidebar-menu {
+    padding: 12px 10px;
+}
+
+html.sidebar-collapsed-preload .sidebar .menu-item,
+body.sidebar-collapsed .sidebar .menu-item {
+    margin-bottom: 8px;
+}
+
+html.sidebar-collapsed-preload .sidebar .menu-item a,
+body.sidebar-collapsed .sidebar .menu-item a {
+    width: 46px !important;
+    height: 46px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
+    border-radius:3px;
+}
+
+html.sidebar-collapsed-preload .menu-item a i,
+body.sidebar-collapsed .menu-item a i {
+    width: auto !important;
+    height: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 18px;
+}
+
+html.sidebar-collapsed-preload .sidebar-footer,
+body.sidebar-collapsed .sidebar-footer {
+    padding: 14px 10px;
+}
+
+html.sidebar-collapsed-preload .sidebar-user,
+body.sidebar-collapsed .sidebar-user {
+    justify-content: center;
+}
+
+html.sidebar-collapsed-preload .sidebar-user .user-avatar,
+body.sidebar-collapsed .sidebar-user .user-avatar {
+    width: 42px;
+    height: 42px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    body {
+        --sidebar-width: 78px;
+    }
+
+    .sidebar {
+        width: 78px;
+    }
+
+    .main-wrapper {
+        margin-left: 78px;
+    }
+
+    .topbar {
+        left: 78px;
+    }
+
+    .logo-text,
+    .sidebar .menu-item span,
+    .sidebar .sidebar-user .user-info,
+    .sidebar .sidebar-user .logout-btn,
+    .sidebar .menu-section {
+        display: none !important;
+    }
+
+    .sidebar-menu {
+        padding: 12px 10px;
+    }
+
+    .menu-item a {
+        width: 46px !important;
+        height: 46px !important;
+        padding: 0 !important;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto;
+        border-radius:3px;
+    }
+
+    .menu-item a i {
+        width: auto !important;
+        height: auto !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+}
+/* ======================================================
+   GENERIC BOOTSTRAP POLISH
+====================================================== */
+
+.card{
+    border:none;
+    border-radius:3px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom:20px;
+}
+
+.form-control,
+.form-select{
+    border-radius:3px;
+    min-height:44px;
+    border-color:#d9e3ee;
+    box-shadow:none;
+    font-size:13px;
+    color:var(--nx-text);
+    background:#ffffff;
+    transition:var(--nx-transition-base);
+}
+
+.form-control:hover,
+.form-select:hover{
+    border-color:#c7d6e6;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea.form-control:focus{
+    border-color:#93c5fd;
+    box-shadow:var(--nx-shadow-focus);
+}
+
+.modal-body input,
+.modal-body select,
+.modal-body textarea{
+    font-size:14px;
+}
+
+/* ======================================================
+   PAGE WRAPPER / SHELL
+====================================================== */
+
+.nx-page{
+    width:100%;
+}
+
+.nx-page > * + *{
+    margin-top:18px;
+}
+
+.nx-page-section{
+    margin-bottom:18px;
+}
+
+.nx-page-header-card,
+.nx-toolbar-card,
+.nx-content-card,
+.nx-surface-card{
+    border-radius:3px;
+    overflow:hidden;
+    border:1px solid rgba(226,232,240,.95);
+    background:#ffffff;
+    box-shadow:0 12px 30px rgba(15,23,42,.06);
+}
+
+.nx-page-header-card .card-body,
+.nx-toolbar-card .card-body,
+.nx-content-card .card-body,
+.nx-surface-card .card-body{
+    padding:22px;
+}
+
+.nx-page-title{
+    margin:0;
+    font-size:22px;
+    font-weight:800;
+    color:var(--nx-text);
+    line-height:1.15;
+    letter-spacing:-.03em;
+}
+
+.nx-page-subtitle{
+    margin:6px 0 0;
+    font-size:14px;
+    color:var(--nx-text-muted);
+    line-height:1.5;
+}
+
+.nx-page-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+.nx-inline-note{
+    padding:12px 14px;
+    border-radius:3px;
+    background:rgba(255,255,255,.84);
+    border:1px solid #e3ebf5;
+    color:#475569;
+    line-height:1.45;
+    font-size:13px;
+}
+
+/* ======================================================
+   NX SUMMARY CARDS
+====================================================== */
+
+.nx-summary-card{
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    border:1px solid #e5e7eb;
+    border-radius:3px;
+    padding:16px 18px;
+    height:100%;
+    box-shadow:0 8px 22px rgba(15,23,42,.05);
+}
+
+.nx-summary-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+}
+
+.nx-summary-label{
+    font-size:.82rem;
+    color:#64748b;
+    margin-bottom:4px;
+}
+
+.nx-summary-value{
+    font-size:1.7rem;
+    line-height:1;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.nx-summary-icon{
+    width:44px;
+    height:44px;
+    border-radius:3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.1rem;
+}
+
+.nx-summary-primary .nx-summary-icon{
+    background:#eff6ff;
+    color:#2563eb;
+}
+
+.nx-summary-cyan .nx-summary-icon{
+    background:#e0f2fe;
+    color:#0284c7;
+}
+
+.nx-summary-success .nx-summary-icon{
+    background:#ecfdf5;
+    color:#16a34a;
+}
+
+.nx-summary-warning .nx-summary-icon{
+    background:#fff7ed;
+    color:#d97706;
+}
+
+.nx-summary-danger .nx-summary-icon{
+    background:#fef2f2;
+    color:#dc2626;
+}
+
+.nx-summary-slate .nx-summary-icon{
+    background:#f1f5f9;
+    color:#334155;
+}
+
+/* ======================================================
+   NOC CONSOLE BAR
+====================================================== */
+
+.nx-olt-console-bar,
+.nx-olt-console-hero{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(90deg,#f8fbff 0%, #f4f8fd 48%, #ecf3ff 100%);
+    border:1px solid #dbe5f1;
+    box-shadow:0 8px 24px rgba(15,23,42,.05);
+}
+
+.nx-olt-console-bar::before,
+.nx-olt-console-hero::before{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:3px;
+    background:linear-gradient(180deg,#3b82f6,#2563eb);
+}
+
+.nx-olt-console-bar .card-body,
+.nx-olt-console-hero .card-body{
+    padding:14px 16px 14px 18px;
+}
+
+.nx-console-bar-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+}
+
+.nx-console-title-wrap{
+    min-width:0;
+}
+
+.nx-olt-console-title,
+.nx-olt-hero-title{
+    margin:0;
+    font-size:18px;
+    line-height:1.12;
+    letter-spacing:-.03em;
+    font-weight:800;
+    color:#111827;
+}
+
+.nx-olt-console-subtitle,
+.nx-olt-hero-text{
+    margin-top:4px;
+    font-size:12px;
+    color:#64748b;
+    line-height:1.45;
+    max-width:none;
+}
+
+.nx-olt-hero-eyebrow{
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:#2563eb;
+    margin-bottom:8px;
+}
+
+.nx-console-note{
+    padding:10px 12px;
+    border-radius:3px;
+    background:rgba(255,255,255,.82);
+    border:1px solid #e3ebf5;
+    color:#475569;
+    font-size:13px;
+    line-height:1.45;
+}
+
+.nx-console-toolbar,
+.nx-olt-hero-toolbar{
+    margin-top:0;
+    padding:10px 12px;
+    border:1px solid #e3ebf5;
+    background:rgba(255,255,255,.78);
+    border-radius:3px;
+    box-shadow:none;
+}
+
+.nx-console-meta{
+    padding-top:10px;
+    border-top:1px solid rgba(148,163,184,.18);
+}
+
+.nx-ports-inline-stats{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex-wrap:wrap;
+}
+
+.nx-ports-inline-stat{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-height:22px;
+}
+
+.nx-ports-inline-label{
+    font-size:12px;
+    color:#64748b;
+}
+
+.nx-ports-inline-value{
+    font-size:12px;
+    font-weight:800;
+    color:#0f172a;
+}
+
+/* legacy context compatibility */
+.nx-olt-context-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+}
+
+.nx-olt-context-chip{
+    padding:10px 12px;
+    background:rgba(255,255,255,.84);
+    border:1px solid #e1eaf4;
+    border-radius:3px;
+    box-shadow:0 4px 12px rgba(15,23,42,.03);
+    min-height:66px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.nx-olt-context-label{
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#7b8a9c;
+    margin-bottom:5px;
+}
+
+.nx-olt-context-value{
+    font-size:14px;
+    font-weight:700;
+    color:#0f172a;
+    line-height:1.25;
+    word-break:break-word;
+}
+
+/* ======================================================
+   SEGMENT CONTROL
+====================================================== */
+
+div.nx-segment-control,
+.nx-page .nx-segment-control{
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:6px !important;
+    padding:6px !important;
+    background:linear-gradient(180deg,#f4f8fc,#edf3f9) !important;
+    border:1px solid #d8e2ed !important;
+    border-radius:3px !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 4px 14px rgba(15,23,42,.05) !important;
+    margin:0 0 4px 0 !important;
+    flex-wrap:wrap !important;
+    width:max-content !important;
+    max-width:100% !important;
+}
+
+div.nx-segment-control > a.nx-segment-item,
+div.nx-segment-control > button.nx-segment-item,
+.nx-page .nx-segment-control > a.nx-segment-item,
+.nx-page .nx-segment-control > button.nx-segment-item{
+    appearance:none !important;
+    -webkit-appearance:none !important;
+    border:0 !important;
+    outline:0 !important;
+    background:transparent !important;
+    color:#2563eb !important;
+    text-decoration:none !important;
+    padding:12px 22px !important;
+    min-height:46px !important;
+    min-width:110px !important;
+    border-radius:3px !important;
+    font-size:14px !important;
+    font-weight:800 !important;
+    line-height:1 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    white-space:nowrap !important;
+    cursor:pointer !important;
+    letter-spacing:-.01em !important;
+    transition:background-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease !important;
+}
+
+div.nx-segment-control > a.nx-segment-item:hover,
+div.nx-segment-control > button.nx-segment-item:hover,
+.nx-page .nx-segment-control > a.nx-segment-item:hover,
+.nx-page .nx-segment-control > button.nx-segment-item:hover{
+    color:#1d4ed8 !important;
+    background:#e8f0ff !important;
+    text-decoration:none !important;
+}
+
+div.nx-segment-control > a.nx-segment-item.active,
+div.nx-segment-control > a.nx-segment-item[aria-selected="true"],
+div.nx-segment-control > button.nx-segment-item.active,
+div.nx-segment-control > button.nx-segment-item[aria-selected="true"],
+.nx-page .nx-segment-control > a.nx-segment-item.active,
+.nx-page .nx-segment-control > a.nx-segment-item[aria-selected="true"],
+.nx-page .nx-segment-control > button.nx-segment-item.active,
+.nx-page .nx-segment-control > button.nx-segment-item[aria-selected="true"]{
+    background:linear-gradient(180deg,#3b82f6,#2563eb) !important;
+    color:#ffffff !important;
+    box-shadow:0 10px 20px rgba(37,99,235,.26), inset 0 1px 0 rgba(255,255,255,.22) !important;
+}
+
+/* ======================================================
+   TELEMETRY RAIL
+====================================================== */
+
+#oltKpiStrip{
+    display:none !important;
+}
+
+.nx-telemetry-rail{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    padding:12px 14px;
+    border:1px solid #dfe7f2;
+    border-radius:3px;
+    background:rgba(255,255,255,.82);
+    box-shadow:0 4px 14px rgba(15,23,42,.03);
+}
+
+.nx-telemetry-item{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+}
+
+.nx-telemetry-label{
+    font-size:12px;
+    color:#64748b;
+    letter-spacing:.01em;
+}
+
+.nx-telemetry-value{
+    font-size:18px;
+    font-weight:800;
+    line-height:1;
+    color:#0f172a;
+}
+
+.nx-telemetry-item.is-success .nx-telemetry-value{
+    color:#16a34a;
+}
+
+.nx-telemetry-item.is-danger .nx-telemetry-value{
+    color:#dc2626;
+}
+
+.nx-telemetry-item.is-muted .nx-telemetry-value{
+    color:#475569;
+}
+
+.nx-telemetry-sep{
+    width:1px;
+    height:18px;
+    background:#dbe3ee;
+}
+
+/* old KPI compatibility */
+.nx-kpi-card-sm{
+    background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%);
+    border:1px solid #e4ebf4;
+    border-radius:3px;
+    padding:14px 16px 14px;
+    position:relative;
+    overflow:hidden;
+    transition:all .25s ease;
+    box-shadow:0 8px 20px rgba(15,23,42,.04);
+    min-height:104px;
+}
+
+.nx-kpi-card-sm::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:3px;
+    background:linear-gradient(90deg,#60a5fa,#2563eb);
+    opacity:.9;
+}
+
+.nx-kpi-card-sm:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 24px rgba(15,23,42,.07);
+}
+
+.nx-kpi-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:10px;
+}
+
+.nx-kpi-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#64748b;
+    margin-bottom:0;
+    font-weight:800;
+}
+
+.nx-kpi-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#94a3b8;
+    flex:0 0 auto;
+    box-shadow:0 0 0 4px rgba(148,163,184,.10);
+}
+
+.nx-kpi-dot.is-success{
+    background:#16a34a;
+    box-shadow:0 0 0 4px rgba(22,163,74,.10);
+}
+
+.nx-kpi-dot.is-muted{
+    background:#94a3b8;
+}
+
+.nx-kpi-dot.is-danger{
+    background:#dc2626;
+    box-shadow:0 0 0 4px rgba(220,38,38,.10);
+}
+
+.nx-kpi-value{
+    font-size:28px;
+    font-weight:800;
+    color:#111827;
+    line-height:1;
+    letter-spacing:-.04em;
+}
+
+.nx-kpi-sub{
+    margin-top:8px;
+    font-size:12px;
+    color:#66758a;
+    line-height:1.35;
+}
+
+.nx-kpi-value.text-success{
+    color:#16a34a !important;
+}
+
+.nx-kpi-value.text-danger{
+    color:#dc2626 !important;
+}
+
+/* ======================================================
+   NOC STAGE
+====================================================== */
+
+.nx-console-stage-card{
+    box-shadow:0 10px 24px rgba(15,23,42,.05);
+}
+
+.nx-console-stage{
+    background:linear-gradient(180deg,#f7fbff 0%,#eef4fa 100%);
+    border:1px solid #dde6f1;
+    border-radius:3px;
+    padding:12px;
+    overflow:hidden;
+}
+
+/* legacy showcase compatibility */
+.nx-showcase-shell{
+    background:linear-gradient(180deg,#f7fbff 0%,#eef4fa 100%);
+    border:1px solid #dde6f1;
+    border-radius:3px;
+    padding:12px;
+    box-shadow:none;
+}
+
+.nx-showcase-shell-premium{
+    background:linear-gradient(180deg,#f7fbff 0%,#eef4fa 100%);
+    border:1px solid #dde6f1;
+}
+
+/* ======================================================
+   OLT PHYSICAL VIEW FIX
+====================================================== */
+
+#oltPhysicalCard .card-body{
+    padding:14px;
+}
+
+#oltPhysicalView{
+    width:100%;
+    overflow:hidden;
+}
+
+#oltPhysicalView .olt-physical-stage,
+#oltPhysicalView .olt-physical-canvas,
+#oltPhysicalView .olt-svg-stage,
+#oltPhysicalView .olt-front-panel-stage,
+#oltPhysicalView .olt-image-stage,
+#oltPhysicalView .ma5800-svg-twin{
+    position:relative;
+    width:100%;
+    max-width:100%;
+    margin:0 auto;
+}
+
+#oltPhysicalView .olt-physical-stage > img,
+#oltPhysicalView .olt-physical-canvas > img,
+#oltPhysicalView .olt-svg-stage > img,
+#oltPhysicalView .olt-front-panel-stage > img,
+#oltPhysicalView .olt-image-stage > img,
+#oltPhysicalView .ma5800-svg-twin > img,
+#oltPhysicalView img.olt-base-image,
+#oltPhysicalView img{
+    display:block;
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+}
+
+#oltPhysicalView .olt-overlay,
+#oltPhysicalView .olt-overlay-layer,
+#oltPhysicalView .olt-ports-layer,
+#oltPhysicalView .olt-svg-overlay,
+#oltPhysicalView .ma5800-svg-overlay{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:auto;
+    z-index:2;
+}
+
+#oltPhysicalView .ma5800-base-image,
+#oltPhysicalView img.olt-base-image{
+    position:relative;
+    z-index:1;
+    pointer-events:none;
+}
+
+#oltPhysicalView .ma5800-svg-port-group{
+    cursor:pointer;
+    pointer-events:all;
+}
+
+#oltPhysicalView .ma5800-svg-port-rect,
+#oltPhysicalView .ma5800-svg-port-label{
+    pointer-events:all;
+}
+
+#oltPhysicalView .ma5800-svg-port-group:hover .ma5800-svg-port-rect{
+    filter:brightness(1.08);
+}
+
+#oltPhysicalView .olt-port,
+#oltPhysicalView .olt-slot,
+#oltPhysicalView .olt-board-port,
+#oltPhysicalView .olt-port-hitbox,
+#oltPhysicalView .olt-control-port,
+#oltPhysicalView .olt-gpon-port{
+    position:absolute;
+    box-sizing:border-box;
+}
+
+#oltPhysicalView svg{
+    display:block;
+    width:100% !important;
+    height:auto !important;
+    max-width:100% !important;
+}
+
+#oltPhysicalView .btn,
+#oltPhysicalView button{
+    min-height:auto !important;
+    padding:0 !important;
+    box-shadow:none !important;
+}
+
+.nx-showcase-shell,
+.nx-showcase-shell-premium,
+.nx-console-stage{
+    overflow:hidden;
+}
+
+#oltPhysicalView .olt-legend,
+#oltPhysicalView .nx-olt-legend,
+#oltPhysicalView .ma5800-legend-real{
+    margin-top:12px;
+}
+
+/* ======================================================
+   SLOT INSPECTOR
+====================================================== */
+
+.nx-slot-inspector{
+    align-self:flex-start;
+    border-radius:3px;
+    box-shadow:0 8px 18px rgba(15,23,42,.05);
+    background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%);
+    position:sticky;
+    top:88px;
+}
+
+.nx-slot-inspector .card-body{
+    padding:12px;
+}
+
+#oltSlotDetailsCard{
+    height:auto !important;
+}
+
+#oltSlotDetailsCard .card-body{
+    height:auto !important;
+}
+
+#oltSlotDetailsView{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+    font-size:13px;
+    color:#334155;
+}
+
+#oltSlotDetailsView .nx-grid-2{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+}
+
+#oltSlotDetailsView .nx-field,
+#oltSlotDetailsView .slot-detail-item{
+    padding:8px 10px;
+    background:#f8fbff;
+    border:1px solid #e5ecf5;
+    border-radius:3px;
+    min-height:auto;
+}
+
+#oltSlotDetailsView .nx-field label{
+    display:block;
+    margin-bottom:3px;
+    font-size:10px;
+    font-weight:700;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+}
+
+#oltSlotDetailsView .nx-field div{
+    font-size:13px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+#oltSlotDetailsView strong,
+#oltSlotDetailsView b{
+    color:#0f172a;
+}
+
+/* ======================================================
+   SECTION / TABLE CARDS
+====================================================== */
+
+.section-title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.section-title-row h6{
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:-.02em;
+    color:#162033;
+}
+
+.section-title-row small{
+    font-size:12px;
+}
+
+/* ======================================================
+   GRID CARD
+====================================================== */
+
+.plans-toolbar-shell {
+    padding-top: 15px;
+    padding-bottom: 5px;
+}
+
+.nx-console-grid-card{
+    box-shadow:0 10px 24px rgba(15,23,42,.05);
+}
+
+/* ======================================================
+   TABLES
+====================================================== */
+
+.table {
+    --bs-table-bg: transparent !important;
+}
+
+.table > :not(caption) > * > *{
+    padding:16px 16px;
+    vertical-align:middle;
+}
+
+.table thead th{
+    border-bottom:1px solid var(--nx-border);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:#475569;
+    white-space:nowrap;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.table tbody td{
+    border-color:var(--nx-border-soft);
+    font-size:inherit;
+    color:var(--nx-text-soft);
+    vertical-align:middle;
+}
+
+.nx-data-table-wrap{
+    background:transparent;
+    border:0;
+    box-shadow:none;
+}
+
+.nx-data-table{
+    margin:0;
+    border-collapse:separate;
+    border-spacing:0;
+    background:transparent;
+}
+
+.nx-data-table thead th{
+    height:40px;
+    padding:0 18px;
+}
+
+.nx-data-table tbody td{
+    padding:18px;
+}
+
+html[data-theme="dark"] .main-content .table,
+html[data-theme="dark"] .main-content table{
+    color:#e5e7eb;
+    background:transparent;
+    border: 1px solid gray !important;
+}
+
+html[data-theme="dark"] .main-content .nx-table-wrap{
+    background:var(--nx-table-row-surface-dark);
+    border-radius:4px;
+}
+
+html[data-theme="dark"] .main-content .nx-data-table-wrap{
+    background:transparent;
+    /* border:0; */
+    box-shadow:none;
+    border: 1px solid gray !important;
+}
+
+html[data-theme="dark"] .main-content .table thead th,
+html[data-theme="dark"] .main-content table thead th,
+html[data-theme="dark"] .main-content .nx-sticky-head th{
+    background:var(--nx-table-head-surface-dark) !important;
+    color:#9aa9bc;
+    border-top:0;
+    border-left:0;
+    border-right:0;
+    border-bottom:0;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.06em;
+    height:38px;
+}
+
+html[data-theme="dark"] .main-content .nx-data-table thead th{
+    background:var(--nx-table-head-surface-dark) !important;
+    color:#9aa9bc !important;
+    border-bottom:0 !important;
+    font-size:10px !important;
+    font-weight:700 !important;
+    letter-spacing:.06em !important;
+}
+
+html[data-theme="dark"] .main-content .table tbody tr,
+html[data-theme="dark"] .main-content table tbody tr{
+    /* background:var(--nx-table-row-surface-dark); */
+    background: none;
+}
+
+html[data-theme="dark"] .main-content .nx-data-table tbody tr{
+    /* background:var(--nx-table-row-surface-dark) !important; */
+    background: none;
+}
+
+html[data-theme="dark"] .main-content .table tbody tr:nth-child(even),
+html[data-theme="dark"] .main-content table tbody tr:nth-child(even){
+    /* background:var(--nx-table-row-surface-dark-alt); */
+    background: none;
+}
+
+html[data-theme="dark"] .main-content .nx-data-table tbody tr:nth-child(even){
+    background:var(--nx-table-row-surface-dark-alt) !important;
+}
+
+html[data-theme="dark"] .main-content .table tbody td,
+html[data-theme="dark"] .main-content table tbody td,
+html[data-theme="dark"] .main-content .table tfoot td,
+html[data-theme="dark"] .main-content table tfoot td{
+    color:#e5e7eb;
+    background:transparent;
+    border-left:0;
+    border-right:0;
+    border-bottom:0;
+    border-top:1px solid rgba(154,169,188,.12);
+}
+
+html[data-theme="dark"] .main-content .nx-data-table tbody td,
+html[data-theme="dark"] .main-content .nx-data-table tfoot td{
+    color:#e5e7eb !important;
+    background:transparent !important;
+    border-left:0 !important;
+    border-right:0 !important;
+    border-bottom:0 !important;
+    border-top:1px solid rgba(154,169,188,.12) !important;
+}
+
+html[data-theme="dark"] .main-content .table tbody tr:first-child td,
+html[data-theme="dark"] .main-content table tbody tr:first-child td{
+    border-top-color:transparent;
+}
+
+html[data-theme="dark"] .main-content .nx-data-table tbody tr:first-child td{
+    border-top-color:transparent !important;
+}
+
+
+.nx-table-wrap{
+    overflow:auto;
+    border-radius:3px;
+}
+
+.table-container{
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+}
+
+.table-container > *{
+    border:0 !important;
+    background:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+}
+
+.nx-table-footer-shell{
+    padding-top:18px;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+}
+
+.nx-sticky-head th{
+    position:sticky;
+    top:0;
+    z-index:2;
+    background:#f7faff !important;
+}
+
+.nx-sortable{
+    cursor:pointer;
+    user-select:none;
+}
+
+.nx-sortable .sort-indicator{
+    margin-left:6px;
+    font-size:10px;
+    opacity:.75;
+}
+
+.nx-table-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    padding:10px 0 10px;
+    color:var(--nx-text-muted);
+    font-size:13px;
+}
+
+.nx-table-footer__summary{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    min-height:40px;
+}
+
+.nx-table-footer__page{
+    font-weight:600;
+    color:var(--nx-text);
+}
+
+.nx-table-footer__records{
+    color:var(--nx-text-muted);
+}
+
+.nx-table-footer__controls{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-left:auto;
+}
+
+.nx-table-footer__per-page{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:4px 0;
+}
+
+.nx-table-footer__label{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--nx-text-muted);
+}
+
+.nx-table-footer__select.form-select{
+    width:84px;
+    min-width:84px;
+    height:42px;
+    padding:0 34px 0 14px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    line-height:1;
+}
+
+.nx-table-footer__actions{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+}
+
+.nx-table-footer__btn.btn{
+    min-width:88px;
+    height:42px;
+    padding:0 16px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:none;
+}
+
+.nx-table-footer__btn.btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+html[data-theme="light"] .nx-table-footer__select.form-select,
+body:not([data-theme="dark"]) .nx-table-footer__select.form-select{
+    background:#ffffff;
+    border:1px solid #d8e1ee;
+    color:#0f172a;
+}
+
+html[data-theme="light"] .nx-table-footer__btn.btn,
+body:not([data-theme="dark"]) .nx-table-footer__btn.btn{
+    background:#ffffff;
+    border:1px solid #d8e1ee;
+    color:#334155;
+}
+
+html[data-theme="light"] .nx-table-footer__btn.btn:hover:not(:disabled),
+body:not([data-theme="dark"]) .nx-table-footer__btn.btn:hover:not(:disabled){
+    background:#f8fbff;
+    border-color:#c7d6ea;
+}
+
+html[data-theme="dark"] .nx-table-footer__select.form-select{
+    background:#213147;
+    border:1px solid #2d425d;
+    color:#e5edf7;
+}
+
+html[data-theme="dark"] .nx-table-footer__btn.btn{
+    background:#24364d;
+    border:1px solid #314764;
+    color:#e5edf7;
+}
+
+html[data-theme="dark"] .nx-table-footer__btn.btn:hover:not(:disabled){
+    background:#2b3e57;
+    border-color:#39516f;
+}
+
+@media (max-width: 767.98px){
+    .nx-table-footer{
+        align-items:stretch;
+    }
+
+    .nx-table-footer__summary,
+    .nx-table-footer__controls{
+        width:100%;
+    }
+
+    .nx-table-footer__controls{
+        justify-content:space-between;
+    }
+
+    .nx-table-footer__actions{
+        margin-left:auto;
+    }
+}
+
+.olt-table-actions .btn{
+    width:36px;
+    height:36px;
+    min-width:36px;
+    min-height:36px;
+    padding:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* ======================================================
+   OLT DEVICES ACTION BUTTONS
+====================================================== */
+
+#oltDevicesView .btn.btn-sm{
+    width:40px;
+    min-width:40px;
+    height:40px;
+    min-height:40px;
+    padding:0 !important;
+    border-radius:3px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 40px;
+}
+
+#oltDevicesView .btn.btn-sm i{
+    font-size:14px;
+    line-height:1;
+}
+
+/* ======================================================
+   HIDE DEVICES NOTE
+====================================================== */
+
+#oltToolbarArea.d-none{
+    display:none !important;
+}
+
+/* ======================================================
+   PORTS FULL-WIDTH STAGE
+====================================================== */
+
+#oltPortsExperienceRow > .col-12{
+    width:100%;
+}
+
+#oltPhysicalCard{
+    margin-bottom:12px;
+}
+
+/* keep legacy slot card hidden */
+#oltSlotDetailsCard{
+    display:none !important;
+}
+
+/* ======================================================
+   BADGES / BUTTONS
+====================================================== */
+
+.nx-soft-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:5px 10px;
+    border-radius:3px;
+    font-size:11px;
+    font-weight:800;
+    line-height:1;
+    letter-spacing:.02em;
+    background:#eff6ff;
+    color:var(--nx-primary);
+}
+
+.nx-soft-badge-success{
+    background:#ecfdf5;
+    color:#16a34a;
+}
+
+.nx-soft-badge-danger{
+    background:#fef2f2;
+    color:#dc2626;
+}
+
+.nx-soft-badge-warning{
+    background:#fffbeb;
+    color:#d97706;
+}
+
+.nx-soft-badge-info{
+    background:#ecfeff;
+    color:#0891b2;
+}
+
+.nx-soft-badge-maintenance{
+    background:#fff7ed;
+    color:#c2410c;
+}
+
+.nx-icon-btn,
+.btn-outline-secondary.nx-icon-btn,
+.btn-outline-primary.nx-icon-btn,
+.btn-outline-success.nx-icon-btn,
+.btn-outline-warning.nx-icon-btn,
+.btn-outline-danger.nx-icon-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    padding:0;
+    border-radius:3px;
+}
+
+.btn{
+    transition:var(--nx-transition-base);
+}
+
+.btn.btn-primary,
+.btn.btn-light,
+.btn.btn-outline-secondary,
+.btn.btn-outline-primary{
+    min-height:40px;
+    padding:0 14px;
+    border-radius:3px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-weight:700;
+}
+
+.btn.btn-primary{
+    box-shadow:0 10px 22px rgba(37,99,235,.18);
+}
+
+.btn.btn-primary:hover{
+    transform:translateY(-1px);
+    box-shadow:0 14px 26px rgba(37,99,235,.22);
+}
+
+.btn.btn-light,
+.btn.btn-outline-secondary,
+.btn.btn-outline-primary{
+    border-color:#dde6f0;
+}
+
+.btn.btn-light:hover,
+.btn.btn-outline-secondary:hover,
+.btn.btn-outline-primary:hover{
+    background:#f8fbff;
+    border-color:#cfdbea;
+}
+
+/* ======================================================
+   MODALS
+====================================================== */
+
+.nx-modal .modal-dialog{
+    max-width:1100px;
+}
+
+.nx-modal-content{
+    border:0;
+    border-radius:3px;
+    overflow:hidden;
+    background:var(--nx-white);
+    box-shadow:0 30px 80px rgba(15,23,42,.18);
+}
+
+.nx-modal-header{
+    border-bottom:1px solid var(--nx-border);
+    padding:18px 22px;
+    background:var(--nx-white);
+}
+
+.nx-modal-body{
+    padding:22px;
+    background:var(--nx-bg-soft);
+}
+
+.nx-modal-footer{
+    border-top:1px solid var(--nx-border);
+    padding:16px 22px;
+    background:var(--nx-white);
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+/* ======================================================
+   NX FORM LAYOUT HELPERS
+====================================================== */
+
+.nx-section-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:3px;
+    padding:18px;
+    box-shadow:0 10px 24px rgba(15,23,42,.04);
+}
+
+.nx-grid-2{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+}
+
+.nx-field{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.nx-field label{
+    font-size:.85rem;
+    font-weight:700;
+    color:#334155;
+    margin:0;
+}
+
+/* ======================================================
+   NX DETAIL META TILES
+====================================================== */
+
+.nx-meta-tile{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:3px;
+    padding:14px 16px;
+    height:100%;
+    box-shadow:0 8px 20px rgba(15,23,42,.04);
+}
+
+.nx-meta-label{
+    font-size:.74rem;
+    color:#64748b;
+    font-weight:600;
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+
+.nx-meta-value{
+    font-size:1rem;
+    font-weight:700;
+    color:#0f172a;
+    word-break:break-word;
+}
+
+/* ======================================================
+   NX WORKSPACE / PLANNER SHELL
+====================================================== */
+
+.nx-workspace-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:3px;
+    padding:8px;
+    box-shadow:0 10px 24px rgba(15,23,42,.04);
+}
+
+.nx-workspace-card-full{
+    padding:8px;
+}
+
+.nx-workspace-canvas-container{
+    position:relative;
+    border:1px solid #dbe2ea;
+    border-radius:3px;
+    overflow:hidden;
+    background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);
+}
+
+.nx-workspace-canvas-container-xl{
+    height:820px;
+    min-height:520px;
+    max-height:820px;
+}
+
+.nx-workspace-canvas-surface{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+}
+
+.nx-workspace-map-placeholder{
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#475569;
+    font-size:.95rem;
+    text-align:center;
+    padding:24px;
+}
+
+/* ======================================================
+   NX FLOATING TOOLBAR / PANELS
+====================================================== */
+
+.nx-floating-panel{
+    position:absolute;
+    z-index:30;
+    user-select:none;
+}
+
+.nx-panel-drag-handle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:30px;
+    height:30px;
+    border-radius:3px;
+    border:1px solid #e2e8f0;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    color:#94a3b8;
+    cursor:grab;
+    flex:0 0 auto;
+    box-shadow:0 4px 10px rgba(15,23,42,.05);
+}
+
+.nx-panel-drag-handle:hover{
+    background:#f8fafc;
+    color:#475569;
+}
+
+.nx-panel-drag-handle:active{
+    cursor:grabbing;
+}
+
+.nx-floating-toolbar{
+    top:12px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    min-width:0;
+    width:min(96%,1240px);
+    background:#a9a7a430;
+    border:1px solid #e2e8f0;
+    border-radius:3px;
+    box-shadow:0 18px 40px rgba(15,23,42,.10);
+    backdrop-filter:blur(12px);
+    overflow-x:auto;
+    overflow-y:hidden;
+    white-space:nowrap;
+    scrollbar-width:thin;
+}
+
+.nx-floating-toolbar-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    min-width:max-content;
+}
+
+.nx-floating-toolbar-main{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:nowrap;
+    min-width:max-content;
+    flex:1;
+}
+
+.nx-floating-toolbar-center,
+.nx-floating-toolbar-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:nowrap;
+    min-width:max-content;
+}
+
+.nx-floating-toolbar.is-collapsed{
+    width:auto;
+    min-width:0;
+    padding:8px;
+    overflow:visible;
+}
+
+.nx-floating-toolbar.is-collapsed .nx-toggle-group,
+.nx-floating-toolbar.is-collapsed .nx-floating-toolbar-center,
+.nx-floating-toolbar.is-collapsed .nx-floating-toolbar-actions{
+    display:none;
+}
+
+.nx-floating-toolbar select,
+.nx-floating-toolbar input{
+    height:38px;
+    font-size:.82rem;
+    font-weight:600;
+    border:1px solid #dbe2ea;
+    border-radius:3px;
+    background:#fff;
+    color:#334155;
+    padding:0 12px;
+    flex:0 0 auto;
+    box-shadow:none;
+}
+
+.nx-floating-toolbar select:focus,
+.nx-floating-toolbar input:focus{
+    outline:none;
+    border-color:#93c5fd;
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.10);
+}
+
+.nx-floating-toolbar select{
+    min-width:160px;
+}
+
+.nx-toolbar-select-sm{
+    min-width:120px !important;
+    width:120px !important;
+}
+
+.nx-toolbar-select-md{
+    min-width:180px !important;
+    width:180px !important;
+}
+
+.nx-toggle-group{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:4px;
+    background:#f1f5f9;
+    border-radius:3px;
+    border:1px solid #e2e8f0;
+    flex:0 0 auto;
+}
+
+.nx-toggle-group button{
+    border:0;
+    background:transparent;
+    color:#475569;
+    padding:7px 12px;
+    border-radius:3px;
+    font-size:.78rem;
+    font-weight:700;
+    line-height:1;
+    transition:all .18s ease;
+}
+
+.nx-toggle-group button:hover{
+    background:#e2e8f0;
+    color:#0f172a;
+}
+
+.nx-toggle-group button.active{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:#fff;
+    box-shadow:0 10px 24px rgba(37,99,235,.20);
+}
+
+.nx-toolbar-toggle{
+    width:34px;
+    height:34px;
+    margin-left:auto;
+    border-radius:3px;
+    border:1px solid #dbe2ea;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    color:#475569;
+    flex:0 0 auto;
+}
+
+.nx-tool-icon{
+    width:38px;
+    height:38px;
+    border-radius:3px;
+    border:1px solid #dbe2ea;
+    background:#fff;
+    color:#475569;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+    transition:all .18s ease;
+}
+
+.nx-tool-icon i{
+    font-size:.92rem;
+}
+
+.nx-tool-icon:hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 20px rgba(15,23,42,.08);
+}
+
+.nx-tool-icon.active{
+    box-shadow:0 0 0 .18rem rgba(37,99,235,.12);
+    transform:translateY(-1px);
+}
+
+.nx-tool-icon-primary{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    border-color:transparent;
+    color:#fff;
+    box-shadow:0 10px 24px rgba(37,99,235,.18);
+}
+
+.nx-tool-icon-success{
+    background:linear-gradient(135deg,#16a34a,#15803d);
+    border-color:transparent;
+    color:#fff;
+    box-shadow:0 10px 24px rgba(22,163,74,.16);
+}
+
+.nx-tool-icon-danger{
+    background:#fff;
+    border-color:#fecaca;
+    color:#dc2626;
+}
+
+.nx-tool-icon-danger:hover{
+    background:#fef2f2;
+    border-color:#fca5a5;
+    color:#b91c1c;
+}
+
+.nx-tool-icon-neutral{
+    background:#fff;
+    border-color:#cbd5e1;
+    color:#475569;
+}
+
+/* ======================================================
+   NX INSPECTOR
+====================================================== */
+
+.nx-inspector{
+    position:absolute;
+    top:90px;
+    right:14px;
+    z-index:20;
+    width:320px;
+    max-width:calc(100% - 28px);
+    max-height:calc(100% - 104px);
+    overflow:auto;
+    border:1px solid rgba(226,232,240,.95);
+    border-radius:3px;
+    background:rgba(255,255,255,.96);
+    box-shadow:0 18px 40px rgba(15,23,42,.14);
+    backdrop-filter:blur(10px);
+    padding:12px;
+}
+
+.nx-inspector-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.nx-inspector-title{
+    font-size:.95rem;
+    font-weight:700;
+    color:#0f172a;
+    line-height:1.2;
+}
+
+.nx-inspector-subtitle{
+    font-size:.75rem;
+    color:#64748b;
+    margin-top:2px;
+}
+
+.nx-inspector-section{
+    border:1px solid #e5e7eb;
+    border-radius:3px;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    padding:10px;
+    margin-bottom:10px;
+}
+
+.nx-inspector-section:last-child{
+    margin-bottom:0;
+}
+
+.nx-inspector-section-title{
+    font-size:.78rem;
+    font-weight:700;
+    color:#334155;
+    margin-bottom:6px;
+}
+
+.nx-inspector-body{
+    font-size:.82rem;
+    line-height:1.45;
+    color:#334155;
+}
+
+.nx-prop-list{
+    display:grid;
+    gap:6px;
+    font-size:.82rem;
+    color:#334155;
+}
+
+/* ======================================================
+   NX HOVER TOOLTIP
+====================================================== */
+
+.nx-hover-tooltip{
+    position:absolute;
+    z-index:30;
+    min-width:220px;
+    max-width:320px;
+    padding:10px 12px;
+    border-radius:3px;
+    border:1px solid #dbe2ea;
+    background:rgba(255,255,255,.98);
+    box-shadow:0 16px 36px rgba(15,23,42,.16);
+    pointer-events:none;
+    font-size:.82rem;
+    color:#334155;
+    backdrop-filter:blur(8px);
+}
+
+.nx-hover-tooltip strong{
+    color:#0f172a;
+}
+
+.nx-hover-tooltip .tooltip-title,
+.nx-tooltip-title{
+    font-weight:700;
+    font-size:.88rem;
+    margin-bottom:6px;
+    color:#0f172a;
+}
+
+.nx-hover-tooltip .tooltip-grid,
+.nx-tooltip-grid{
+    display:grid;
+    gap:4px;
+}
+
+/* ======================================================
+   NX CONTEXT MENU
+====================================================== */
+
+.nx-context-menu{
+    position:absolute;
+    z-index:40;
+    min-width:220px;
+    padding:8px;
+    border:1px solid #dbe2ea;
+    border-radius:3px;
+    background:rgba(255,255,255,.98);
+    box-shadow:0 18px 40px rgba(15,23,42,.18);
+    backdrop-filter:blur(10px);
+}
+
+.nx-context-item{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:0;
+    background:transparent;
+    padding:9px 10px;
+    border-radius:3px;
+    font-size:.84rem;
+    color:#334155;
+    text-align:left;
+    cursor:pointer;
+}
+
+.nx-context-item:hover{
+    background:#eff6ff;
+    color:#0f172a;
+}
+
+.nx-context-item i{
+    font-size:.95rem;
+    width:16px;
+    text-align:center;
+}
+
+.nx-context-divider{
+    height:1px;
+    background:#e5e7eb;
+    margin:6px 0;
+}
+
+/* ======================================================
+   UTILITIES
+====================================================== */
+
+.nx-span-2{
+    grid-column:span 2;
+}
+
+.nx-text-mono{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+
+.nx-clickable{
+    cursor:pointer;
+}
+
+.nx-scroll-y{
+    overflow-y:auto;
+}
+
+.nx-scroll-x{
+    overflow-x:auto;
+}
+
+.nx-w-fit{
+    width:fit-content;
+}
+
+.nx-min-h-100{
+    min-height:100px;
+}
+
+.nx-min-h-120{
+    min-height:120px;
+}
+
+.nx-min-h-160{
+    min-height:160px;
+}
+
+.nx-border-soft{
+    border:1px solid #e5e7eb;
+}
+
+.nx-border-dashed{
+    border:1px dashed #cbd5e1;
+}
+
+.nx-bg-soft{
+    background:#f8fafc;
+}
+
+.nx-bg-softer{
+    background:#f1f5f9;
+}
+
+.nx-rounded-lg{
+    border-radius:3px;
+}
+
+.nx-rounded-md{
+    border-radius:3px;
+}
+
+.nx-shadow-soft{
+    box-shadow:0 4px 14px rgba(15,23,42,.04);
+}
+
+.nx-shadow-card{
+    box-shadow:0 8px 24px rgba(15,23,42,.06);
+}
+
+.nx-divider{
+    height:1px;
+    background:var(--nx-border);
+    margin:16px 0;
+    border:0;
+}
+
+.nx-copy-btn{
+    border:0;
+    background:transparent;
+    color:#64748b;
+    padding:0;
+    line-height:1;
+    cursor:pointer;
+}
+
+.nx-copy-btn:hover{
+    color:#2563eb;
+}
+
+.nx-skeleton{
+    position:relative;
+    overflow:hidden;
+    background:#e5e7eb;
+    border-radius:3px;
+}
+
+.nx-skeleton::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-150px;
+    width:150px;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+    animation:nxSkeleton 1.2s infinite;
+}
+
+.nx-skeleton-line{
+    height:14px;
+    width:100%;
+}
+
+.nx-toast-popup{
+    border-radius:3px !important;
+    box-shadow:0 14px 34px rgba(15,23,42,.14) !important;
+}
+
+@keyframes nxSkeleton{
+    0%{ left:-150px; }
+    100%{ left:100%; }
+}
+
+/* ======================================================
+   HARD HIDE UNWANTED METRICS
+====================================================== */
+
+#oltContextChips{
+    display:none !important;
+}
+
+/* ======================================================
+   MAPS
+====================================================== */
+
+.nx-map-picker {
+    width: 100%;
+    height: 320px;
+    border: 1px solid #d8dee9;
+    border-radius:3px;
+    overflow: hidden;
+    background: #f8fafc;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.nx-map-picker .leaflet-container {
+    width: 100%;
+    height: 100%;
+    border-radius:3px;
+    font: inherit;
+}
+
+.nx-map-picker-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1199.98px){
+    .nx-olt-context-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .nx-slot-inspector{
+        align-self:stretch;
+        position:static;
+    }
+
+    .nx-workspace-canvas-container{
+        min-height:520px;
+    }
+
+    .nx-workspace-canvas-container-xl{
+        height:700px;
+        min-height:480px;
+        max-height:700px;
+    }
+
+    .nx-floating-toolbar{
+        min-width:auto;
+        max-width:calc(100% - 20px);
+    }
+
+    .nx-floating-toolbar-main{
+        align-items:flex-start;
+    }
+
+    .nx-inspector{
+        width:290px;
+    }
+}
+
+@media (max-width: 992px){
+    .page-container{
+        padding:18px 18px 24px;
+    }
+
+    .nx-surface-card .card-body{
+        padding:18px;
+    }
+
+    .nx-olt-console-hero .card-body{
+        padding:18px 18px 16px 20px;
+    }
+
+    .nx-olt-hero-title,
+    .nx-olt-console-title{
+        font-size:22px;
+    }
+
+    .nx-telemetry-rail{
+        gap:10px;
+    }
+}
+
+@media (max-width: 991.98px){
+    .nx-grid-2{
+        grid-template-columns:1fr;
+    }
+
+    .nx-span-2{
+        grid-column:span 1;
+    }
+
+    .nx-workspace-canvas-container-xl{
+        height:620px;
+        min-height:420px;
+        max-height:620px;
+    }
+
+    .nx-floating-toolbar{
+        top:10px;
+        padding:8px 10px;
+    }
+
+    .nx-inspector{
+        width:260px;
+        right:10px;
+        max-height:calc(100% - 132px);
+    }
+}
+
+@media (max-width: 768px){
+    .main-content{
+        padding-top:78px;
+    }
+
+    .page-container{
+        padding:14px 14px 20px;
+    }
+
+    .nx-page > * + *{
+        margin-top:14px;
+    }
+
+    .nx-page-title{
+        font-size:20px;
+    }
+
+    div.nx-segment-control,
+    .nx-page .nx-segment-control{
+        display:flex !important;
+        width:100% !important;
+    }
+
+    div.nx-segment-control > .nx-segment-item,
+    .nx-page .nx-segment-control > .nx-segment-item{
+        flex:1 1 0 !important;
+        min-width:0 !important;
+        text-align:center !important;
+    }
+
+    .nx-olt-context-grid{
+        grid-template-columns:1fr;
+    }
+
+    .nx-showcase-shell,
+    .nx-showcase-shell-premium,
+    .nx-console-stage{
+        padding:12px;
+    }
+
+    .nx-olt-hero-title,
+    .nx-olt-console-title{
+        font-size:20px;
+    }
+
+    .nx-telemetry-rail{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .nx-telemetry-sep{
+        display:none;
+    }
+
+    .nx-ports-inline-stats{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+    }
+}
+
+@media (max-width: 767.98px){
+    .nx-floating-toolbar{
+        width:min(98%,1180px);
+        padding:8px;
+    }
+
+    .nx-floating-toolbar-row{
+        align-items:flex-start;
+    }
+
+    .nx-floating-toolbar-main{
+        width:100%;
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .nx-toggle-group,
+    .nx-floating-toolbar-center,
+    .nx-floating-toolbar-actions{
+        width:100%;
+    }
+
+    .nx-floating-toolbar-center{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:8px;
+    }
+
+    .nx-floating-toolbar-actions{
+        display:grid;
+        grid-template-columns:repeat(4,minmax(0,1fr));
+        gap:8px;
+    }
+
+    .nx-inspector{
+        left:10px;
+        right:10px;
+        bottom:74px;
+        top:auto;
+        width:auto;
+        max-width:none;
+        max-height:40%;
+    }
+
+    .nx-swal-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media (max-width: 575.98px){
+    .nx-workspace-canvas-container-xl{
+        height:520px;
+        min-height:360px;
+        max-height:520px;
+    }
+
+    .nx-floating-toolbar-center{
+        grid-template-columns:1fr;
+    }
+
+    .nx-floating-toolbar-actions{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .nx-summary-value{
+        font-size:1.45rem;
+    }
+
+    .swal2-title.nx-swal-title{
+        font-size:1.55rem !important;
+        padding:22px 20px 8px !important;
+    }
+
+    .swal2-html-container.nx-swal-html{
+        padding:8px 20px 20px !important;
+    }
+
+    .swal2-actions{
+        padding:0 20px 22px !important;
+    }
+}
+/* ======================================================
+   GLOBAL MODAL Z-INDEX FIX
+====================================================== */
+
+.modal-backdrop {
+    z-index: 2000 !important;
+}
+
+.modal {
+    z-index: 2010 !important;
+}
+
+.swal2-container {
+    z-index: 3000 !important;
+}
+
+.sidebar {
+    z-index: 1000 !important;
+}
+
+.topbar {
+    z-index: 990 !important;
+}
+
+#nxTopLoader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 0;
+    z-index: 2147483647;
+    background: #2563eb;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.75);
+    transition: width 250ms ease, opacity 150ms ease;
+}
+
+body.nx-page-loading #nxTopLoader {
+    opacity: 1;
+    width: 80%;
+}
+
+body.nx-page-loaded #nxTopLoader {
+    opacity: 1;
+    width: 100%;
+}
+
+[data-nx-main-content] {
+    transition: opacity 160ms ease, transform 160ms ease;
+}
+
+body.nx-page-transitioning [data-nx-main-content] {
+    opacity: 0.35;
+    transform: translateY(4px);
+}
+
+body.sidebar-collapsed .sidebar .menu-item {
+    position: relative;
+}
+
+body.sidebar-collapsed .sidebar .menu-item > a::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #111827;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius:3px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all .15s ease;
+    z-index: 99999;
+    box-shadow: 0 10px 25px rgba(0,0,0,.18);
+}
+
+body.sidebar-collapsed .sidebar .menu-item > a:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(6px,-50%);
+}
+#nxSidebarTooltip {
+    position: fixed;
+    transform: translateY(-50%);
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 11px;
+    border-radius:3px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 2147483647;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
+    transition: opacity 120ms ease, transform 120ms ease;
+}
+
+#nxSidebarTooltip.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(4px);
+}
+/* =========================================================
+   THEME: GLOBAL LIGHT / DARK MODE
+========================================================= */
+
+:root {
+    color-scheme: light;
+
+    --nx-bg-page: #f4f7fb;
+    --nx-bg-shell: #ffffff;
+    --nx-bg-card: #ffffff;
+    --nx-bg-card-soft: #f8fafc;
+
+    --nx-text: #0f172a;
+    --nx-text-soft: #334155;
+    --nx-muted: #64748b;
+
+    --nx-border: #e2e8f0;
+    --nx-border-soft: #edf2f7;
+
+    --nx-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+/* Smooth theme changes without affecting layout or interaction behavior. */
+:root,
+html,
+body,
+#nxApplication,
+.sidebar,
+.topbar,
+.main-wrapper,
+.main-content,
+.card,
+.modal-content,
+.dropdown-menu,
+.form-control,
+.form-select,
+table,
+.table,
+.table th,
+.table td,
+button,
+.btn {
+    transition:
+        background-color 300ms ease,
+        color 300ms ease,
+        box-shadow 300ms ease;
+}
+
+/* Theme changes are opt-in for 520ms so initial page load stays instant while
+   an interactive light/dark toggle interpolates every visible surface. */
+html.nx-theme-transition,
+html.nx-theme-transition body,
+html.nx-theme-transition #nxApplication,
+html.nx-theme-transition #nxApplication *,
+html.nx-theme-transition #nxApplication *::before,
+html.nx-theme-transition #nxApplication *::after {
+    transition-timing-function: cubic-bezier(.22, .61, .36, 1) !important;
+    /* Every theme-sensitive visual property shares one timeline. Include
+       borders so they do not lag behind surfaces or flash at the end. */
+    transition-property: background-color, color, border-color, outline-color,
+        box-shadow, fill, stroke, text-decoration-color, caret-color !important;
+    transition-duration: 520ms, 520ms, 520ms, 520ms, 520ms, 520ms, 520ms,
+        520ms, 520ms !important;
+    transition-delay: 0ms, 0ms, 0ms, 0ms, 0ms, 0ms, 0ms, 0ms, 0ms !important;
+}
+
+html,
+body,
+#nxApplication {
+    transition:
+        background-color 520ms cubic-bezier(.22, .61, .36, 1),
+        color 520ms cubic-bezier(.22, .61, .36, 1) !important;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --nx-bg-page: #0b1120;
+    /* --nx-bg-shell: #0f172a; */
+    --nx-bg-shell: #0f1012;
+    --nx-bg-card: #111827;
+    --nx-bg-card-soft: #1e293b;
+
+    --nx-text: #e5e7eb;
+    --nx-text-soft: #cbd5e1;
+    --nx-muted: #94a3b8;
+
+    --nx-border: #334155;
+    --nx-border-soft: #1f2937;
+
+    --nx-shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.32);
+}
+
+body {
+    background: var(--nx-bg-page) !important;
+    color: var(--nx-text) !important;
+}
+
+.main-wrapper,
+.main-content {
+    background: var(--nx-bg-page) !important;
+    color: var(--nx-text) !important;
+}
+
+.sidebar,
+.topbar {
+    background: var(--nx-bg-shell) !important;
+    color: var(--nx-text) !important;
+    border-color: var(--nx-border) !important;
+}
+
+.card,
+.modal-content,
+.dropdown-menu,
+.nx-page-header-card,
+.nx-toolbar-card,
+.nx-content-card,
+.nx-summary-card {
+    background: var(--nx-bg-card) !important;
+    color: var(--nx-text) !important;
+    border-color: var(--nx-border) !important;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+    background-color: var(--nx-bg-card) !important;
+    color: var(--nx-text) !important;
+    border-color: var(--nx-border) !important;
+}
+
+.form-control::placeholder {
+    color: var(--nx-muted) !important;
+}
+
+.text-muted,
+small.text-muted {
+    color: var(--nx-muted) !important;
+}
+
+.theme-toggle-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--nx-border);
+    border-radius:3px;
+    background: var(--nx-bg-card);
+    color: var(--nx-text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    transition: all 0.16s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--nx-shadow-soft);
+}
+
+html[data-theme="dark"] .btn-light,
+html[data-theme="dark"] .btn-outline-secondary,
+html[data-theme="dark"] .btn-outline-primary,
+html[data-theme="dark"] .btn-outline-danger,
+html[data-theme="dark"] .btn-outline-warning,
+html[data-theme="dark"] .btn-outline-success {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+    background: var(--nx-bg-card) !important;
+    border-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .swal2-popup {
+    background: var(--nx-bg-card) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-html-container {
+    color: var(--nx-text) !important;
+}
+
+/* =========================================================
+   NEXUSBOX DARK MODE POLISH
+   Put this at the VERY BOTTOM of nx.css
+========================================================= */
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --nx-primary: #3b82f6;
+    --nx-primary-2: #60a5fa;
+    --nx-primary-3: #93c5fd;
+
+    --nx-success: #22c55e;
+    --nx-online: #38bdf8;
+    --nx-danger: #ef4444;
+    --nx-warning: #f59e0b;
+    --nx-cyan: #2dd4bf;
+
+    --nx-text: #f8fafc;
+    --nx-text-soft: #cbd5e1;
+    --nx-text-muted: #94a3b8;
+    --nx-text-faint: #64748b;
+
+    --nx-border: #26364b;
+    --nx-border-soft: #1f2a3d;
+    --nx-border-strong: #334155;
+
+    --nx-bg-page: #0b1220;
+    --nx-bg-shell: #101827;
+    --nx-bg-card: #182235;
+    --nx-bg-card-soft: #202d44;
+    --nx-bg-soft: #111827;
+    --nx-bg-softer: #1e293b;
+    --nx-bg-tint: rgba(59, 130, 246, .13);
+    --nx-white: #182235;
+
+    --nx-shadow-xs: none;
+    --nx-shadow-sm: none;
+    --nx-shadow-md: none;
+    --nx-shadow-lg: none;
+    --nx-shadow-xl: none;
+    --nx-shadow-focus: 0 0 0 4px rgba(96, 165, 250, .18);
+}
+
+/* Shell */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .main-wrapper,
+html[data-theme="dark"] .main-content {
+    background: transparent !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .topbar {
+    background: var(--nx-bg-shell) !important;
+    border-color: var(--nx-border) !important;
+    color: var(--nx-text) !important;
+}
+
+/* Sidebar */
+html[data-theme="dark"] .sidebar-header,
+html[data-theme="dark"] .sidebar-footer {
+    background: var(--nx-bg-shell) !important;
+    border-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .menu-item a,
+html[data-theme="dark"] .menu-title {
+    color: var(--nx-text-muted) !important;
+}
+
+html[data-theme="dark"] .menu-item a:hover,
+html[data-theme="dark"] .menu-title:hover {
+    background: rgba(255, 255, 255, .055) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .menu-item.active a {
+    background: rgba(59, 130, 246, .18) !important;
+    color: #60a5fa !important;
+    box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .25) !important;
+}
+
+html[data-theme="dark"] .menu-item.active a i {
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .logo-title,
+html[data-theme="dark"] .portal-name,
+html[data-theme="dark"] .user-name {
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .logo-subtitle,
+html[data-theme="dark"] .portal-powered,
+html[data-theme="dark"] .user-role {
+    color: var(--nx-text-muted) !important;
+}
+
+html[data-theme="dark"] .sidebar-brand-logo,
+html[data-theme="dark"] .topbar-brand-logo {
+    background: #ffffff !important;
+    border-color: #334155 !important;
+}
+
+/* Cards */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .nx-page-header-card,
+html[data-theme="dark"] .nx-toolbar-card,
+html[data-theme="dark"] .nx-content-card,
+html[data-theme="dark"] .nx-surface-card,
+html[data-theme="dark"] .nx-summary-card,
+html[data-theme="dark"] .nx-section-card,
+html[data-theme="dark"] .nx-meta-tile,
+html[data-theme="dark"] .nx-workspace-card,
+html[data-theme="dark"] .nx-slot-inspector {
+    background: var(--nx-bg-card) !important;
+    color: var(--nx-text) !important;
+    border-color: var(--nx-border) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .nx-summary-card {
+    background: linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+}
+
+html[data-theme="dark"] .nx-summary-card:hover,
+html[data-theme="dark"] .card:hover {
+    border-color: rgba(96, 165, 250, .35) !important;
+}
+
+/* Text */
+html[data-theme="dark"] .nx-page-title,
+html[data-theme="dark"] .nx-summary-value,
+html[data-theme="dark"] .nx-kpi-value,
+html[data-theme="dark"] .nx-meta-value,
+html[data-theme="dark"] .nx-inspector-title,
+html[data-theme="dark"] .section-title-row h6,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .nx-page-subtitle,
+html[data-theme="dark"] .nx-summary-label,
+html[data-theme="dark"] .nx-meta-label,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] small.text-muted {
+    color: var(--nx-text-muted) !important;
+}
+
+/* Summary Icons */
+html[data-theme="dark"] .nx-summary-primary .nx-summary-icon {
+    background: rgba(59, 130, 246, .16) !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .nx-summary-cyan .nx-summary-icon {
+    background: rgba(56, 189, 248, .16) !important;
+    color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .nx-summary-success .nx-summary-icon {
+    background: rgba(34, 197, 94, .16) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .nx-summary-warning .nx-summary-icon {
+    background: rgba(245, 158, 11, .18) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .nx-summary-danger .nx-summary-icon {
+    background: rgba(239, 68, 68, .16) !important;
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] .nx-summary-slate .nx-summary-icon {
+    background: rgba(148, 163, 184, .14) !important;
+    color: #cbd5e1 !important;
+}
+
+/* Forms */
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .input-group-text,
+html[data-theme="dark"] textarea.form-control {
+    background-color: #101827 !important;
+    color: var(--nx-text) !important;
+    border-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .form-control::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus,
+html[data-theme="dark"] textarea.form-control:focus {
+    border-color: #60a5fa !important;
+    box-shadow: var(--nx-shadow-focus) !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] .btn-light,
+html[data-theme="dark"] .btn-outline-secondary,
+html[data-theme="dark"] .btn-outline-primary,
+html[data-theme="dark"] .btn-outline-danger,
+html[data-theme="dark"] .btn-outline-warning,
+html[data-theme="dark"] .btn-outline-success,
+html[data-theme="dark"] .sidebar-toggle-btn,
+html[data-theme="dark"] .theme-toggle-btn,
+html[data-theme="dark"] .logout-top {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .btn-light:hover,
+html[data-theme="dark"] .btn-outline-secondary:hover,
+html[data-theme="dark"] .btn-outline-primary:hover,
+html[data-theme="dark"] .sidebar-toggle-btn:hover,
+html[data-theme="dark"] .theme-toggle-btn:hover,
+html[data-theme="dark"] .logout-top:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Segment Controls */
+html[data-theme="dark"] .nx-segment-control {
+    background: #101827 !important;
+    border-color: var(--nx-border) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .nx-segment-item {
+    color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .nx-segment-item:hover {
+    background: rgba(59, 130, 246, .14) !important;
+    color: #bfdbfe !important;
+}
+
+/* Modals */
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .nx-modal-content {
+    background: var(--nx-bg-card) !important;
+    color: var(--nx-text) !important;
+    border-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer,
+html[data-theme="dark"] .nx-modal-header,
+html[data-theme="dark"] .nx-modal-footer {
+    background: #141f31 !important;
+    border-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .modal-body,
+html[data-theme="dark"] .nx-modal-body {
+    background: var(--nx-bg-page) !important;
+}
+
+/* Soft Badges */
+html[data-theme="dark"] .nx-soft-badge {
+    background: rgba(59, 130, 246, .16) !important;
+    color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .nx-soft-badge-success {
+    background: rgba(34, 197, 94, .16) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .nx-soft-badge-danger {
+    background: rgba(239, 68, 68, .16) !important;
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] .nx-soft-badge-warning {
+    background: rgba(245, 158, 11, .18) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .nx-soft-badge-info {
+    background: rgba(56, 189, 248, .16) !important;
+    color: #7dd3fc !important;
+}
+
+/* Tooltips / Context Menus */
+html[data-theme="dark"] .nx-hover-tooltip,
+html[data-theme="dark"] .nx-context-menu,
+html[data-theme="dark"] .nx-inspector,
+html[data-theme="dark"] .nx-floating-toolbar {
+    background: rgba(24, 34, 53, .96) !important;
+    color: var(--nx-text-soft) !important;
+    border-color: var(--nx-border) !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .35) !important;
+}
+
+html[data-theme="dark"] .nx-context-item {
+    color: var(--nx-text-soft) !important;
+}
+
+html[data-theme="dark"] .nx-context-item:hover {
+    background: rgba(59, 130, 246, .16) !important;
+    color: var(--nx-text) !important;
+}
+
+/* Skeleton */
+html[data-theme="dark"] .nx-skeleton {
+    background: #26364b !important;
+}
+
+html[data-theme="dark"] .nx-skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .12), transparent) !important;
+}
+
+/* SweetAlert */
+html[data-theme="dark"] .swal2-popup {
+    background: var(--nx-bg-card) !important;
+    color: var(--nx-text) !important;
+    border: 1px solid var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-html-container {
+    color: var(--nx-text) !important;
+}
+
+/* =========================================================
+   NEXUSBOX DESIGN SYSTEM V1
+   Place at VERY BOTTOM of nx.css
+========================================================= */
+
+html[data-theme="dark"] {
+    --nx-bg-page: #0b1220;
+    /* --nx-bg-shell: #0f172a; */
+    --nx-bg-shell: #040810;
+    --nx-bg-topbar: #131d2f;
+    --nx-bg-card: #182235;
+    --nx-bg-card-hover: #202d44;
+    /* --nx-bg-card-soft: #111827; */
+    --nx-bg-card-soft: #1c2127;
+    --nx-bg-input: #101827;
+
+    --nx-text: #f8fafc;
+    --nx-text-soft: #dbe4f0;
+    --nx-text-muted: #9aabc1;
+    --nx-text-faint: #64748b;
+
+    --nx-border: #2b3d56;
+    --nx-border-soft: rgba(255, 255, 255, .055);
+    --nx-border-strong: #3b506e;
+
+    --nx-shadow-card-dark: 0 12px 26px rgba(0, 0, 0, .28);
+}
+
+html[data-theme="dark"] .sidebar {
+    background: var(--nx-bg-shell) !important;
+    border-right-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .topbar {
+    background: var(--nx-bg-topbar) !important;
+    border-bottom-color: var(--nx-border) !important;
+}
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .nx-page-header-card,
+html[data-theme="dark"] .nx-toolbar-card,
+html[data-theme="dark"] .nx-content-card,
+html[data-theme="dark"] .nx-surface-card,
+html[data-theme="dark"] .nx-summary-card,
+html[data-theme="dark"] .dashboard-kpi-card {
+    background: linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border: 1px solid var(--nx-border-soft) !important;
+    box-shadow: var(--nx-shadow-card-dark) !important;
+}
+
+html[data-theme="dark"] .card:hover,
+html[data-theme="dark"] .nx-summary-card:hover,
+html[data-theme="dark"] .dashboard-kpi-card:hover {
+    background: linear-gradient(180deg, #202d44 0%, #182235 100%) !important;
+    border-color: rgba(96, 165, 250, .35) !important;
+    box-shadow: 0 18px 34px rgba(0, 0, 0, .34) !important;
+}
+
+html[data-theme="dark"] .menu-item.active a {
+    background: rgba(59, 130, 246, .18) !important;
+    color: #60a5fa !important;
+    border: 1px solid rgba(96, 165, 250, .22) !important;
+    box-shadow: 0 0 18px rgba(59, 130, 246, .14) !important;
+}
+
+html[data-theme="dark"] .dashboard-kpi-value,
+html[data-theme="dark"] .nx-summary-value {
+    color: #ffffff !important;
+    font-size: 2rem;
+    letter-spacing: -0.04em;
+}
+
+html[data-theme="dark"] .dashboard-kpi-icon,
+html[data-theme="dark"] .nx-summary-icon {
+    border: 1px solid rgba(255, 255, 255, .055);
+    backdrop-filter: blur(6px);
+}
+
+html[data-theme="dark"] .dashboard-kpi-primary .dashboard-kpi-icon,
+html[data-theme="dark"] .nx-summary-primary .nx-summary-icon {
+    background: rgba(59, 130, 246, .10) !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .dashboard-kpi-success .dashboard-kpi-icon,
+html[data-theme="dark"] .nx-summary-success .nx-summary-icon {
+    background: rgba(34, 197, 94, .10) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .dashboard-kpi-warning .dashboard-kpi-icon,
+html[data-theme="dark"] .nx-summary-warning .nx-summary-icon {
+    background: rgba(245, 158, 11, .12) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .dashboard-kpi-danger .dashboard-kpi-icon,
+html[data-theme="dark"] .nx-summary-danger .nx-summary-icon {
+    background: rgba(239, 68, 68, .10) !important;
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] .btn-light,
+html[data-theme="dark"] .btn-outline-secondary,
+html[data-theme="dark"] .btn-outline-primary,
+html[data-theme="dark"] .sidebar-toggle-btn,
+html[data-theme="dark"] .theme-toggle-btn,
+html[data-theme="dark"] .logout-top {
+    background: #1f2937 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .btn-light:hover,
+html[data-theme="dark"] .btn-outline-secondary:hover,
+html[data-theme="dark"] .btn-outline-primary:hover,
+html[data-theme="dark"] .sidebar-toggle-btn:hover,
+html[data-theme="dark"] .theme-toggle-btn:hover,
+html[data-theme="dark"] .logout-top:hover {
+    background: #273549 !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   AUTHORITATIVE APPLICATION SHELL
+   nx.css owns the header/sidebar now that operations-console.css is empty.
+========================================================= */
+.sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: var(--sidebar-width, 220px) !important;
+    height: 100vh !important;
+    z-index: 2000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    background: var(--nx-bg-shell, #fff) !important;
+    border-right: 1px solid var(--nx-border, #e2e8f0) !important;
+}
+
+/* Keep the shell divider visually blended with the sidebar surface. */
+.sidebar {
+    border-right-color: var(--nx-bg-shell, #ffffff) !important;
+}
+
+html[data-theme="dark"] .sidebar {
+    border-right-color: var(--nx-bg-shell, #0f172a) !important;
+}
+
+.sidebar-header {
+    flex: 0 0 64px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 20px !important;
+    background: var(--nx-bg-shell, #fff) !important;
+    border-bottom: 1px solid var(--nx-border, #e2e8f0) !important;
+}
+
+.sidebar-menu {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 12px !important;
+    background: var(--nx-bg-shell, #fff) !important;
+}
+
+.sidebar-footer {
+    flex: 0 0 auto !important;
+    background: var(--nx-bg-shell, #fff) !important;
+    border-top: 1px solid var(--nx-border, #e2e8f0) !important;
+}
+
+.main-wrapper {
+    min-height: 100vh !important;
+    margin-left: var(--sidebar-width, 220px) !important;
+}
+
+.topbar {
+    position: fixed !important;
+    inset: 0 0 auto var(--sidebar-width, 220px) !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    box-sizing: border-box !important;
+    z-index: 1900 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 20px !important;
+    background: var(--nx-bg-shell, #fff) !important;
+    border-bottom: 1px solid var(--nx-border, #e2e8f0) !important;
+    backdrop-filter: none !important;
+}
+
+.topbar-left,
+.topbar-right,
+.workspace-breadcrumb,
+.user-menu {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.topbar-right { gap: 8px !important; }
+
+.topbar-alerts > span,
+.logout-top > span {
+    display: none !important;
+}
+
+.topbar-alerts,
+.theme-toggle-btn,
+.logout-top {
+    flex: 0 0 38px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+}
+
+.topbar-alerts i,
+.theme-toggle-btn i,
+.logout-top i {
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+.global-search {
+    position: relative !important;
+    width: 220px !important;
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 12px !important;
+    box-sizing: border-box !important;
+    /* background: var(--nx-bg-card-soft, #f8fafc) !important; */
+    /* border: 1px solid var(--nx-border, #e2e8f0) !important; */
+    border-radius: 3px !important;
+}
+
+.global-search input {
+    min-width: 0 !important;
+    width: 100% !important;
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: var(--nx-text, #0f172a) !important;
+}
+
+.global-search input:focus,
+.global-search input:active,
+.global-search input:hover {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.global-search input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+/* Search remains a dark shell control in light mode, with no nested input outline. */
+.topbar .global-search,
+html:not([data-theme="dark"]) .topbar .global-search {
+    /* background: #111827 !important; */
+    /* border: 1px solid #334155 !important; */
+    color: #cbd5e1 !important;
+}
+
+.topbar .global-search input,
+.topbar .global-search input:focus,
+.topbar .global-search input:active,
+.topbar .global-search input:hover,
+html:not([data-theme="dark"]) .topbar .global-search input,
+html:not([data-theme="dark"]) .topbar .global-search input:focus {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    border: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: #e2e8f0 !important;
+}
+
+/* Fixed shell color: header and sidebar stay #0f172a in both themes. */
+.sidebar,
+.sidebar-header,
+.sidebar-menu,
+.sidebar-footer,
+.topbar,
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .sidebar-header,
+html[data-theme="dark"] .sidebar-menu,
+html[data-theme="dark"] .sidebar-footer,
+html[data-theme="dark"] .topbar,
+html:not([data-theme="dark"]) .sidebar,
+html:not([data-theme="dark"]) .sidebar-header,
+html:not([data-theme="dark"]) .sidebar-menu,
+html:not([data-theme="dark"]) .sidebar-footer,
+html:not([data-theme="dark"]) .topbar {
+    background: #0f172a !important;
+}
+
+html[data-theme="dark"] .main-content {
+    /* background: #24364f !important; */
+    /* background: #091425 !important; */
+    background: #14171c !important;
+
+}
+
+/* Global content gutters. */
+.container-fluid {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+}
+
+.main-content {
+    padding-top: 52px !important;
+}
+
+/* Consistent title offset below the fixed header on every module page. */
+.main-content > .container-fluid,
+.main-content > .nx-page,
+.main-content > .page-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.main-content .ops-page-header {
+    min-height: 0 !important;
+    margin-bottom: 16px !important;
+}
+
+.main-content .nx-page-header-card {
+    margin-bottom: 16px !important;
+}
+
+.main-content .nx-page-header-card .card-body,
+.main-content .nx-page-header-card > .nx-page-header {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+/* Override module-specific hero sizing so every title block shares one rhythm. */
+html body#nxApplication .main-content .nx-page-header-card,
+html body#nxApplication .main-content .nx-page-header-card .card-body,
+html body#nxApplication .main-content .nx-page-header {
+    min-height: 0 !important;
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+}
+
+.main-content .nx-page-header-card + .row,
+.main-content .nx-page-header-card + .nx-page-section,
+.main-content .ops-page-header + .summary-strip,
+.main-content .ops-page-header + .dashboard-grid {
+    margin-top: 0 !important;
+}
+
+/* Dark-mode panel baseline shared by every module. */
+html[data-theme="dark"] .main-content .card,
+html[data-theme="dark"] .main-content .panel,
+html[data-theme="dark"] .main-content .panel-card,
+html[data-theme="dark"] .main-content .table-responsive,
+html[data-theme="dark"] .main-content .table-container,
+html[data-theme="dark"] .main-content .nx-page-header-card,
+html[data-theme="dark"] .main-content .nx-toolbar-card,
+html[data-theme="dark"] .main-content .nx-content-card,
+html[data-theme="dark"] .main-content .nx-surface-card,
+html[data-theme="dark"] .main-content .nx-summary-card,
+html[data-theme="dark"] .main-content .dashboard-kpi-card {
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Highest-priority module-neutral panel normalization. */
+html[data-theme="dark"] body#nxApplication .main-content .card,
+html[data-theme="dark"] body#nxApplication .main-content .panel,
+html[data-theme="dark"] body#nxApplication .main-content .plans-summary-card,
+html[data-theme="dark"] body#nxApplication .main-content .plans-hero-card,
+html[data-theme="dark"] body#nxApplication .main-content .table-responsive {
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content [class*="-card"],
+html[data-theme="dark"] body#nxApplication .main-content [class*="-panel"],
+html[data-theme="dark"] body#nxApplication .main-content .workspace-panel,
+html[data-theme="dark"] body#nxApplication .main-content .content-panel {
+    /* background: var(--nx-bg-panel, #242d37 ) !important; */
+    background-image: none !important;
+    border: 0 !important;
+    /* border: 1px solid #2a333b !important; */
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content .plans-hero-card {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Page titles are part of the workspace hierarchy, not nested panels. */
+.main-content .nx-page-header-card,
+.main-content .nx-page-header-card .nx-page-header,
+.main-content .ops-page-header {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* All module title blocks remain transparent across the application. */
+html body#nxApplication .main-content .nx-page-header-card,
+html body#nxApplication .main-content .nx-page-header-card.card,
+html body#nxApplication .main-content .nx-page-header,
+html body#nxApplication .main-content .ops-page-header,
+html body#nxApplication .main-content [class*="hero-card"] {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Beat module-level theme selectors for every shared title card. */
+html[data-theme] body#nxApplication .main-content .nx-page-header-card.card.border-0.shadow-sm,
+html:not([data-theme]) body#nxApplication .main-content .nx-page-header-card.card.border-0.shadow-sm {
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html[data-theme] body#nxApplication .main-content .nx-page-header-card.card.border-0.shadow-sm > .card-body,
+html:not([data-theme]) body#nxApplication .main-content .nx-page-header-card.card.border-0.shadow-sm > .card-body {
+    min-height: 0 !important;
+    padding: 10px 0 !important;
+}
+
+/* Normalize module heading typography to the Dashboard scale. */
+html body#nxApplication .main-content .nx-page-title {
+    margin: 0 !important;
+    font-family: var(--nx-font-heading) !important;
+    font-size: 26px !important;
+    line-height: 32px !important;
+    font-weight: 600 !important;
+    letter-spacing: -.025em !important;
+}
+
+html body#nxApplication .main-content .nx-page-subtitle {
+    margin: 3px 0 0 !important;
+    font-family: var(--nx-font-body) !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+}
+
+/* Shared page rhythm follows the Dashboard composition. */
+html body#nxApplication .main-content .nx-page {
+    width: 100% !important;
+}
+
+html body#nxApplication .main-content .nx-page > * + * {
+    margin-top: 0 !important;
+}
+
+html body#nxApplication .main-content .nx-page-header-card {
+    margin-bottom: 0 !important;
+}
+
+html body#nxApplication .main-content .nx-page .row {
+    --bs-gutter-x: 12px !important;
+    --bs-gutter-y: 12px !important;
+}
+
+/* Remove decorative title banners/kickers so page headings stay clean. */
+html body#nxApplication .main-content [class*="hero-badge"],
+html body#nxApplication .main-content [class*="-eyebrow"],
+html body#nxApplication .main-content .nx-page-kicker,
+html body#nxApplication .main-content .ops-eyebrow {
+    display: none !important;
+}
+
+/* Remove the shell seam between navigation and workspace. */
+body#nxApplication .sidebar,
+body#nxApplication .main-wrapper,
+body#nxApplication .main-content {
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .sidebar::after,
+body#nxApplication .sidebar::before,
+body#nxApplication .main-wrapper::before,
+body#nxApplication .main-wrapper::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* =========================================================
+   NX UTILITY CLASSES
+   Small, local utility layer for consistent page composition.
+   These are intentionally framework-free and theme-aware.
+========================================================= */
+.nx-flex { display: flex !important; }
+.nx-inline-flex { display: inline-flex !important; }
+.nx-grid { display: grid !important; }
+.nx-items-center { align-items: center !important; }
+.nx-justify-between { justify-content: space-between !important; }
+.nx-justify-center { justify-content: center !important; }
+.nx-flex-wrap { flex-wrap: wrap !important; }
+.nx-gap-1 { gap: .25rem !important; }
+.nx-gap-2 { gap: .5rem !important; }
+.nx-gap-3 { gap: .75rem !important; }
+.nx-gap-4 { gap: 1rem !important; }
+.nx-gap-6 { gap: 1.5rem !important; }
+.nx-p-0 { padding: 0 !important; }
+.nx-p-2 { padding: .5rem !important; }
+.nx-p-4 { padding: 1rem !important; }
+.nx-px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+.nx-px-8 { padding-left: 2rem !important; padding-right: 2rem !important; }
+.nx-py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+.nx-m-0 { margin: 0 !important; }
+.nx-mt-4 { margin-top: 1rem !important; }
+.nx-mb-4 { margin-bottom: 1rem !important; }
+.nx-w-full { width: 100% !important; }
+.nx-min-w-0 { min-width: 0 !important; }
+.nx-text-muted { color: var(--nx-text-muted) !important; }
+.nx-text-soft { color: var(--nx-text-soft) !important; }
+.nx-text-sm { font-size: .875rem !important; }
+.nx-text-xs { font-size: .75rem !important; }
+.nx-font-medium { font-weight: 500 !important; }
+.nx-font-semibold { font-weight: 600 !important; }
+.nx-surface { background: var(--nx-bg-panel, #f8fafc) !important; }
+.nx-surface-soft { background: var(--nx-bg-card-soft, #f8fafc) !important; }
+.nx-borderless { border: 0 !important; }
+.nx-shadow-none { box-shadow: none !important; }
+
+/* html[data-theme="dark"] {
+    --nx-bg-panel: #0c2439;
+} */
+
+html[data-theme="dark"] .main-content .card,
+html[data-theme="dark"] .main-content .panel,
+html[data-theme="dark"] .main-content .dashboard-kpi-card,
+html[data-theme="dark"] .main-content .nx-page-header-card,
+html[data-theme="dark"] .main-content .nx-toolbar-card,
+html[data-theme="dark"] .main-content .nx-content-card,
+html[data-theme="dark"] .main-content .nx-surface-card,
+html[data-theme="dark"] .main-content .nx-summary-card {
+    background: var(--nx-bg-panel, #0c2439) !important;
+    background-image: none !important;
+}
+
+.sidebar-toggle-btn,
+.topbar-alerts,
+.theme-toggle-btn,
+.logout-top {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid var(--nx-border, #e2e8f0) !important;
+    border-radius: 50% !important;
+    background: var(--nx-bg-card-soft, #f8fafc) !important;
+    color: var(--nx-text-soft, #334155) !important;
+}
+
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .sidebar-header,
+html[data-theme="dark"] .sidebar-menu,
+html[data-theme="dark"] .sidebar-footer,
+html[data-theme="dark"] .topbar {
+    background: var(--nx-bg-shell, #0f172a) !important;
+    /* border-color: var(--nx-border, #334155) !important; */
+    border-color: #1d1d1e !important;
+}
+
+html[data-theme="dark"] .global-search,
+html[data-theme="dark"] .sidebar-toggle-btn,
+html[data-theme="dark"] .topbar-alerts,
+html[data-theme="dark"] .theme-toggle-btn,
+html[data-theme="dark"] .logout-top {
+    background: var(--nx-bg-card-soft, #1e293b) !important;
+    /* border-color: var(--nx-border, #334155) !important; */
+    color: var(--nx-text, #e5e7eb) !important;
+}
+
+html.sidebar-collapsed-preload .sidebar,
+body.sidebar-collapsed .sidebar { width: 64px !important; }
+html.sidebar-collapsed-preload .main-wrapper,
+body.sidebar-collapsed .main-wrapper { margin-left: 64px !important; }
+html.sidebar-collapsed-preload .topbar,
+body.sidebar-collapsed .topbar { left: 64px !important; }
+
+/* Compact navigation rhythm and integrated scrollbar. */
+body {
+    --sidebar-width: 240px;
+}
+
+html.sidebar-collapsed-preload body,
+body.sidebar-collapsed {
+    --sidebar-width: 64px;
+}
+
+.sidebar-menu {
+    padding: 8px !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, .72) transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, .72);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background-clip: padding-box;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, .82);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.menu-item {
+    margin-bottom: 2px !important;
+}
+
+.menu-item a {
+    min-height: 32px !important;
+    padding: 6px 10px !important;
+    gap: 9px !important;
+    font-size: 13px !important;
+}
+
+.sidebar-section-title,
+.menu-section-title,
+.sidebar-menu .section-title {
+    margin-top: 14px !important;
+    margin-bottom: 5px !important;
+}
+
+/* Sidebar group labels are intentionally compact so they don't compete with navigation. */
+.sidebar-menu .menu-section {
+    display: block !important;
+    margin: 12px 4px 4px !important;
+    padding: 0 !important;
+    color: var(--nx-text-muted, #64748b) !important;
+    font-size: 10px !important;
+    line-height: 16px !important;
+    font-weight: 600 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+    list-style: none !important;
+}
+
+.sidebar-menu .menu-section:first-child {
+    margin-top: 2px !important;
+}
+
+html[data-theme="dark"] .sidebar-menu {
+    /* scrollbar-color: rgba(71, 85, 105, .9) transparent; */
+    scrollbar-color: #0e1b35 transparent !important;
+}
+
+html[data-theme="dark"] .sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, .9);
+    border-color: transparent;
+    background-clip: padding-box;
+}
+
+html[data-theme="dark"] .sidebar-menu::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, .95);
+    border-color: transparent;
+    background-clip: padding-box;
+}
+
+/* Final shell edge normalization: no contrasting rule between navigation and content. */
+.sidebar,
+.main-wrapper,
+.topbar {
+    border-left: 0 !important;
+}
+
+.sidebar {
+    border-right: 0 !important;
+}
+
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .main-wrapper,
+html[data-theme="dark"] .topbar {
+    border-left: 0 !important;
+    border-right: 0 !important;
+}
+
+/* Dark-mode shell uses one continuous surface for sidebar and header. */
+html[data-theme="dark"] .sidebar,
+html[data-theme="dark"] .sidebar-header,
+html[data-theme="dark"] .sidebar-menu,
+html[data-theme="dark"] .sidebar-footer,
+html[data-theme="dark"] .topbar {
+    /* background: var(--nx-bg-shell, #0f172a) !important; */
+    background: var(--nx-bg-shell, #040810) !important;
+}
+
+/* The navigation shell remains dark in light mode; only the workspace changes theme. */
+html:not([data-theme="dark"]) .sidebar,
+html:not([data-theme="dark"]) .sidebar-header,
+html:not([data-theme="dark"]) .sidebar-menu,
+html:not([data-theme="dark"]) .sidebar-footer,
+html:not([data-theme="dark"]) .topbar {
+    background: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #1e293b !important;
+}
+
+html:not([data-theme="dark"]) .sidebar .menu-item a,
+html:not([data-theme="dark"]) .sidebar .menu-title {
+    color: #cbd5e1 !important;
+}
+
+html:not([data-theme="dark"]) .sidebar .menu-item.active a,
+html:not([data-theme="dark"]) .sidebar .menu-item a:hover,
+html:not([data-theme="dark"]) .sidebar .menu-title:hover {
+    background: #172b4d !important;
+    color: #f8fafc !important;
+}
+
+/* Light mode keeps the dark navigation shell; selected items use the same
+   compact blue treatment as the reference active state. */
+html:not([data-theme="dark"]) body#nxApplication .sidebar .menu-item.active > a,
+html:not([data-theme="dark"]) body#nxApplication .sidebar .menu-item.active > a:hover {
+    background: #1b3561 !important;
+    color: #69a7ff !important;
+    border: 1px solid #2f5fa8 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+
+html:not([data-theme="dark"]) body#nxApplication .sidebar .menu-item.active > a i {
+    color: #69a7ff !important;
+}
+
+html:not([data-theme="dark"]) .sidebar-menu .menu-section {
+    color: #94a3b8 !important;
+}
+
+html:not([data-theme="dark"]) .logo-title,
+html:not([data-theme="dark"]) .logo-subtitle,
+html:not([data-theme="dark"]) .portal-title,
+html:not([data-theme="dark"]) .portal-name {
+    color: #e2e8f0 !important;
+}
+
+html:not([data-theme="dark"]) .topbar .workspace-breadcrumb,
+html:not([data-theme="dark"]) .topbar .workspace-breadcrumb a,
+html:not([data-theme="dark"]) .topbar .workspace-breadcrumb span {
+    color: #cbd5e1 !important;
+}
+
+/* Extra-compact collapsed rail. */
+html.sidebar-collapsed-preload body,
+body.sidebar-collapsed {
+    --sidebar-width: 56px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar,
+body.sidebar-collapsed .sidebar {
+    width: 56px !important;
+}
+
+html.sidebar-collapsed-preload .main-wrapper,
+body.sidebar-collapsed .main-wrapper {
+    margin-left: 56px !important;
+}
+
+html.sidebar-collapsed-preload .topbar,
+body.sidebar-collapsed .topbar {
+    left: 56px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-header,
+body.sidebar-collapsed .sidebar-header {
+    height: 56px !important;
+    min-height: 56px !important;
+    padding: 8px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-menu,
+body.sidebar-collapsed .sidebar-menu {
+    padding: 6px 4px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar .menu-item,
+body.sidebar-collapsed .sidebar .menu-item {
+    margin-bottom: 3px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar .menu-item a,
+body.sidebar-collapsed .sidebar .menu-item a {
+    width: 38px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-menu,
+body.sidebar-collapsed .sidebar-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-menu > .menu-item,
+body.sidebar-collapsed .sidebar-menu > .menu-item {
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-menu > .menu-section,
+body.sidebar-collapsed .sidebar-menu > .menu-section {
+    display: none !important;
+}
+
+/* Keep header utility controls on a single, even spacing grid. */
+.topbar-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.topbar-right > *,
+.topbar-right .global-search,
+.topbar-right .topbar-alerts,
+.topbar-right .theme-toggle-btn,
+.topbar-right .logout-top {
+    margin: 0 !important;
+}
+
+.topbar-right .global-search {
+    flex: 0 1 220px !important;
+}
+
+.topbar-right .topbar-alerts,
+.topbar-right .theme-toggle-btn,
+.topbar-right .logout-top {
+    flex: 0 0 38px !important;
+}
+
+/* Avatar menu is intentionally omitted; do not leave its flex gap behind. */
+.topbar-right > .user-menu,
+.topbar-right .user-menu {
+    display: contents !important;
+}
+
+/* Breadcrumb hierarchy: quiet parent, clear current page, restrained geometry. */
+.workspace-breadcrumb {
+    gap: 7px !important;
+    min-width: 0 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.workspace-breadcrumb-group {
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+}
+
+.workspace-breadcrumb-current {
+    color: #e2e8f0 !important;
+    font-weight: 650 !important;
+}
+
+.workspace-breadcrumb-separator {
+    color: #64748b !important;
+    font-size: 11px !important;
+}
+
+.topbar .sidebar-toggle-btn {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+.topbar .sidebar-toggle-btn:hover {
+    background: #273449 !important;
+    color: #ffffff !important;
+}
+
+/* Header controls use a single inset slate surface without tile borders. */
+.topbar .sidebar-toggle-btn,
+.topbar .topbar-alerts,
+.topbar .theme-toggle-btn,
+.topbar .logout-top {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #cbd5e1 !important;
+}
+
+.topbar .sidebar-toggle-btn:hover,
+.topbar .topbar-alerts:hover,
+.topbar .theme-toggle-btn:hover,
+.topbar .logout-top:hover {
+    background: rgba(255, 255, 255, .08) !important;
+    border: 0 !important;
+    color: #f8fafc !important;
+}
+
+/* Sidebar account footer: compact, aligned, and readable against the shell. */
+.sidebar-footer {
+    flex: 0 0 68px !important;
+    min-height: 68px !important;
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+    background: #0f172a !important;
+    border-top: 1px solid #1e293b !important;
+}
+
+.sidebar-user {
+    height: 52px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+}
+
+.sidebar-user .user-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: 1px solid #36506f !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+.sidebar-user .user-info {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+}
+
+.sidebar-user .user-name,
+.sidebar-user .user-role {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.sidebar-user .user-name {
+    color: #f8fafc !important;
+    font-size: 12px !important;
+    font-weight: 650 !important;
+    line-height: 16px !important;
+}
+
+.sidebar-user .user-role {
+    color: #94a3b8 !important;
+    font-size: 10px !important;
+    line-height: 14px !important;
+    letter-spacing: .04em !important;
+}
+
+.sidebar-user .logout-btn {
+    flex: 0 0 24px !important;
+    width: 24px !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #94a3b8 !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-footer,
+body.sidebar-collapsed .sidebar-footer {
+    flex-basis: 56px !important;
+    min-height: 56px !important;
+    padding: 6px 4px !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-user,
+body.sidebar-collapsed .sidebar-user {
+    height: 44px !important;
+    justify-content: center !important;
+}
+
+html.sidebar-collapsed-preload .sidebar-user .user-avatar,
+body.sidebar-collapsed .sidebar-user .user-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+}
+
+/* Header controls stay in the dark shell style regardless of workspace theme. */
+html[data-theme] .topbar .sidebar-toggle-btn,
+html[data-theme] .topbar .topbar-alerts,
+html[data-theme] .topbar .theme-toggle-btn,
+html[data-theme] .topbar .logout-top,
+html:not([data-theme]) .topbar .sidebar-toggle-btn,
+html:not([data-theme]) .topbar .topbar-alerts,
+html:not([data-theme]) .topbar .theme-toggle-btn,
+html:not([data-theme]) .topbar .logout-top {
+    background: transparent !important;
+    border: 0 !important;
+    color: #cbd5e1 !important;
+}
+
+/* =========================================================
+   DASHBOARD LAYOUT STANDARD
+   Canonical spacing and typography for every module page.
+========================================================= */
+html body#nxApplication {
+    --nx-layout-header-gap: 20px;
+    --nx-layout-gutter: 2rem;
+    --nx-layout-grid-gap: 12px;
+    --nx-font-size-base: 15px;
+    --nx-font-size-sm: 14px;
+    --nx-font-size-xs: 13px;
+    --nx-font-size-micro: 12px;
+    /* Shared table header size; module tables must not define smaller values. */
+    --nx-font-size-table-head: 13px;
+    --nx-line-height-base: 1.5;
+    /* --nx-layout-section-gap: 20px; */
+}
+
+html body#nxApplication .sidebar,
+html body#nxApplication .sidebar-header,
+html body#nxApplication .sidebar-menu,
+html body#nxApplication .sidebar-footer,
+html body#nxApplication .topbar,
+html body#nxApplication .workspace-breadcrumb,
+html body#nxApplication .global-search,
+html body#nxApplication .global-search input,
+html body#nxApplication .topbar .sidebar-toggle-btn,
+html body#nxApplication .topbar .topbar-alerts,
+html body#nxApplication .topbar .theme-toggle-btn,
+html body#nxApplication .topbar .logout-top,
+html body#nxApplication .sidebar .menu-item a,
+html body#nxApplication .sidebar .menu-title,
+html body#nxApplication .sidebar .sidebar-user,
+html body#nxApplication .sidebar .sidebar-user .user-name,
+html body#nxApplication .sidebar .sidebar-user .user-role {
+    line-height: var(--nx-line-height-base) !important;
+}
+
+html body#nxApplication .sidebar .menu-item a,
+html body#nxApplication .sidebar .menu-title,
+html body#nxApplication .topbar .global-search input,
+html body#nxApplication .topbar .logout-top,
+html body#nxApplication .topbar .sidebar-toggle-btn,
+html body#nxApplication .topbar .topbar-alerts,
+html body#nxApplication .topbar .theme-toggle-btn {
+    font-size: var(--nx-font-size-sm) !important;
+}
+
+html body#nxApplication .workspace-breadcrumb,
+html body#nxApplication .workspace-breadcrumb-group,
+html body#nxApplication .workspace-breadcrumb-current,
+html body#nxApplication .topbar .global-search,
+html body#nxApplication .sidebar-user .user-name {
+    font-size: var(--nx-font-size-sm) !important;
+}
+
+html body#nxApplication .workspace-breadcrumb-separator,
+html body#nxApplication .sidebar-menu .menu-section,
+html body#nxApplication .sidebar-user .user-role,
+html body#nxApplication .logo-subtitle,
+html body#nxApplication .portal-powered {
+    font-size: var(--nx-font-size-xs) !important;
+}
+
+html body#nxApplication .logo-title,
+html body#nxApplication .portal-name {
+    font-size: calc(var(--nx-font-size-base) + 1px) !important;
+}
+
+/* Shared brand signature: a quiet, compact label used beside the company name
+   in the navigation shell and the Branding preview. */
+html body#nxApplication .brand-powered-label {
+    /* display: inline-flex !important; */
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    margin-top: 0px;
+    color: var(--nx-text-muted) !important;
+    font-size: 10px !important;
+    font-weight: 700;
+    letter-spacing: .075em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+html[data-theme="dark"] body#nxApplication .brand-powered-label {
+    color: #9aabc1 !important;
+}
+
+html body#nxApplication .main-content {
+    padding-top: calc(32px + var(--nx-layout-header-gap)) !important;
+    font-size: var(--nx-font-size-base) !important;
+    line-height: var(--nx-line-height-base) !important;
+}
+
+html body#nxApplication .main-content > .container-fluid,
+html body#nxApplication .main-content > .nx-page,
+html body#nxApplication .main-content > .page-container {
+    padding-left: var(--nx-layout-gutter) !important;
+    padding-right: var(--nx-layout-gutter) !important;
+}
+
+html body#nxApplication .main-content,
+html body#nxApplication .main-content .card,
+html body#nxApplication .main-content .card-body,
+html body#nxApplication .main-content .panel,
+html body#nxApplication .main-content .table,
+html body#nxApplication .main-content .table tbody td,
+html body#nxApplication .main-content .table tfoot td,
+html body#nxApplication .main-content .nx-data-table,
+html body#nxApplication .main-content .nx-data-table tbody td,
+html body#nxApplication .main-content .nx-data-table tfoot td,
+html body#nxApplication .main-content p,
+html body#nxApplication .main-content li,
+html body#nxApplication .main-content label,
+html body#nxApplication .main-content small,
+html body#nxApplication .main-content .btn,
+html body#nxApplication .main-content button,
+html body#nxApplication .main-content .form-control,
+html body#nxApplication .main-content .form-select,
+html body#nxApplication .main-content input,
+html body#nxApplication .main-content select,
+html body#nxApplication .main-content textarea {
+    font-size: inherit;
+}
+
+html body#nxApplication .main-content .btn,
+html body#nxApplication .main-content button,
+html body#nxApplication .main-content .form-control,
+html body#nxApplication .main-content .form-select,
+html body#nxApplication .main-content input,
+html body#nxApplication .main-content select,
+html body#nxApplication .main-content textarea {
+    font-size: var(--nx-font-size-sm) !important;
+    line-height: 1.4 !important;
+}
+
+html body#nxApplication .main-content .table thead th,
+html body#nxApplication .main-content .nx-data-table thead th,
+html body#nxApplication .main-content .nx-sticky-head th {
+    font-size: var(--nx-font-size-micro) !important;
+    line-height: 1.35 !important;
+}
+
+html body#nxApplication .main-content .table tbody td,
+html body#nxApplication .main-content .table tfoot td,
+html body#nxApplication .main-content .nx-data-table tbody td,
+html body#nxApplication .main-content .nx-data-table tfoot td,
+html body#nxApplication .main-content .nx-table-footer,
+html body#nxApplication .main-content .nx-table-footer__label,
+html body#nxApplication .main-content .nx-table-footer__btn,
+html body#nxApplication .main-content .nx-table-footer__select,
+html body#nxApplication .main-content .pagination,
+html body#nxApplication .main-content .page-link {
+    font-size: var(--nx-font-size-sm) !important;
+    line-height: var(--nx-line-height-base) !important;
+}
+
+html body#nxApplication .main-content .nx-page > * + * {
+    margin-top: var(--nx-layout-section-gap) !important;
+}
+
+/* Stylesheet/script nodes may precede a page header in module templates;
+   they must not create a phantom gap above the first visible title row. */
+html body#nxApplication .main-content .nx-page > .ops-page-header,
+html body#nxApplication .main-content .nx-page > .nx-page-header-card,
+html body#nxApplication .main-content .nx-page > .sp-page-title-card,
+html body#nxApplication .main-content .nx-page > [class*="-modern-hero"] {
+    margin-top: 0 !important;
+}
+
+html body#nxApplication .main-content .nx-page-header-card,
+html body#nxApplication .main-content .nx-page-header-card.card {
+    min-height: 92px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .main-content .nx-page-header-card > .card-body,
+html body#nxApplication .main-content .nx-page-header-card > .nx-page-header {
+    min-height: 92px !important;
+    padding: 0 !important;
+}
+
+html body#nxApplication .main-content .nx-page-title {
+    margin: 0 !important;
+    font-family: var(--nx-font-heading) !important;
+    font-size: 26px !important;
+    line-height: 32px !important;
+    font-weight: 500 !important;
+}
+
+html body#nxApplication .main-content .nx-page-subtitle {
+    margin: 3px 0 0 !important;
+    font-family: var(--nx-font-body) !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+}
+
+/* Older modules use named hero headings instead of .nx-page-title. Keep
+   those headings on the same Dashboard scale without changing their flow. */
+html body#nxApplication .main-content .nx-page-header-card h1,
+html body#nxApplication .main-content .nx-page-header-card h5,
+html body#nxApplication .main-content .nx-page-header-card [class*="-hero-title"],
+html body#nxApplication .main-content .nx-page-header-card [class*="-page-title"],
+html body#nxApplication .main-content .sp-page-title-card h1,
+html body#nxApplication .main-content .sp-page-title-card h5 {
+    margin: 0 !important;
+    font-family: var(--nx-font-heading) !important;
+    font-size: 26px !important;
+    line-height: 32px !important;
+    font-weight: 600 !important;
+    letter-spacing: -.025em !important;
+}
+
+html body#nxApplication .main-content .nx-page-header-card [class*="-hero-text"],
+html body#nxApplication .main-content .nx-page-header-card [class*="-hero-subtitle"],
+html body#nxApplication .main-content .nx-page-header-card small,
+html body#nxApplication .main-content .sp-page-title-card p,
+html body#nxApplication .main-content .sp-page-title-card small {
+    margin: 3px 0 0 !important;
+    font-family: var(--nx-font-body) !important;
+    font-size: 12px !important;
+    line-height: 18px !important;
+}
+
+/* Make title-card variants participate in the same shell rhythm. */
+html body#nxApplication .main-content .sp-page-title-card,
+html body#nxApplication .main-content [class*="-modern-hero"] {
+    min-height: 92px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .main-content .sp-page-title-card > .card-body {
+    min-height: 92px !important;
+    padding: 0 !important;
+}
+
+html body#nxApplication .main-content .row {
+    --bs-gutter-x: var(--nx-layout-grid-gap) !important;
+    --bs-gutter-y: var(--nx-layout-grid-gap) !important;
+}
+
+/* Subscriber-page metric rhythm is the shared reference: equal card height,
+   equal inner padding, and compact toolbar/content insets. */
+html body#nxApplication .main-content .nx-summary-card,
+html body#nxApplication .main-content .dashboard-kpi-card,
+html body#nxApplication .main-content .plans-summary-card {
+    min-height: 132px !important;
+    padding: 20px 22px !important;
+}
+
+html body#nxApplication .main-content .nx-toolbar-card > .card-body,
+html body#nxApplication .main-content .nx-toolbar-card .card-body {
+    padding: 16px 18px !important;
+}
+
+html body#nxApplication .main-content .nx-content-card > .card-body {
+    padding: 0 18px 14px;
+}
+
+/* Network modules use older, module-local hero rules. Keep their shell
+   spacing identical to the Subscriber reference page. */
+html body#nxApplication .main-content #radiusPage > .nx-page-header-card,
+html body#nxApplication .main-content #oltManagementPage > .nx-page-header-card,
+html body#nxApplication .main-content #ontDevicesPage > .nx-page-header-card,
+html body#nxApplication .main-content #napManagementPage > .nx-page-header-card,
+html body#nxApplication .main-content #radiusPage > .nx-page-header-card.card,
+html body#nxApplication .main-content #oltManagementPage > .nx-page-header-card.card,
+html body#nxApplication .main-content #ontDevicesPage > .nx-page-header-card.card,
+html body#nxApplication .main-content #napManagementPage > .nx-page-header-card.card {
+    min-height: 92px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .main-content #radiusPage > .nx-page-header-card > .nx-page-header,
+html body#nxApplication .main-content #oltManagementPage > .nx-page-header-card > .nx-page-header,
+html body#nxApplication .main-content #ontDevicesPage > .nx-page-header-card > .nx-page-header,
+html body#nxApplication .main-content #napManagementPage > .nx-page-header-card > .nx-page-header,
+html body#nxApplication .main-content #radiusPage > .nx-page-header-card > .card-body,
+html body#nxApplication .main-content #oltManagementPage > .nx-page-header-card > .card-body,
+html body#nxApplication .main-content #ontDevicesPage > .nx-page-header-card > .card-body,
+html body#nxApplication .main-content #napManagementPage > .nx-page-header-card > .card-body {
+    min-height: 92px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+html body#nxApplication .main-content #radiusPage.nx-page > *,
+html body#nxApplication .main-content #oltManagementPage.nx-page > *,
+html body#nxApplication .main-content #ontDevicesPage.nx-page > *,
+html body#nxApplication .main-content #napManagementPage.nx-page > * {
+    margin-bottom: 0 !important;
+}
+
+html body#nxApplication .main-content #radiusPage.nx-page > * + *,
+html body#nxApplication .main-content #oltManagementPage.nx-page > * + *,
+html body#nxApplication .main-content #ontDevicesPage.nx-page > * + *,
+html body#nxApplication .main-content #napManagementPage.nx-page > * + * {
+    margin-top: var(--nx-layout-section-gap) !important;
+}
+
+/* NAP keeps its page wrapper inside #napManagementApp; apply the same
+   header rhythm through that extra wrapper as well. */
+html body#nxApplication .main-content .nx-page #napManagementApp > .nx-page-header-card,
+html body#nxApplication .main-content .nx-page #napManagementApp > .nx-page-header-card.card {
+    min-height: 92px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .main-content .nx-page #napManagementApp > .nx-page-header-card > .card-body,
+html body#nxApplication .main-content .nx-page #napManagementApp > .nx-page-header-card > .nx-page-header {
+    min-height: 92px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+html body#nxApplication .main-content .nx-page #napManagementApp > * + * {
+    margin-top: var(--nx-layout-section-gap) !important;
+}
+
+/* These four legacy network screens had an additional shell offset layered
+   on top of the shared content inset. Keep their first title row aligned to
+   the Subscriber/Dashboard baseline. */
+/* html body#nxApplication .main-content:has(> .nx-page #radiusPage),
+html body#nxApplication .main-content:has(> .nx-page #oltManagementPage),
+html body#nxApplication .main-content:has(> .nx-page #ontDevicesPage),
+html body#nxApplication .main-content:has(> .nx-page #napManagementApp) {
+    padding-top: 20px !important;
+} */
+
+@media (max-width: 767.98px) {
+    html body#nxApplication .main-content > .container-fluid,
+    html body#nxApplication .main-content > .nx-page,
+    html body#nxApplication .main-content > .page-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* Smooth theme changes without affecting layout or interaction behavior. */
+:root,
+html,
+body,
+#nxApplication,
+.sidebar,
+.topbar,
+.main-wrapper,
+.main-content,
+.card,
+.modal-content,
+.dropdown-menu,
+.form-control,
+.form-select,
+table,
+.table,
+.table th,
+.table td,
+button,
+.btn {
+    transition:
+        background-color 300ms ease,
+        color 300ms ease,
+        box-shadow 300ms ease;
+}
+
+/* Tables intentionally inherit their module/page styling. */
+
+/* Brand header divider: a quiet shell-colored rule separates the sidebar
+   branding block from the workspace top header in both themes. */
+html body#nxApplication .sidebar-header {
+    /* border-right: 1px solid #1e293b !important; */
+    border-right: 1px solid #1d1d1e !important;
+}
+
+html body#nxApplication .sidebar-header + .sidebar-menu {
+    border-right: 0 !important;
+}
+
+/* Dark-mode controls: slightly lifted surfaces keep fields and actions
+   visible against the panel color without introducing high-contrast boxes. */
+html[data-theme="dark"] body#nxApplication .main-content input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] body#nxApplication .main-content select,
+html[data-theme="dark"] body#nxApplication .main-content textarea,
+html[data-theme="dark"] body#nxApplication .main-content .form-control,
+html[data-theme="dark"] body#nxApplication .main-content .form-select,
+html[data-theme="dark"] body#nxApplication .main-content .input-group-text {
+    /* background-color: #182b40 !important; */
+    background-color: #1c2127 !important;
+    color: #e2e8f0 !important;
+    border-color: #405873 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content input::placeholder,
+html[data-theme="dark"] body#nxApplication .main-content textarea::placeholder,
+html[data-theme="dark"] body#nxApplication .main-content .form-control::placeholder {
+    color: #9aabbd !important;
+    opacity: 1 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content input:focus,
+html[data-theme="dark"] body#nxApplication .main-content select:focus,
+html[data-theme="dark"] body#nxApplication .main-content textarea:focus,
+html[data-theme="dark"] body#nxApplication .main-content .form-control:focus,
+html[data-theme="dark"] body#nxApplication .main-content .form-select:focus {
+    background-color: #1d344c !important;
+    border-color: #6b86a3 !important;
+    box-shadow: 0 0 0 2px rgba(107, 134, 163, .22) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content button:not(.btn-primary):not(.btn-success):not(.btn-danger),
+html[data-theme="dark"] body#nxApplication .main-content .btn-light,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-secondary,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-primary,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-danger,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-warning,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-success {
+    background-color: #29415c !important;
+    color: #e2e8f0 !important;
+    border-color: #526a84 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content button:not(.btn-primary):not(.btn-success):not(.btn-danger):hover,
+html[data-theme="dark"] body#nxApplication .main-content .btn-light:hover,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-secondary:hover,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-primary:hover,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-danger:hover,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-warning:hover,
+html[data-theme="dark"] body#nxApplication .main-content .btn-outline-success:hover {
+    background-color: #35536f !important;
+    border-color: #7189a3 !important;
+    color: #ffffff !important;
+}
+
+/* Small screens use the compact icon rail automatically. This prevents the
+   full navigation from consuming the content viewport or stretching cards. */
+@media (max-width: 768px) {
+    html body#nxApplication,
+    html body#nxApplication.sidebar-collapsed-preload,
+    html body#nxApplication.sidebar-collapsed {
+        --sidebar-width: 56px !important;
+    }
+
+    html body#nxApplication .sidebar {
+        width: 56px !important;
+    }
+
+    html body#nxApplication .main-wrapper {
+        margin-left: 56px !important;
+    }
+
+    html body#nxApplication .topbar {
+        left: 56px !important;
+    }
+
+    html body#nxApplication .sidebar-header {
+        min-height: 56px !important;
+        height: 56px !important;
+        padding: 8px !important;
+    }
+
+    html body#nxApplication .sidebar .logo-text,
+    html body#nxApplication .sidebar .menu-item span,
+    html body#nxApplication .sidebar .menu-section,
+    html body#nxApplication .sidebar .sidebar-user .user-info,
+    html body#nxApplication .sidebar .sidebar-user .logout-btn {
+        display: none !important;
+    }
+
+    html body#nxApplication .sidebar-menu {
+        padding: 6px 4px !important;
+        gap: 4px !important;
+    }
+
+    html body#nxApplication .sidebar .menu-item,
+    html body#nxApplication .sidebar .menu-item a {
+        width: 48px !important;
+        min-height: 36px !important;
+        height: 36px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        justify-content: center !important;
+    }
+
+    html body#nxApplication .sidebar .menu-item a i {
+        margin: 0 !important;
+    }
+}
+
+/* Global search command menu. It is positioned outside the compact header
+   control so suggestions never alter header height or overlap its buttons. */
+.nx-header-search {
+    overflow: visible !important;
+    z-index: 1200 !important;
+}
+
+.nx-search-suggestions {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    width: 320px !important;
+    max-width: min(320px, calc(100vw - 32px)) !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    background: #ffffff !important;
+    color: #172033 !important;
+    border: 1px solid #d9e0e8 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .18) !important;
+    text-align: left !important;
+    z-index: 1300 !important;
+}
+
+/* The search script toggles the native hidden attribute; keep it authoritative
+   over the flex layout above. */
+.nx-search-suggestions[hidden] {
+    display: none !important;
+}
+
+.nx-search-section,
+.nx-search-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 7px 9px !important;
+    color: #64748b !important;
+    font-size: 11px !important;
+}
+
+.nx-search-section {
+    border-bottom: 1px solid #e5e7eb !important;
+    font-weight: 600 !important;
+}
+
+.nx-search-suggestion {
+    width: 100% !important;
+    min-height: 38px !important;
+    display: grid !important;
+    grid-template-columns: 20px minmax(0, 1fr) 18px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 9px !important;
+    border: 0 !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    color: #172033 !important;
+    text-align: left !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+}
+
+.nx-search-suggestion:hover,
+.nx-search-suggestion:focus-visible {
+    background: #f1f5f9 !important;
+    outline: none !important;
+}
+
+.nx-search-suggestion > span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.nx-search-enter {
+    color: #94a3b8 !important;
+    font-size: 12px !important;
+}
+
+.nx-search-empty {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 18px 10px !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+}
+
+html[data-theme="dark"] .nx-search-suggestions {
+    background: #182b40 !important;
+    color: #e2e8f0 !important;
+    border-color: #405873 !important;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .38) !important;
+}
+
+html[data-theme="dark"] .nx-search-section,
+html[data-theme="dark"] .nx-search-footer {
+    color: #9aabbd !important;
+}
+
+html[data-theme="dark"] .nx-search-section {
+    border-bottom-color: #405873 !important;
+}
+
+html[data-theme="dark"] .nx-search-suggestion {
+    color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .nx-search-suggestion:hover,
+html[data-theme="dark"] .nx-search-suggestion:focus-visible {
+    background: #29415c !important;
+}
+
+/* Keep surfaces animatable without hiding borders during theme changes. */
+html.nx-theme-transition #nxApplication *,
+html.nx-theme-transition #nxApplication *::before,
+html.nx-theme-transition #nxApplication *::after {
+    transition-property: background-color, color, box-shadow, fill, stroke !important;
+    transition-duration: 520ms, 520ms, 520ms, 520ms, 520ms !important;
+    transition-delay: 0ms !important;
+}
+
+/* Keep transition suppression last in the cascade, including module cards. */
+html.nx-theme-transition #nxApplication *,
+html.nx-theme-transition #nxApplication *::before,
+html.nx-theme-transition #nxApplication *::after {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Never delay border removal during a theme swap, even when a module uses
+   `transition: all` on its local controls or table rows. */
+html.nx-theme-transition #nxApplication .topbar,
+html.nx-theme-transition #nxApplication .sidebar,
+html.nx-theme-transition #nxApplication .btn,
+html.nx-theme-transition #nxApplication button,
+html.nx-theme-transition #nxApplication input,
+html.nx-theme-transition #nxApplication select,
+html.nx-theme-transition #nxApplication textarea,
+html.nx-theme-transition #nxApplication table,
+html.nx-theme-transition #nxApplication th,
+html.nx-theme-transition #nxApplication td,
+html.nx-theme-transition #nxApplication tr,
+html.nx-theme-transition #nxApplication .form-control,
+html.nx-theme-transition #nxApplication .form-select {
+    transition-property: background-color, color, box-shadow, fill, stroke !important;
+    transition-duration: 520ms, 520ms, 520ms, 520ms, 520ms !important;
+    transition-delay: 0ms, 0ms, 0ms, 0ms, 0ms !important;
+}
+
+html.nx-theme-transition,
+html.nx-theme-transition body,
+html.nx-theme-transition #nxApplication {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Hard-stop any shorthand/module transition that could still interpolate a
+   border (including `transition: all`). */
+html.nx-theme-transition #nxApplication .topbar,
+html.nx-theme-transition #nxApplication .sidebar,
+html.nx-theme-transition #nxApplication .card,
+html.nx-theme-transition #nxApplication .table-responsive,
+html.nx-theme-transition #nxApplication table,
+html.nx-theme-transition #nxApplication tr,
+html.nx-theme-transition #nxApplication th,
+html.nx-theme-transition #nxApplication td,
+html.nx-theme-transition #nxApplication .btn,
+html.nx-theme-transition #nxApplication button,
+html.nx-theme-transition #nxApplication input,
+html.nx-theme-transition #nxApplication select,
+html.nx-theme-transition #nxApplication textarea {
+    transition: none !important;
+}
+
+#nxRectilinearTheme .sidebar-toggle-btn {
+    background: rgba(255, 255, 255, .08) !important;
+}
+
+/* SweetAlert feedback remains readable in dark mode: use a neutral white
+   surface instead of inheriting the application's dark panel. */
+html[data-theme="dark"] body#nxApplication .swal2-popup,
+html[data-theme="dark"] body#nxApplication .swal2-popup.nx-toast-popup {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 0 !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, .32) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .swal2-title,
+html[data-theme="dark"] body#nxApplication .swal2-html-container,
+html[data-theme="dark"] body#nxApplication .swal2-content,
+html[data-theme="dark"] body#nxApplication .swal2-close {
+    color: #111827 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .swal2-timer-progress-bar {
+    background: #cbd5e1 !important;
+}
+
+/* Global rectilinear control treatment: rely on surface contrast and focus
+   shadows instead of repeated borders around every field and action. */
+html[data-theme="dark"] body#nxApplication input,
+html[data-theme="dark"] body#nxApplication select,
+html[data-theme="dark"] body#nxApplication textarea,
+html[data-theme="dark"] body#nxApplication .form-control,
+html[data-theme="dark"] body#nxApplication .form-select,
+html[data-theme="dark"] body#nxApplication .btn,
+html[data-theme="dark"] body#nxApplication button,
+html[data-theme="dark"] body#nxApplication table,
+html[data-theme="dark"] body#nxApplication .table,
+html[data-theme="dark"] body#nxApplication table th,
+html[data-theme="dark"] body#nxApplication table td,
+html[data-theme="dark"] body#nxApplication .table th,
+html[data-theme="dark"] body#nxApplication .table td {
+    border-width: 0 !important;
+    border-style: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication table,
+html[data-theme="dark"] body#nxApplication .table,
+html[data-theme="dark"] body#nxApplication table tr {
+    border: 1px solid #24282f !important;
+}
+
+html[data-theme="dark"] body#nxApplication input:focus,
+html[data-theme="dark"] body#nxApplication select:focus,
+html[data-theme="dark"] body#nxApplication textarea:focus,
+html[data-theme="dark"] body#nxApplication .form-control:focus,
+html[data-theme="dark"] body#nxApplication .form-select:focus,
+html[data-theme="dark"] body#nxApplication .btn:focus-visible,
+html[data-theme="dark"] body#nxApplication button:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(100, 116, 139, .32) !important;
+}
+
+html[data-theme="dark"] .summary-item {
+    background: #2b333d !important;
+    border-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+html:not([data-theme="dark"]) .summary-item {
+    background: var(--dash-surface) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+html[data-theme="dark"] .main-content .table,
+html[data-theme="dark"] .main-content table{
+    color:#e5e7eb;
+    background:transparent;
+}
+
+html[data-theme="dark"] .main-content table,
+html[data-theme="dark"] .main-content .table{
+    border-color: var(--nx-table-border-dark, rgba(148,163,184,.18)) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content .summary-card,
+html[data-theme="dark"] body#nxApplication .main-content .nx-summary-card {
+    background: var(--nx-bg-panel, #242d37) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.main-content .toolbar-control {
+    height: 38px !important;
+    min-height: 38px !important;
+}
+
+/* Subscribers module: keep metric cards outlined while the toolbar remains
+   an unframed layout wrapper.  This is intentionally scoped so global dark
+   surface normalization cannot erase the module hierarchy. */
+html body#nxApplication .main-content #subscribersPage .nx-summary-card {
+    border: 1px solid #d7e0ea !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .main-content #subscribersPage .nx-toolbar-card {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #subscribersPage .nx-summary-card {
+    border-color: #344456 !important;
+}
+
+/* ================================================================
+   GLOBAL DESIGN CONTRACT
+
+   This is the shared baseline for every module.  Module stylesheets are
+   intentionally scoped to their page root and should only override a rule
+   when that module has a real, documented exception.  Layout, surfaces,
+   controls, tables, and icon buttons belong here.
+================================================================ */
+:root {
+    --nx-layout-gutter: 2rem;
+    --nx-layout-section-gap: 1.25rem;
+    --nx-panel-radius: 4px;
+    --nx-shell: #0f172a;
+    --nx-shell-border: #25334a;
+    --nx-panel-surface-light: #e7edf6;
+    --nx-panel-border-light: #d5deea;
+    --nx-table-head-surface-light: #eef3f8;
+    --nx-table-row-surface-light: #ffffff;
+    --nx-table-row-surface-light-alt: #f7f9fc;
+    --nx-table-border-light: #d9e2ec;
+    --nx-table-border-dark: rgba(148,163,184,.18);
+    --nx-control-surface-light: #ffffff;
+    --nx-control-border-light: #cfd9e6;
+    --nx-control-surface-dark: #1d252d;
+    --nx-control-border-dark: rgba(148,163,184,.24);
+    --nx-font-size-base: 15px;
+}
+
+html[data-theme="dark"] {
+    --nx-bg-page: #14181d;
+    --nx-bg-soft: #181d22;
+    --nx-panel-surface-dark: #232a32;
+    --nx-panel-border-dark: rgba(148,163,184,.16);
+    --nx-table-head-surface-dark: #20272f;
+    --nx-table-row-surface-dark: #1b2229;
+    --nx-table-row-surface-dark-alt: #202830;
+    --nx-text: #f1f5f9;
+    --nx-text-soft: #cbd5e1;
+    --nx-text-muted: #9aa8b8;
+}
+
+html:not([data-theme="dark"]) {
+    --nx-bg-page: #f4f7fb;
+    --nx-bg-soft: #f8fafc;
+    --nx-text: #0f172a;
+    --nx-text-soft: #334155;
+    --nx-text-muted: #64748b;
+}
+
+body#nxApplication {
+    font-size: var(--nx-font-size-base);
+    background: var(--nx-bg-page);
+    color: var(--nx-text);
+}
+
+body#nxApplication .sidebar,
+body#nxApplication .topbar {
+    background: var(--nx-shell);
+    border-color: var(--nx-shell-border);
+    color: #dbe7f5;
+}
+
+body#nxApplication .sidebar {
+    width: var(--sidebar-width, 240px);
+    flex: 0 0 var(--sidebar-width, 240px);
+}
+
+body#nxApplication .sidebar a,
+body#nxApplication .sidebar .sidebar-menu-item {
+    font-size: 15px;
+}
+
+body#nxApplication .topbar {
+    min-height: 64px;
+}
+
+body#nxApplication .main-content {
+    background: var(--nx-bg-page);
+    padding: 20px var(--nx-layout-gutter) var(--nx-layout-gutter);
+}
+
+body#nxApplication .main-content > .container-fluid,
+body#nxApplication .main-content > .nx-page {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+body#nxApplication .main-content .card,
+body#nxApplication .main-content .panel,
+body#nxApplication .main-content .nx-page-header-card,
+body#nxApplication .main-content .nx-content-card,
+body#nxApplication .main-content .nx-summary-card,
+body#nxApplication .main-content .summary-item {
+    border-radius: var(--nx-panel-radius);
+    box-shadow: none !important;
+    background: var(--nx-panel-surface-light) !important;
+    background-image: none !important;
+    border: 1px solid var(--nx-panel-border-light) !important;
+}
+
+/* Dashboard sections are first-class panels even though they are rendered
+   as semantic <section> elements rather than Bootstrap cards. Keep their
+   outline consistent with the shared panel contract in both themes. */
+body#nxApplication .main-content #dashboardPage .dashboard-section {
+    background: var(--nx-panel-surface-light) !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: var(--nx-panel-radius) !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .main-content #dashboardPage .summary-item {
+    border-color: var(--nx-panel-border-light) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #dashboardPage .dashboard-section {
+    background: none !important;
+    background-image: none !important;
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #dashboardPage .summary-item {
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content .card,
+html[data-theme="dark"] body#nxApplication .main-content .panel,
+html[data-theme="dark"] body#nxApplication .main-content .nx-page-header-card,
+html[data-theme="dark"] body#nxApplication .main-content .nx-content-card,
+html[data-theme="dark"] body#nxApplication .main-content .nx-summary-card,
+html[data-theme="dark"] body#nxApplication .main-content .summary-item {
+    background: var(--nx-panel-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+/* Module pages may use named card variants; these remain shared surfaces,
+   while their module styles should only change structure or semantics. */
+body#nxApplication .main-content .audit-card,
+body#nxApplication .main-content .audit-panel,
+body#nxApplication .main-content .users-card,
+body#nxApplication .main-content .users-panel,
+body#nxApplication .main-content .radius-hero-card,
+body#nxApplication .main-content .radius-toolbar-card,
+body#nxApplication .main-content .radius-content-card,
+body#nxApplication .main-content .tickets-card,
+body#nxApplication .main-content .tickets-panel,
+body#nxApplication .main-content .billing-card,
+body#nxApplication .main-content .billing-panel,
+body#nxApplication .main-content .billing-workspace,
+body#nxApplication .main-content .billing-recent-card {
+    background: var(--nx-panel-surface-light) !important;
+    background-image: none !important;
+    border-color: var(--nx-panel-border-light) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content .audit-card,
+html[data-theme="dark"] body#nxApplication .main-content .audit-panel,
+html[data-theme="dark"] body#nxApplication .main-content .users-card,
+html[data-theme="dark"] body#nxApplication .main-content .users-panel,
+html[data-theme="dark"] body#nxApplication .main-content .radius-hero-card,
+html[data-theme="dark"] body#nxApplication .main-content .radius-toolbar-card,
+html[data-theme="dark"] body#nxApplication .main-content .radius-content-card,
+html[data-theme="dark"] body#nxApplication .main-content .tickets-card,
+html[data-theme="dark"] body#nxApplication .main-content .tickets-panel,
+html[data-theme="dark"] body#nxApplication .main-content .billing-card,
+html[data-theme="dark"] body#nxApplication .main-content .billing-panel,
+html[data-theme="dark"] body#nxApplication .main-content .billing-workspace,
+html[data-theme="dark"] body#nxApplication .main-content .billing-recent-card {
+    background: var(--nx-panel-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-panel-border-dark) !important;
+    box-shadow: none !important;
+}
+
+/* Modal chrome is part of the global component layer as well. */
+body#nxApplication .modal-content {
+    background: var(--nx-panel-surface-light) !important;
+    background-image: none !important;
+    border: 1px solid var(--nx-panel-border-light) !important;
+    border-radius: var(--nx-panel-radius);
+}
+
+html[data-theme="dark"] body#nxApplication .modal-content {
+    background: var(--nx-panel-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+body#nxApplication .main-content .table-container {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+body#nxApplication .main-content .nx-table-wrap,
+body#nxApplication .main-content .table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body#nxApplication .main-content .table-container > .table-responsive {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body#nxApplication .main-content table,
+body#nxApplication .main-content .table {
+    width: 100%;
+    margin: 0;
+    color: var(--nx-text);
+    background: var(--nx-table-row-surface-light) !important;
+    background-image: none !important;
+    border: 1px solid var(--nx-table-border-light) !important;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+body#nxApplication .main-content table thead th,
+body#nxApplication .main-content .table thead th {
+    background: var(--nx-table-head-surface-light) !important;
+    color: var(--nx-text-soft) !important;
+    border-bottom: 1px solid var(--nx-table-border-light) !important;
+}
+
+body#nxApplication .main-content table tbody tr,
+body#nxApplication .main-content .table tbody tr {
+    background: var(--nx-table-row-surface-light) !important;
+}
+
+body#nxApplication .main-content table tbody tr:nth-child(even),
+body#nxApplication .main-content .table tbody tr:nth-child(even) {
+    background: var(--nx-table-row-surface-light-alt) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table,
+html[data-theme="dark"] body#nxApplication .main-content .table {
+    background: var(--nx-table-row-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table thead th,
+html[data-theme="dark"] body#nxApplication .main-content .table thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: var(--nx-text-soft) !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table tbody tr,
+html[data-theme="dark"] body#nxApplication .main-content .table tbody tr {
+    background: var(--nx-table-row-surface-dark) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table tbody tr:nth-child(even),
+html[data-theme="dark"] body#nxApplication .main-content .table tbody tr:nth-child(even) {
+    background: var(--nx-table-row-surface-dark-alt) !important;
+}
+
+body#nxApplication .main-content table > :not(caption) > * > *,
+body#nxApplication .main-content .table > :not(caption) > * > * {
+    border-color: var(--nx-table-border-light) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table > :not(caption) > * > *,
+html[data-theme="dark"] body#nxApplication .main-content .table > :not(caption) > * > * {
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+body#nxApplication .main-content .form-control,
+body#nxApplication .main-content .form-select,
+body#nxApplication .main-content input,
+body#nxApplication .main-content select,
+body#nxApplication .main-content textarea,
+body#nxApplication .main-content .btn {
+    border-radius: 3px;
+}
+
+body#nxApplication .main-content .form-control,
+body#nxApplication .main-content .form-select,
+body#nxApplication .main-content input,
+body#nxApplication .main-content select,
+body#nxApplication .main-content textarea {
+    background: var(--nx-control-surface-light);
+    background-image: none;
+    border-color: var(--nx-control-border-light);
+    color: var(--nx-text);
+}
+
+body#nxApplication .main-content .form-control:focus,
+body#nxApplication .main-content .form-select:focus,
+body#nxApplication .main-content input:focus,
+body#nxApplication .main-content select:focus,
+body#nxApplication .main-content textarea:focus {
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 2px rgba(148,163,184,.16);
+}
+
+body#nxApplication .main-content .btn {
+    min-height: 36px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+body#nxApplication .main-content .nx-icon-btn,
+body#nxApplication .main-content .icon-button,
+body#nxApplication .main-content .btn-icon {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 3px;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content .form-control,
+html[data-theme="dark"] body#nxApplication .main-content .form-select,
+html[data-theme="dark"] body#nxApplication .main-content input,
+html[data-theme="dark"] body#nxApplication .main-content select,
+html[data-theme="dark"] body#nxApplication .main-content textarea {
+    background: var(--nx-control-surface-dark);
+    background-image: none;
+    border-color: var(--nx-control-border-dark);
+    color: var(--nx-text);
+}
+
+body#nxApplication .main-content .nx-icon-btn,
+body#nxApplication .main-content .icon-button {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+/* Final shared table contract.  Keep header typography consistent across
+   modules (Plans is the reference layout); older module/theme rules may set
+   compact 10–12px values, so this intentionally wins at the cascade end. */
+html body#nxApplication .main-content table thead th,
+html body#nxApplication .main-content .table thead th,
+html body#nxApplication .main-content .nx-data-table thead th,
+html body#nxApplication .main-content .nx-sticky-head th {
+    font-size: var(--nx-font-size-table-head) !important;
+    line-height: 1.35 !important;
+    height: 37px !important;
+    padding: 0 16px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.055em !important;
+    text-transform: uppercase !important;
+    vertical-align: middle !important;
+}
+
+/* Shared tabs contract.
+   Tabs are flat controls with one restrained surface; avoid bright outer rails,
+   gradients, and oversized shadows while keeping a clear active state. */
+html body#nxApplication .nx-segment-control {
+    display: inline-flex !important;
+    align-items: stretch !important;
+    flex-wrap: wrap !important;
+    gap: 0 !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-radius: 3px !important;
+    background: var(--nx-control-surface-light, #f4f6f8) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .nx-segment-control > .nx-segment-control__item,
+html body#nxApplication .nx-segment-control > .nx-segment-item {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 110px !important;
+    min-height: 42px !important;
+    padding: .65rem 1rem !important;
+    border: 0 !important;
+    border-right: 1px solid rgba(71, 85, 105, .18) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: #334155 !important;
+    font: inherit !important;
+    font-size: .9rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: background-color .16s ease, color .16s ease !important;
+}
+
+html body#nxApplication .nx-segment-control > :last-child {
+    border-right: 0 !important;
+}
+
+html body#nxApplication .nx-segment-control > .nx-segment-control__item:hover,
+html body#nxApplication .nx-segment-control > .nx-segment-item:hover {
+    background: rgba(71, 85, 105, .08) !important;
+    color: #0f172a !important;
+}
+
+html body#nxApplication .nx-segment-control > .nx-segment-control__item.is-active,
+html body#nxApplication .nx-segment-control > .nx-segment-item.is-active,
+html body#nxApplication .nx-segment-control > .nx-segment-item.active,
+html body#nxApplication .nx-segment-control > [aria-selected="true"] {
+    background: #2563eb !important;
+    background-image: none !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .nx-segment-control > .nx-segment-control__item:focus-visible,
+html body#nxApplication .nx-segment-control > .nx-segment-item:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, .55) !important;
+    outline-offset: -2px !important;
+}
+
+html[data-theme="dark"] body#nxApplication .nx-segment-control {
+    background: var(--nx-control-surface-dark, #172033) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-control__item,
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-item {
+    border-right-color: rgba(148, 163, 184, .18) !important;
+    color: #aebbd0 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-control__item:hover,
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-item:hover {
+    background: rgba(255, 255, 255, .05) !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-control__item.is-active,
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-item.is-active,
+html[data-theme="dark"] body#nxApplication .nx-segment-control > .nx-segment-item.active,
+html[data-theme="dark"] body#nxApplication .nx-segment-control > [aria-selected="true"] {
+    background: #36508f !important;
+    color: #fff !important;
+}
+
+/* Global table sort indicators: keep the arrow compact and aligned with every header. */
+html body#nxApplication .main-content table thead th.nx-dt-sort,
+html body#nxApplication .main-content table thead th.nx-sortable {
+    white-space: nowrap;
+}
+
+html body#nxApplication .main-content table thead th .sort-indicator,
+html body#nxApplication .main-content table thead th [data-links-sort-indicator] {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    min-width: 1rem;
+    height: 1rem;
+    margin-left: .3rem;
+    font-family: Arial, sans-serif;
+    font-size: .7rem !important;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    vertical-align: middle;
+    color: var(--nx-table-sort-muted, var(--nx-text-muted, #64748b));
+    opacity: .78;
+}
+
+html body#nxApplication .main-content table thead th .sort-indicator--ascending,
+html body#nxApplication .main-content table thead th .sort-indicator--descending {
+    color: var(--nx-table-sort-active, #2563eb);
+    opacity: 1;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table thead th .sort-indicator,
+html[data-theme="dark"] body#nxApplication .main-content table thead th [data-links-sort-indicator] {
+    color: var(--nx-table-sort-muted-dark, #a8b4c5);
+}
+
+html[data-theme="dark"] body#nxApplication .main-content table thead th .sort-indicator--ascending,
+html[data-theme="dark"] body#nxApplication .main-content table thead th .sort-indicator--descending {
+    color: var(--nx-table-sort-active-dark, #60a5fa);
+}
+
+/* Neutral modal chrome: keep dark dialogs graphite instead of blue/navy. */
+html[data-theme="dark"] {
+    --nx-modal-surface-dark: #22272c;
+    --nx-modal-header-dark: #1b2025;
+    --nx-modal-border-dark: #3b4249;
+}
+
+html[data-theme="dark"] body#nxApplication .modal-content,
+html[data-theme="dark"] body#nxApplication .nx-modal-content {
+    background: var(--nx-modal-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-modal-border-dark) !important;
+    color: var(--nx-text, #f1f5f9) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .modal-header,
+html[data-theme="dark"] body#nxApplication .modal-footer,
+html[data-theme="dark"] body#nxApplication .nx-modal-header,
+html[data-theme="dark"] body#nxApplication .nx-modal-footer {
+    background: var(--nx-modal-header-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-modal-border-dark) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .modal-body,
+html[data-theme="dark"] body#nxApplication .nx-modal-body {
+    background: var(--nx-modal-surface-dark) !important;
+    background-image: none !important;
+}
+
+/* Keep nested modal sections and controls neutral as well. Module styles may
+   set these surfaces independently, so scope this override to dialogs only. */
+html[data-theme="dark"] body#nxApplication .modal-content .nx-section-card,
+html[data-theme="dark"] body#nxApplication .modal-content .modal-section,
+html[data-theme="dark"] body#nxApplication .modal-content .card,
+html[data-theme="dark"] body#nxApplication .modal-content .panel {
+    background: var(--nx-modal-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-modal-border-dark) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .modal-content .form-control,
+html[data-theme="dark"] body#nxApplication .modal-content .form-select,
+html[data-theme="dark"] body#nxApplication .modal-content input,
+html[data-theme="dark"] body#nxApplication .modal-content select,
+html[data-theme="dark"] body#nxApplication .modal-content textarea {
+    background: var(--nx-modal-header-dark) !important;
+    border-color: var(--nx-modal-border-dark) !important;
+    color: var(--nx-text, #f1f5f9) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .modal-content h1,
+html[data-theme="dark"] body#nxApplication .modal-content h2,
+html[data-theme="dark"] body#nxApplication .modal-content h3,
+html[data-theme="dark"] body#nxApplication .modal-content h4,
+html[data-theme="dark"] body#nxApplication .modal-content h5,
+html[data-theme="dark"] body#nxApplication .modal-content h6,
+html[data-theme="dark"] body#nxApplication .modal-content label,
+html[data-theme="dark"] body#nxApplication .modal-content .form-label {
+    color: var(--nx-text, #f1f5f9) !important;
+}
+
+/* Compact modal geometry: keep dialogs readable while reducing the oversized
+   footprint used by a few module-specific modal variants. */
+body#nxApplication .modal-dialog,
+body#nxApplication .nx-modal .modal-dialog,
+body#nxApplication .modal-dialog.modal-lg,
+body#nxApplication .modal-dialog.modal-xl {
+    width: auto;
+    max-width: min(860px, calc(100vw - 2rem)) !important;
+    margin: 2rem auto !important;
+}
+
+body#nxApplication .modal-content,
+body#nxApplication .nx-modal-content {
+    max-height: calc(100vh - 5rem);
+}
+
+body#nxApplication .modal-header,
+body#nxApplication .nx-modal-header {
+    padding: 12px 16px !important;
+}
+
+body#nxApplication .modal-body,
+body#nxApplication .nx-modal-body {
+    padding: 12px 16px !important;
+}
+
+body#nxApplication .modal-footer,
+body#nxApplication .nx-modal-footer {
+    padding: 10px 16px !important;
+}
+
+@media (max-width: 575.98px) {
+    body#nxApplication .modal-dialog,
+    body#nxApplication .nx-modal .modal-dialog,
+    body#nxApplication .modal-dialog.modal-lg,
+    body#nxApplication .modal-dialog.modal-xl {
+        max-width: calc(100vw - 1rem) !important;
+        margin: .5rem auto !important;
+    }
+
+    body#nxApplication .modal-header,
+    body#nxApplication .nx-modal-header,
+    body#nxApplication .modal-body,
+    body#nxApplication .nx-modal-body,
+    body#nxApplication .modal-footer,
+    body#nxApplication .nx-modal-footer {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+}
+
+/* Global DM Sans weight hierarchy: regular UI text at 400, hierarchy at 500. */
+html body#nxApplication,
+html body#nxApplication .main-content,
+html body#nxApplication input,
+html body#nxApplication select,
+html body#nxApplication textarea,
+html body#nxApplication button {
+    font-family: var(--nx-font-body) !important;
+    font-weight: 400;
+}
+
+html body#nxApplication h1,
+html body#nxApplication h2,
+html body#nxApplication h3,
+html body#nxApplication h4,
+html body#nxApplication h5,
+html body#nxApplication h6,
+html body#nxApplication .nx-page-title,
+html body#nxApplication .logo-title,
+html body#nxApplication .portal-brand,
+html body#nxApplication .sidebar-menu .menu-item a,
+html body#nxApplication .sidebar-menu .menu-section,
+html body#nxApplication .sidebar-footer,
+html body#nxApplication .topbar-brand {
+    font-family: var(--nx-font-heading) !important;
+    font-weight: 500 !important;
+}
+
+/* Active sidebar navigation receives stronger emphasis. */
+html body#nxApplication .sidebar .menu-item.active > a,
+html body#nxApplication .sidebar .menu-title.active {
+    font-weight: 600 !important;
+}
+
+/* Table typography follows the global DM Sans hierarchy. */
+html body#nxApplication .main-content table tbody td,
+html body#nxApplication .main-content .table tbody td,
+html body#nxApplication .main-content .nx-data-table tbody td {
+    font-weight: 400 !important;
+}
+
+html body#nxApplication .main-content table thead th,
+html body#nxApplication .main-content .table thead th,
+html body#nxApplication .main-content .nx-data-table thead th {
+    font-weight: 500 !important;
+}
+
+/* Final page-level typography normalization. */
+html body#nxApplication .main-content * {
+    font-weight: 400 !important;
+}
+
+html body#nxApplication .main-content h1,
+html body#nxApplication .main-content h2,
+html body#nxApplication .main-content h3,
+html body#nxApplication .main-content h4,
+html body#nxApplication .main-content h5,
+html body#nxApplication .main-content h6,
+html body#nxApplication .main-content [class*="title"],
+html body#nxApplication .main-content [class*="heading"],
+html body#nxApplication .main-content [class*="header"] {
+    font-weight: 500 !important;
+}
+
+html body#nxApplication .main-content table thead th,
+html body#nxApplication .main-content .table thead th,
+html body#nxApplication .main-content .nx-data-table thead th {
+    font-weight: 500 !important;
+}
+
+html body#nxApplication .main-content table tbody td,
+html body#nxApplication .main-content .table tbody td,
+html body#nxApplication .main-content .nx-data-table tbody td {
+    font-weight: 400 !important;
+}
+
+html body#nxApplication .sidebar * {
+    font-weight: 400 !important;
+}
+
+html body#nxApplication .sidebar .logo-title,
+html body#nxApplication .sidebar .menu-section,
+html body#nxApplication .sidebar .sidebar-footer,
+html body#nxApplication .sidebar .menu-item.active > a,
+html body#nxApplication .sidebar .menu-title.active {
+    font-weight: 500 !important;
+}
+
+html body#nxApplication .sidebar .menu-item.active > a {
+    font-weight: 600 !important;
+}

@@ -2,13 +2,14 @@
 
 namespace App\Modules\VlanManagement\Repositories;
 
+use App\Infrastructure\Security\SecretCipher;
 use PDO;
 
 class VlanManagementRepository
 {
     private PDO $db;
 
-    public function __construct(PDO $db)
+    public function __construct(PDO $db, private SecretCipher $secrets)
     {
         $this->db = $db;
     }
@@ -50,6 +51,7 @@ class VlanManagementRepository
                 nv.id,
                 nv.olt_id,
                 nv.olt_port_id,
+                nv.parent_svlan_id,
                 nv.vlan_id,
                 nv.vlan_type,
                 nv.name,
@@ -82,6 +84,7 @@ class VlanManagementRepository
                 nv.id,
                 nv.olt_id,
                 nv.olt_port_id,
+                nv.parent_svlan_id,
                 nv.vlan_id,
                 nv.vlan_type,
                 nv.name,
@@ -109,6 +112,28 @@ class VlanManagementRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }
+
+    public function findDeployedSvlanIdsForOlt(int $oltId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT vlan_id
+            FROM network_vlans
+            WHERE olt_id = ?
+              AND vlan_type = 'S_VLAN'
+              AND deployment_status = 'DEPLOYED'
+            ORDER BY vlan_id ASC
+        ");
+        $stmt->execute([$oltId]);
+
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN) ?: []);
+    }
+
+    public function findParentSvlan(int $id, int $oltId): ?array
+    {
+        $stmt=$this->db->prepare("SELECT id,olt_id,vlan_id,deployment_status FROM network_vlans WHERE id=? AND olt_id=? AND vlan_type='S_VLAN' LIMIT 1");
+        $stmt->execute([$id,$oltId]); return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    public function countChildVlans(int $svlanId): int { $stmt=$this->db->prepare("SELECT COUNT(*) FROM network_vlans WHERE parent_svlan_id=? AND vlan_type='C_VLAN'");$stmt->execute([$svlanId]);return (int)$stmt->fetchColumn(); }
 
     /**
      * VLAN ID must be unique per OLT regardless of VLAN type.
@@ -167,6 +192,7 @@ class VlanManagementRepository
             (
                 olt_id,
                 olt_port_id,
+                parent_svlan_id,
                 vlan_id,
                 vlan_type,
                 name,
@@ -175,12 +201,13 @@ class VlanManagementRepository
                 deployed_at,
                 deployment_output
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $stmt->execute([
             (int)$data['olt_id'],
             isset($data['olt_port_id']) && $data['olt_port_id'] !== '' ? (int)$data['olt_port_id'] : null,
+            isset($data['parent_svlan_id']) && $data['parent_svlan_id'] !== '' ? (int)$data['parent_svlan_id'] : null,
             (int)$data['vlan_id'],
             (string)$data['vlan_type'],
             (string)$data['name'],
@@ -200,6 +227,7 @@ class VlanManagementRepository
             SET
                 olt_id = ?,
                 olt_port_id = ?,
+                parent_svlan_id = ?,
                 vlan_id = ?,
                 vlan_type = ?,
                 name = ?,
@@ -210,6 +238,7 @@ class VlanManagementRepository
         $stmt->execute([
             (int)$data['olt_id'],
             isset($data['olt_port_id']) && $data['olt_port_id'] !== '' ? (int)$data['olt_port_id'] : null,
+            isset($data['parent_svlan_id']) && $data['parent_svlan_id'] !== '' ? (int)$data['parent_svlan_id'] : null,
             (int)$data['vlan_id'],
             (string)$data['vlan_type'],
             (string)$data['name'],
@@ -259,7 +288,12 @@ class VlanManagementRepository
         $stmt->execute(['id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $row ?: null;
+        if (!$row) {
+            return null;
+        }
+
+        $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        return $row;
     }
 
     public function getOlts(): array
@@ -274,7 +308,13 @@ class VlanManagementRepository
             ORDER BY id ASC
         ");
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($rows as &$row) {
+            $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        }
+        unset($row);
+
+        return $rows;
     }
 
     public function findOltPortById(int $id): ?array
@@ -310,12 +350,15 @@ class VlanManagementRepository
             SELECT
                 mv.id,
                 mv.olt_id,
+                mv.olt_port_id,
                 mv.mgmt_vlan,
                 mv.description,
                 mv.created_at,
-                od.ip_address AS olt_ip_address
+                od.ip_address AS olt_ip_address,
+                CONCAT(op.frame, '/', op.slot, '/', op.port) AS olt_port_path
             FROM olt_mgmt_vlans mv
             LEFT JOIN olt_devices od ON od.id = mv.olt_id
+            LEFT JOIN olt_ports op ON op.id = mv.olt_port_id
             ORDER BY mv.olt_id ASC
         ");
 
@@ -328,12 +371,15 @@ class VlanManagementRepository
             SELECT
                 mv.id,
                 mv.olt_id,
+                mv.olt_port_id,
                 mv.mgmt_vlan,
                 mv.description,
                 mv.created_at,
-                od.ip_address AS olt_ip_address
+                od.ip_address AS olt_ip_address,
+                CONCAT(op.frame, '/', op.slot, '/', op.port) AS olt_port_path
             FROM olt_mgmt_vlans mv
             LEFT JOIN olt_devices od ON od.id = mv.olt_id
+            LEFT JOIN olt_ports op ON op.id = mv.olt_port_id
             WHERE mv.id = ?
             LIMIT 1
         ");
@@ -365,20 +411,22 @@ class VlanManagementRepository
     return (int)$stmt->fetchColumn() > 0;
 }
 
-public function createMgmtVlan(int $oltId, int $mgmtVlan, ?string $description = null): int
+public function createMgmtVlan(int $oltId, int $oltPortId, int $mgmtVlan, ?string $description = null): int
 {
     $stmt = $this->db->prepare("
         INSERT INTO olt_mgmt_vlans
         (
             olt_id,
+            olt_port_id,
             mgmt_vlan,
             description
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
     ");
 
     $stmt->execute([
         $oltId,
+        $oltPortId,
         $mgmtVlan,
         $description,
     ]);
@@ -386,12 +434,13 @@ public function createMgmtVlan(int $oltId, int $mgmtVlan, ?string $description =
     return (int)$this->db->lastInsertId();
 }
 
-public function updateMgmtVlan(int $id, int $oltId, int $mgmtVlan, ?string $description = null): void
+public function updateMgmtVlan(int $id, int $oltId, int $oltPortId, int $mgmtVlan, ?string $description = null): void
 {
     $stmt = $this->db->prepare("
         UPDATE olt_mgmt_vlans
         SET
             olt_id = ?,
+            olt_port_id = ?,
             mgmt_vlan = ?,
             description = ?
         WHERE id = ?
@@ -399,6 +448,7 @@ public function updateMgmtVlan(int $id, int $oltId, int $mgmtVlan, ?string $desc
 
     $stmt->execute([
         $oltId,
+        $oltPortId,
         $mgmtVlan,
         $description,
         $id,

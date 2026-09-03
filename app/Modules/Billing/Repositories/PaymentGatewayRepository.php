@@ -3,6 +3,7 @@
 namespace App\Modules\Billing\Repositories;
 
 use PDO;
+use Throwable;
 
 class PaymentGatewayRepository
 {
@@ -83,6 +84,57 @@ class PaymentGatewayRepository
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        return $row ?: null;
+    }
+
+    public function findReusableXenditTransaction(int $invoiceId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM payment_gateway_transactions
+            WHERE invoice_id = :invoice_id AND gateway = 'XENDIT'
+              AND gateway_status IN ('PENDING','UPDATED')
+              AND gateway_payment_url IS NOT NULL
+              AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            ORDER BY id DESC LIMIT 1");
+        $stmt->execute(['invoice_id' => $invoiceId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function acquireInvoiceCheckoutLock(int $invoiceId, int $timeoutSeconds = 5): bool
+    {
+        $stmt = $this->db->prepare('SELECT GET_LOCK(:name, :timeout)');
+        $stmt->bindValue(':name', 'nexusbox-xendit-invoice-' . $invoiceId);
+        $stmt->bindValue(':timeout', max(0, $timeoutSeconds), PDO::PARAM_INT);
+        $stmt->execute();
+        return (int)$stmt->fetchColumn() === 1;
+    }
+
+    public function releaseInvoiceCheckoutLock(int $invoiceId): void
+    {
+        try {
+            $stmt = $this->db->prepare('SELECT RELEASE_LOCK(:name)');
+            $stmt->execute(['name' => 'nexusbox-xendit-invoice-' . $invoiceId]);
+        } catch (Throwable $e) {
+            error_log('[Xendit] Unable to release checkout lock: ' . $e->getMessage());
+        }
+    }
+
+    public function findByGatewayReferenceForUpdate(string $gateway, string $reference): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT *
+            FROM payment_gateway_transactions
+            WHERE gateway = :gateway
+              AND gateway_reference = :gateway_reference
+            LIMIT 1
+            FOR UPDATE
+        ");
+        $stmt->execute([
+            ':gateway' => $gateway,
+            ':gateway_reference' => $reference,
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }
 

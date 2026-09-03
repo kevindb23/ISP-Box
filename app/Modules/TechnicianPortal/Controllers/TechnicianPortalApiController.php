@@ -2,10 +2,10 @@
 
 namespace App\Modules\TechnicianPortal\Controllers;
 
-use App\Modules\TechnicianPortal\Repositories\TechnicianPortalRepository;
+use App\Modules\TechnicianPortal\DTOs\TechnicianPortalCommandDTO;
 use App\Modules\TechnicianPortal\Services\TechnicianPortalService;
+use App\Modules\TechnicianPortal\Validators\TechnicianPortalCommandValidator;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
 use Framework\SessionManager;
 use Throwable;
 
@@ -13,10 +13,9 @@ class TechnicianPortalApiController extends ApiController
 {
     private TechnicianPortalService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(TechnicianPortalService $service, private TechnicianPortalCommandValidator $validator)
     {
-        $repo = new TechnicianPortalRepository($database);
-        $this->service = new TechnicianPortalService($repo);
+        $this->service = $service;
     }
 
     public function dashboard(): void
@@ -58,7 +57,7 @@ class TechnicianPortalApiController extends ApiController
     public function checkIn(): void
     {
         try {
-            $result = $this->service->checkIn($this->sessionUser(), $_POST);
+            $result = $this->service->checkIn($this->sessionUser(), $this->command('check_in'));
 
             $this->success(
                 $result,
@@ -72,7 +71,7 @@ class TechnicianPortalApiController extends ApiController
     public function startWork(): void
     {
         try {
-            $result = $this->service->startWork($this->sessionUser(), $_POST);
+            $result = $this->service->startWork($this->sessionUser(), $this->command('start'));
 
             $this->success(
                 $result,
@@ -86,7 +85,7 @@ class TechnicianPortalApiController extends ApiController
     public function completeWork(): void
     {
         try {
-            $result = $this->service->completeWork($this->sessionUser(), $_POST);
+            $result = $this->service->completeWork($this->sessionUser(), $this->command('complete'));
 
             $this->success(
                 $result,
@@ -97,10 +96,24 @@ class TechnicianPortalApiController extends ApiController
         }
     }
 
+    public function completeTask(): void
+    {
+        try {
+            $result = $this->service->completeTask($this->sessionUser(), $this->command('complete_task'));
+
+            $this->success(
+                $result,
+                $result['message'] ?? 'Task marked as completed.'
+            );
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
     public function addNote(): void
     {
         try {
-            $result = $this->service->addNote($this->sessionUser(), $_POST);
+            $result = $this->service->addNote($this->sessionUser(), $this->command('note'));
 
             $this->success(
                 $result,
@@ -111,10 +124,53 @@ class TechnicianPortalApiController extends ApiController
         }
     }
 
+    public function uploadPhoto(): void
+    {
+        try {
+            $result = $this->service->uploadPhoto($this->sessionUser(), $this->command('upload'), $this->request()->files());
+
+            $this->success(
+                $result,
+                $result['message'] ?? 'Photo uploaded successfully.'
+            );
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
+    public function downloadPhoto($id): void
+    {
+        try {
+            $file = $this->service->downloadPhoto($this->sessionUser(), (int)$id);
+            header('Content-Type: ' . $file['mime']);
+            header('Content-Length: ' . $file['size']);
+            header('Content-Disposition: inline; filename="' . addcslashes($file['name'], "\"\\") . '"');
+            header('X-Content-Type-Options: nosniff');
+            header('Cache-Control: private, no-store');
+            readfile($file['path']);
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 404);
+        }
+    }
+
+    public function deletePhoto(): void
+    {
+        try {
+            $result = $this->service->deletePhoto($this->sessionUser(), $this->command('delete_photo'));
+
+            $this->success(
+                $result,
+                $result['message'] ?? 'Photo deleted successfully.'
+            );
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
     public function timeIn(): void
     {
         try {
-            $result = $this->service->timeIn($this->sessionUser(), $_POST);
+            $result = $this->service->timeIn($this->sessionUser(), $this->command('time_in'));
 
             $this->success(
                 $result,
@@ -128,7 +184,7 @@ class TechnicianPortalApiController extends ApiController
     public function timeOut(): void
     {
         try {
-            $result = $this->service->timeOut($this->sessionUser(), $_POST);
+            $result = $this->service->timeOut($this->sessionUser(), $this->command('time_out'));
 
             $this->success(
                 $result,
@@ -142,7 +198,7 @@ class TechnicianPortalApiController extends ApiController
     public function updateAttendanceStatus(): void
     {
         try {
-            $result = $this->service->updateAttendanceStatus($this->sessionUser(), $_POST);
+            $result = $this->service->updateAttendanceStatus($this->sessionUser(), $this->command('attendance_status'));
 
             $this->success(
                 $result,
@@ -151,6 +207,14 @@ class TechnicianPortalApiController extends ApiController
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 422);
         }
+    }
+
+    private function command(string $action): array
+    {
+        $dto = new TechnicianPortalCommandDTO($this->request()->input());
+        $errors = $this->validator->validate($dto, $action);
+        if ($errors !== []) throw new \InvalidArgumentException((string)reset($errors));
+        return $dto->toArray();
     }
 
     private function sessionUser(): array

@@ -1,0 +1,5 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+* * * * * nobody cd /var/www/nexusbox && /usr/bin/php bin/collect-infrastructure-monitoring.php 2>&1 | /usr/bin/logger -t nexusbox-infrastructure-monitoring
+* * * * * nobody cd /var/www/nexusbox && /usr/bin/php bin/deliver-infrastructure-monitoring.php 2>&1 | /usr/bin/logger -t nexusbox-infrastructure-monitoring-delivery

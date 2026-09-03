@@ -1,0 +1,60 @@
+/* Import theme and utilities without Preflight. The migration bundle is
+   intentionally unable to reset the existing PHP application shell. */
+@import "tailwindcss/theme.css";
+@import "tailwindcss/utilities.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --font-sans: "Inter", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-50: #eff6ff;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+}
+
+:root {
+  --nx-canvas: #f6f7f9;
+  --nx-surface: #ffffff;
+  --nx-surface-muted: #f8fafc;
+  --nx-text: #0f172a;
+  --nx-text-muted: #64748b;
+  --nx-border: #e2e8f0;
+}
+
+html[data-theme="dark"] {
+  --nx-canvas: #111827;
+  --nx-surface: #1f2937;
+  --nx-surface-muted: #273449;
+  --nx-text: #f8fafc;
+  --nx-text-muted: #94a3b8;
+  --nx-border: #334155;
+}
+
+@layer base {
+  [data-nx-next-root] {
+    color: var(--nx-text);
+    font-family: var(--font-sans);
+  }
+
+  [data-nx-next-root] *,
+  [data-nx-next-root] *::before,
+  [data-nx-next-root] *::after,
+  .nx-next-overlay,
+  .nx-next-overlay *,
+  .nx-next-overlay *::before,
+  .nx-next-overlay *::after {
+    box-sizing: border-box;
+  }
+
+  .nx-next-overlay :is(button, input, select, textarea) {
+    border-style: solid;
+    font: inherit;
+  }
+
+  [data-nx-next-root] :is(input, select, textarea),
+  .nx-next-overlay :is(input, select, textarea) {
+    border: 1px solid var(--nx-border) !important;
+    box-shadow: none !important;
+  }
+}

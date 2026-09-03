@@ -510,6 +510,9 @@ document.addEventListener('DOMContentLoaded', () => {
         viewPortOntOnline: $('#viewPortOntOnline'),
         viewPortOntCountWrap: $('#viewPortOntCountWrap'),
         viewPortOntOnlineWrap: $('#viewPortOntOnlineWrap'),
+        controlVlanListModal: $('#controlVlanListModal'),
+        controlVlanListSubtitle: $('#controlVlanListSubtitle'),
+        controlVlanListBody: $('#controlVlanListBody'),
 
         createDeviceModal: $('#createDeviceModal'),
         viewDeviceModal: $('#viewDeviceModal'),
@@ -578,6 +581,9 @@ document.addEventListener('DOMContentLoaded', () => {
         el.editDeviceModal = $('#editDeviceModal');
         el.viewPortModal = $('#viewPortModal');
         el.fetchPortsModal = $('#fetchPortsModal');
+        el.controlVlanListModal = $('#controlVlanListModal');
+        el.controlVlanListSubtitle = $('#controlVlanListSubtitle');
+        el.controlVlanListBody = $('#controlVlanListBody');
 
         el.profilesCard = $('#oltProfilesCard');
         el.profilesWorkspace = $('#oltProfilesWorkspace');
@@ -783,6 +789,31 @@ function getControlPortBindings(portId, type = null) {
     }
 
     return rows;
+}
+
+function renderControlVlanSummary(rows, type) {
+    const filtered = safeArray(rows).filter((row) => String(row.vlan_type) === String(type));
+
+    if (!filtered.length) {
+        return '<span class="olt-control-vlan-none">None</span>';
+    }
+
+    return filtered.map((row) => `
+        <span class="olt-control-vlan-tag ${type === 'MGMT' ? 'is-mgmt' : 'is-service'}">
+            <span>VLAN ${escape(row.vlan_id)}</span>
+            <button
+                type="button"
+                class="olt-control-vlan-tag-remove js-unbind-control-vlan"
+                data-id="${Number(row.id)}"
+                data-vlan-id="${escape(row.vlan_id)}"
+                data-vlan-type="${escape(type)}"
+                title="Unbind VLAN ${escape(row.vlan_id)}"
+                aria-label="Unbind VLAN ${escape(row.vlan_id)}"
+            >
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </span>
+    `).join('');
 }
 
     function renderControlVlanChips(rows, type) {
@@ -1079,7 +1110,7 @@ function getControlPortBindings(portId, type = null) {
         profileTables[tab] = datatable.create({
             el: container,
             rows: [],
-            search: true,
+            search: false,
             paginate: true,
             pager: { currentPage: 1, rowsPerPage: 20 },
             sort: { key: 'profile_id', dir: 'asc' },
@@ -1641,7 +1672,10 @@ function getControlPortBindings(portId, type = null) {
             const searchInput = $('#oltDevicesSearch');
             if (searchInput && devicesDatatable) {
                 searchInput.value = devicesDatatable.state?.search || '';
-                searchInput.addEventListener('input', (e) => devicesDatatable.search(e.target.value || ''));
+                searchInput.addEventListener('input', (e) => {
+                    devicesDatatable.search(e.target.value || '');
+                    bindDevicesTableActions(ctx);
+                });
             }
             return;
         }
@@ -1823,7 +1857,7 @@ function getControlPortBindings(portId, type = null) {
         devicesDatatable = datatable.create({
             el: el.devicesView,
             rows: [],
-            search: true,
+            search: false,
             paginate: true,
             pager: { currentPage: 1, rowsPerPage: 20 },
             sort: { key: 'name', dir: 'asc' },
@@ -1949,39 +1983,19 @@ function getControlPortBindings(portId, type = null) {
             // =========================
             if (isControlBoardPort(row)) {
                 const bindings = getControlPortBindings(row.id);
-                const serviceCount = bindings.filter((b) => String(b.vlan_type) === 'SERVICE').length;
-                const mgmtCount = bindings.filter((b) => String(b.vlan_type) === 'MGMT').length;
-
                 return `
-                    <div class="olt-control-vlan-panel">
-                        <div class="olt-control-vlan-panel-head">
-                            <div>
-                                <div class="olt-control-vlan-title">Allowed VLANs</div>
-                                <div class="olt-control-vlan-sub">
-                                    ${serviceCount} service • ${mgmtCount} management
-                                </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-primary js-bind-control-vlan"
-                                data-id="${Number(row.id)}"
-                            >
-                                <i class="bi bi-plus-lg"></i>
-                                Add
-                            </button>
-                        </div>
-
-                        <div class="olt-control-vlan-section">
-                            <div class="olt-control-vlan-section-label">Service VLANs</div>
-                            ${renderControlVlanChips(bindings, 'SERVICE')}
-                        </div>
-
-                        <div class="olt-control-vlan-section">
-                            <div class="olt-control-vlan-section-label">MGMT VLANs</div>
-                            ${renderControlVlanChips(bindings, 'MGMT')}
-                        </div>
-                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary olt-show-vlans-btn js-show-control-vlans"
+                        data-id="${Number(row.id)}"
+                    >
+                        <span class="olt-show-vlans-icon"><i class="bi bi-layers"></i></span>
+                        <span class="olt-show-vlans-copy">
+                            <strong>Show VLANs</strong>
+                            <small>${bindings.length ? `${bindings.length} configured` : 'None configured'}</small>
+                        </span>
+                        <span class="olt-show-vlans-arrow"><i class="bi bi-chevron-right"></i></span>
+                    </button>
                 `;
             }
 
@@ -1992,42 +2006,18 @@ function getControlPortBindings(portId, type = null) {
            const hasSvlan = !!row.svlan;
 
 return `
-    <div class="nx-cell-stack">
-        <div class="nx-cell-title">Assigned SVLAN</div>
-
-        ${
-            hasSvlan
-                ? `<span class="nx-text-mono text-success">VLAN ${escape(row.svlan)}</span>`
-                : `<span class="nx-text-mono text-danger">Not Assigned</span>`
-        }
-
-        <div class="d-flex gap-2 mt-2">
-            <button
-                type="button"
-                class="btn btn-sm ${hasSvlan ? 'btn-outline-primary' : 'btn-primary'} js-assign-pon-svlan"
-                data-id="${Number(row.id)}"
-            >
-                <i class="bi ${hasSvlan ? 'bi-pencil' : 'bi-plus-lg'}"></i>
-                ${hasSvlan ? 'Change' : 'Assign'}
-            </button>
-
-            ${
-                hasSvlan
-                    ? `
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-danger js-unassign-pon-svlan"
-                            data-id="${Number(row.id)}"
-                            data-svlan="${escape(row.svlan)}"
-                        >
-                            <i class="bi bi-x-lg"></i>
-                            Remove
-                        </button>
-                    `
-                    : ''
-            }
-        </div>
-    </div>
+    <button
+        type="button"
+        class="btn btn-outline-primary olt-show-vlans-btn js-show-pon-vlans"
+        data-id="${Number(row.id)}"
+    >
+        <span class="olt-show-vlans-icon"><i class="bi bi-layers"></i></span>
+        <span class="olt-show-vlans-copy">
+            <strong>Show VLANs</strong>
+            <small>${hasSvlan ? '1 configured' : 'None configured'}</small>
+        </span>
+        <span class="olt-show-vlans-arrow"><i class="bi bi-chevron-right"></i></span>
+    </button>
 `;
         }
     });
@@ -2035,13 +2025,51 @@ return `
     columns.push({
         key: 'actions',
         label: 'Actions',
-        render: (_value, row) => `
+        render: (_value, row) => {
+            const hasSvlan = !!row.svlan;
+            const isControlPort = isControlBoardPort(row);
+
+            return `
             <div class="nx-olt-actions">
                 <button type="button" class="btn btn-outline-secondary nx-icon-btn js-olt-view-port" data-id="${Number(row.id)}" title="View">
                     <i class="bi bi-eye"></i>
                 </button>
+                ${isControlPort ? `
+                    <button
+                        type="button"
+                        class="btn btn-primary nx-icon-btn js-bind-control-vlan"
+                        data-id="${Number(row.id)}"
+                        title="Add allowed VLAN"
+                        aria-label="Add allowed VLAN"
+                    >
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                ` : `
+                    <button
+                        type="button"
+                        class="btn ${hasSvlan ? 'btn-outline-primary' : 'btn-primary'} nx-icon-btn js-assign-pon-svlan"
+                        data-id="${Number(row.id)}"
+                        title="${hasSvlan ? 'Change S-VLAN' : 'Assign S-VLAN'}"
+                        aria-label="${hasSvlan ? 'Change S-VLAN' : 'Assign S-VLAN'}"
+                    >
+                        <i class="bi ${hasSvlan ? 'bi-pencil' : 'bi-plus-lg'}"></i>
+                    </button>
+                    ${hasSvlan ? `
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger nx-icon-btn js-unassign-pon-svlan"
+                            data-id="${Number(row.id)}"
+                            data-svlan="${escape(row.svlan)}"
+                            title="Remove S-VLAN"
+                            aria-label="Remove S-VLAN"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    ` : ''}
+                `}
             </div>
-        `
+        `;
+        }
     });
 
     return columns;
@@ -2065,7 +2093,7 @@ return `
     portsDatatable = datatable.create({
         el: el.portsTableView,
         rows: [],
-        search: true,
+        search: false,
         paginate: true,
         pager: { currentPage: 1, rowsPerPage: 20 },
         sort: { key: 'port_path', dir: 'asc' },
@@ -2186,6 +2214,22 @@ return `
     });
 
     // Control Board VLAN
+    el.portsTableView.querySelectorAll('.js-show-control-vlans').forEach((btn) => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openControlVlanListModal(ctx, Number(btn.dataset.id || 0));
+        };
+    });
+
+    el.portsTableView.querySelectorAll('.js-show-pon-vlans').forEach((btn) => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openPonVlanListModal(ctx, Number(btn.dataset.id || 0));
+        };
+    });
+
     el.portsTableView.querySelectorAll('.js-bind-control-vlan').forEach((btn) => {
         btn.onclick = async (e) => {
             e.preventDefault();
@@ -2193,6 +2237,107 @@ return `
             await openControlBoardVlanModal(ctx, Number(btn.dataset.id || 0));
         };
     });
+
+    function openControlVlanListModal(ctx, portId) {
+        const port = findPortById(ctx.state.ports, portId);
+        if (!port || !el.controlVlanListModal || !el.controlVlanListBody) {
+            ui.toast('error', 'Control board port not found.');
+            return;
+        }
+
+        const bindings = getControlPortBindings(portId);
+        text(el.controlVlanListSubtitle, `${port.port_path || '-'} • ${bindings.length} allowed VLAN${bindings.length === 1 ? '' : 's'}`);
+
+        if (!bindings.length) {
+            html(el.controlVlanListBody, `
+                <tr>
+                    <td colspan="4">
+                        <div class="olt-vlan-list-empty">No VLANs are currently assigned to this port.</div>
+                    </td>
+                </tr>
+            `);
+        } else {
+            html(el.controlVlanListBody, bindings.map((binding) => `
+                <tr>
+                    <td><span class="nx-text-mono fw-bold">VLAN ${escape(binding.vlan_id)}</span></td>
+                    <td>${escape(binding.vlan_name || '-')}</td>
+                    <td><span class="olt-vlan-type-badge ${String(binding.vlan_type) === 'MGMT' ? 'is-mgmt' : 'is-service'}">${escape(binding.vlan_type || 'SERVICE')}</span></td>
+                    <td class="text-end">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger nx-icon-btn js-modal-unbind-control-vlan"
+                            data-id="${Number(binding.id)}"
+                            data-vlan-id="${escape(binding.vlan_id)}"
+                            data-vlan-type="${escape(binding.vlan_type)}"
+                            title="Unbind VLAN ${escape(binding.vlan_id)}"
+                            aria-label="Unbind VLAN ${escape(binding.vlan_id)}"
+                        ><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `).join(''));
+
+            el.controlVlanListBody.querySelectorAll('.js-modal-unbind-control-vlan').forEach((btn) => {
+                btn.onclick = async () => {
+                    closeModal(el.controlVlanListModal);
+                    await deleteControlBoardVlanBinding(ctx, Number(btn.dataset.id || 0), {
+                        vlanId: btn.dataset.vlanId || '',
+                        vlanType: btn.dataset.vlanType || ''
+                    });
+                };
+            });
+        }
+
+        openModal(el.controlVlanListModal);
+    }
+
+    function openPonVlanListModal(ctx, portId) {
+        const port = findPortById(ctx.state.ports, portId);
+        if (!port || !el.controlVlanListModal || !el.controlVlanListBody) {
+            ui.toast('error', 'PON port not found.');
+            return;
+        }
+
+        const hasSvlan = !!port.svlan;
+        text(el.controlVlanListSubtitle, `${port.port_path || '-'} • ${hasSvlan ? '1 assigned VLAN' : 'No assigned VLAN'}`);
+
+        if (!hasSvlan) {
+            html(el.controlVlanListBody, `
+                <tr>
+                    <td colspan="4">
+                        <div class="olt-vlan-list-empty">No VLAN is currently assigned to this PON port.</div>
+                    </td>
+                </tr>
+            `);
+        } else {
+            html(el.controlVlanListBody, `
+                <tr>
+                    <td><span class="nx-text-mono fw-bold">VLAN ${escape(port.svlan)}</span></td>
+                    <td>${escape(port.svlan_name || '-')}</td>
+                    <td><span class="olt-vlan-type-badge is-service">S-VLAN</span></td>
+                    <td class="text-end">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger nx-icon-btn js-modal-unassign-pon-svlan"
+                            data-id="${Number(port.id)}"
+                            data-svlan="${escape(port.svlan)}"
+                            title="Remove VLAN ${escape(port.svlan)}"
+                            aria-label="Remove VLAN ${escape(port.svlan)}"
+                        ><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `);
+
+            const removeButton = el.controlVlanListBody.querySelector('.js-modal-unassign-pon-svlan');
+            if (removeButton) {
+                removeButton.onclick = async () => {
+                    closeModal(el.controlVlanListModal);
+                    await unassignPonSvlan(ctx, Number(removeButton.dataset.id || 0), removeButton.dataset.svlan || '');
+                };
+            }
+        }
+
+        openModal(el.controlVlanListModal);
+    }
 
     // Unbind Control VLAN
     el.portsTableView.querySelectorAll('.js-unbind-control-vlan').forEach((btn) => {
@@ -2483,8 +2628,8 @@ return `
                 <div class="d-flex flex-column gap-3">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div>
-                            <h3 class="olt-section-title mb-1">${escape(meta.title)}</h3>
-                            <p class="olt-section-subtitle mb-0">${escape(meta.subtitle)}</p>
+                            <h3 class="section-title mb-1">${escape(meta.title)}</h3>
+                            <p class="section-subtitle mb-0">${escape(meta.subtitle)}</p>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-primary js-profile-create" data-tab="${escape(tab)}">
@@ -2509,8 +2654,8 @@ return `
                 <div class="d-flex flex-column gap-3">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                         <div>
-                            <h3 class="olt-section-title mb-1">${escape(meta.title)}</h3>
-                            <p class="olt-section-subtitle mb-0">${escape(meta.subtitle)}</p>
+                            <h3 class="section-title mb-1">${escape(meta.title)}</h3>
+                            <p class="section-subtitle mb-0">${escape(meta.subtitle)}</p>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-primary js-profile-create" data-tab="${escape(tab)}">
@@ -3198,6 +3343,49 @@ function updateControlBoardVlanCliPreview(ctx) {
 
     previewEl.textContent = `port vlan ${vlanId} ${frame}/${slot} ${portNo}`;
 }
+
+    function fixOltCliPreviewTheme() {
+        const isDark = document.documentElement.dataset.theme === 'dark';
+
+        document.querySelectorAll('.modal pre, .modal code, .modal textarea, .modal .nx-code-block, .modal [id*="CliPreview"]').forEach((el) => {
+            if (isDark) {
+                el.style.setProperty('background', '#020617', 'important');
+                el.style.setProperty('background-color', '#020617', 'important');
+                el.style.setProperty('color', '#dbeafe', 'important');
+                el.style.setProperty('border', '1px solid #334155', 'important');
+                el.style.setProperty('border-radius', '3px', 'important');
+                el.style.setProperty('box-shadow', 'none', 'important');
+            } else {
+                el.style.removeProperty('background');
+                el.style.removeProperty('background-color');
+                el.style.removeProperty('color');
+                el.style.removeProperty('border');
+                el.style.removeProperty('border-radius');
+                el.style.removeProperty('box-shadow');
+            }
+        });
+
+        document.querySelectorAll('.modal .nx-code-block-wrap').forEach((el) => {
+            if (isDark) {
+                el.style.setProperty('background', '#020617', 'important');
+                el.style.setProperty('background-color', '#020617', 'important');
+                el.style.setProperty('border', '1px solid #334155', 'important');
+                el.style.setProperty('border-radius', '3px', 'important');
+                el.style.setProperty('padding', '14px', 'important');
+            } else {
+                el.style.removeProperty('background');
+                el.style.removeProperty('background-color');
+                el.style.removeProperty('border');
+                el.style.removeProperty('border-radius');
+                el.style.removeProperty('padding');
+            }
+        });
+    }
+
+    document.addEventListener('shown.bs.modal', fixOltCliPreviewTheme);
+    document.addEventListener('nx:theme-change', fixOltCliPreviewTheme);
+    document.addEventListener('nx:page-load', fixOltCliPreviewTheme);
+    setTimeout(fixOltCliPreviewTheme, 100);
 
 
 async function openControlBoardVlanModal(ctx, portId) {

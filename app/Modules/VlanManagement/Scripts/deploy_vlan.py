@@ -38,10 +38,15 @@ def normalize_vlan_type(vlan_type: str) -> str:
     return vlan_type
 
 
-def build_commands(vlan_id: int, vlan_type: str):
+def build_commands(vlan_id: int, vlan_type: str, frame=None, slot=None, port_no=None):
     vlan_type = normalize_vlan_type(vlan_type)
 
-    if vlan_type in ("C_VLAN", "MGMT_VLAN"):
+    if vlan_type == "MGMT_VLAN":
+        if frame is None or slot is None or port_no is None:
+            raise ValueError("MGMT_VLAN requires an OLT port.")
+        return [f"vlan {vlan_id} smart", f"port vlan {vlan_id} {int(frame)}/{int(slot)} {int(port_no)}"]
+
+    if vlan_type == "C_VLAN":
         return [f"vlan {vlan_id} smart"]
 
     if vlan_type == "S_VLAN":
@@ -55,11 +60,12 @@ def build_commands(vlan_id: int, vlan_type: str):
 
 
 def parse_payload():
-    if len(sys.argv) < 2:
+    raw = sys.stdin.read()
+    if not raw.strip():
         fail("Missing JSON payload.")
 
     try:
-        return json.loads(sys.argv[1])
+        return json.loads(raw)
     except Exception:
         fail("Invalid JSON payload.")
 
@@ -93,7 +99,7 @@ def main():
         if vlan_id < 1 or vlan_id > 4094:
             fail("Invalid VLAN ID.")
 
-        commands = build_commands(vlan_id, vlan_type)
+        commands = build_commands(vlan_id, vlan_type, data.get("frame"), data.get("slot"), data.get("port_no"))
 
         device = {
             "device_type": "huawei_olt",

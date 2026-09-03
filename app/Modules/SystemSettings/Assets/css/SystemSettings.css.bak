@@ -1,0 +1,2 @@
+#systemSettingsGeneralPage h6 { margin-bottom: 1rem; font-weight: 700; }
+#systemSettingsGeneralPage .card { border-radius: 0.85rem; }

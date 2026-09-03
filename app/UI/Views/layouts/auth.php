@@ -10,6 +10,7 @@
 
 <link rel="stylesheet" href="/assets/bootstrap/bootstrap.min.css">
 <link rel="stylesheet" href="/assets/icons/bootstrap-icons.css">
+<?php require BASE_PATH . '/app/UI/Views/layouts/vite.php'; ?>
 
 </head>
 

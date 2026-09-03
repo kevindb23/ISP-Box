@@ -2,10 +2,8 @@
 
 namespace App\Modules\VlanManagement\Controllers;
 
-use App\Infrastructure\Database\DatabaseConnection;
 use App\Modules\VlanManagement\DTOs\CreateVlanDTO;
 use App\Modules\VlanManagement\DTOs\UpdateVlanDTO;
-use App\Modules\VlanManagement\Repositories\VlanManagementRepository;
 use App\Modules\VlanManagement\Services\VlanManagementService;
 use Framework\ApiController;
 use Throwable;
@@ -14,11 +12,9 @@ class VlanManagementApiController extends ApiController
 {
     private VlanManagementService $service;
 
-    public function __construct()
+    public function __construct(VlanManagementService $service)
     {
-        $pdo = (new DatabaseConnection())->get();
-        $repo = new VlanManagementRepository($pdo);
-        $this->service = new VlanManagementService($repo);
+        $this->service = $service;
     }
 
     public function summary()
@@ -80,6 +76,16 @@ class VlanManagementApiController extends ApiController
         }
     }
 
+    public function retryVlan($id)
+    {
+        try {
+            $result = $this->service->deployVlan((int)$id);
+            $this->success($result, 'VLAN deployment retried successfully.');
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
     public function mgmtVlans()
     {
         try {
@@ -113,15 +119,6 @@ class VlanManagementApiController extends ApiController
 
     private function getInputData(): array
     {
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
-
-        if (stripos($contentType, 'application/json') !== false) {
-            $raw = file_get_contents('php://input');
-            $decoded = json_decode($raw, true);
-
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        return $_POST ?: [];
+        return $this->request()->input();
     }
 }

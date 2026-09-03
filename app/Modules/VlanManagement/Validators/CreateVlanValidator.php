@@ -26,6 +26,9 @@ class CreateVlanValidator
         if (empty($data['olt_id']) || (int)$data['olt_id'] <= 0) {
             $errors['olt_id'][] = 'OLT is required.';
         }
+        if ($type === 'C_VLAN' && (int)($data['parent_svlan_id'] ?? 0) <= 0) {
+            $errors['parent_svlan_id'][] = 'Parent S-VLAN is required for a C-VLAN.';
+        }
         return $errors;
     }
 }

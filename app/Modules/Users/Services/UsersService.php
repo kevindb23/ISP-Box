@@ -2,30 +2,26 @@
 
 namespace App\Modules\Users\Services;
 
+use App\Modules\Users\DTOs\CreateUsersDTO;
+use App\Modules\Users\Entities\Users;
 use App\Modules\Users\Repositories\UsersRepository;
+use App\Modules\Users\Validators\CreateUsersValidator;
 use App\Modules\Audit\Services\AuditService;
+use App\Core\Authorization\AuthorizationRepository;
+use App\Core\Authorization\AuthorizationService;
+use Framework\SessionManager;
 
 class UsersService
 {
     private UsersRepository $repo;
     private AuditService $audit;
 
-    private array $allowedRoles = [
-        'SUPERADMIN',
-        'NOC',
-        'SUPPORT',
-        'BILLING',
-        'TECHNICIAN',
-    ];
-
-    private array $allowedStatuses = [
-        'ACTIVE',
-        'DISABLED',
-    ];
-
     public function __construct(
         UsersRepository $repo,
-        AuditService $audit
+        AuditService $audit,
+        private CreateUsersValidator $validator,
+        private AuthorizationRepository $authorizationRepository,
+        private AuthorizationService $authorization
     ) {
         $this->repo = $repo;
         $this->audit = $audit;
@@ -33,17 +29,22 @@ class UsersService
 
     public function list(): array
     {
-        return $this->repo->all();
+        return array_map(
+            static fn(array $row): array => (new Users($row))->toArray(),
+            $this->repo->all()
+        );
     }
 
     public function find(int $id): ?array
     {
-        return $this->repo->find($id);
+        $row = $this->repo->find($id);
+        return $row ? (new Users($row))->toArray() : null;
     }
 
     public function create(array $input): int
     {
-        $data = $this->validate($input, true);
+        $data = $this->validatedData(new CreateUsersDTO($input), true);
+        if (strtoupper((string)$data['role']) === 'SUPERADMIN') $this->assertSuperadminActor();
 
         if ($this->repo->usernameExists($data['username'])) {
             throw new \InvalidArgumentException('Username already exists.');
@@ -78,7 +79,19 @@ class UsersService
             throw new \InvalidArgumentException('User not found.');
         }
 
-        $data = $this->validate($input, false);
+        $data = $this->validatedData(new CreateUsersDTO($input), false);
+        if (strtoupper((string)$existing['role']) === 'SUPERADMIN' || strtoupper((string)$data['role']) === 'SUPERADMIN') {
+            $this->assertSuperadminActor();
+        }
+
+        $actorId = (int)(SessionManager::id() ?? 0);
+        if ($actorId === $id && (
+            strtoupper((string)$existing['role']) !== strtoupper((string)$data['role']) ||
+            strtoupper((string)$existing['status']) !== strtoupper((string)$data['status'])
+        )) {
+            throw new \InvalidArgumentException('You cannot change your own role or account status.');
+        }
+        $this->protectLastSuperadmin($id, $existing, $data['role'], $data['status']);
 
         if ($this->repo->usernameExists($data['username'], $id)) {
             throw new \InvalidArgumentException('Username already exists.');
@@ -111,6 +124,11 @@ class UsersService
             throw new \InvalidArgumentException('User not found.');
         }
 
+        if (strtoupper((string)$existing['role']) === 'SUPERADMIN') $this->assertSuperadminActor();
+        if ((int)(SessionManager::id() ?? 0) === $id) {
+            throw new \InvalidArgumentException('You cannot disable your own account.');
+        }
+        $this->protectLastSuperadmin($id, $existing, (string)$existing['role'], 'DISABLED');
         $this->repo->disable($id);
 
         $this->audit->log(
@@ -132,6 +150,8 @@ class UsersService
             throw new \InvalidArgumentException('User not found.');
         }
 
+        if (strtoupper((string)$existing['role']) === 'SUPERADMIN') $this->assertSuperadminActor();
+
         $password = trim((string)($input['password'] ?? ''));
 
         if ($password === '') {
@@ -151,57 +171,67 @@ class UsersService
         );
     }
 
-    private function validate(array $input, bool $requirePassword): array
+    public function permissionMatrix(int $id): array
     {
-        $username = trim((string)($input['username'] ?? ''));
-        $fullName = trim((string)($input['full_name'] ?? ''));
-        $email = trim((string)($input['email'] ?? ''));
-        $role = strtoupper(trim((string)($input['role'] ?? 'SUPPORT')));
-        $status = strtoupper(trim((string)($input['status'] ?? 'ACTIVE')));
-        $password = trim((string)($input['password'] ?? ''));
+        $user = $this->find($id);
+        if (!$user) throw new \InvalidArgumentException('User not found.');
+        return ['user' => $user, 'permissions' => $this->authorization->matrix($id)];
+    }
 
-        if ($username === '') {
-            throw new \InvalidArgumentException('Username is required.');
+    public function updatePermissions(int $id, array $input): void
+    {
+        $user = $this->find($id);
+        if (!$user) throw new \InvalidArgumentException('User not found.');
+        if (strtoupper((string)$user['role']) === 'SUPERADMIN') {
+            throw new \InvalidArgumentException('Superadmin access is protected and cannot be overridden.');
+        }
+        $effects = $input['effects'] ?? [];
+        if (is_string($effects)) {
+            $effects = json_decode($effects, true);
+        }
+        if (!is_array($effects)) throw new \InvalidArgumentException('Invalid permission overrides.');
+
+        $valid = [];
+        foreach ($effects as $permission => $effect) {
+            if (!is_string($permission) || !preg_match('/^[a-z0-9-]+\.[a-z]+$/', $permission)) continue;
+            $effect = strtoupper((string)$effect);
+            if (!in_array($effect, ['INHERIT', 'ALLOW', 'DENY'], true)) continue;
+            $valid[$permission] = $effect;
+        }
+        $actorId = (int)(SessionManager::id() ?? 0);
+        $this->authorization->replaceOverrides($id, $valid, $actorId);
+        $changed = array_filter($valid, static fn(string $effect): bool => $effect !== 'INHERIT');
+        $this->audit->log('USERS', 'UPDATE_PERMISSIONS', sprintf(
+            'Updated access overrides for user %s: %d explicit override(s)',
+            $user['username'], count($changed)
+        ));
+    }
+
+    private function protectLastSuperadmin(int $id, array $existing, string $newRole, string $newStatus): void
+    {
+        if (strtoupper((string)$existing['role']) !== 'SUPERADMIN' || strtoupper((string)$existing['status']) !== 'ACTIVE') return;
+        if (strtoupper($newRole) === 'SUPERADMIN' && strtoupper($newStatus) === 'ACTIVE') return;
+        if ($this->authorizationRepository->activeSuperadminCountExcluding($id) < 1) {
+            throw new \InvalidArgumentException('The final active Superadmin cannot be disabled or downgraded.');
+        }
+    }
+
+    private function assertSuperadminActor(): void
+    {
+        $actor = $this->authorizationRepository->userIdentity((int)(SessionManager::id() ?? 0));
+        if (!$actor || strtoupper((string)$actor['role']) !== 'SUPERADMIN' || strtoupper((string)$actor['status']) !== 'ACTIVE') {
+            throw new \InvalidArgumentException('Only an active Superadmin can create or modify Superadmin accounts.');
+        }
+    }
+
+    private function validatedData(CreateUsersDTO $dto, bool $requirePassword): array
+    {
+        $errors = $this->validator->validate($dto, $requirePassword);
+        if ($errors !== []) {
+            throw new \InvalidArgumentException((string)reset($errors));
         }
 
-        if (!preg_match('/^[a-zA-Z0-9._-]{3,64}$/', $username)) {
-            throw new \InvalidArgumentException('Username must be 3-64 characters and may contain letters, numbers, dot, dash, or underscore only.');
-        }
-
-        if ($fullName === '') {
-            throw new \InvalidArgumentException('Full name is required.');
-        }
-
-        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException('Invalid email address.');
-        }
-
-        if (!in_array($role, $this->allowedRoles, true)) {
-            throw new \InvalidArgumentException('Invalid system role.');
-        }
-
-        if (!in_array($status, $this->allowedStatuses, true)) {
-            throw new \InvalidArgumentException('Invalid user status.');
-        }
-
-        if ($requirePassword) {
-            if ($password === '') {
-                throw new \InvalidArgumentException('Password is required.');
-            }
-
-            if (strlen($password) < 8) {
-                throw new \InvalidArgumentException('Password must be at least 8 characters.');
-            }
-        }
-
-        return [
-            'username' => $username,
-            'full_name' => $fullName,
-            'email' => $email !== '' ? $email : null,
-            'role' => $role,
-            'status' => $status,
-            'password' => $password,
-        ];
+        return $dto->toArray();
     }
 
     private function describeChanges(array $old, array $new): string

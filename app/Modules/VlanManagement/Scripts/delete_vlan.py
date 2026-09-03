@@ -43,22 +43,22 @@ def normalize_vlan_type(vlan_type: str) -> str:
 
 
 def parse_payload():
-    if len(sys.argv) < 2:
-        fail("Missing JSON payload argument.")
+    raw = sys.stdin.read()
 
-    raw = sys.argv[1]
+    if not raw.strip():
+        fail("Missing JSON payload.")
 
     try:
         return json.loads(raw)
     except Exception:
-        fail("Invalid JSON payload.", {"raw": raw})
+        fail("Invalid JSON payload.")
 
 
 def join_outputs(parts):
     return "\n\n".join([p for p in parts if p])
 
 
-def build_delete_commands(vlan_id: int, vlan_type: str):
+def build_delete_commands(vlan_id: int, vlan_type: str, frame=None, slot=None, port_no=None):
     vlan_type = normalize_vlan_type(vlan_type)
 
     if vlan_type == "S_VLAN":
@@ -68,7 +68,12 @@ def build_delete_commands(vlan_id: int, vlan_type: str):
             f"undo vlan {vlan_id}"
         ]
 
-    if vlan_type in ("C_VLAN", "MGMT_VLAN"):
+    if vlan_type == "MGMT_VLAN":
+        if frame is None or slot is None or port_no is None:
+            raise ValueError("MGMT_VLAN requires an OLT port.")
+        return [f"undo port vlan {vlan_id} {int(frame)}/{int(slot)} {int(port_no)}", f"undo vlan {vlan_id}"]
+
+    if vlan_type == "C_VLAN":
         return [
             f"undo vlan {vlan_id}"
         ]
@@ -162,7 +167,7 @@ def main():
                 "allowed_vlan_types": ["C_VLAN", "S_VLAN", "MGMT_VLAN"]
             })
 
-        commands = build_delete_commands(vlan_id, vlan_type)
+        commands = build_delete_commands(vlan_id, vlan_type, data.get("frame"), data.get("slot"), data.get("port_no"))
 
         if dry_run:
             ok(

@@ -99,7 +99,10 @@ class AdjustmentService
             throw new Exception('Invalid adjustment type.');
         }
 
-        $invoice = $this->invoices->find($invoiceId);
+        $this->db->beginTransaction();
+
+        try {
+        $invoice = $this->invoices->findForUpdate($invoiceId);
 
         if (!$invoice) {
             throw new Exception('Invoice not found.');
@@ -109,8 +112,11 @@ class AdjustmentService
             throw new Exception('Cannot create adjustment for a cancelled invoice.');
         }
 
-        $prefix = strtoupper((string)($payload['adjustment_prefix'] ?? 'ADJ'));
-        $adjustmentNo = $payload['adjustment_no'] ?? $this->adjustments->generateAdjustmentNo($prefix);
+        $prefix = strtoupper(trim((string)($payload['adjustment_prefix'] ?? 'ADJ'))) ?: 'ADJ';
+        $adjustmentNo = isset($payload['adjustment_no']) && trim((string)$payload['adjustment_no']) !== ''
+            ? trim((string)$payload['adjustment_no'])
+            : null;
+        $storedAdjustmentNo = $adjustmentNo ?? ('TMP-' . bin2hex(random_bytes(16)));
 
         $status = strtoupper((string)($payload['status'] ?? 'POSTED'));
 
@@ -120,11 +126,8 @@ class AdjustmentService
 
         $createdBy = $payload['created_by'] ?? null;
 
-        $this->db->beginTransaction();
-
-        try {
             $adjustmentId = $this->adjustments->create([
-                'adjustment_no' => $adjustmentNo,
+                'adjustment_no' => $storedAdjustmentNo,
                 'invoice_id' => $invoiceId,
                 'subscriber_id' => $invoice['subscriber_id'] ?? null,
                 'service_id' => $invoice['service_id'] ?? null,
@@ -136,6 +139,11 @@ class AdjustmentService
                 'approved_by' => $status === 'POSTED' ? $createdBy : null,
                 'approved_at' => $status === 'POSTED' ? date('Y-m-d H:i:s') : null,
             ]);
+
+            if ($adjustmentNo === null) {
+                $adjustmentNo = sprintf('%s-%s-%06d', $prefix, date('Y'), $adjustmentId);
+                $this->adjustments->assignAdjustmentNo($adjustmentId, $storedAdjustmentNo, $adjustmentNo);
+            }
 
             if ($status === 'POSTED') {
                 $this->recalculateInvoiceFinancials($invoiceId);
@@ -196,7 +204,10 @@ class AdjustmentService
             throw new Exception('Void reason is required.');
         }
 
-        $adjustment = $this->adjustments->find($id);
+        $this->db->beginTransaction();
+
+        try {
+        $adjustment = $this->adjustments->findForUpdate($id);
 
         if (!$adjustment) {
             throw new Exception('Billing adjustment not found.');
@@ -212,9 +223,7 @@ class AdjustmentService
             throw new Exception('Adjustment invoice reference is missing.');
         }
 
-        $this->db->beginTransaction();
-
-        try {
+            $this->invoices->findForUpdate($invoiceId);
             $ok = $this->adjustments->void($id, $userId, $reason);
 
             if (!$ok) {
@@ -291,17 +300,7 @@ class AdjustmentService
             throw new Exception('Invoice not found during recalculation.');
         }
 
-        $stmt = $this->db->prepare("
-            SELECT COALESCE(SUM(line_total), 0)
-            FROM invoice_items
-            WHERE invoice_id = :invoice_id
-        ");
-
-        $stmt->execute([
-            ':invoice_id' => $invoiceId,
-        ]);
-
-        $subtotal = (float)$stmt->fetchColumn();
+        $subtotal = $this->adjustments->invoiceItemsSubtotal($invoiceId);
 
         $adjustmentTotals = $this->adjustments->getPostedAdjustmentTotalsByInvoice($invoiceId);
 
@@ -313,7 +312,10 @@ class AdjustmentService
 
         $total = max(0, round($subtotal - $discountAmount + $taxAmount, 2));
 
-        $paid = $this->getPostedPaidAmount($invoiceId);
+        $paid = $this->adjustments->postedPaidAmount($invoiceId);
+        if ($paid > $total) {
+            throw new Exception('This adjustment would reduce the invoice below the amount already paid. Create a refund or subscriber credit first.');
+        }
         $balance = max(0, round($total - $paid, 2));
 
         $status = $this->resolveInvoiceStatus(
@@ -324,48 +326,15 @@ class AdjustmentService
             $invoice['status'] ?? 'UNPAID'
         );
 
-        $update = $this->db->prepare("
-            UPDATE invoices
-            SET
-                amount = :amount,
-                subtotal = :subtotal,
-                discount_amount = :discount_amount,
-                tax_amount = :tax_amount,
-                total_amount = :total_amount,
-                paid_amount = :paid_amount,
-                balance_amount = :balance_amount,
-                status = :status
-            WHERE id = :id
-        ");
-
-        $update->execute([
-            ':amount' => $total,
-            ':subtotal' => $subtotal,
-            ':discount_amount' => $discountAmount,
-            ':tax_amount' => $taxAmount,
-            ':total_amount' => $total,
-            ':paid_amount' => $paid,
-            ':balance_amount' => $balance,
-            ':status' => $status,
-            ':id' => $invoiceId,
+        $this->adjustments->updateInvoiceFinancials($invoiceId, [
+            'subtotal' => $subtotal,
+            'discount_amount' => $discountAmount,
+            'tax_amount' => $taxAmount,
+            'total' => $total,
+            'paid' => $paid,
+            'balance' => $balance,
+            'status' => $status,
         ]);
-    }
-
-    private function getPostedPaidAmount(int $invoiceId): float
-    {
-        $stmt = $this->db->prepare("
-            SELECT COALESCE(SUM(pa.allocated_amount), 0)
-            FROM payment_allocations pa
-            INNER JOIN payments p ON p.id = pa.payment_id
-            WHERE pa.invoice_id = :invoice_id
-              AND p.payment_status = 'POSTED'
-        ");
-
-        $stmt->execute([
-            ':invoice_id' => $invoiceId,
-        ]);
-
-        return round((float)$stmt->fetchColumn(), 2);
     }
 
     private function resolveInvoiceStatus(
@@ -413,53 +382,20 @@ class AdjustmentService
                $performedBy = null
     ): void {
         try {
-            $stmt = $this->db->prepare("
-                INSERT INTO activity_logs (
-                    entity_type,
-                    entity_id,
-                    action,
-                    status,
-                    title,
-                    message,
-                    old_values,
-                    new_values,
-                    meta_json,
-                    performed_by,
-                    ip_address,
-                    user_agent,
-                    created_at
-                ) VALUES (
-                    :entity_type,
-                    :entity_id,
-                    :action,
-                    :status,
-                    :title,
-                    :message,
-                    :old_values,
-                    :new_values,
-                    :meta_json,
-                    :performed_by,
-                    :ip_address,
-                    :user_agent,
-                    NOW()
-                )
-            ");
-
-            $stmt->execute([
-                ':entity_type' => $entityType,
-                ':entity_id' => $entityId,
-                ':action' => $action,
-                ':status' => $status,
-                ':title' => $title,
-                ':message' => $message,
-                ':old_values' => $oldValues ? json_encode($oldValues, JSON_UNESCAPED_SLASHES) : null,
-                ':new_values' => $newValues ? json_encode($newValues, JSON_UNESCAPED_SLASHES) : null,
-                ':meta_json' => $meta ? json_encode($meta, JSON_UNESCAPED_SLASHES) : null,
-                ':performed_by' => $performedBy ?: null,
-                ':ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
-                ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            $this->adjustments->createActivityLog([
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+                'action' => $action,
+                'status' => $status,
+                'title' => $title,
+                'message' => $message,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'meta' => $meta,
+                'performed_by' => $performedBy,
             ]);
         } catch (Throwable $e) {
+            error_log('[Billing adjustment activity] ' . $e->getMessage());
         }
     }
 }

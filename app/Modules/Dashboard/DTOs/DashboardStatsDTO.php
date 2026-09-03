@@ -8,6 +8,7 @@ class DashboardStatsDTO
     public int $active_services;
     public int $suspended_services;
     public int $unpaid_invoices;
+    public int $unpaid_subscribers;
     public int $paid_invoices;
     public float $today_revenue;
     public int $active_sessions;
@@ -25,6 +26,7 @@ class DashboardStatsDTO
         $this->active_services = (int)($data['active_services'] ?? 0);
         $this->suspended_services = (int)($data['suspended_services'] ?? 0);
         $this->unpaid_invoices = (int)($data['unpaid_invoices'] ?? 0);
+        $this->unpaid_subscribers = (int)($data['unpaid_subscribers'] ?? 0);
         $this->paid_invoices = (int)($data['paid_invoices'] ?? 0);
         $this->today_revenue = (float)($data['today_revenue'] ?? 0);
         $this->active_sessions = (int)($data['active_sessions'] ?? 0);
@@ -44,6 +46,7 @@ class DashboardStatsDTO
             'active_services' => $this->active_services,
             'suspended_services' => $this->suspended_services,
             'unpaid_invoices' => $this->unpaid_invoices,
+            'unpaid_subscribers' => $this->unpaid_subscribers,
             'paid_invoices' => $this->paid_invoices,
             'today_revenue' => $this->today_revenue,
             'active_sessions' => $this->active_sessions,

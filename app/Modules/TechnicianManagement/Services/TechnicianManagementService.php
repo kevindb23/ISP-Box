@@ -2,7 +2,11 @@
 
 namespace App\Modules\TechnicianManagement\Services;
 
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\Services\AuditService;
+use App\Modules\TechnicianManagement\Entities\Technician;
 use App\Modules\TechnicianManagement\Repositories\TechnicianManagementRepository;
+use App\Modules\WorkOrders\Services\WorkOrdersService;
 use Exception;
 
 class TechnicianManagementService
@@ -10,7 +14,6 @@ class TechnicianManagementService
     private TechnicianManagementRepository $repo;
 
     private array $allowedStatuses = [
-        'OFFLINE',
         'AVAILABLE',
         'BUSY',
         'ON_BREAK',
@@ -18,14 +21,18 @@ class TechnicianManagementService
         'TRAVELING',
     ];
 
-    public function __construct(TechnicianManagementRepository $repo)
+    public function __construct(
+        TechnicianManagementRepository $repo,
+        private AuditService $audit,
+        private WorkOrdersService $workOrders
+    )
     {
         $this->repo = $repo;
     }
 
     public function dashboard(array $sessionData, array $filters = []): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         $filterArray = [
             'status' => !empty($filters['status']) ? strtoupper(trim((string)$filters['status'])) : null,
@@ -33,7 +40,10 @@ class TechnicianManagementService
         ];
 
         return [
-            'technicians' => $this->repo->getTechnicians($filterArray),
+            'technicians' => array_map(
+                static fn(array $row): array => (new Technician($row))->toArray(),
+                $this->repo->getTechnicians($filterArray)
+            ),
             'summary' => $this->repo->getSummary(),
             'work_order_summary' => $this->repo->getWorkOrderSummary(),
         ];
@@ -41,7 +51,7 @@ class TechnicianManagementService
 
     public function technicianDetails(array $sessionData, int $id): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         if ($id <= 0) {
             throw new Exception('Invalid technician ID.');
@@ -54,7 +64,7 @@ class TechnicianManagementService
         }
 
         return [
-            'technician' => $technician,
+            'technician' => (new Technician($technician))->toArray(),
             'work_orders' => $this->repo->getTechnicianWorkOrders($id),
             'attendance_logs' => $this->repo->getAttendanceLogs($id),
         ];
@@ -62,7 +72,7 @@ class TechnicianManagementService
 
     public function updateStatus(array $sessionData, array $input): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         $userId = (int)($input['user_id'] ?? 0);
         $status = strtoupper(trim((string)($input['status'] ?? '')));
@@ -82,12 +92,14 @@ class TechnicianManagementService
             throw new Exception('Technician not found.');
         }
 
-        return $this->repo->updateTodayStatus($userId, $status, $note);
+        $result = $this->repo->updateTodayStatus($userId, $status, $note);
+        $this->auditAction('UPDATE_STATUS', 'Updated technician status.', 'TECHNICIAN', $userId, ['status' => $status]);
+        return $result;
     }
 
     public function updateProfile(array $sessionData, array $input): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         $userId = (int)($input['user_id'] ?? 0);
 
@@ -115,15 +127,18 @@ class TechnicianManagementService
         ];
 
         if (!in_array($profile['skill_level'], ['JUNIOR', 'SENIOR', 'LEAD'], true)) {
-            $profile['skill_level'] = 'JUNIOR';
+            throw new Exception('Invalid technician skill level.');
         }
+        $this->validateProfile($profile);
 
-        return $this->repo->upsertProfile($profile);
+        $result = $this->repo->upsertProfile($profile);
+        $this->auditAction('UPDATE_PROFILE', 'Updated technician profile.', 'TECHNICIAN', $userId);
+        return $result;
     }
 
     public function dispatchBoard(array $sessionData): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         return [
             'unassigned_work_orders' => $this->repo->getUnassignedWorkOrders(),
@@ -133,7 +148,7 @@ class TechnicianManagementService
 
     public function assignWorkOrder(array $sessionData, array $input): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         $workOrderId = (int)($input['work_order_id'] ?? 0);
         $technicianId = (int)($input['technician_id'] ?? 0);
@@ -141,7 +156,6 @@ class TechnicianManagementService
         if ($workOrderId <= 0) {
             throw new Exception('Work order is required.');
         }
-
         if ($technicianId <= 0) {
             throw new Exception('Technician is required.');
         }
@@ -151,40 +165,51 @@ class TechnicianManagementService
         if (!$technician) {
             throw new Exception('Technician not found.');
         }
+        if (strtoupper((string)($technician['account_status'] ?? '')) !== 'ACTIVE') {
+            throw new Exception('Inactive technicians cannot receive work orders.');
+        }
+        if (strtoupper((string)($technician['availability_status'] ?? '')) !== 'AVAILABLE') {
+            throw new Exception('Only clocked-in, available technicians can receive work orders.');
+        }
 
         $changedBy = $this->currentUserId($sessionData);
 
-        return $this->repo->assignWorkOrderToTechnician($workOrderId, $technicianId, $changedBy);
+        $result = $this->workOrders->assign($sessionData, [
+            'work_order_id' => $workOrderId,
+            'assigned_user_id' => $technicianId,
+        ]);
+        $this->auditAction('ASSIGN_WORK_ORDER', 'Assigned work order to technician.', 'WORK_ORDER', $workOrderId, [
+            'technician_id' => $technicianId,
+        ]);
+        return $result;
     }
 
     public function updateWorkOrderStatus(array $sessionData, array $input): array
     {
-        $this->requireStaff($sessionData);
+        $this->requireManager($sessionData);
 
         $workOrderId = (int)($input['work_order_id'] ?? 0);
         $status = strtoupper(trim((string)($input['status'] ?? '')));
         $note = trim((string)($input['note'] ?? ''));
 
-        $allowed = [
-            'IN_PROGRESS',
-            'ON_SITE',
-            'COMPLETED',
-            'FAILED',
-        ];
-
         if ($workOrderId <= 0) {
             throw new Exception('Work order is required.');
         }
-
-        if (!in_array($status, $allowed, true)) {
-            throw new Exception('Invalid work order status.');
+        if (in_array($status, ['COMPLETED', 'FAILED', 'CANCELLED'], true) && $note === '') {
+            throw new Exception('A completion, failure, or cancellation note is required.');
+        }
+        if (strlen($note) > 2000) {
+            throw new Exception('Work order note must not exceed 2000 characters.');
         }
 
-        $changedBy = $this->currentUserId($sessionData);
+        $result = $this->workOrders->updateStatus($sessionData, [
+            'work_order_id' => $workOrderId,
+            'status' => $status,
+            'note' => $note,
+        ]);
 
-        $result = $this->repo->updateWorkOrderStatus($workOrderId, $status, $changedBy, $note);
-
-        $technicianId = (int)($result['technician_id'] ?? 0);
+        $workOrder = $this->repo->findWorkOrderAssignment($workOrderId);
+        $technicianId = (int)($workOrder['assigned_user_id'] ?? 0);
 
         if ($technicianId > 0) {
             $technicianStatus = null;
@@ -197,11 +222,11 @@ class TechnicianManagementService
                 $technicianStatus = 'ON_SITE';
             }
 
-            if (in_array($status, ['COMPLETED', 'FAILED'], true)) {
-                $technicianStatus = 'AVAILABLE';
+            if (in_array($status, ['COMPLETED', 'FAILED', 'CANCELLED'], true)) {
+                $technicianStatus = $this->repo->hasActiveFieldWork($technicianId) ? 'BUSY' : 'AVAILABLE';
             }
 
-            if ($technicianStatus !== null) {
+            if ($technicianStatus !== null && $this->repo->hasActiveAttendance($technicianId)) {
                 $this->repo->updateTodayStatus(
                     $technicianId,
                     $technicianStatus,
@@ -212,7 +237,23 @@ class TechnicianManagementService
             }
         }
 
+        $this->auditAction('UPDATE_WORK_ORDER_STATUS', 'Updated work order status.', 'WORK_ORDER', $workOrderId, [
+            'status' => $status, 'technician_id' => $technicianId ?: null,
+        ]);
         return $result;
+    }
+
+    private function auditAction(
+        string $action,
+        string $description,
+        string $objectType,
+        int $objectId,
+        array $metadata = []
+    ): void {
+        $this->audit->logEvent(new AuditEventDTO(
+            module: 'TECHNICIAN_MANAGEMENT', action: $action, description: $description,
+            objectType: $objectType, objectId: $objectId, metadata: $metadata
+        ));
     }
 
     private function currentUserId(array $sessionData): int
@@ -226,7 +267,17 @@ class TechnicianManagementService
         );
     }
 
-    private function requireStaff(array $sessionData): void
+    private function validateProfile(array $profile): void
+    {
+        $limits = ['employee_no'=>50, 'mobile_number'=>30, 'service_area'=>150, 'vehicle'=>100, 'vehicle_plate'=>30, 'emergency_contact'=>150, 'emergency_number'=>30, 'notes'=>2000];
+        foreach ($limits as $field => $limit) {
+            if (strlen((string)($profile[$field] ?? '')) > $limit) {
+                throw new Exception(ucwords(str_replace('_', ' ', $field)) . " must not exceed {$limit} characters.");
+            }
+        }
+    }
+
+    private function requireManager(array $sessionData): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
@@ -254,8 +305,8 @@ class TechnicianManagementService
             throw new Exception('You must be logged in.');
         }
 
-        if ($role === 'SUBSCRIBER') {
-            throw new Exception('Staff access only.');
+        if (!in_array($role, ['SUPERADMIN', 'NOC', 'SUPPORT'], true)) {
+            throw new Exception('Technician management access is restricted to operations managers.');
         }
     }
 }

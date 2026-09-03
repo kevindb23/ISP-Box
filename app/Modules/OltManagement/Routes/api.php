@@ -98,4 +98,3 @@ $router->get('/api/v1/olt-management/pon-port/{oltId}/svlan-options', [OltManage
 $router->post('/api/v1/olt-management/pon-port/assign-svlan', [OltManagementApiController::class, 'assignPonSvlan']);
 
 $router->post('/api/v1/olt-management/pon-port/unassign-svlan', [OltManagementApiController::class, 'unassignPonSvlan']);
-$router->post('/api/v1/olt-management/pon-port/unassign-svlan', [OltManagementApiController::class, 'unassignPonSvlan']);

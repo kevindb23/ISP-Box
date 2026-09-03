@@ -1,0 +1,5 @@
+export type OltMode='devices'|'ports'|'profiles';export type ProfileType='dba'|'line'|'wan'|'tr069'|'srv';
+export interface OltDevice{ id:number;name:string;ip_address:string;vendor?:string;username:string;password?:string;enable_home_gateway_omci?:number;auto_detect_omci_support?:number;created_at?:string;updated_at?:string; }
+export interface OltPort{ id:number;olt_id:number;port_path?:string;frame?:number;slot?:number;port?:number;board_name?:string;board_type?:string;board_status?:string;port_type?:string;link_status?:string;optic_status?:string;speed?:string;duplex?:string;active_state?:string;svlan?:number|string|null;allowed_svlans_csv?:string;ont_count?:number;ont_online?:number;description?:string; }
+export interface OltProfile{ id:number;olt_id:number;profile_id?:number;profile_name?:string;description?:string;[key:string]:unknown; }
+export interface OltDevicePayload{name:string;ip_address:string;vendor:string;username:string;password:string;enable_home_gateway_omci:number;auto_detect_omci_support:number;}

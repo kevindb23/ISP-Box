@@ -225,38 +225,9 @@ class SubscriberPlansService
         }
 
         try {
-            $userId = $this->getCurrentUserId();
-            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
-
-            $method = new \ReflectionMethod($this->audit, 'log');
-            $paramCount = $method->getNumberOfParameters();
-
-            if ($paramCount >= 5) {
-                $this->audit->log($module, $action, $description, $userId ?: null, $ipAddress);
-                return;
-            }
-
-            if ($paramCount >= 4) {
-                $this->audit->log($module, $action, $description, $userId ?: null);
-                return;
-            }
-
             $this->audit->log($module, $action, $description);
         } catch (Throwable $e) {
-            // Audit must not break plan operations.
+            error_log('[Audit][' . $module . '] ' . $e->getMessage());
         }
-    }
-
-    private function getCurrentUserId(): ?int
-    {
-        $userId = $_SESSION['user']['id']
-            ?? $_SESSION['user_id']
-            ?? $_SESSION['auth_user']['id']
-            ?? $_SESSION['admin']['id']
-            ?? null;
-
-        $userId = (int)$userId;
-
-        return $userId > 0 ? $userId : null;
     }
 }

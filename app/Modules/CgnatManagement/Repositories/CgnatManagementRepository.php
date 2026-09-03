@@ -13,6 +13,31 @@ class CgnatManagementRepository
         $this->db = $db;
     }
 
+    public function findAvailableSvlan(int $vlanId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM network_vlans
+            WHERE vlan_id = :vlan_id AND UPPER(vlan_type) = 'S_VLAN'
+            LIMIT 1
+        ");
+        $stmt->execute(['vlan_id' => $vlanId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function getAvailableSvlans(): array
+    {
+        $stmt = $this->db->query("
+            SELECT v.id, v.vlan_id, v.name,
+                   CASE WHEN b.vlan_id IS NOT NULL THEN 'DEPLOYED' ELSE 'AVAILABLE' END AS status
+            FROM network_vlans v
+            LEFT JOIN bng_vlan_interfaces b ON b.vlan_id = v.vlan_id
+            WHERE v.vlan_type = 'S_VLAN'
+            ORDER BY v.vlan_id ASC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
     /* =========================================================
        CGNAT POOLS
     ========================================================= */
@@ -143,145 +168,6 @@ class CgnatManagementRepository
     {
         $stmt = $this->db->prepare('DELETE FROM cgnat_pools WHERE id = :id');
         return $stmt->execute(['id' => $id]);
-    }
-
-    /* =========================================================
-       BNG SETTINGS
-    ========================================================= */
-
-    public function getBngSettings(): ?array
-    {
-        $stmt = $this->db->query("
-            SELECT *
-            FROM cgnat_bng_settings
-            ORDER BY id ASC
-            LIMIT 1
-        ");
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ? $this->normalizeBngSettingsRow($row) : null;
-    }
-
-    public function saveBngSettings(array $data): int
-    {
-        $existing = $this->getBngSettings();
-
-        if ($existing) {
-            $id = (int)$existing['id'];
-            $this->updateBngSettings($id, $data);
-            return $id;
-        }
-
-        return $this->createBngSettings($data);
-    }
-
-    public function createBngSettings(array $data): int
-    {
-        $stmt = $this->db->prepare("
-            INSERT INTO cgnat_bng_settings (
-                enabled,
-                host,
-                port,
-                username,
-                auth_type,
-                password,
-                ssh_key_path,
-                preferred_interface,
-                bng_parent_interface,
-                auto_create_svlan_interface,
-                vlan_mode,
-                remarks
-            ) VALUES (
-                :enabled,
-                :host,
-                :port,
-                :username,
-                :auth_type,
-                :password,
-                :ssh_key_path,
-                :preferred_interface,
-                :bng_parent_interface,
-                :auto_create_svlan_interface,
-                :vlan_mode,
-                :remarks
-            )
-        ");
-
-        $stmt->execute($this->bindBngSettingsPayload($data));
-
-        return (int)$this->db->lastInsertId();
-    }
-
-    public function updateBngSettings(int $id, array $data): bool
-    {
-        $stmt = $this->db->prepare("
-            UPDATE cgnat_bng_settings
-            SET
-                enabled = :enabled,
-                host = :host,
-                port = :port,
-                username = :username,
-                auth_type = :auth_type,
-                password = :password,
-                ssh_key_path = :ssh_key_path,
-                preferred_interface = :preferred_interface,
-                bng_parent_interface = :bng_parent_interface,
-                auto_create_svlan_interface = :auto_create_svlan_interface,
-                vlan_mode = :vlan_mode,
-                remarks = :remarks
-            WHERE id = :id
-        ");
-
-        $payload = $this->bindBngSettingsPayload($data);
-        $payload['id'] = $id;
-
-        return $stmt->execute($payload);
-    }
-
-    private function bindBngSettingsPayload(array $data): array
-    {
-        return [
-            'enabled' => (int)($data['enabled'] ?? 1),
-            'host' => trim((string)($data['host'] ?? '')),
-            'port' => (int)($data['port'] ?? 22),
-            'username' => trim((string)($data['username'] ?? '')),
-            'auth_type' => strtoupper(trim((string)($data['auth_type'] ?? 'PASSWORD'))),
-            'password' => $data['password'] ?? null,
-            'ssh_key_path' => $data['ssh_key_path'] ?? null,
-            'preferred_interface' => $data['preferred_interface'] ?? null,
-
-            // BNG QinQ parent interface settings
-            'bng_parent_interface' => $data['bng_parent_interface'] ?? null,
-            'auto_create_svlan_interface' => (int)($data['auto_create_svlan_interface'] ?? 1),
-            'vlan_mode' => strtoupper(trim((string)($data['vlan_mode'] ?? 'QINQ'))),
-
-            'remarks' => $data['remarks'] ?? null,
-        ];
-    }
-
-    private function normalizeBngSettingsRow(array $row): array
-    {
-        return [
-            'id' => (int)($row['id'] ?? 0),
-            'enabled' => (int)($row['enabled'] ?? 1),
-            'host' => (string)($row['host'] ?? ''),
-            'port' => (int)($row['port'] ?? 22),
-            'username' => (string)($row['username'] ?? ''),
-            'auth_type' => (string)($row['auth_type'] ?? 'PASSWORD'),
-            'password' => $row['password'] ?? null,
-            'ssh_key_path' => $row['ssh_key_path'] ?? null,
-            'preferred_interface' => $row['preferred_interface'] ?? null,
-
-            // BNG QinQ parent interface settings
-            'bng_parent_interface' => $row['bng_parent_interface'] ?? null,
-            'auto_create_svlan_interface' => (int)($row['auto_create_svlan_interface'] ?? 1),
-            'vlan_mode' => $row['vlan_mode'] ?? 'QINQ',
-
-            'remarks' => $row['remarks'] ?? null,
-            'created_at' => $row['created_at'] ?? null,
-            'updated_at' => $row['updated_at'] ?? null,
-        ];
     }
 
     /* =========================================================

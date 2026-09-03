@@ -1,0 +1,12 @@
+[Unit]
+Description=Prevent RADIUS MariaDB application-host lockouts
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=15s
+AccuracySec=2s
+Persistent=true
+Unit=nexusbox-radius-host-recovery.service
+
+[Install]
+WantedBy=timers.target

@@ -2,18 +2,23 @@
 
 namespace App\Modules\Auth\Controllers;
 
+use App\Modules\Auth\DTOs\LoginDTO;
 use App\Modules\Auth\Services\AuthService;
+use App\Modules\Auth\Validators\LoginValidator;
 use App\Core\Security\RateLimiter;
 use App\Core\Security\Csrf;
 use Framework\SessionManager;
+use Framework\Request;
+use Framework\Response;
 
 class AuthController
 {
-    private AuthService $auth;
-
-    public function __construct(AuthService $auth)
-    {
-        $this->auth = $auth;
+    public function __construct(
+        private AuthService $auth,
+        private LoginValidator $validator,
+        private Request $request,
+        private Response $response
+    ) {
     }
 
     /*
@@ -49,10 +54,8 @@ class AuthController
     |--------------------------------------------------------------------------
     */
 
-    public function login()
+    public function login(): void
     {
-        header('Content-Type: application/json');
-
         try {
             $input = json_decode(file_get_contents("php://input"), true);
 
@@ -60,11 +63,9 @@ class AuthController
                 $input = [];
             }
 
-            $username = trim($input['username'] ?? '');
-            $password = trim($input['password'] ?? '');
-            $csrfToken = $input['csrf_token'] ?? null;
+            $credentials = new LoginDTO($input);
 
-            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $ip = $this->request->ip() ?? 'unknown';
 
             /*
             |--------------------------------------------------------------------------
@@ -73,11 +74,7 @@ class AuthController
             */
 
             if (!RateLimiter::check($ip)) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Too many login attempts. Try again later.'
-                ]);
-
+                $this->response->error('Too many login attempts. Try again later.', 429);
                 return;
             }
 
@@ -87,12 +84,8 @@ class AuthController
             |--------------------------------------------------------------------------
             */
 
-            if (!$csrfToken || !Csrf::validate($csrfToken)) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid request'
-                ]);
-
+            if (!$credentials->csrfToken || !Csrf::validate($credentials->csrfToken)) {
+                $this->response->error('Invalid request', 419);
                 return;
             }
 
@@ -102,12 +95,8 @@ class AuthController
             |--------------------------------------------------------------------------
             */
 
-            if (!$username || !$password) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Invalid username or password'
-                ]);
-
+            if ($this->validator->validate($credentials) !== []) {
+                $this->response->error('Invalid username or password', 422);
                 return;
             }
 
@@ -117,26 +106,17 @@ class AuthController
             |--------------------------------------------------------------------------
             */
 
-            if ($this->auth->login($username, $password)) {
-                echo json_encode([
-                    'success' => true,
+            if ($this->auth->login($credentials)) {
+                $this->response->success([
                     'redirect_url' => $this->redirectPathForCurrentUser(),
-                ]);
-
+                ], 'Login successful.');
                 return;
             }
 
-            echo json_encode([
-                'success' => false,
-                'message' => 'Invalid username or password'
-            ]);
+            $this->response->error('Invalid username or password', 401);
         } catch (\Throwable $e) {
-            http_response_code(500);
-
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            error_log('[Auth] Login failed: ' . $e->getMessage());
+            $this->response->error('Unable to complete login. Please try again.', 500);
         }
     }
 
@@ -149,9 +129,10 @@ class AuthController
             return '/subscriber-portal';
         }
 
-        if ($role === 'TECHNICIAN') {
-            return '/technician-portal';
+        if (in_array($role, ['TECHNICIAN', 'BILLING', 'NOC', 'SUPPORT'], true)) {
+            return '/staff-attendance';
         }
+
         return '/dashboard';
     }
 

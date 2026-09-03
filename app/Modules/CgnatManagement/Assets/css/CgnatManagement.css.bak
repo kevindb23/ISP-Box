@@ -1,0 +1,1809 @@
+#cgnatManagementApp {
+    --cgnat-blue: #2563eb;
+    --cgnat-blue-dark: #1d4ed8;
+    --cgnat-ink: #0f172a;
+    --cgnat-muted: #64748b;
+    --cgnat-line: #e2e8f0;
+    --cgnat-surface: #ffffff;
+    --cgnat-surface-soft: #f8fafc;
+    --cgnat-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.05);
+    --cgnat-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* =========================================================
+   HEADER / HERO
+========================================================= */
+#cgnatManagementApp .nx-page-header-card,
+#cgnatManagementApp .nx-toolbar-card,
+#cgnatManagementApp .nx-content-card {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+#cgnatManagementApp .cgnat-hero-card {
+    border: 1px solid rgba(37, 99, 235, 0.08);
+    background:
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
+            linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 250, 252, 0.94) 100%);
+    box-shadow: var(--cgnat-shadow-lg);
+}
+
+#cgnatManagementApp .cgnat-hero-body {
+    min-height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 28px;
+}
+
+#cgnatManagementApp .cgnat-hero-left {
+    max-width: 860px;
+}
+
+#cgnatManagementApp .cgnat-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius:3px;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--cgnat-blue-dark);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+#cgnatManagementApp .cgnat-hero-badge i {
+    font-size: 11px;
+    line-height: 1;
+}
+
+#cgnatManagementApp .cgnat-hero-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--cgnat-ink);
+    line-height: 1.2;
+}
+
+#cgnatManagementApp .cgnat-hero-text {
+    margin: 0;
+    font-size: 14px;
+    color: var(--cgnat-muted);
+    line-height: 1.55;
+}
+
+#cgnatManagementApp .cgnat-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: none;
+}
+
+.nx-runtime-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+#cgnatManagementApp .nx-runtime-card {
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    border-radius: 3px;
+    padding: 16px;
+    border: 0;
+}
+
+.nx-runtime-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.nx-runtime-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nx-runtime-arrow {
+    font-size: 18px;
+    color: #64748b;
+}
+
+.nx-vlan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nx-vlan-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius:3px;
+    background: #f1f5f9;
+}
+
+.nx-vlan-id {
+    font-weight: 600;
+}
+
+.nx-vlan-status.success {
+    color: #16a34a;
+    font-weight: 600;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn-primary:hover,
+#cgnatManagementApp .cgnat-hero-actions .btn-primary:focus {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border-color: #1d4ed8;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn-success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-color: #16a34a;
+    color: #fff;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn-success:hover,
+#cgnatManagementApp .cgnat-hero-actions .btn-success:focus {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    border-color: #15803d;
+    color: #fff;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn-light {
+    background: #fff;
+    border-color: #dbe3ef;
+    color: #0f172a;
+}
+
+#cgnatManagementApp .cgnat-hero-actions .btn-light:hover,
+#cgnatManagementApp .cgnat-hero-actions .btn-light:focus {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+#cgnatManagementApp .nx-summary-card {
+    position: relative;
+    min-height: 142px;
+    border-radius:3px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: var(--cgnat-shadow-soft);
+    overflow: hidden;
+    padding: 22px 28px;
+}
+
+#cgnatManagementApp .nx-summary-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    border-radius:3px;
+}
+
+#cgnatManagementApp .nx-summary-primary::before {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+#cgnatManagementApp .nx-summary-success::before {
+    background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+}
+
+#cgnatManagementApp .nx-summary-danger::before {
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+}
+
+#cgnatManagementApp .nx-summary-cyan::before {
+    background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+}
+
+#cgnatManagementApp .nx-summary-slate::before {
+    background: linear-gradient(180deg, #64748b 0%, #334155 100%);
+}
+
+#cgnatManagementApp .nx-summary-top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+#cgnatManagementApp .nx-summary-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+#cgnatManagementApp .nx-summary-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+#cgnatManagementApp .nx-summary-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.45;
+    max-width: 240px;
+}
+
+#cgnatManagementApp .nx-summary-icon {
+    width: 38px;
+    height: 38px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 15px;
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
+
+#cgnatManagementApp .nx-summary-primary .nx-summary-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+#cgnatManagementApp .nx-summary-cyan .nx-summary-icon {
+    background: #ecfeff;
+    color: #0891b2;
+}
+
+#cgnatManagementApp .nx-summary-slate .nx-summary-icon {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+#cgnatManagementApp .nx-summary-success .nx-summary-icon {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+#cgnatManagementApp .nx-summary-danger .nx-summary-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* =========================================================
+   TOOLBAR CARD
+========================================================= */
+#cgnatManagementApp .nx-toolbar-card {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--cgnat-shadow-soft);
+}
+
+#cgnatManagementApp .nx-toolbar-card .card-body {
+    padding: 20px 22px;
+}
+
+#cgnatManagementApp .nx-toolbar-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#cgnatManagementApp .nx-toolbar-inline .form-control,
+#cgnatManagementApp .nx-toolbar-inline .form-select {
+    height: 42px;
+    min-height: 42px;
+    border-radius:3px;
+    border-color: #dbe3ef;
+    font-size: 14px;
+    box-shadow: none;
+    min-width: 260px;
+}
+
+#cgnatManagementApp .nx-toolbar-inline .form-control:focus,
+#cgnatManagementApp .nx-toolbar-inline .form-select:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+#cgnatManagementApp .nx-section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+#cgnatManagementApp .nx-section-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.55;
+}
+
+/* =========================================================
+   CONTENT CARD / TABLE
+========================================================= */
+#cgnatManagementApp .nx-content-card {
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--cgnat-shadow-lg);
+}
+
+/* Keep the BNG workspace visually attached to the page canvas. The shared
+   shell gives ordinary cards a tinted panel surface; this form reads better
+   when only its controls provide contrast against the body background. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel {
+    background: var(--nx-bg-page) !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+#cgnatManagementApp .cgnat-bng-panel .card-body {
+    padding: 18px 18px 20px !important;
+}
+
+/* Apply the same canvas-colored surface to the remaining CGNAT tab panels. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel {
+    background: var(--nx-bg-page) !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel::before,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel::before {
+    display: none !important;
+}
+
+/* Match the Subscribers card contract: a quiet theme-aware outline with no
+   heavy shadow, while keeping the CGNAT workspace surfaces readable. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-hero-card,
+body#nxApplication .main-content #cgnatManagementApp .nx-summary-card,
+body#nxApplication .main-content #cgnatManagementApp .nx-toolbar-card,
+body#nxApplication .main-content #cgnatManagementApp .nx-content-card,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel {
+    border: 1px solid var(--nx-panel-border-light) !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-runtime-card {
+    border: 1px solid var(--nx-panel-border-light) !important;
+    box-shadow: none !important;
+}
+
+#cgnatManagementApp .nx-content-card::before {
+    content: "";
+    display: block;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 25%, rgba(37, 99, 235, 0.10) 100%);
+}
+
+#cgnatManagementApp .nx-content-card .card-body {
+    padding: 10px 18px 14px !important;
+}
+
+#cgnatManagementApp .nx-table-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#cgnatManagementApp .table {
+    margin-bottom: 0;
+}
+
+#cgnatManagementApp .table th,
+#cgnatManagementApp .table td {
+    vertical-align: middle;
+}
+
+#cgnatManagementApp .table thead th {
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #475569;
+    border-bottom-color: #e2e8f0;
+    padding-top: 18px;
+    padding-bottom: 14px;
+    background: #f8fafc;
+}
+
+#cgnatManagementApp .table tbody td {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-bottom-color: #edf2f7;
+    color: #0f172a;
+}
+
+#cgnatManagementApp .table td:last-child,
+#cgnatManagementApp .table th:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   BADGES / CHIPS
+========================================================= */
+#cgnatManagementApp .badge.text-bg-light.border,
+#cgnatManagementApp .nx-chip,
+#cgnatManagementApp .nx-soft-badge {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius:3px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cgnatManagementApp .badge.text-bg-light.border,
+#cgnatManagementApp .nx-chip,
+#cgnatManagementApp .nx-chip--neutral {
+    background: #f8fafc !important;
+    color: #334155 !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+}
+
+#cgnatManagementApp .nx-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+#cgnatManagementApp .nx-chip--success {
+    background: #e8f8ef !important;
+    color: #15803d !important;
+    border-color: rgba(22, 163, 74, 0.18) !important;
+}
+
+#cgnatManagementApp .nx-chip--danger {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: rgba(220, 38, 38, 0.18) !important;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+#cgnatManagementApp .btn-group-sm > .btn,
+#cgnatManagementApp .btn-sm {
+    border-radius:3px;
+    font-weight: 600;
+}
+
+#cgnatManagementApp .btn-group-sm > .btn + .btn {
+    margin-left: 0.15rem;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+#cgnatManagementApp .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+#cgnatManagementApp .form-control,
+#cgnatManagementApp .form-select {
+    border-color: rgba(148, 163, 184, 0.34);
+    box-shadow: none;
+    border-radius:3px;
+    min-height: 46px;
+}
+
+#cgnatManagementApp .form-control:focus,
+#cgnatManagementApp .form-select:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+#cgnatManagementApp textarea.form-control {
+    min-height: 110px;
+    resize: vertical;
+}
+
+/* Use explicit tracks so the BNG fields stay aligned instead of relying on
+   Bootstrap's flex wrapping when optional SSH key fields are toggled. */
+#cgnatManagementApp .cgnat-bng-form {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+}
+
+#cgnatManagementApp .cgnat-bng-form > * {
+    width: auto;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    grid-column: 1 / -1;
+}
+
+/* Desktop arrangement: 2/4/2/4, 3/5/4, and 4/4/2/2 tracks. */
+#cgnatManagementApp .cgnat-bng-form > .col-md-2 {
+    grid-column: span 2;
+}
+
+#cgnatManagementApp .cgnat-bng-form > .col-md-3 {
+    grid-column: span 3;
+}
+
+#cgnatManagementApp .cgnat-bng-form > .col-md-4 {
+    grid-column: span 4;
+}
+
+#cgnatManagementApp .cgnat-bng-form > .col-md-5 {
+    grid-column: span 5;
+}
+
+@media (max-width: 991px) {
+    #cgnatManagementApp .cgnat-bng-form > [class*="col-md-"] {
+        grid-column: span 6;
+    }
+}
+
+@media (max-width: 575px) {
+    #cgnatManagementApp .cgnat-bng-form > [class*="col-md-"] {
+        grid-column: 1 / -1;
+    }
+}
+
+/* S-VLAN actions and NAT pool fields stay in balanced columns on desktop. */
+#cgnatManagementApp .cgnat-svlan-form,
+#cgnatManagementApp .cgnat-pool-form-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+}
+
+#cgnatManagementApp .cgnat-svlan-form {
+    align-items: start !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+#cgnatManagementApp .cgnat-svlan-form > .col-md-4:first-child .form-label,
+#cgnatManagementApp .cgnat-form-label-spacer {
+    height: 18px;
+    line-height: 18px;
+    margin-bottom: 6px;
+}
+
+#cgnatManagementApp .cgnat-form-label-spacer {
+    visibility: hidden;
+}
+
+#cgnatManagementApp .cgnat-svlan-form .btn {
+    min-height: 46px;
+    height: 46px;
+}
+
+#cgnatManagementApp .cgnat-svlan-form > *,
+#cgnatManagementApp .cgnat-pool-form-grid > * {
+    width: auto;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    grid-column: 1 / -1;
+}
+
+#cgnatManagementApp .cgnat-svlan-form > .col-md-4 {
+    grid-column: span 4;
+}
+
+#cgnatManagementApp .cgnat-pool-form-grid > .col-md-6 {
+    grid-column: span 6;
+}
+
+@media (max-width: 991px) {
+    #cgnatManagementApp .cgnat-svlan-form > .col-md-4,
+    #cgnatManagementApp .cgnat-pool-form-grid > .col-md-6 {
+        grid-column: span 6;
+    }
+}
+
+@media (max-width: 575px) {
+    #cgnatManagementApp .cgnat-svlan-form > [class*="col-md-"],
+    #cgnatManagementApp .cgnat-pool-form-grid > [class*="col-md-"] {
+        grid-column: 1 / -1;
+    }
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+#cgnatManagementApp .nx-modal-content {
+    border: 0;
+    border-radius:3px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+}
+
+#cgnatManagementApp .nx-modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fff;
+}
+
+#cgnatManagementApp .nx-modal-body {
+    background: #f8fafc;
+    padding: 20px;
+}
+
+#cgnatManagementApp .nx-modal-footer {
+    padding: 16px 22px;
+    border-top: 1px solid #eef2f7;
+    background: #fff;
+}
+
+#cgnatManagementApp .nx-modal-header .modal-title {
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* =========================================================
+   PREVIEW / CODE
+========================================================= */
+#cgnatManagementApp .nx-code-block {
+    margin: 0;
+    min-height: 360px;
+    max-height: 60vh;
+    overflow: auto;
+    border-radius:3px;
+    padding: 1rem 1.05rem;
+    background: #0f172a;
+    color: #e2e8f0;
+    border: 1px solid rgba(30, 41, 59, 0.9);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* =========================================================
+   RUNTIME BLOCKS
+========================================================= */
+#cgnatManagementApp .nx-runtime-block {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius:3px;
+    padding: 1rem 1.05rem;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    min-height: 152px;
+}
+
+#cgnatManagementApp .nx-runtime-block__title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+#cgnatManagementApp .nx-runtime-block__value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+#cgnatManagementApp .nx-runtime-block__meta {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.45;
+}
+
+#cgnatManagementApp .nx-runtime-rules {
+    display: grid;
+    gap: 0.55rem;
+}
+
+#cgnatManagementApp .nx-runtime-rule {
+    border-radius:3px;
+    padding: 0.82rem 0.92rem;
+    background: #0f172a;
+    color: #e2e8f0;
+    border: 1px solid rgba(30, 41, 59, 0.95);
+    font-size: 0.86rem;
+    line-height: 1.45;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+#cgnatManagementApp .nx-runtime-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1rem;
+    font-size: 0.92rem;
+    color: #334155;
+}
+
+#cgnatManagementApp #cgnatApplyResultCard .nx-runtime-block {
+    min-height: auto;
+}
+
+#cgnatManagementApp .nx-empty-inline {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+/* =========================================================
+   OVERVIEW TAB POLISH
+========================================================= */
+#cgnatManagementApp [data-cgnat-tab="overview"] .nx-content-card,
+#cgnatManagementApp [data-cgnat-tab="runtime"] .nx-content-card {
+    height: 100%;
+}
+
+#cgnatManagementApp [data-cgnat-tab="overview"] .nx-content-card .card-body,
+#cgnatManagementApp [data-cgnat-tab="runtime"] .nx-content-card .card-body {
+    padding-top: 18px;
+}
+
+#cgnatManagementApp [data-cgnat-tab="overview"] .nx-runtime-block {
+    min-height: 138px;
+}
+
+#cgnatManagementApp [data-cgnat-tab="overview"] #cgnatRuntimeBox .nx-runtime-block {
+    min-height: auto;
+}
+
+#cgnatManagementApp #cgnatApplyResultBox .table thead th,
+#cgnatManagementApp #cgnatApplyResultBox .table tbody td {
+    font-size: 13px;
+}
+
+#cgnatManagementApp #cgnatApplyResultBox .table thead th {
+    letter-spacing: 0.06em;
+    padding-top: 14px;
+    padding-bottom: 12px;
+}
+
+#cgnatManagementApp #cgnatApplyResultBox .table tbody td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+#cgnatManagementApp #cgnatApplyResultCard .nx-section-subtitle,
+#cgnatManagementApp [data-cgnat-tab="overview"] .nx-section-subtitle {
+    max-width: 720px;
+}
+
+#cgnatManagementApp #cgnatRuntimeBox > .row,
+#cgnatManagementApp #cgnatApplyResultBox > .row {
+    margin-bottom: 0;
+}
+
+#cgnatManagementApp #cgnatRuntimeBox .nx-chip,
+#cgnatManagementApp #cgnatApplyResultBox .nx-chip {
+    gap: 4px;
+}
+
+#cgnatManagementApp #cgnatRuntimeBox .nx-empty-inline,
+#cgnatManagementApp #cgnatApplyResultBox .nx-empty-inline {
+    padding: 8px 0;
+}
+
+#cgnatManagementApp #cgnatRuntimeBox .nx-runtime-panel {
+    border: none !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 1199px) {
+    #cgnatManagementApp .table {
+        min-width: 1080px;
+    }
+}
+
+@media (max-width: 992px) {
+    #cgnatManagementApp .cgnat-hero-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #cgnatManagementApp .cgnat-hero-actions {
+        width: 100%;
+    }
+
+    #cgnatManagementApp .nx-toolbar-inline {
+        width: 100%;
+    }
+
+    #cgnatManagementApp .nx-toolbar-inline .form-control,
+    #cgnatManagementApp .nx-toolbar-inline .form-select {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    #cgnatManagementApp .nx-runtime-panel {
+        grid-template-columns: 1fr;
+    }
+
+    #cgnatManagementApp .nx-summary-card {
+        min-height: 128px;
+        padding: 20px 22px;
+    }
+
+    #cgnatManagementApp .nx-content-card .card-body,
+    #cgnatManagementApp .nx-toolbar-card .card-body {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    #cgnatManagementApp .nx-runtime-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #cgnatManagementApp .nx-code-block {
+        min-height: 240px;
+    }
+
+    #cgnatManagementApp [data-cgnat-tab="overview"] .nx-runtime-block {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 575px) {
+    #cgnatManagementApp .cgnat-hero-actions .btn {
+        width: 100%;
+    }
+
+    #cgnatManagementApp .nx-summary-top {
+        align-items: flex-start;
+    }
+}
+
+/* =========================================================
+   CGNAT DARK MODE
+========================================================= */
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-hero-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-summary-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-toolbar-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-content-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-runtime-card {
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+html[data-theme="dark"] #cgnatManagementApp {
+    --cgnat-ink: #f8fafc;
+    --cgnat-muted: #9aa9bd;
+    --cgnat-line: #2b3d56;
+    --cgnat-surface: #182235;
+    --cgnat-surface-soft: #141f31;
+}
+
+/* ---------------------------------------------------------
+   HERO
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .cgnat-hero-card,
+html[data-theme="dark"] #cgnatManagementApp .nx-toolbar-card,
+html[data-theme="dark"] #cgnatManagementApp .nx-content-card,
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-card,
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-card,
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-block {
+    background: linear-gradient(180deg,#182235 0%,#141f31 100%);
+    border-color: rgba(255,255,255,.06);
+    box-shadow: 0 16px 36px rgba(0,0,0,.28);
+}
+
+html[data-theme="dark"] #cgnatManagementApp .cgnat-hero-badge {
+    background: rgba(59,130,246,.15);
+    color: #93c5fd;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .cgnat-hero-title,
+html[data-theme="dark"] #cgnatManagementApp .nx-section-title,
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-value,
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-title,
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-block__value,
+html[data-theme="dark"] #cgnatManagementApp .nx-modal-header .modal-title {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .cgnat-hero-text,
+html[data-theme="dark"] #cgnatManagementApp .nx-section-subtitle,
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-title,
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-subtitle,
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-block__title,
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-block__meta,
+html[data-theme="dark"] #cgnatManagementApp .nx-empty-inline {
+    color: #9aa9bd;
+}
+
+/* ---------------------------------------------------------
+   BUTTONS
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .btn-light {
+    background: #223049;
+    border-color: #334155;
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .btn-light:hover {
+    background: #2a3b57;
+    border-color: #475569;
+    color: #fff;
+}
+
+/* ---------------------------------------------------------
+   SEGMENT CONTROL
+--------------------------------------------------------- */
+
+/* ---------------------------------------------------------
+   SUMMARY ICONS
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-primary .nx-summary-icon {
+    background: rgba(37,99,235,.16);
+    color: #93c5fd;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-success .nx-summary-icon {
+    background: rgba(34,197,94,.15);
+    color: #4ade80;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-danger .nx-summary-icon {
+    background: rgba(239,68,68,.14);
+    color: #f87171;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-cyan .nx-summary-icon {
+    background: rgba(6,182,212,.14);
+    color: #67e8f9;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-summary-slate .nx-summary-icon {
+    background: rgba(148,163,184,.12);
+    color: #cbd5e1;
+}
+
+/* ---------------------------------------------------------
+   TABLES
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .table {
+    color: #e5edf8;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .table thead th {
+    background: #101827;
+    color: #94a3b8;
+    border-bottom-color: #334155;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .table tbody td {
+    color: #e5edf8;
+    background: transparent;
+    border-bottom-color: #243247;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .table tbody tr:hover {
+    background: rgba(59,130,246,.06);
+}
+
+/* ---------------------------------------------------------
+   FORMS
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .form-label {
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .form-control,
+html[data-theme="dark"] #cgnatManagementApp .form-select {
+    background: #101827;
+    border-color: #334155;
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .form-control::placeholder {
+    color: #64748b;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .form-control:focus,
+html[data-theme="dark"] #cgnatManagementApp .form-select:focus {
+    background: #101827;
+    color: #fff;
+}
+
+/* ---------------------------------------------------------
+   MODALS
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .nx-modal-content {
+    background: #182235;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-modal-header,
+html[data-theme="dark"] #cgnatManagementApp .nx-modal-footer {
+    background: #141f31;
+    border-color: #334155;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-modal-body {
+    background: #101827;
+}
+
+/* ---------------------------------------------------------
+   RUNTIME
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-arrow {
+    color: #94a3b8;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-meta-grid {
+    color: #cbd5e1;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-vlan-row {
+    background: #101827;
+    border: 1px solid #2b3d56;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-vlan-id {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-runtime-title {
+    color: #f8fafc;
+}
+
+/* ---------------------------------------------------------
+   CHIPS
+--------------------------------------------------------- */
+
+html[data-theme="dark"] #cgnatManagementApp .nx-chip,
+html[data-theme="dark"] #cgnatManagementApp .badge.text-bg-light.border {
+    background: #223049 !important;
+    color: #dbeafe !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-chip--success {
+    background: rgba(34,197,94,.15) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] #cgnatManagementApp .nx-chip--danger {
+    background: rgba(239,68,68,.15) !important;
+    color: #f87171 !important;
+}
+
+/* These two outer shells intentionally sit directly on the page canvas. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-hero-card,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel {
+    border-color: transparent !important;
+}
+
+/* The S-VLAN creator sits directly on the page canvas. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-svlan-panel {
+    border-color: transparent !important;
+}
+
+/* NAT Pools: keep the search control and action in one toolbar row. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-toolbar .nx-toolbar-inline {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    width: auto;
+}
+
+body#nxApplication .main-content #cgnatManagementApp #cgnatPoolsSearch {
+    flex: 0 1 320px;
+    width: 320px;
+    min-width: 260px;
+}
+
+body#nxApplication .main-content #cgnatManagementApp #cgnatPoolAddBtn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-toolbar,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel {
+    border-color: transparent !important;
+}
+
+@media (max-width: 991px) {
+    body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-toolbar .nx-toolbar-inline {
+        width: 100%;
+    }
+
+    body#nxApplication .main-content #cgnatManagementApp #cgnatPoolsSearch {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0 !important;
+    }
+}
+
+/* Runtime is a borderless workspace at both the outer and inner levels. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-panel,
+body#nxApplication .main-content #cgnatManagementApp .nx-runtime-card {
+    border-color: transparent !important;
+}
+
+/* Restore an unmistakable dropdown treatment for BNG select controls. */
+body#nxApplication .main-content #cgnatManagementApp #cgnatBngForm .form-select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2364758b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m3 6 5 5 5-5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right .75rem center !important;
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important;
+    cursor: pointer;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp #cgnatBngForm .form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m3 6 5 5 5-5'/%3E%3C/svg%3E") !important;
+}
+
+/* Dark mode: keep every tab shell and form control borderless. */
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-hero-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-summary-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-toolbar-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-content-card,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-panel,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-runtime-card {
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp input,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp select,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp textarea,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .form-control,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .form-select {
+    border-width: 0 !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Shared CGNAT tab surface: inherit the page, with vertical breathing room
+   but no horizontal card inset. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-bng-panel > .card-body,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-surface-panel > .card-body {
+    padding: 18px 0 20px !important;
+}
+
+/* Runtime uses two distinct inner panels inside a borderless outer shell. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-panel {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-runtime-card {
+    background: var(--nx-panel-surface-light) !important;
+    background-image: none !important;
+    border: 1px solid var(--nx-panel-border-light) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-runtime-card {
+    background: var(--nx-panel-surface-dark) !important;
+    background-image: none !important;
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+/* CGNAT tabs: contained rail with a clearly distinct active state. */
+body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control {
+    display: inline-flex !important;
+    align-items: stretch !important;
+    gap: 2px !important;
+    padding: 4px !important;
+    margin-bottom: 24px !important;
+    border: 1px solid var(--nx-border) !important;
+    border-radius: 8px !important;
+    background: var(--nx-bg-soft) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item {
+    min-width: 118px !important;
+    min-height: 40px !important;
+    padding: .65rem 1rem !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    background: transparent !important;
+    background-image: none !important;
+    color: var(--nx-text-soft) !important;
+    font-size: .88rem !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    transition: background-color .16s ease, color .16s ease, box-shadow .16s ease !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item:hover {
+    background: rgba(37, 99, 235, .08) !important;
+    color: var(--nx-primary) !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item.is-active {
+    background: var(--nx-primary-2) !important;
+    background-image: none !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, .28) !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .28) !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control {
+    border-color: #334155 !important;
+    background: #1b2533 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item:hover {
+    background: rgba(96, 165, 250, .12) !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp > .nx-segment-control > .nx-segment-control__item.is-active {
+    background: #3b82f6 !important;
+    color: #fff !important;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, .42) !important;
+}
+
+
+
+/* Subscribers table contract: shared sizing, spacing, surfaces and typography. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-toolbar,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-toolbar .card-body {
+    padding: 0 0 16px !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--nx-table-border-light) !important;
+    border-radius: 3px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-data-table {
+    width: 100%;
+    margin: 0 !important;
+    table-layout: fixed;
+    border: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent !important;
+    font-size: 13px !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel thead th {
+    height: 38px !important;
+    padding: 0 16px !important;
+    background: var(--nx-table-head-surface-light) !important;
+    color: var(--nx-text-muted) !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--nx-table-border-light) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: .07em;
+    line-height: 1.35 !important;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody tr {
+    background: var(--nx-table-row-surface-light) !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody tr:nth-child(even) {
+    background: var(--nx-table-row-surface-light-alt) !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody td {
+    padding: 16px !important;
+    background: transparent !important;
+    color: var(--nx-text) !important;
+    border: 0 !important;
+    border-top: 1px solid var(--nx-border-soft) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.35 !important;
+    vertical-align: middle;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody tr:first-child td {
+    border-top: 0 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-cell-title,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-cell-sub,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel small {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap {
+    border-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: #9aa9bc !important;
+    border-bottom-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody tr {
+    background: var(--nx-table-row-surface-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody tr:nth-child(even) {
+    background: var(--nx-table-row-surface-dark-alt) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel tbody td {
+    color: #e5e7eb !important;
+    border-top-color: rgba(154, 169, 188, .12) !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer {
+    padding-top: 18px;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer__page,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer__label {
+    font-weight: 500 !important;
+}
+
+
+
+/* Final Subscribers-compatible table contract. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap {
+    overflow-x: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table.table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: fixed !important;
+    border: 1px solid var(--nx-table-border-light) !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: transparent !important;
+    font-size: 13px !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead tr,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead th {
+    background: var(--nx-table-head-surface-light) !important;
+    background-image: none !important;
+    color: var(--nx-text-muted) !important;
+    border-color: var(--nx-table-border-light) !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead th {
+    height: 38px !important;
+    padding: 0 16px !important;
+    border-width: 0 0 1px 0 !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: .07em !important;
+    line-height: 1.35 !important;
+    text-transform: uppercase !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td {
+    background: var(--nx-table-row-surface-light) !important;
+    background-image: none !important;
+    color: var(--nx-text) !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr:nth-child(even),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr:nth-child(even) td {
+    background: var(--nx-table-row-surface-light-alt) !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td {
+    min-height: 56px !important;
+    padding: 16px !important;
+    border: 0 !important;
+    border-top: 1px solid var(--nx-border-soft) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.35 !important;
+    vertical-align: middle !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr:first-child td {
+    border-top: 0 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table .nx-cell-title,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table .nx-cell-sub,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table small {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer__records {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer__page,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-footer__label {
+    font-weight: 500 !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table {
+    border-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead tr,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: #9aa9bc !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td {
+    background: var(--nx-table-row-surface-dark) !important;
+    color: #e5e7eb !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr:nth-child(even),
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody tr:nth-child(even) td {
+    background: var(--nx-table-row-surface-dark-alt) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td {
+    border-top-color: rgba(154, 169, 188, .12) !important;
+}
+
+
+
+/* Exact Subscribers table metrics. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table.table {
+    table-layout: fixed !important;
+    font-size: 14px !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead th {
+    height: 37px !important;
+    padding: 0 16px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    letter-spacing: .07em !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td {
+    padding: 16px !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td .nx-cell-sub,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td small {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td .nx-cell-title,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table tbody td .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(1),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(1) { width: 13% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(2),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(2) { width: 12% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(3),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(3) { width: 11% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(4),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(4) { width: 10% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(5),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(5) { width: 10% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(6),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(6) { width: 9% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(7),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(7) { width: 20% !important; }
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table th:nth-child(8),
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table td:nth-child(8) { width: 15% !important; }
+
+
+
+/* Use the global table-header token everywhere. */
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel .nx-table-wrap > table thead th,
+body#nxApplication .main-content #cgnatManagementApp .cgnat-pools-panel table.table thead th {
+    font-size: var(--nx-font-size-table-head) !important;
+}
+
+/* BNG settings record and live interface hierarchy. */
+#cgnatManagementApp .cgnat-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#cgnatManagementApp .cgnat-settings-table {
+    min-width: 1480px;
+}
+
+#cgnatManagementApp #cgnatBngForm:not(.is-editing) .form-control:disabled,
+#cgnatManagementApp #cgnatBngForm:not(.is-editing) .form-select:disabled {
+    opacity: 1;
+    color: var(--bs-body-color);
+    border-color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+}
+
+#cgnatManagementApp .cgnat-settings-actions {
+    width: 150px;
+}
+
+#cgnatManagementApp .cgnat-settings-table th,
+#cgnatManagementApp .cgnat-runtime-table th {
+    white-space: nowrap;
+    font-size: var(--nx-font-size-table-head);
+}
+
+#cgnatManagementApp .cgnat-settings-table td {
+    vertical-align: top;
+}
+
+#cgnatManagementApp .cgnat-inline-fields {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    min-width: 250px;
+}
+
+#cgnatManagementApp .cgnat-inline-fields > * {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+#cgnatManagementApp .cgnat-inline-fields .cgnat-port-field {
+    flex: 0 0 72px;
+}
+
+#cgnatManagementApp .cgnat-physical-wrap {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--bs-border-color);
+}
+
+#cgnatManagementApp .cgnat-subheading {
+    margin: 0 1.5rem 1rem;
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+#cgnatManagementApp .cgnat-runtime-table code {
+    color: inherit;
+    white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+    #cgnatManagementApp .cgnat-section-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+/* Match the VLAN Management module's toolbar, tab panes, and data tables. */
+body#nxApplication .main-content #cgnatManagementApp .nx-toolbar-card,
+body#nxApplication .main-content #cgnatManagementApp .nx-content-card {
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 12px;
+    background: var(--bs-body-bg);
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-toolbar-card {
+    padding: 16px 20px;
+}
+
+#cgnatManagementApp .cgnat-toolbar-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+    align-items: center;
+    gap: 16px;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-segment-control {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    padding: 4px;
+    gap: 4px;
+    overflow-x: auto;
+    border: 1px solid #dbe3ec;
+    border-radius: 10px;
+    background: #f5f7fa;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-segment-control__item {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 7px;
+    color: #64748b;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-segment-control__item:hover {
+    color: #334155;
+    background: rgba(255,255,255,.7);
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-segment-control__item.active,
+body#nxApplication .main-content #cgnatManagementApp .nx-segment-control__item.is-active {
+    color: #0f172a;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15,23,42,.12);
+}
+
+#cgnatManagementApp .cgnat-search-wrap {
+    position: relative;
+}
+
+#cgnatManagementApp .cgnat-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    z-index: 1;
+    color: #94a3b8;
+    transform: translateY(-50%);
+}
+
+#cgnatManagementApp .cgnat-search-control {
+    height: 42px;
+    padding-left: 38px;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .subs-table-topline {
+    height: 3px;
+    background: var(--bs-primary);
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-content-card > .card-body.border-bottom {
+    padding: 16px 20px;
+    background: var(--nx-table-head-surface-light, #f8fafc);
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-section-heading {
+    display: flex;
+    padding: 16px 20px;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .nx-table-wrap {
+    overflow-x: auto;
+    border: 0;
+    border-radius: 0;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-table {
+    width: 100%;
+    margin: 0;
+    table-layout: fixed;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-table thead th {
+    height: 44px;
+    padding: 0 20px;
+    color: #64748b;
+    background: var(--nx-table-head-surface-light, #f8fafc);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-table tbody td {
+    padding: 16px 20px;
+    border-top: 1px solid var(--bs-border-color);
+    font-size: 14px;
+}
+
+body#nxApplication .main-content #cgnatManagementApp .cgnat-runtime-table tbody tr:nth-child(even) td {
+    background: rgba(148,163,184,.035);
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-segment-control {
+    border-color: #334155;
+    background: #111827;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-segment-control__item.active,
+html[data-theme="dark"] body#nxApplication .main-content #cgnatManagementApp .nx-segment-control__item.is-active {
+    color: #f8fafc;
+    background: #263244;
+}
+
+@media (max-width: 991.98px) {
+    #cgnatManagementApp .cgnat-toolbar-grid { grid-template-columns: 1fr; }
+    body#nxApplication .main-content #cgnatManagementApp .nx-segment-control { width: 100%; }
+}

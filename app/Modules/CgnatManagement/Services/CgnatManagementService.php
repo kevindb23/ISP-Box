@@ -3,6 +3,7 @@
 namespace App\Modules\CgnatManagement\Services;
 
 use App\Modules\Audit\Services\AuditService;
+use App\Modules\BngManagement\Services\BngConnectionService;
 use App\Modules\CgnatManagement\DTOs\ApplyNatPoolDTO;
 use App\Modules\CgnatManagement\DTOs\CreateNatPoolDTO;
 use App\Modules\CgnatManagement\DTOs\UpdateNatPoolDTO;
@@ -31,15 +32,7 @@ class CgnatManagementService
 
     public function getIndexData(): array
     {
-        $pools = $this->getPools();
-        $deployments = $this->getDeployments();
-        $usage = array_map(fn($x) => $x->toArray(), $this->getUsage());
-
-        return [
-            'pools' => $pools,
-            'deployments' => $deployments,
-            'usage' => $usage,
-        ];
+        return [];
     }
 
     public function getPools(): array
@@ -48,6 +41,16 @@ class CgnatManagementService
             fn($row) => (new NatPool($row))->toArray(),
             $this->repo->getAllPools()
         );
+    }
+
+    public function findAvailableSvlan(int $vlanId): ?array
+    {
+        return $this->repo->findAvailableSvlan($vlanId);
+    }
+
+    public function getAvailableSvlans(): array
+    {
+        return $this->repo->getAvailableSvlans();
     }
 
     public function getPoolById(int $id): ?array
@@ -467,6 +470,7 @@ class CgnatManagementService
                 $description
             );
         } catch (Throwable $e) {
+            error_log('[Audit][CGNAT] ' . $e->getMessage());
         }
     }
 }

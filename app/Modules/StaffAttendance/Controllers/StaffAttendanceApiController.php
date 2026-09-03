@@ -2,10 +2,9 @@
 
 namespace App\Modules\StaffAttendance\Controllers;
 
-use App\Modules\StaffAttendance\Repositories\StaffAttendanceRepository;
+use App\Modules\StaffAttendance\DTOs\AttendanceCommandDTO;
 use App\Modules\StaffAttendance\Services\StaffAttendanceService;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
 use Framework\SessionManager;
 use Throwable;
 
@@ -13,10 +12,9 @@ class StaffAttendanceApiController extends ApiController
 {
     private StaffAttendanceService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(StaffAttendanceService $service)
     {
-        $repo = new StaffAttendanceRepository($database);
-        $this->service = new StaffAttendanceService($repo);
+        $this->service = $service;
     }
 
     public function today(): void
@@ -31,11 +29,17 @@ class StaffAttendanceApiController extends ApiController
         }
     }
 
+    public function history(): void
+    {
+        try { $this->success($this->service->history($this->sessionUser(),$this->request()->query()),'Attendance history loaded.'); }
+        catch (Throwable $e) { $this->error($e->getMessage(),str_contains(strtolower($e->getMessage()),'restricted')?403:422); }
+    }
+
     public function timeIn(): void
     {
         try {
             $this->success(
-                $this->service->timeIn($this->sessionUser(), $this->requestMeta()),
+                $this->service->timeIn($this->sessionUser(), AttendanceCommandDTO::fromRequest()),
                 'Time in successful.'
             );
         } catch (Throwable $e) {
@@ -47,7 +51,7 @@ class StaffAttendanceApiController extends ApiController
     {
         try {
             $this->success(
-                $this->service->timeOut($this->sessionUser(), $this->requestMeta()),
+                $this->service->timeOut($this->sessionUser(), AttendanceCommandDTO::fromRequest()),
                 'Time out successful.'
             );
         } catch (Throwable $e) {
@@ -59,7 +63,10 @@ class StaffAttendanceApiController extends ApiController
     {
         try {
             $this->success(
-                $this->service->updateStatus($this->sessionUser(), $_POST),
+                $this->service->updateStatus(
+                    $this->sessionUser(),
+                    AttendanceCommandDTO::fromRequest($this->request()->input())
+                ),
                 'Duty status updated.'
             );
         } catch (Throwable $e) {
@@ -95,11 +102,4 @@ class StaffAttendanceApiController extends ApiController
         ];
     }
 
-    private function requestMeta(): array
-    {
-        return [
-            'ip' => (string)($_SERVER['REMOTE_ADDR'] ?? ''),
-            'user_agent' => (string)($_SERVER['HTTP_USER_AGENT'] ?? ''),
-        ];
-    }
 }

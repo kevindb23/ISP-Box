@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusBox UI Next Preview</title>
+    <style>
+      body { margin: 0; min-height: 100vh; padding: 2rem; background: var(--nx-canvas); }
+      .preview-shell { width: min(100%, 72rem); margin-inline: auto; }
+      .preview-theme { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body>
+    <main class="preview-shell">
+      <button class="preview-theme" type="button" id="previewTheme">Toggle theme</button>
+      <div data-nx-next-root="foundation-preview"></div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+    <script>
+      document.getElementById('previewTheme').addEventListener('click', function () {
+        var root = document.documentElement;
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      });
+    </script>
+  </body>
+</html>

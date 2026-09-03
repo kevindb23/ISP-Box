@@ -16,26 +16,6 @@ class SubscriberController extends ApiController
 
     /*
     |--------------------------------------------------------------------------
-    | List Subscribers
-    |--------------------------------------------------------------------------
-    */
-
-    public function index()
-    {
-        $page = $_GET['page'] ?? 1;
-        $limit = $_GET['limit'] ?? 50;
-
-        $data = $this->subscribers->paginate($page, $limit);
-
-        $this->success([
-            "items" => $data,
-            "page" => (int)$page,
-            "limit" => (int)$limit
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Create Subscriber
     |--------------------------------------------------------------------------
     */
@@ -47,24 +27,6 @@ class SubscriberController extends ApiController
         $result = $this->subscribers->create($input);
 
         $this->success($result, "Subscriber created");
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Show Subscriber
-    |--------------------------------------------------------------------------
-    */
-
-    public function show($id)
-    {
-        $subscriber = $this->subscribers->find($id);
-
-        if (!$subscriber) {
-            $this->error("Subscriber not found", 404);
-            return;
-        }
-
-        $this->success($subscriber);
     }
 
     /*

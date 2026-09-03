@@ -2,10 +2,10 @@
 
 namespace App\Modules\Tickets\Controllers;
 
-use App\Modules\Tickets\Repositories\TicketsRepository;
+use App\Modules\Tickets\DTOs\TicketCommandDTO;
 use App\Modules\Tickets\Services\TicketsService;
+use App\Modules\Tickets\Validators\TicketCommandValidator;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
 use Framework\SessionManager;
 use Throwable;
 
@@ -13,21 +13,20 @@ class TicketsApiController extends ApiController
 {
     private TicketsService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(TicketsService $service, private TicketCommandValidator $validator)
     {
-        $repo = new TicketsRepository($database);
-
-        $this->service = new TicketsService($repo);
+        $this->service = $service;
     }
 
     public function index(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'status' => $_GET['status'] ?? null,
-                'search' => $_GET['search'] ?? null,
-                'limit' => $_GET['limit'] ?? 100,
-                'offset' => $_GET['offset'] ?? 0,
+                'status' => $query['status'] ?? null,
+                'search' => $query['search'] ?? null,
+                'limit' => $query['limit'] ?? 100,
+                'offset' => $query['offset'] ?? 0,
             ];
 
             $this->success(
@@ -54,7 +53,7 @@ class TicketsApiController extends ApiController
     public function reply(): void
     {
         try {
-            $result = $this->service->replyTicket($this->sessionUser(), $this->input());
+            $result = $this->service->replyTicket($this->sessionUser(), $this->command('reply'));
 
             $this->success(
                 $result,
@@ -68,7 +67,7 @@ class TicketsApiController extends ApiController
     public function internalNote(): void
     {
         try {
-            $result = $this->service->internalNote($this->sessionUser(), $this->input());
+            $result = $this->service->internalNote($this->sessionUser(), $this->command('internal_note'));
 
             $this->success(
                 $result,
@@ -82,7 +81,7 @@ class TicketsApiController extends ApiController
     public function updateStatus(): void
     {
         try {
-            $result = $this->service->updateStatus($this->sessionUser(), $this->input());
+            $result = $this->service->updateStatus($this->sessionUser(), $this->command('status'));
 
             $this->success(
                 $result,
@@ -96,7 +95,7 @@ class TicketsApiController extends ApiController
     public function updatePriority(): void
     {
         try {
-            $result = $this->service->updatePriority($this->sessionUser(), $this->input());
+            $result = $this->service->updatePriority($this->sessionUser(), $this->command('priority'));
 
             $this->success(
                 $result,
@@ -110,7 +109,7 @@ class TicketsApiController extends ApiController
     public function assign(): void
     {
         try {
-            $result = $this->service->assignTicket($this->sessionUser(), $this->input());
+            $result = $this->service->assignTicket($this->sessionUser(), $this->command('assign'));
 
             $this->success(
                 $result,
@@ -121,15 +120,29 @@ class TicketsApiController extends ApiController
         }
     }
 
-    private function input(): array
+    public function requestSchedule(): void
     {
-        $json = json_decode(file_get_contents('php://input'), true);
-
-        if (is_array($json)) {
-            return array_merge($_POST, $json);
+        try {
+            $dto = (new TicketCommandDTO($this->request()->input()))
+                ->with('status', 'WAITING_CUSTOMER_SCHEDULE');
+            $errors = $this->validator->validate($dto, 'status');
+            if ($errors !== []) {
+                $this->error('Please correct the highlighted fields.', 422, $errors);
+                return;
+            }
+            $result = $this->service->updateStatus($this->sessionUser(), $dto->toArray());
+            $this->success($result, 'Visit schedule requested.');
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
         }
+    }
 
-        return $_POST;
+    private function command(string $action): array
+    {
+        $dto = new TicketCommandDTO($this->request()->input());
+        $errors = $this->validator->validate($dto, $action);
+        if ($errors !== []) throw new \InvalidArgumentException((string)reset($errors));
+        return $dto->toArray();
     }
 
     private function sessionUser(): array

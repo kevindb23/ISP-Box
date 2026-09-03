@@ -12,6 +12,8 @@ return [
 
 'portal_title' => 'Administrator Portal',
 
+'logo_text' => '1WAN',
+
 /*
 |--------------------------------------------------------------------------
 | Optional Client Logo

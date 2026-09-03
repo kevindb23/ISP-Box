@@ -38,7 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
         role: $('#userRoleInput'),
         status: $('#userStatusInput'),
         password: $('#userPasswordInput'),
-        passwordWrap: $('#userPasswordWrap')
+        passwordWrap: $('#userPasswordWrap'),
+        permissionsModal: $('#userPermissionsModal'),
+        permissionsForm: $('#userPermissionsForm'),
+        permissionsSubtitle: $('#userPermissionsSubtitle'),
+        permissionsContent: $('#userPermissionsContent')
     };
 
     const appPage = page.create({
@@ -68,10 +72,24 @@ document.addEventListener('DOMContentLoaded', () => {
         el.search?.addEventListener('input', util.debounce((e) => {
             const value = e.target.value || '';
             ctx.patch({ search: value });
-            usersTable?.setSearch(value);
         }, 180));
 
         el.form?.addEventListener('submit', (e) => submitUserForm(ctx, e));
+        el.permissionsForm?.addEventListener('submit', (e) => submitPermissions(ctx, e));
+        el.permissionsContent?.addEventListener('change', (e) => {
+            const input = e.target.closest('input[data-permission]');
+            if (!input) return;
+            const row = input.closest('tr');
+            const roleAllowed = row?.dataset.roleAllowed === '1';
+            const allowed = input.value === 'ALLOW' || (input.value === 'INHERIT' && roleAllowed);
+            const badge = row?.querySelector('.js-effective-access');
+            const source = row?.querySelector('.js-effective-source');
+            if (badge) {
+                badge.className = `badge js-effective-access ${allowed ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`;
+                badge.textContent = allowed ? 'ALLOWED' : 'DENIED';
+            }
+            if (source) source.textContent = input.value === 'INHERIT' ? 'Role default' : 'User override';
+        });
     }
 
     function extractRows(response) {
@@ -104,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         text(el.loadedAt, ctx.state.loading ? 'Loading users...' : `Last loaded: ${new Date().toLocaleTimeString()}`);
 
         if (ctx.state.loading) {
-            html(el.content, render.skeletonTable(6, 7));
+            html(el.content, render.skeletonTable(6, 8));
             return;
         }
 
@@ -125,7 +143,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         html(el.content, `
             ${renderSummaryCards(rows)}
-            <div class="card border-0 shadow-sm nx-content-card">
+            <div class="card border-0 shadow-sm nx-content-card users-directory-card">
+                <div class="users-directory-header">
+                    <div>
+                        <div class="users-directory-kicker">Identity directory</div>
+                        <h6 class="users-directory-title">System users</h6>
+                    </div>
+                    <div class="users-directory-count"><strong>${rows.length}</strong> accounts</div>
+                </div>
                 <div class="card-body">
                     <div id="usersTable"></div>
                 </div>
@@ -168,6 +193,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     key: 'status',
                     label: 'Status',
                     render: (v) => statusBadge(v)
+                },
+                {
+                    key: '__access',
+                    label: 'Access',
+                    render: (_, row) => `
+                        <button type="button" class="btn btn-sm btn-outline-primary js-user-permissions" data-id="${parseInt(row.id, 10)}" title="Manage Access" aria-label="Manage access for ${escape(row.username || 'user')}">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Access</span>
+                        </button>
+                    `
                 },
                 {
                     key: 'last_login',
@@ -230,26 +265,26 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="row g-3 mb-3">
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="users-summary-card users-summary-primary">
-                        <div class="users-summary-label">Total Users</div>
-                        <div class="users-summary-value">${total}</div>
+                        <div class="users-summary-icon"><i class="bi bi-people"></i></div>
+                        <div><div class="users-summary-value">${total}</div><div class="users-summary-label">Total users</div></div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="users-summary-card users-summary-success">
-                        <div class="users-summary-label">Active</div>
-                        <div class="users-summary-value">${active}</div>
+                        <div class="users-summary-icon"><i class="bi bi-person-check"></i></div>
+                        <div><div class="users-summary-value">${active}</div><div class="users-summary-label">Active accounts</div></div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="users-summary-card users-summary-danger">
-                        <div class="users-summary-label">Disabled</div>
-                        <div class="users-summary-value">${disabled}</div>
+                        <div class="users-summary-icon"><i class="bi bi-person-slash"></i></div>
+                        <div><div class="users-summary-value">${disabled}</div><div class="users-summary-label">Disabled</div></div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-xl-3">
                     <div class="users-summary-card users-summary-info">
-                        <div class="users-summary-label">Superadmins</div>
-                        <div class="users-summary-value">${admins}</div>
+                        <div class="users-summary-icon"><i class="bi bi-shield-check"></i></div>
+                        <div><div class="users-summary-value">${admins}</div><div class="users-summary-label">Superadmins</div></div>
                     </div>
                 </div>
             </div>
@@ -263,6 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.querySelectorAll('.js-reset-password').forEach(btn => {
             btn.addEventListener('click', () => resetPassword(ctx, parseInt(btn.dataset.id, 10)));
+        });
+
+        document.querySelectorAll('.js-user-permissions').forEach(btn => {
+            btn.addEventListener('click', () => openPermissions(ctx, parseInt(btn.dataset.id, 10)));
         });
 
         document.querySelectorAll('.js-disable-user').forEach(btn => {
@@ -434,6 +473,100 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await loadUsers(ctx);
         ui.toast('success', result.result.message || 'User disabled.');
+    }
+
+    async function openPermissions(ctx, id) {
+        const row = findUser(ctx, id);
+        if (!row) return ui.toast('error', 'User not found.');
+        el.permissionsForm.dataset.id = String(id);
+        text(el.permissionsSubtitle, `${row.username || '-'} · ${upper(row.role || '-')}`);
+        html(el.permissionsContent, render.skeletonTable(5, 5));
+        modal.open(el.permissionsModal);
+        try {
+            const response = await api.get(`/api/v1/users/${id}/permissions`);
+            const payload = response?.data || response || {};
+            renderPermissions(payload.permissions || [], upper(row.role || '') === 'SUPERADMIN');
+        } catch (err) {
+            html(el.permissionsContent, `<div class="alert alert-danger">${escape(err.message || 'Failed to load permissions.')}</div>`);
+        }
+    }
+
+    function renderPermissions(rows, protectedRole) {
+        if (protectedRole) {
+            html(el.permissionsContent, '<div class="alert alert-warning mb-0"><strong>Protected role:</strong> Superadmin always has full access and cannot receive per-user overrides.</div>');
+            el.permissionsForm.querySelector('[type="submit"]').disabled = true;
+            return;
+        }
+        el.permissionsForm.querySelector('[type="submit"]').disabled = false;
+        const groups = safeArray(rows).reduce((all, permission) => {
+            const key = permission.module_key || 'other';
+            (all[key] ||= []).push(permission);
+            return all;
+        }, {});
+        const modules = Object.keys(groups);
+        html(el.permissionsContent, `
+            <div class="users-access-workspace">
+                <aside class="users-access-nav" aria-label="Permission modules">
+                    <div class="users-access-nav-label">Modules</div>
+                    ${modules.map((moduleKey, index) => `<button type="button" class="users-access-nav-item ${index === 0 ? 'is-active' : ''}" data-access-module="${escape(moduleKey)}">
+                        <span>${escape(moduleKey.replaceAll('-', ' '))}</span><small>${groups[moduleKey].length}</small>
+                    </button>`).join('')}
+                </aside>
+                <div class="users-access-panels">
+                ${Object.entries(groups).map(([moduleKey, permissions], index) => `
+            <section class="users-permission-group ${index === 0 ? 'is-active' : ''}" data-access-panel="${escape(moduleKey)}" ${index === 0 ? '' : 'hidden'}>
+                <div class="users-permission-heading">
+                    <div><div class="users-directory-kicker">Module permissions</div><h6>${escape(moduleKey.replaceAll('-', ' '))}</h6></div>
+                    <span>${permissions.length} actions</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Action</th><th class="text-center">Inherit</th><th class="text-center">Allow</th><th class="text-center">Deny</th><th>Effective Access</th></tr></thead>
+                        <tbody>${permissions.map(permission => {
+                            const key = String(permission.permission_key || '');
+                            const selected = upper(permission.override_effect || 'INHERIT');
+                            const effective = Boolean(permission.effective_allowed);
+                            return `<tr data-role-allowed="${permission.role_allowed ? '1' : '0'}">
+                                <td><div class="fw-semibold">${escape(String(permission.action_key || '').replaceAll('-', ' '))}</div>${permission.is_sensitive ? '<small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Sensitive action</small>' : ''}</td>
+                                ${['INHERIT','ALLOW','DENY'].map(effect => `<td class="text-center"><input class="form-check-input" type="radio" name="permission_${escape(key)}" data-permission="${escape(key)}" value="${effect}" ${selected === effect ? 'checked' : ''} aria-label="${effect} ${escape(key)}"></td>`).join('')}
+                                <td><span class="badge js-effective-access ${effective ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">${effective ? 'ALLOWED' : 'DENIED'}</span><small class="d-block text-muted js-effective-source">${selected === 'INHERIT' ? 'Role default' : 'User override'}</small></td>
+                            </tr>`;
+                        }).join('')}</tbody>
+                    </table>
+                </div>
+            </section>
+                `).join('')}
+                </div>
+            </div>
+        `);
+        el.permissionsContent.querySelectorAll('[data-access-module]').forEach(button => {
+            button.addEventListener('click', () => {
+                const moduleKey = button.dataset.accessModule;
+                el.permissionsContent.querySelectorAll('[data-access-module]').forEach(item => item.classList.toggle('is-active', item === button));
+                el.permissionsContent.querySelectorAll('[data-access-panel]').forEach(panel => {
+                    const active = panel.dataset.accessPanel === moduleKey;
+                    panel.hidden = !active;
+                    panel.classList.toggle('is-active', active);
+                });
+            });
+        });
+    }
+
+    async function submitPermissions(ctx, event) {
+        event.preventDefault();
+        const id = parseInt(el.permissionsForm.dataset.id || '0', 10);
+        if (!id) return;
+        const effects = {};
+        el.permissionsForm.querySelectorAll('input[data-permission]:checked').forEach(input => {
+            effects[input.dataset.permission] = input.value;
+        });
+        const result = await actions.run({
+            task: () => api.form(`/api/v1/users/${id}/permissions`, forms.data({ effects: JSON.stringify(effects) }))
+        });
+        if (!result?.ok) return;
+        modal.close(el.permissionsModal);
+        ui.toast('success', result.result?.message || 'User permissions updated.');
+        await loadUsers(ctx);
     }
 
     appPage.start();

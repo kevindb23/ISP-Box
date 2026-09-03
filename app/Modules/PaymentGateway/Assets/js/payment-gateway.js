@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mode: null,
         publicKey: null,
         secretKey: null,
+        webhookSecret: null,
 
         saveBtn: null,
         refreshBtn: null,
@@ -69,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refs.mode = $('#paymongoMode');
         refs.publicKey = $('#paymongoPublicKey');
         refs.secretKey = $('#paymongoSecretKey');
+        refs.webhookSecret = $('#paymongoWebhookSecret');
 
         refs.saveBtn = $('#btnSaveGatewaySettings');
         refs.refreshBtn = $('#btnRefreshGatewayTransactions');
@@ -110,9 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = {
             paymongo_enabled: refs.enabled?.checked ? 1 : 0,
             paymongo_mode: refs.mode?.value || 'test',
-            paymongo_public_key: refs.publicKey?.value?.trim() || '',
-            paymongo_secret_key: refs.secretKey?.value?.trim() || ''
+            paymongo_public_key: refs.publicKey?.value?.trim() || ''
         };
+
+        const secretKey = refs.secretKey?.value?.trim() || '';
+        if (secretKey) payload.paymongo_secret_key = secretKey;
+        const webhookSecret = refs.webhookSecret?.value?.trim() || '';
+        if (webhookSecret) payload.paymongo_webhook_secret = webhookSecret;
 
         setButtonBusy(refs.saveBtn, true, 'Saving...');
 
@@ -186,7 +192,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (refs.secretKey) {
-            refs.secretKey.value = settings.paymongo_secret_key || '';
+            refs.secretKey.value = '';
+            refs.secretKey.placeholder = settings.paymongo_secret_key_configured
+                ? 'Configured — enter a new key to replace it'
+                : 'Enter PayMongo secret key';
+        }
+        if (refs.webhookSecret) {
+            refs.webhookSecret.value = '';
+            refs.webhookSecret.placeholder = settings.paymongo_webhook_secret_configured
+                ? 'Configured — enter a new secret to replace it'
+                : 'Enter PayMongo webhook secret';
         }
     }
 

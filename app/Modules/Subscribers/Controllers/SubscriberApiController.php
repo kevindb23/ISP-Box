@@ -2,10 +2,10 @@
 
 namespace App\Modules\Subscribers\Controllers;
 
-use Framework\Controller;
+use Framework\ApiController;
 use App\Modules\Subscribers\Services\SubscriberService;
 
-class SubscriberApiController extends Controller
+class SubscriberApiController extends ApiController
 {
     private SubscriberService $service;
 
@@ -14,16 +14,24 @@ class SubscriberApiController extends Controller
         $this->service = $service;
     }
 
-    private function respond(array $payload): void
+    private function respond(array $payload, int $status = 200): void
     {
-        header('Content-Type: application/json');
-        echo json_encode($payload);
+        $ok = (bool)($payload['ok'] ?? $payload['success'] ?? ($status < 400));
+        $message = (string)($payload['message'] ?? ($ok ? 'OK' : 'Request failed.'));
+        $data = $payload['data'] ?? null;
+        if ($data === null) {
+            $data = $payload;
+            unset($data['ok'], $data['success'], $data['status'], $data['message'], $data['errors']);
+            $data = $data ?: null;
+        }
+        $errors = is_array($payload['errors'] ?? null) ? $payload['errors'] : [];
+        $ok ? $this->success($data, $message, $status) : $this->error($message, $status, $errors, $data);
         exit;
     }
 
     public function index()
     {
-        $search = trim((string)($_GET['search'] ?? ''));
+        $search = trim((string)($this->request()->query()['search'] ?? ''));
 
         $this->respond([
             'ok' => true,
@@ -35,7 +43,7 @@ class SubscriberApiController extends Controller
 
     public function sessions()
     {
-        $search = trim((string)($_GET['search'] ?? ''));
+        $search = trim((string)($this->request()->query()['search'] ?? ''));
 
         $this->respond([
             'ok' => true,
@@ -45,56 +53,66 @@ class SubscriberApiController extends Controller
         ]);
     }
 
+    public function plans(): void
+    {
+        $this->respond([
+            'ok' => true,
+            'success' => true,
+            'status' => 'success',
+            'data' => $this->service->getPlans(),
+        ]);
+    }
+
     public function create()
     {
-        $res = $this->service->create($_POST);
+        $res = $this->service->create($this->request()->input());
 
         $this->respond([
             'success' => $res['ok'] ?? false,
             'ok' => $res['ok'] ?? false,
             'message' => $res['message'] ?? '',
             'data' => $res,
-        ]);
+        ], ($res['ok'] ?? false) ? 201 : 422);
     }
 
     public function update($id)
     {
-        $res = $this->service->update((int)$id, $_POST);
+        $res = $this->service->update((int)$id, $this->request()->input());
 
         $this->respond([
             'success' => $res['ok'] ?? false,
             'ok' => $res['ok'] ?? false,
             'message' => $res['message'] ?? '',
-        ]);
+        ], ($res['ok'] ?? false) ? 200 : 422);
     }
 
     public function suspend()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)$this->request()->value('id', 0);
         $res = $this->service->suspend($id);
 
         $this->respond([
             'success' => $res['ok'] ?? false,
             'ok' => $res['ok'] ?? false,
             'message' => $res['message'] ?? '',
-        ]);
+        ], ($res['ok'] ?? false) ? 200 : 422);
     }
 
     public function reactivate()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)$this->request()->value('id', 0);
         $res = $this->service->reactivate($id);
 
         $this->respond([
             'success' => $res['ok'] ?? false,
             'ok' => $res['ok'] ?? false,
             'message' => $res['message'] ?? '',
-        ]);
+        ], ($res['ok'] ?? false) ? 200 : 422);
     }
 
     public function resetPassword()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)$this->request()->value('id', 0);
         $res = $this->service->resetPassword($id);
 
         $this->respond([
@@ -102,12 +120,12 @@ class SubscriberApiController extends Controller
             'ok' => $res['ok'] ?? false,
             'message' => $res['message'] ?? '',
             'ppp_password' => $res['ppp_password'] ?? null,
-        ]);
+        ], ($res['ok'] ?? false) ? 200 : 422);
     }
 
     public function resetPortalPassword()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)$this->request()->value('id', 0);
         $res = $this->service->resetPortalPassword($id);
 
         $this->respond([
@@ -117,24 +135,35 @@ class SubscriberApiController extends Controller
             'portal_username' => $res['portal_username'] ?? null,
             'portal_password' => $res['portal_password'] ?? null,
             'data' => $res,
-        ]);
+        ], ($res['ok'] ?? false) ? 200 : 422);
     }
 
     public function delete()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)$this->request()->value('id', 0);
         $res = $this->service->delete($id);
 
         $this->respond([
             'success' => $res['ok'] ?? false,
             'ok' => $res['ok'] ?? false,
             'message' => $res['message'] ?? '',
-        ]);
+        ], ($res['ok'] ?? false) ? 200 : 422);
     }
 
     public function show($id)
     {
         $row = $this->service->getById((int)$id);
+
+        if (!$row) {
+            $this->respond([
+                'ok' => false,
+                'success' => false,
+                'status' => 'error',
+                'message' => 'Subscriber not found.',
+                'data' => null,
+            ], 404);
+            return;
+        }
 
         $this->respond([
             'ok' => true,

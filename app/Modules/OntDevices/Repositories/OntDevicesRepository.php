@@ -2,16 +2,59 @@
 
 namespace App\Modules\OntDevices\Repositories;
 
+use App\Infrastructure\Security\SecretCipher;
+use App\Modules\Radius\Repositories\RadiusSettingsRepository;
 use Framework\DatabaseConnection;
 use PDO;
+use Throwable;
 
 class OntDevicesRepository
 {
     private PDO $db;
+    private ?array $activeRadiusIps = null;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(
+        DatabaseConnection $database,
+        private SecretCipher $secrets,
+        private RadiusSettingsRepository $radiusSettings
+    )
     {
         $this->db = $database->get();
+    }
+
+    public function findActiveRadiusIpByUsername(string $username): ?string
+    {
+        if ($this->activeRadiusIps === null) {
+            $this->activeRadiusIps = [];
+            try {
+                $radius = $this->radiusSettings->getConnectionConfig();
+                $radiusDb = new PDO(
+                    "mysql:host={$radius['host']};dbname={$radius['name']};charset=utf8mb4",
+                    $radius['user'],
+                    $radius['pass'],
+                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+                );
+                $rows = $radiusDb->query("
+                    SELECT username, framedipaddress
+                    FROM radacct
+                    WHERE acctstoptime IS NULL
+                      AND framedipaddress IS NOT NULL
+                      AND framedipaddress <> ''
+                    ORDER BY radacctid DESC
+                ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                foreach ($rows as $row) {
+                    $key = trim((string)($row['username'] ?? ''));
+                    if ($key !== '' && !isset($this->activeRadiusIps[$key])) {
+                        $this->activeRadiusIps[$key] = trim((string)$row['framedipaddress']);
+                    }
+                }
+            } catch (Throwable $e) {
+                error_log('[OntDevicesRepository] Active RADIUS WAN lookup failed: ' . $e->getMessage());
+            }
+        }
+
+        $ip = $this->activeRadiusIps[trim($username)] ?? null;
+        return is_string($ip) && $ip !== '' ? $ip : null;
     }
 
     /*
@@ -32,7 +75,8 @@ class OntDevicesRepository
             ORDER BY od.id DESC
         ");
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return array_map([$this, 'withoutDeprecatedFields'], $rows);
     }
 
     public function getAll(): array
@@ -55,7 +99,7 @@ class OntDevicesRepository
         $stmt->execute([$id]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $row ? $this->withoutDeprecatedFields($row) : null;
     }
 
     public function findById(int $id): ?array
@@ -71,22 +115,28 @@ class OntDevicesRepository
                 serial_number,
                 model,
                 vendor,
-                mac_address,
                 status,
-                equipment_id,
-                subscriber_id
+                subscriber_id,
+                olt_id,
+                frame,
+                slot,
+                port,
+                ont_id
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $stmt->execute([
             $data['serial_number'],
             $data['model'] ?? null,
             $data['vendor'] ?? null,
-            $data['mac_address'] ?? null,
             $data['status'] ?? 'UNASSIGNED',
-            $data['equipment_id'] ?? null,
             $data['subscriber_id'] ?? null,
+            $data['olt_id'] ?? null,
+            $data['frame'] ?? null,
+            $data['slot'] ?? null,
+            $data['port'] ?? null,
+            $data['ont_id'] ?? null,
         ]);
 
         return (int)$this->db->lastInsertId();
@@ -110,10 +160,13 @@ class OntDevicesRepository
                 serial_number = ?,
                 model = ?,
                 vendor = ?,
-                mac_address = ?,
                 status = ?,
-                equipment_id = ?,
-                subscriber_id = ?
+                subscriber_id = ?,
+                olt_id = COALESCE(?, olt_id),
+                frame = COALESCE(?, frame),
+                slot = COALESCE(?, slot),
+                port = COALESCE(?, port),
+                ont_id = COALESCE(?, ont_id)
             WHERE id = ?
         ");
 
@@ -121,10 +174,13 @@ class OntDevicesRepository
             $data['serial_number'],
             $data['model'] ?? null,
             $data['vendor'] ?? null,
-            $data['mac_address'] ?? null,
             $data['status'] ?? 'UNASSIGNED',
-            $data['equipment_id'] ?? null,
             $data['subscriber_id'] ?? null,
+            $data['olt_id'] ?? null,
+            $data['frame'] ?? null,
+            $data['slot'] ?? null,
+            $data['port'] ?? null,
+            $data['ont_id'] ?? null,
             $id,
         ]);
     }
@@ -147,7 +203,8 @@ class OntDevicesRepository
             WHERE id = ?
         ");
 
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        return $stmt->rowCount() > 0;
     }
 
     public function delete(int $id): bool
@@ -175,6 +232,25 @@ class OntDevicesRepository
         return (int)$stmt->fetchColumn() > 0;
     }
 
+    public function subscriberExists(int $subscriberId): bool
+    {
+        if ($subscriberId <= 0) return false;
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM subscribers WHERE id = ?');
+        $stmt->execute([$subscriberId]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    public function getSubscriberOptions(): array
+    {
+        $stmt = $this->db->query("
+            SELECT id, full_name, account_number, status
+            FROM subscribers
+            ORDER BY full_name ASC
+            LIMIT 500
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
     public function findBySerial(string $serial): ?array
     {
         $stmt = $this->db->prepare("
@@ -190,7 +266,48 @@ class OntDevicesRepository
         $stmt->execute([$serial]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $row ? $this->withoutDeprecatedFields($row) : null;
+    }
+
+    public function upsertAcsSnapshot(array $device): void
+    {
+        $serial = strtoupper(trim((string)($device['serial_number'] ?? '')));
+        if ($serial === '' || $serial === '-') return;
+
+        $payload = [
+            $device['wan_ip'] === '-' ? null : ($device['wan_ip'] ?? null),
+            $device['acs_status'] ?? null,
+            $device['last_seen'] ?? null,
+            $device['firmware_version'] === '-' ? null : ($device['firmware_version'] ?? null),
+            $device['uptime'] ?? null,
+            $serial,
+        ];
+
+        $stmt = $this->db->prepare("
+            UPDATE ont_acs
+            SET wan_ip = ?, status = ?, last_seen = ?, firmware_version = ?, uptime = ?
+            WHERE UPPER(TRIM(serial_number)) = ?
+        ");
+        $stmt->execute($payload);
+
+        if ($stmt->rowCount() > 0) return;
+
+        $exists = $this->db->prepare('SELECT id FROM ont_acs WHERE UPPER(TRIM(serial_number)) = ? LIMIT 1');
+        $exists->execute([$serial]);
+        if ($exists->fetchColumn()) return;
+
+        $insert = $this->db->prepare("
+            INSERT INTO ont_acs (serial_number, wan_ip, status, last_seen, firmware_version, uptime)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $insert->execute([
+            $serial,
+            $device['wan_ip'] === '-' ? null : ($device['wan_ip'] ?? null),
+            $device['acs_status'] ?? null,
+            $device['last_seen'] ?? null,
+            $device['firmware_version'] === '-' ? null : ($device['firmware_version'] ?? null),
+            $device['uptime'] ?? null,
+        ]);
     }
 
     /*
@@ -213,6 +330,69 @@ class OntDevicesRepository
     public function getDiscovery(): array
     {
         return $this->allAutofind();
+    }
+
+    public function findDiscoveryOlt(?int $oltId = null): ?array
+    {
+        $sql = "
+            SELECT id, name, ip_address, username, password
+            FROM olt_devices
+            WHERE ip_address IS NOT NULL
+              AND username IS NOT NULL
+              AND password IS NOT NULL
+        ";
+        $params = [];
+        if ($oltId !== null && $oltId > 0) {
+            $sql .= " AND id = ? ";
+            $params[] = $oltId;
+        }
+        $sql .= "
+            ORDER BY id ASC
+            LIMIT 1
+        ";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return null;
+        $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        return $row;
+    }
+
+    public function findDiscoveryBySerial(string $serial): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM ont_autofind
+            WHERE UPPER(TRIM(serial_number)) = UPPER(TRIM(?))
+            LIMIT 1
+        ");
+        $stmt->execute([$serial]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function findOpticalMappingBySerial(string $serial): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                od.id AS inventory_id,
+                od.serial_number,
+                COALESCE(od.olt_id, spb.olt_id) AS olt_id,
+                COALESCE(od.frame, op.frame, spj.frame) AS frame,
+                COALESCE(od.slot, op.slot, spj.slot) AS slot,
+                COALESCE(od.port, op.port, spj.port) AS port,
+                COALESCE(od.ont_id, spb.ont_assigned_id, spj.ont_assigned_id) AS ont_id
+            FROM ont_devices od
+            LEFT JOIN service_provisioning_bindings spb ON spb.ont_id = od.id
+            LEFT JOIN olt_ports op ON op.id = spb.olt_port_id
+            LEFT JOIN service_provisioning_jobs spj ON spj.ont_id = od.id
+            WHERE UPPER(TRIM(od.serial_number)) = UPPER(TRIM(?))
+            ORDER BY spb.id DESC, spj.id DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$serial]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 
     public function saveAutofind(array $data): bool
@@ -308,7 +488,40 @@ class OntDevicesRepository
         $stmt->execute([$oltId]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        }
         return $row ?: null;
+    }
+
+    public function getOpticalCandidateOlts(?int $preferredOltId = null): array
+    {
+        $stmt = $this->db->query("\n            SELECT *\n            FROM olt_devices\n            WHERE ip_address IS NOT NULL\n              AND username IS NOT NULL\n              AND password IS NOT NULL\n            ORDER BY id ASC\n        ");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($rows as &$row) {
+            $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        }
+        unset($row);
+
+        if ($preferredOltId !== null && $preferredOltId > 0) {
+            usort($rows, static fn(array $a, array $b): int =>
+                ((int)$b['id'] === $preferredOltId ? 1 : 0)
+                <=> ((int)$a['id'] === $preferredOltId ? 1 : 0)
+            );
+        }
+        return $rows;
+    }
+
+    public function updateOpticalMappingById(
+        int $id,
+        int $oltId,
+        int $frame,
+        int $slot,
+        int $port,
+        int $ontId
+    ): bool {
+        $stmt = $this->db->prepare("\n            UPDATE ont_devices\n            SET olt_id = ?, frame = ?, slot = ?, port = ?, ont_id = ?\n            WHERE id = ?\n        ");
+        return $stmt->execute([$oltId, $frame, $slot, $port, $ontId, $id]);
     }
 
     public function updateLastOpticalById(int $id, array $optical): bool
@@ -361,5 +574,11 @@ class OntDevicesRepository
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
+    }
+
+    private function withoutDeprecatedFields(array $row): array
+    {
+        unset($row['equipment_id'], $row['mac_address']);
+        return $row;
     }
 }

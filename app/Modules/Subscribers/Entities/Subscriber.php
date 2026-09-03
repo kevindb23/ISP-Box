@@ -17,7 +17,6 @@ class Subscriber
 
     public ?int $service_id;
     public ?string $ppp_username;
-    public ?string $ppp_password;
     public ?int $plan_id;
     public ?string $plan_name;
     public ?string $account_type;
@@ -25,6 +24,7 @@ class Subscriber
     public ?string $next_due_date;
     public ?string $expires_at;
     public ?int $service_number;
+    public int $service_count;
     public int $online;
 
     public ?int $provisioning_id;
@@ -45,6 +45,21 @@ class Subscriber
     public ?string $lcp_name;
     public ?int $lcp_port_number;
     public ?string $olt_port_name;
+    public ?string $olt_name;
+    public ?string $olt_ip_address;
+    public ?int $ont_assigned_id;
+    public ?string $ont_status;
+    public ?string $nap_code;
+    public ?string $splitter_model;
+    public ?int $splitter_ratio;
+    public ?int $provisioning_job_id;
+    public ?string $provisioning_job_no;
+    public ?string $provisioning_status;
+    public ?string $provisioning_date;
+    public ?string $activated_at;
+    public ?string $acs_status;
+    public ?string $acs_wan_ip;
+    public ?string $acs_last_seen;
 
     public function __construct(array $data = [])
     {
@@ -61,7 +76,6 @@ class Subscriber
 
         $this->service_id     = isset($data['service_id']) ? (int)$data['service_id'] : null;
         $this->ppp_username   = $data['ppp_username'] ?? null;
-        $this->ppp_password   = $data['ppp_password'] ?? null;
         $this->plan_id        = isset($data['plan_id']) ? (int)$data['plan_id'] : null;
         $this->plan_name      = $data['plan_name'] ?? null;
         $this->account_type   = $data['account_type'] ?? null;
@@ -69,6 +83,7 @@ class Subscriber
         $this->next_due_date  = $data['next_due_date'] ?? null;
         $this->expires_at     = $data['expires_at'] ?? null;
         $this->service_number = isset($data['service_number']) ? (int)$data['service_number'] : null;
+        $this->service_count = isset($data['service_count']) ? (int)$data['service_count'] : ($this->service_id !== null ? 1 : 0);
         $this->online         = isset($data['online']) ? (int)$data['online'] : 0;
 
         $this->provisioning_id   = isset($data['provisioning_id']) ? (int)$data['provisioning_id'] : null;
@@ -89,6 +104,21 @@ class Subscriber
         $this->lcp_name        = $data['lcp_name'] ?? null;
         $this->lcp_port_number = isset($data['lcp_port_number']) ? (int)$data['lcp_port_number'] : null;
         $this->olt_port_name   = $data['olt_port_name'] ?? null;
+        $this->olt_name = $data['olt_name'] ?? null;
+        $this->olt_ip_address = $data['olt_ip_address'] ?? null;
+        $this->ont_assigned_id = isset($data['ont_assigned_id']) ? (int)$data['ont_assigned_id'] : null;
+        $this->ont_status = $data['ont_status'] ?? null;
+        $this->nap_code = $data['nap_code'] ?? null;
+        $this->splitter_model = $data['splitter_model'] ?? null;
+        $this->splitter_ratio = isset($data['splitter_ratio']) ? (int)$data['splitter_ratio'] : null;
+        $this->provisioning_job_id = isset($data['provisioning_job_id']) ? (int)$data['provisioning_job_id'] : null;
+        $this->provisioning_job_no = $data['provisioning_job_no'] ?? null;
+        $this->provisioning_status = $data['provisioning_status'] ?? null;
+        $this->provisioning_date = $data['provisioning_date'] ?? null;
+        $this->activated_at = $data['activated_at'] ?? null;
+        $this->acs_status = $data['acs_status'] ?? null;
+        $this->acs_wan_ip = $data['acs_wan_ip'] ?? null;
+        $this->acs_last_seen = $data['acs_last_seen'] ?? null;
     }
 
     public function toArray(): array
@@ -107,7 +137,6 @@ class Subscriber
 
             'service_id'     => $this->service_id,
             'ppp_username'   => $this->ppp_username,
-            'ppp_password'   => $this->ppp_password,
             'plan_id'        => $this->plan_id,
             'plan_name'      => $this->plan_name,
             'account_type'   => $this->account_type,
@@ -115,6 +144,7 @@ class Subscriber
             'next_due_date'  => $this->next_due_date,
             'expires_at'     => $this->expires_at,
             'service_number' => $this->service_number,
+            'service_count'  => $this->service_count,
             'online'         => $this->online,
 
             'provisioning_id'   => $this->provisioning_id,
@@ -135,6 +165,23 @@ class Subscriber
             'lcp_name'        => $this->lcp_name,
             'lcp_port_number' => $this->lcp_port_number,
             'olt_port_name'   => $this->olt_port_name,
+            'olt_name' => $this->olt_name,
+            'olt_ip_address' => $this->olt_ip_address,
+            'ont_assigned_id' => $this->ont_assigned_id,
+            'ont_status' => $this->ont_status,
+            'nap_code' => $this->nap_code,
+            'splitter_model' => $this->splitter_model,
+            'splitter_ratio' => $this->splitter_ratio,
+            'provisioning_job_id' => $this->provisioning_job_id,
+            'provisioning_job_no' => $this->provisioning_job_no,
+            'provisioning_status' => $this->provisioning_status,
+            'provisioning_date' => $this->provisioning_date,
+            'activated_at' => $this->activated_at,
+            'acs_status' => $this->acs_status,
+            'acs_wan_ip' => $this->acs_wan_ip,
+            // Stable generic alias consumed by the modern subscriber UI.
+            'wan_ip' => $this->acs_wan_ip,
+            'acs_last_seen' => $this->acs_last_seen,
         ];
     }
 }

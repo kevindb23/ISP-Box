@@ -1,0 +1,169 @@
+.pg-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius:3px;
+    background: #eaf2ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.pg-settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 18px;
+    align-items: end;
+}
+
+.pg-setting-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pg-card {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+.pg-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 15px;
+    margin-bottom: 18px;
+    color: #111827;
+}
+
+#paymentGatewayTransactionHost .nx-datatable,
+#paymentGatewayTransactionHost table {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+#paymentGatewayTransactionHost th {
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #475569;
+    background: #f8fafc;
+}
+
+#paymentGatewayTransactionHost td {
+    vertical-align: middle;
+}
+
+@media (max-width: 992px) {
+    .pg-settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* =========================================================
+   PAYMENT GATEWAY DARK MODE
+   Place at VERY BOTTOM of PaymentGateway.css
+========================================================= */
+
+html[data-theme="dark"] .pg-hero-badge {
+    background: rgba(59, 130, 246, .16) !important;
+    color: #93c5fd !important;
+    border: 1px solid rgba(147, 197, 253, .18) !important;
+}
+
+html[data-theme="dark"] .pg-card,
+html[data-theme="dark"] .nx-surface-card,
+html[data-theme="dark"] .nx-content-card,
+html[data-theme="dark"] .nx-toolbar-card,
+html[data-theme="dark"] .nx-page-header-card {
+    background:
+            radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 30%),
+            linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border-color: rgba(255,255,255,.06) !important;
+    color: #f8fafc !important;
+    box-shadow: 0 12px 26px rgba(0,0,0,.28) !important;
+}
+
+html[data-theme="dark"] .pg-section-title,
+html[data-theme="dark"] .pg-setting-main,
+html[data-theme="dark"] .pg-setting-main strong,
+html[data-theme="dark"] .nx-page-title {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .pg-setting-main small,
+html[data-theme="dark"] .nx-page-subtitle,
+html[data-theme="dark"] .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Tables */
+html[data-theme="dark"] #paymentGatewayTransactionHost .nx-datatable,
+html[data-theme="dark"] #paymentGatewayTransactionHost table,
+html[data-theme="dark"] #paymentGatewayTransactionHost .table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] #paymentGatewayTransactionHost thead,
+html[data-theme="dark"] #paymentGatewayTransactionHost thead tr,
+html[data-theme="dark"] #paymentGatewayTransactionHost th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] #paymentGatewayTransactionHost tbody,
+html[data-theme="dark"] #paymentGatewayTransactionHost tbody tr,
+html[data-theme="dark"] #paymentGatewayTransactionHost td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255,255,255,.06) !important;
+}
+
+html[data-theme="dark"] #paymentGatewayTransactionHost tbody tr:hover,
+html[data-theme="dark"] #paymentGatewayTransactionHost tbody tr:hover td {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] #paymentGatewayTransactionHost .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+/* Forms */
+html[data-theme="dark"] .pg-settings-grid .form-control,
+html[data-theme="dark"] .pg-settings-grid .form-select,
+html[data-theme="dark"] .pg-card .form-control,
+html[data-theme="dark"] .pg-card .form-select {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .pg-card .form-control::placeholder {
+    color: #64748b !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] .pg-card .btn-light,
+html[data-theme="dark"] .pg-card .btn-outline-secondary,
+html[data-theme="dark"] .pg-card .btn-outline-primary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .pg-card .btn-light:hover,
+html[data-theme="dark"] .pg-card .btn-outline-secondary:hover,
+html[data-theme="dark"] .pg-card .btn-outline-primary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}

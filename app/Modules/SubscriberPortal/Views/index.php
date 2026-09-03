@@ -1,7 +1,4 @@
 <div class="container-fluid nx-page subscriber-portal-page">
-
-    <link rel="stylesheet" href="/module-assets/SubscriberPortal/css/SubscriberPortal.css">
-
     <div id="subscriberPortalAlert"></div>
 
     <div class="card border-0 shadow-sm mb-3 sp-status-banner" id="spStatusBanner">

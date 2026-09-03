@@ -4,40 +4,26 @@ namespace App\Modules\Billing\Services;
 
 use App\Modules\Audit\Services\AuditService;
 use App\Modules\Billing\Repositories\BillingRunRepository;
-use App\Modules\Billing\Repositories\BillingSettingsRepository;
 use App\Modules\Billing\Repositories\InvoiceRepository;
-use App\Modules\Billing\Repositories\PaymentRepository;
-use PDO;
 use Throwable;
 
 class BillingCycleService
 {
-    private PDO $db;
     private InvoiceRepository $invoiceRepo;
     private BillingRunRepository $runRepo;
     private InvoiceService $invoiceService;
     private ?AuditService $audit;
 
     public function __construct(
-        PDO $db,
+        InvoiceRepository $invoiceRepo,
+        BillingRunRepository $runRepo,
+        InvoiceService $invoiceService,
         ?AuditService $audit = null
     ) {
-        $this->db = $db;
+        $this->invoiceRepo = $invoiceRepo;
+        $this->runRepo = $runRepo;
+        $this->invoiceService = $invoiceService;
         $this->audit = $audit;
-
-        $this->invoiceRepo = new InvoiceRepository($db);
-        $this->runRepo = new BillingRunRepository($db);
-
-        $paymentRepo = new PaymentRepository($db);
-        $settingsRepo = new BillingSettingsRepository($db);
-
-        $this->invoiceService = new InvoiceService(
-            $db,
-            $this->invoiceRepo,
-            $paymentRepo,
-            $settingsRepo,
-            $this->audit
-        );
     }
 
     public function generateDueInvoices(
@@ -266,7 +252,7 @@ class BillingCycleService
         try {
             $this->audit->log($module, $action, $description);
         } catch (Throwable $e) {
-            // Audit must not break billing.
+            error_log('[Audit][' . $module . '] ' . $e->getMessage());
         }
     }
 }

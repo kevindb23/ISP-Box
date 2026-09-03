@@ -1,7 +1,8 @@
 (function () {
     document.addEventListener('DOMContentLoaded', () => {
         const app = document.getElementById('serviceProvisioningApp');
-        if (!app) return;
+        if (!app || !window.NX) return;
+        const nxApi = window.NX.api;
 
         const $ = (id) => document.getElementById(id);
         const $$ = (selector) => Array.from(app.querySelectorAll(selector));
@@ -352,51 +353,13 @@
             return [];
         }
 
-        function buildApiError(json, fallback = 'Request failed.') {
-            return json?.message || json?.error || fallback;
-        }
-
         async function apiGet(url) {
-            const res = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            const raw = await res.text();
-            const json = raw ? JSON.parse(raw) : {};
-
-            if (!res.ok || json.success !== true) {
-                throw new Error(buildApiError(json));
-            }
-
-            return json.data ?? [];
+            return (await nxApi.get(url)) ?? [];
         }
 
         async function apiPost(url, payload = {}) {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const raw = await res.text();
-            const json = raw ? JSON.parse(raw) : {};
-
-            if (!res.ok || json.success !== true) {
-                const error = new Error(buildApiError(json));
-                error.response = json;
-                error.status = res.status;
-                throw error;
-            }
-
-            return json.data ?? [];
+            const result = await nxApi.post(url, payload);
+            return result.data ?? [];
         }
 
         function fillSelect(el, items, labelFn, placeholder = 'Select...', valueFn = null) {
@@ -828,7 +791,15 @@
 
                 renderActivationProgress('acs', runResult);
 
-                const acs = await apiPost(`/api/v1/service-provisioning/check-acs/${jobId}`, {});
+                let acs = await apiPost(`/api/v1/service-provisioning/check-acs/${jobId}`, {});
+
+                for (let attempt = 1; !acs?.acs_found && attempt <= 18; attempt += 1) {
+                    setTimeline('acs', 'active', `Waiting for ACS (${attempt}/18)`);
+                    setActivationState(`Waiting for ACS · check ${attempt}/18`);
+                    log(`ONT not visible in ACS. Next check ${attempt}/18 in 10 seconds.`);
+                    await new Promise((resolve) => window.setTimeout(resolve, 10000));
+                    acs = await apiPost(`/api/v1/service-provisioning/check-acs/${jobId}`, {});
+                }
 
                 log('ACS check result:');
                 log(prettyJson(acs));
@@ -900,8 +871,70 @@
                 const data = await apiGet(`/api/v1/service-provisioning/list?${qs.toString()}`);
 
                 state.jobs = asArray(data);
+                state.jobsPagination = { ...state.jobsPagination, ...(data?.pagination || {}), page };
+                renderJobs();
             } catch (e) {
-                console.error(e);
+                els.jobsTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger py-4">Unable to load provisioning jobs.</td></tr>';
+                if (els.jobsMeta) els.jobsMeta.textContent = e.message || 'Request failed.';
+            }
+        }
+
+        function renderJobs() {
+            if (!els.jobsTableBody) return;
+            if (!state.jobs.length) {
+                els.jobsTableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No provisioning jobs found.</td></tr>';
+            } else {
+                els.jobsTableBody.innerHTML = state.jobs.map((job) => {
+                    const status = String(job.job_status || '').toUpperCase();
+                    const stage = String(job.current_stage || '').toUpperCase();
+                    let action = '<span class="text-muted small">—</span>';
+                    if (status === 'READY' && stage === 'CREATED') {
+                        action = `<button class="btn btn-sm btn-outline-danger" data-job-action="cancel" data-job-id="${Number(job.id)}">Cancel</button>`;
+                    } else if (status === 'VERIFYING' && ['WAITING_FOR_ACS', 'ACS_PUSH_FAILED'].includes(stage)) {
+                        action = `<button class="btn btn-sm btn-outline-primary" data-job-action="check-acs" data-job-id="${Number(job.id)}">Check ACS</button>`;
+                    } else if (status === 'FAILED' && stage === 'OLT_PROVISIONING') {
+                        action = `<button class="btn btn-sm btn-outline-warning" data-job-action="retry" data-job-id="${Number(job.id)}">Retry OLT</button>`;
+                    }
+                    return `
+                    <tr>
+                        <td><strong>${escapeHtml(job.job_no || `#${job.id}`)}</strong><div class="small text-muted">#${escapeHtml(job.id || '')}</div></td>
+                        <td>${escapeHtml(job.subscriber_name || 'Unknown subscriber')}<div class="small text-muted">${escapeHtml(job.service_number || job.ppp_username || 'No service')}</div></td>
+                        <td>${escapeHtml(job.olt_name || 'Not assigned')}<div class="small text-muted">${escapeHtml(job.olt_port_label || 'No PON')}</div></td>
+                        <td>${escapeHtml(job.ont_serial || 'Not assigned')}</td>
+                        <td>C ${escapeHtml(job.cvlan ?? '—')} / S ${escapeHtml(job.svlan ?? '—')}</td>
+                        <td><span class="badge text-bg-${status === 'SUCCESS' ? 'success' : (status === 'FAILED' ? 'danger' : 'warning')}">${escapeHtml(job.job_status || 'UNKNOWN')}</span><div class="small text-muted mt-1">${escapeHtml(job.current_stage || '—')}</div></td>
+                        <td>${escapeHtml(job.created_at || '—')}</td>
+                        <td class="text-end text-nowrap">${action}</td>
+                    </tr>`;
+                }).join('');
+            }
+            if (els.jobsMeta) {
+                const p = state.jobsPagination;
+                els.jobsMeta.textContent = `${Number(p.total || state.jobs.length)} jobs · page ${Number(p.page || 1)} of ${Number(p.pages || 1)}`;
+            }
+        }
+
+        async function handleJobAction(button) {
+            const jobId = Number(button.dataset.jobId || 0);
+            const action = String(button.dataset.jobAction || '');
+            if (!jobId || !action || state.isBusy) return;
+            if (action === 'cancel' && !window.confirm(`Cancel provisioning job #${jobId} and release its reserved resources?`)) return;
+
+            try {
+                setBusy(true);
+                button.disabled = true;
+                const endpoint = action === 'check-acs'
+                    ? `/api/v1/service-provisioning/check-acs/${jobId}`
+                    : `/api/v1/service-provisioning/${action}/${jobId}`;
+                const result = await apiPost(endpoint, {});
+                log(`${action.toUpperCase()} result for job #${jobId}:`);
+                log(prettyJson(result));
+                toast(result?.acs_found === false ? 'warning' : 'success', result?.message || 'Job updated.');
+                await loadJobs(state.jobsPagination.page || 1);
+            } catch (e) {
+                toast('error', e.message || 'Job action failed.');
+            } finally {
+                setBusy(false);
             }
         }
 
@@ -928,6 +961,10 @@
         }
 
         function bindEvents() {
+            els.jobsTableBody?.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-job-action]');
+                if (button) handleJobAction(button);
+            });
             els.subscriber?.addEventListener('change', async () => {
                 await loadServices(Number(els.subscriber.value || 0));
                 updateSelectionSummary();

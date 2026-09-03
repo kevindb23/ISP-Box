@@ -8,6 +8,7 @@ use App\Modules\OntDevices\Controllers\AcsActionsController;
 // =========================
 $router->get('/api/v1/ont-devices/inventory', [OntDevicesApiController::class, 'inventory']);
 $router->get('/api/v1/ont-devices/inventory/{id}', [OntDevicesApiController::class, 'inventoryItem']);
+$router->get('/api/v1/ont-devices/subscribers', [OntDevicesApiController::class, 'subscribers']);
 
 // =========================
 // DISCOVERY
@@ -44,7 +45,7 @@ $router->post('/api/v1/ont-devices/acs/wifi-config', [AcsActionsController::clas
 // =========================
 // ACS OPTICAL
 // =========================
-$router->get('/api/v1/ont-devices/acs/device/{id}/optical', [AcsActionsController::class, 'optical']);
+$router->post('/api/v1/ont-devices/acs/device/{id}/optical', [AcsActionsController::class, 'optical']);
 $router->get('/api/v1/ont-devices/acs/device/{id}/cached-optical', [AcsActionsController::class, 'cachedOptical']);
 
 // =========================

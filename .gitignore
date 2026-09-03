@@ -18,6 +18,7 @@ vendor/
 
 # NodeJS
 node_modules/
+public/build/
 
 # IDE
 .idea/
@@ -31,6 +32,8 @@ Thumbs.db
 *.zip
 *.bak
 *.old
+!app/Modules/**/Assets/css/*.css.bak
+!public/assets/css/*.css.bak
 
 # Uploads (optional)
 public/uploads/

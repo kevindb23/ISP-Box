@@ -2,13 +2,24 @@
 
 namespace App\Modules\OntDevices\Services;
 
+use App\Infrastructure\NetworkAutomation\NetworkCommandRunner;
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\Services\AuditService;
+use App\Modules\OntDevices\DTOs\CreateOntDevicesDTO;
+use App\Modules\OntDevices\Entities\OntDevices;
 use App\Modules\OntDevices\Repositories\OntDevicesRepository;
+use App\Modules\OntDevices\Validators\CreateOntDevicesValidator;
 
 class OntDevicesService
 {
     private OntDevicesRepository $repo;
 
-    public function __construct(OntDevicesRepository $repo)
+    public function __construct(
+        OntDevicesRepository $repo,
+        private AuditService $audit,
+        private AcsService $acs,
+        private NetworkCommandRunner $networkRunner
+    )
     {
         $this->repo = $repo;
     }
@@ -21,12 +32,21 @@ class OntDevicesService
 
     public function getInventory(): array
     {
-        return $this->repo->getAll();
+        return array_map(
+            static fn(array $row): array => (new OntDevices($row))->toArray(),
+            $this->repo->getAll()
+        );
     }
 
     public function getInventoryById(int $id): ?array
     {
-        return $this->repo->findById($id);
+        $row = $this->repo->findById($id);
+        return $row ? (new OntDevices($row))->toArray() : null;
+    }
+
+    public function getSubscriberOptions(): array
+    {
+        return $this->repo->getSubscriberOptions();
     }
 
     /*
@@ -40,15 +60,29 @@ class OntDevicesService
         return $this->repo->getDiscovery();
     }
 
-    public function discoverAndSave(): array
+    public function discoverAndSave(int $oltId = 0): array
     {
         try {
             $scriptPath = __DIR__ . '/../Scripts/olt_autofind.py';
-            $command = 'python3 ' . escapeshellarg($scriptPath) . ' 2>&1';
+            $olt = $this->repo->findDiscoveryOlt($oltId > 0 ? $oltId : null);
 
-            $output = shell_exec($command);
+            if (!$olt) {
+                return [
+                    'ok' => false,
+                    'message' => 'No OLT with complete discovery credentials is configured.',
+                    'errors' => [],
+                ];
+            }
 
-            if (!$output || trim($output) === '') {
+            $execution = $this->networkRunner->runPythonJson($scriptPath, [
+                'host' => (string)($olt['ip_address'] ?? ''),
+                'username' => (string)($olt['username'] ?? ''),
+                'password' => (string)($olt['password'] ?? ''),
+                'ssh_port' => 22,
+            ]);
+            $output = $execution->stdout !== '' ? $execution->stdout : $execution->stderr;
+
+            if ($output === '') {
                 return [
                     'ok' => false,
                     'message' => 'OLT script returned empty output.',
@@ -63,7 +97,7 @@ class OntDevicesService
                     'ok' => false,
                     'message' => 'Invalid script JSON response.',
                     'errors' => [],
-                    'raw' => $output,
+                    'operation_id' => bin2hex(random_bytes(8)),
                 ];
             }
 
@@ -72,7 +106,7 @@ class OntDevicesService
                     'ok' => false,
                     'message' => (string)($json['error'] ?? 'OLT discovery failed.'),
                     'errors' => [],
-                    'raw' => $json,
+                    'operation_id' => bin2hex(random_bytes(8)),
                 ];
             }
 
@@ -119,6 +153,11 @@ class OntDevicesService
                 }
             }
 
+            $this->auditAction('DISCOVER', 'Discovered ONT devices and saved discovery results.', null, [
+                'olt_id' => (int)$olt['id'],
+                'discovered_count' => count($devices), 'saved_count' => $saved,
+            ]);
+
             return [
                 'ok' => true,
                 'message' => 'Discovery completed.',
@@ -130,7 +169,7 @@ class OntDevicesService
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
-                'message' => $e->getMessage(),
+                'message' => 'ONT discovery could not be completed.',
                 'errors' => [],
             ];
         }
@@ -139,14 +178,34 @@ class OntDevicesService
     public function addToInventory(array $data): array
     {
         try {
-            $serial = strtoupper(trim((string)($data['serial_number'] ?? '')));
-
-            if ($serial === '') {
+            $dto = CreateOntDevicesDTO::fromArray($data);
+            $payload = $dto->toArray();
+            $errors = CreateOntDevicesValidator::validate($payload);
+            if ($errors !== []) {
                 return [
                     'ok' => false,
-                    'message' => 'Serial number is required.',
-                    'errors' => [],
+                    'message' => $errors[0],
+                    'errors' => $errors,
                 ];
+            }
+            $serial = $payload['serial_number'];
+
+            if (($payload['subscriber_id'] ?? null) !== null && !$this->repo->subscriberExists((int)$payload['subscriber_id'])) {
+                return ['ok' => false, 'message' => 'Selected subscriber was not found.', 'errors' => ['Invalid subscriber.']];
+            }
+
+            $discovery = $this->repo->findDiscoveryBySerial($serial);
+            if ($discovery) {
+                foreach (['frame', 'slot', 'port'] as $field) {
+                    if (($payload[$field] ?? null) === null && ($discovery[$field] ?? null) !== null) {
+                        $payload[$field] = (int)$discovery[$field];
+                    }
+                }
+
+                if (($payload['olt_id'] ?? null) === null) {
+                    $sourceOlt = $this->repo->findDiscoveryOlt();
+                    $payload['olt_id'] = $sourceOlt ? (int)$sourceOlt['id'] : null;
+                }
             }
 
             if ($this->repo->existsBySerial($serial)) {
@@ -157,15 +216,8 @@ class OntDevicesService
                 ];
             }
 
-            $this->repo->addToInventory([
-                'serial_number' => $serial,
-                'model' => trim((string)($data['model'] ?? '')) ?: null,
-                'vendor' => trim((string)($data['vendor'] ?? '')) ?: null,
-                'mac_address' => trim((string)($data['mac_address'] ?? '')) ?: null,
-                'status' => trim((string)($data['status'] ?? 'UNASSIGNED')) ?: 'UNASSIGNED',
-                'equipment_id' => trim((string)($data['equipment_id'] ?? '')) ?: null,
-                'subscriber_id' => ($data['subscriber_id'] ?? '') !== '' ? (int)$data['subscriber_id'] : null,
-            ]);
+            $id = $this->repo->addToInventory($payload);
+            $this->auditAction('ADD_TO_INVENTORY', 'Added ONT to inventory.', $id, ['serial_number' => $serial]);
 
             return [
                 'ok' => true,
@@ -175,7 +227,7 @@ class OntDevicesService
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
-                'message' => $e->getMessage(),
+                'message' => 'The ONT could not be added to inventory.',
                 'errors' => [],
             ];
         }
@@ -189,8 +241,9 @@ class OntDevicesService
 
     public function getAcsDevices(): array
     {
-        $acs = new AcsService();
-        return $acs->normalizeDevices($acs->getDevices());
+        $devices = $this->acs->normalizeDevices($this->acs->getDevices());
+        $this->acs->syncSnapshots($devices);
+        return $devices;
     }
 
     /*
@@ -202,14 +255,20 @@ class OntDevicesService
     public function create(array $data): array
     {
         try {
-            $serial = strtoupper(trim((string)($data['serial_number'] ?? '')));
-
-            if ($serial === '') {
+            $dto = CreateOntDevicesDTO::fromArray($data);
+            $payload = $dto->toArray();
+            $errors = CreateOntDevicesValidator::validate($payload);
+            if ($errors !== []) {
                 return [
                     'ok' => false,
-                    'message' => 'Serial number is required.',
-                    'errors' => [],
+                    'message' => $errors[0],
+                    'errors' => $errors,
                 ];
+            }
+            $serial = $payload['serial_number'];
+
+            if (($payload['subscriber_id'] ?? null) !== null && !$this->repo->subscriberExists((int)$payload['subscriber_id'])) {
+                return ['ok' => false, 'message' => 'Selected subscriber was not found.', 'errors' => ['Invalid subscriber.']];
             }
 
             if ($this->repo->existsBySerial($serial)) {
@@ -220,15 +279,8 @@ class OntDevicesService
                 ];
             }
 
-            $this->repo->create([
-                'serial_number' => $serial,
-                'model' => trim((string)($data['model'] ?? '')) ?: null,
-                'vendor' => trim((string)($data['vendor'] ?? '')) ?: null,
-                'mac_address' => trim((string)($data['mac_address'] ?? '')) ?: null,
-                'status' => trim((string)($data['status'] ?? 'UNASSIGNED')) ?: 'UNASSIGNED',
-                'equipment_id' => trim((string)($data['equipment_id'] ?? '')) ?: null,
-                'subscriber_id' => ($data['subscriber_id'] ?? '') !== '' ? (int)$data['subscriber_id'] : null,
-            ]);
+            $id = $this->repo->create($payload);
+            $this->auditAction('CREATE', 'Created ONT inventory record.', $id, ['serial_number' => $serial]);
 
             return [
                 'ok' => true,
@@ -238,7 +290,7 @@ class OntDevicesService
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
-                'message' => $e->getMessage(),
+                'message' => 'The ONT inventory record could not be created.',
                 'errors' => [],
             ];
         }
@@ -247,8 +299,14 @@ class OntDevicesService
     public function update(array $data): array
     {
         try {
-            $id = (int)($data['id'] ?? 0);
-            $serial = strtoupper(trim((string)($data['serial_number'] ?? '')));
+            $dto = CreateOntDevicesDTO::fromArray($data);
+            $payload = $dto->toArray();
+            $id = (int)($payload['id'] ?? 0);
+            $serial = (string)($payload['serial_number'] ?? '');
+
+            if (($payload['subscriber_id'] ?? null) !== null && !$this->repo->subscriberExists((int)$payload['subscriber_id'])) {
+                return ['ok' => false, 'message' => 'Selected subscriber was not found.', 'errors' => ['Invalid subscriber.']];
+            }
 
             if ($id <= 0) {
                 return [
@@ -258,11 +316,12 @@ class OntDevicesService
                 ];
             }
 
-            if ($serial === '') {
+            $errors = CreateOntDevicesValidator::validate($payload);
+            if ($errors !== []) {
                 return [
                     'ok' => false,
-                    'message' => 'Serial number is required.',
-                    'errors' => [],
+                    'message' => $errors[0],
+                    'errors' => $errors,
                 ];
             }
 
@@ -274,16 +333,15 @@ class OntDevicesService
                 ];
             }
 
-            $ok = $this->repo->update([
-                'id' => $id,
-                'serial_number' => $serial,
-                'model' => trim((string)($data['model'] ?? '')) ?: null,
-                'vendor' => trim((string)($data['vendor'] ?? '')) ?: null,
-                'mac_address' => trim((string)($data['mac_address'] ?? '')) ?: null,
-                'status' => trim((string)($data['status'] ?? 'UNASSIGNED')) ?: 'UNASSIGNED',
-                'equipment_id' => trim((string)($data['equipment_id'] ?? '')) ?: null,
-                'subscriber_id' => ($data['subscriber_id'] ?? '') !== '' ? (int)$data['subscriber_id'] : null,
-            ]);
+            $old = $this->repo->findById($id);
+            if (!$old) {
+                return [
+                    'ok' => false,
+                    'message' => 'ONT record not found.',
+                    'errors' => [],
+                ];
+            }
+            $ok = $this->repo->update($payload);
 
             if (!$ok) {
                 return [
@@ -293,6 +351,11 @@ class OntDevicesService
                 ];
             }
 
+            $this->auditAction('UPDATE', 'Updated ONT inventory record.', $id, [
+                'old' => $old ? (new OntDevices($old))->toArray() : null,
+                'new' => (new OntDevices($payload))->toArray(),
+            ]);
+
             return [
                 'ok' => true,
                 'message' => 'ONT updated.',
@@ -301,7 +364,7 @@ class OntDevicesService
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
-                'message' => $e->getMessage(),
+                'message' => 'The ONT inventory record could not be updated.',
                 'errors' => [],
             ];
         }
@@ -318,6 +381,14 @@ class OntDevicesService
                 ];
             }
 
+            $old = $this->repo->findById($id);
+            if (!$old) {
+                return [
+                    'ok' => false,
+                    'message' => 'ONT record not found.',
+                    'errors' => [],
+                ];
+            }
             $ok = $this->repo->delete($id);
 
             if (!$ok) {
@@ -328,6 +399,10 @@ class OntDevicesService
                 ];
             }
 
+            $this->auditAction('DELETE', 'Deleted ONT inventory record.', $id, [
+                'old' => $old ? (new OntDevices($old))->toArray() : null,
+            ]);
+
             return [
                 'ok' => true,
                 'message' => 'ONT deleted.',
@@ -336,9 +411,17 @@ class OntDevicesService
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
-                'message' => $e->getMessage(),
+                'message' => 'The ONT inventory record could not be deleted.',
                 'errors' => [],
             ];
         }
+    }
+
+    private function auditAction(string $action, string $description, ?int $objectId, array $metadata = []): void
+    {
+        $this->audit->logEvent(new AuditEventDTO(
+            module: 'ONT_DEVICES', action: $action, description: $description,
+            objectType: 'ONT_DEVICE', objectId: $objectId, metadata: $metadata
+        ));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Modules\PaymentGateway\Repositories;
 
 use App\Infrastructure\Database\DatabaseConnection;
+use App\Infrastructure\Security\SecretCipher;
 use PDO;
 use RuntimeException;
 use Throwable;
@@ -11,7 +12,7 @@ class PaymentGatewayRepository
 {
     private PDO $db;
 
-    public function __construct(DatabaseConnection $connection)
+    public function __construct(DatabaseConnection $connection, private SecretCipher $secrets)
     {
         $this->db = $connection->get();
     }
@@ -27,7 +28,10 @@ class PaymentGatewayRepository
         $map = [];
 
         foreach ($rows as $row) {
-            $map[$row['setting_key']] = $row['setting_value'];
+            $key = (string)$row['setting_key'];
+            $map[$key] = $this->isSensitiveSetting($key)
+                ? $this->secrets->decrypt($row['setting_value'])
+                : $row['setting_value'];
         }
 
         return $map;
@@ -35,6 +39,7 @@ class PaymentGatewayRepository
 
     public function saveSetting(string $key, string $value): void
     {
+        if ($this->isSensitiveSetting($key)) $value = (string)$this->secrets->encrypt($value);
         $stmt = $this->db->prepare("
             INSERT INTO payment_gateway_settings
                 (setting_key, setting_value)
@@ -49,6 +54,11 @@ class PaymentGatewayRepository
             'setting_key' => $key,
             'setting_value' => $value,
         ]);
+    }
+
+    private function isSensitiveSetting(string $key): bool
+    {
+        return in_array($key, ['paymongo_secret_key', 'paymongo_webhook_secret'], true);
     }
 
     public function findInvoiceById(int $id): ?array
@@ -71,6 +81,40 @@ class PaymentGatewayRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $row ?: null;
+    }
+
+    public function acquireCheckoutLock(int $invoiceId, int $timeoutSeconds = 5): bool
+    {
+        $stmt = $this->db->prepare('SELECT GET_LOCK(:name, :timeout)');
+        $stmt->bindValue(':name', 'nexusbox-paymongo-invoice-' . $invoiceId);
+        $stmt->bindValue(':timeout', max(0, $timeoutSeconds), PDO::PARAM_INT);
+        $stmt->execute();
+        return (int)$stmt->fetchColumn() === 1;
+    }
+
+    public function releaseCheckoutLock(int $invoiceId): void
+    {
+        try {
+            $stmt = $this->db->prepare('SELECT RELEASE_LOCK(:name)');
+            $stmt->execute(['name' => 'nexusbox-paymongo-invoice-' . $invoiceId]);
+        } catch (Throwable $e) {
+            error_log('[PayMongo] Unable to release checkout lock: ' . $e->getMessage());
+        }
+    }
+
+    public function findSubscriberIdByUserId(int $userId): ?int
+    {
+        $stmt = $this->db->prepare("
+            SELECT id
+            FROM subscribers
+            WHERE user_id = :user_id
+              AND deleted_at IS NULL
+            LIMIT 1
+        ");
+        $stmt->execute(['user_id' => $userId]);
+
+        $id = $stmt->fetchColumn();
+        return $id !== false ? (int)$id : null;
     }
 
     public function createTransaction(array $data): int
@@ -211,6 +255,13 @@ class PaymentGatewayRepository
         return $row ?: null;
     }
 
+    public function findPendingPayMongoTransactionForInvoice(int $invoiceId, ?int $subscriberId = null): ?array
+    {
+        $sql="SELECT * FROM payment_gateway_transactions WHERE gateway='PAYMONGO' AND invoice_id=:invoice_id AND gateway_status IN ('PENDING','UPDATED')";
+        $params=[':invoice_id'=>$invoiceId]; if($subscriberId){$sql.=' AND subscriber_id=:subscriber_id';$params[':subscriber_id']=$subscriberId;}
+        $stmt=$this->db->prepare($sql.' ORDER BY id DESC LIMIT 1');$stmt->execute($params);return $stmt->fetch(PDO::FETCH_ASSOC)?:null;
+    }
+
     public function updateTransactionWebhook(
         int $id,
         string $status,
@@ -323,6 +374,10 @@ class PaymentGatewayRepository
 
             if (!$invoice) {
                 throw new RuntimeException('Invoice not found.');
+            }
+
+            if (strtoupper((string)($invoice['status'] ?? '')) === 'CANCELLED') {
+                throw new RuntimeException('Cancelled invoices cannot receive gateway payments.');
             }
 
             $balance = round((float)($invoice['balance_amount'] ?? 0), 2);

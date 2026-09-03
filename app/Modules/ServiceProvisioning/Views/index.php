@@ -1,6 +1,5 @@
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="service-provisioning"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The provisioning interface is not built.</div><?php endif;return;?>
 <div class="container-fluid nx-page" id="serviceProvisioningApp">
-    <link rel="stylesheet" href="/module-assets/ServiceProvisioning/css/ServiceProvisioning.css">
-
     <div class="sp-modern-shell">
 
         <!-- HERO -->
@@ -338,6 +337,20 @@
 
             </aside>
         </section>
+
+        <section class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div><h6 class="mb-0">Recent Provisioning Jobs</h6><small class="text-muted" id="spJobsMeta">Loading jobs...</small></div>
+                <span class="badge text-bg-secondary" id="spActivationState">Ready</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead><tr><th>Job</th><th>Subscriber / Service</th><th>OLT / PON</th><th>ONT</th><th>VLAN</th><th>Status</th><th>Created</th><th class="text-end">Actions</th></tr></thead>
+                    <tbody id="spJobsTableBody"><tr><td colspan="8" class="text-center text-muted py-4">Loading provisioning jobs...</td></tr></tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white"><pre class="mb-0 small text-muted" id="spLogs" style="max-height: 180px; overflow:auto">Loading provisioning workspace...</pre></div>
+        </section>
     </div>
 
     <!-- VALIDATION MODAL -->
@@ -423,5 +436,5 @@
         </div>
     </div>
 
-    <script src="/module-assets/ServiceProvisioning/js/ServiceProvisioning.js"></script>
+    <script src="/module-assets/ServiceProvisioning/js/ServiceProvisioning.js?v=2"></script>
 </div>

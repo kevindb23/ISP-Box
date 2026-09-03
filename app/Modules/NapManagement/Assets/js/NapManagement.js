@@ -44,6 +44,23 @@
             } catch {}
         }
 
+        function getSyntheticPlannerPositions() {
+            const positions = readUiState().plannerSyntheticPositions;
+            return positions && typeof positions === 'object' ? positions : {};
+        }
+
+        function saveSyntheticPlannerPosition(nodeId, position) {
+            writeUiState({
+                plannerSyntheticPositions: {
+                    ...getSyntheticPlannerPositions(),
+                    [nodeId]: {
+                        x: Number(position.x),
+                        y: Number(position.y)
+                    }
+                }
+            });
+        }
+
         const savedUi = window.__NAP_BOOT_STATE__ || readUiState();
 
         /*
@@ -73,6 +90,11 @@
             planner: {
                 view: 'logical',
                 cy: null,
+                map: null,
+                mapLayers: {
+                    markers: null,
+                    links: null
+                },
                 selectedNode: null,
                 selectedEdge: null,
                 connectSourceNode: null,
@@ -454,8 +476,20 @@
 
             const picker = {
                 map,
-                marker: null
+                marker: null,
+                resizeObserver: null
             };
+
+            // The picker is created inside an animated modal. Keep Leaflet's
+            // viewport in sync with the modal column while it opens or when
+            // the responsive layout changes, otherwise its tile grid can be
+            // calculated using a stale width.
+            if (typeof ResizeObserver !== 'undefined') {
+                picker.resizeObserver = new ResizeObserver(() => {
+                    window.requestAnimationFrame(() => map.invalidateSize({ pan: false }));
+                });
+                picker.resizeObserver.observe(refsGroup.mapEl);
+            }
 
             map.on('click', (e) => {
                 setPickerPoint(pickerKey, e.latlng.lat, e.latlng.lng, refsGroup, {
@@ -489,8 +523,12 @@
             const picker = createLeafletPicker(pickerKey, refsGroup);
             if (!picker) return;
 
+            const refreshViewport = () => picker.map.invalidateSize({ pan: false });
+            window.requestAnimationFrame(refreshViewport);
+            setTimeout(refreshViewport, 80);
+
             setTimeout(() => {
-                picker.map.invalidateSize();
+                refreshViewport();
 
                 const lat = toFloatOrNull(refsGroup.latitude?.value);
                 const lng = toFloatOrNull(refsGroup.longitude?.value);
@@ -503,6 +541,9 @@
                 } else {
                     picker.map.setView([14.5995, 120.9842], 13);
                 }
+                // Bootstrap's modal transition may still be completing at the
+                // first measurement on slower browsers.
+                setTimeout(refreshViewport, 220);
             }, 180);
         }
         function populateInputPortSelect(selectEl, totalPorts, selectedValue = null, placeholder = 'Select input port') {
@@ -1156,16 +1197,29 @@
         }
 
         function hasSavedPlannerPositions(elements = []) {
-            const realPlannerNodes = safeArray(elements).filter((el) => {
+            const plannerNodes = safeArray(elements).filter((el) => {
                 const d = el?.data || {};
-                return String(d.id || '').startsWith('NODE_');
+                return !d.source && !d.target;
             });
 
-            if (!realPlannerNodes.length) return false;
+            if (!plannerNodes.length) return false;
 
-            return realPlannerNodes.every((el) => {
+            return plannerNodes.every((el) => {
                 const d = el?.data || {};
                 return d.planner_x != null
+                    && d.planner_y != null
+                    && Number.isFinite(Number(d.planner_x))
+                    && Number.isFinite(Number(d.planner_y));
+            });
+        }
+
+        function hasAnySavedPlannerPosition(elements = []) {
+            return safeArray(elements).some((el) => {
+                const d = el?.data || {};
+
+                return !d.source
+                    && !d.target
+                    && d.planner_x != null
                     && d.planner_y != null
                     && Number.isFinite(Number(d.planner_x))
                     && Number.isFinite(Number(d.planner_y));
@@ -1176,7 +1230,6 @@
             cy.nodes().forEach((node) => {
                 const d = node.data();
                 if (
-                    String(d.id || '').startsWith('NODE_') &&
                     d.planner_x != null &&
                     d.planner_y != null &&
                     Number.isFinite(Number(d.planner_x)) &&
@@ -1190,8 +1243,8 @@
             });
         }
 
-        const savePlannerNodePositionDebounced = util.debounce(async ({ nodeId, x, y }) => {
-            await api.form(
+        async function savePlannerNodePosition({ nodeId, x, y }) {
+            return api.form(
                 '/api/v1/nap-management/planner/node-position',
                 buildFormData({
                     node_id: nodeId,
@@ -1199,7 +1252,7 @@
                     y
                 })
             );
-        }, 250);
+        }
         function getObjectNameByKind(kind, id) {
             const s = getState();
 
@@ -1847,9 +1900,32 @@
     `;
         });
 
+        component.define('nap.nodeTableRow', ({ row }) => {
+            const meta = getNodeMeta(row.box_type);
+            const type = meta.type.toLowerCase();
+            const name = row.odf_name || row.box_name || row.node_name || '-';
+            const codeValue = row.node_code || row.box_code || '-';
+            const total = num(row.port_count || row.total_ports || row.splitter_ratio || row.splitter_ports || 0);
+            const used = num(row.used_ports || 0);
+            const free = num(row.free_ports || 0);
+            const maintenance = upper(row.status || '') === 'MAINTENANCE';
+            const inherited = maintenance && Number(row.is_self_maintenance || 0) !== 1 && (Number(row.is_parent_maintenance || 0) === 1 || upper(row.maintenance_origin || row.maintenance_source || '') === 'PARENT');
+            const status = maintenance ? (inherited ? 'Inherited maintenance' : 'Maintenance') : (row.status || 'ACTIVE');
+            const statusClass = maintenance ? 'warning' : (upper(row.status || 'ACTIVE') === 'ACTIVE' ? 'success' : 'secondary');
+
+            return `<tr data-action="open-box-viewer" data-type="${type}" data-id="${escape(row.id)}">
+                <td><div class="d-flex align-items-center gap-2"><span class="nap-node-table-icon ${meta.wrap}"><i class="bi ${meta.icon}"></i></span><div><div class="nx-cell-title">${escape(name)}</div><div class="nx-cell-sub">${escape(meta.type)} · ${escape(codeValue)}</div></div></div></td>
+                <td>${escape(getUplinkLabel(row))}</td>
+                <td><div class="nx-cell-title">${escape(row.location || '-')}</div><div class="nx-cell-sub">${escape(formatLatLon(row.latitude, row.longitude))}</div></td>
+                <td><div class="nx-cell-title">${used} used / ${free} free</div><div class="nx-cell-sub">${total} total ports</div></td>
+                <td><span class="nx-soft-badge nx-soft-badge-${statusClass}">${escape(status)}</span></td>
+                <td class="text-end text-nowrap"><button type="button" class="btn btn-sm btn-light border" data-action="view-box" data-type="${type}" data-id="${escape(row.id)}" title="View"><i class="bi bi-eye"></i></button> <button type="button" class="btn btn-sm btn-light border" data-action="edit-box" data-type="${type}" data-id="${escape(row.id)}" title="Edit" ${inherited ? 'disabled aria-disabled="true"' : ''}><i class="bi bi-pencil"></i></button> <button type="button" class="btn btn-sm btn-light border text-warning" data-action="maint-box" data-type="${type}" data-id="${escape(row.id)}" title="${maintenance ? 'End maintenance' : 'Maintenance'}" ${inherited ? 'disabled aria-disabled="true"' : ''}><i class="bi bi-tools"></i></button> <button type="button" class="btn btn-sm btn-light border text-danger" data-action="delete-box" data-type="${type}" data-id="${escape(row.id)}" title="Delete" ${maintenance ? 'disabled aria-disabled="true"' : ''}><i class="bi bi-trash"></i></button></td>
+            </tr>`;
+        });
+
         component.define('nap.nodesTab', ({ table }) => `
-    <div class="d-grid gap-3">
-        <div class="card border-0 nx-surface-card">
+    <div class="d-grid gap-3 tab-shell nap-nodes-tab-shell">
+        <div class="card border-0 nx-surface-card nap-standard-filter-panel">
             <div class="card-body">
                 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
                     <div>
@@ -1870,11 +1946,11 @@
             </div>
         </div>
 
-        <div class="card border-0 nx-surface-card">
-            <div class="card-body">
-                <div class="box-card-grid" id="nodesCardGrid"></div>
+        <div class="card border-0 nx-surface-card nap-standard-results-panel">
+            <div class="card-body p-0">
+                <div class="table-responsive nx-table-wrap"><table class="table align-middle mb-0 nap-nodes-table"><thead class="nx-sticky-head"><tr><th>Node</th><th>Uplink</th><th>Location / Coordinates</th><th>Port Usage</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody id="nodesCardGrid"></tbody></table></div>
 
-                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mt-3">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 p-3 border-top">
                     <div class="text-muted small" id="nodesPageMeta"></div>
 
                     <div class="d-flex align-items-center gap-2">
@@ -1902,8 +1978,8 @@
 `);
 
         component.define('nap.linksTab', ({ table }) => `
-    <div class="d-grid gap-3">
-        <div class="card border-0 nx-surface-card">
+    <div class="d-grid gap-3 tab-shell nap-links-tab-shell">
+        <div class="card border-0 nx-surface-card nap-standard-filter-panel">
             <div class="card-body">
                 <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
                     <div>
@@ -1924,7 +2000,7 @@
             </div>
         </div>
 
-        <div class="card border-0 nx-surface-card">
+        <div class="card border-0 nx-surface-card nap-standard-results-panel">
             <div class="card-body">
                 <div class="table-responsive nx-table-wrap">
                     <table class="table align-middle mb-0">
@@ -2072,6 +2148,8 @@
             return next;
         }
         function renderNodesTab(forceShell = true) {
+            app.classList.remove('nap-view-planner', 'nap-view-links');
+            app.classList.add('nap-view-nodes');
             text(refs.page.subtitle, 'Manage all FTTH infrastructure nodes including ODF, LCP, and NAP.');
             if (forceShell || !$('#nodesCardGrid')) {
                 html(refs.page.contentArea, renderComponent('nap.nodesTab', { table: getNodesTableModel() }));
@@ -2080,6 +2158,8 @@
             renderNodesTableBodyOnly();
         }
         function renderLinksTab(forceShell = true) {
+            app.classList.remove('nap-view-planner', 'nap-view-nodes');
+            app.classList.add('nap-view-links');
             text(refs.page.subtitle, 'Review physical-aware topology links with readable identification.');
             if (forceShell || !$('#linksTableBody')) {
                 html(refs.page.contentArea, renderComponent('nap.linksTab', {
@@ -2130,10 +2210,11 @@
 
             $$('[data-links-sort-indicator]').forEach((el) => {
                 const key = el.dataset.linksSortIndicator || '';
-                el.textContent =
-                    table.sortKey === key
-                        ? (table.sortDir === 'asc' ? '↑' : '↓')
-                        : '↕';
+                const isActive = table.sortKey === key;
+                el.classList.toggle('sort-indicator--unsorted', !isActive);
+                el.classList.toggle('sort-indicator--ascending', isActive && table.sortDir === 'asc');
+                el.classList.toggle('sort-indicator--descending', isActive && table.sortDir === 'desc');
+                el.textContent = isActive ? (table.sortDir === 'asc' ? '↑' : '↓') : '↕';
             });
         }
         function updatePlannerInspectorVisibility() {
@@ -2148,8 +2229,8 @@
 
             if (refsUi.grid) {
                 refsUi.grid.innerHTML = table.rows.length
-                    ? table.rows.map((row) => renderComponent('nap.nodeCard', { row })).join('')
-                    : '<div class="text-muted">No infrastructure nodes found.</div>';
+                    ? table.rows.map((row) => renderComponent('nap.nodeTableRow', { row })).join('')
+                    : '<tr><td colspan="6" class="text-center text-muted py-4">No infrastructure nodes found.</td></tr>';
             }
 
             if (refsUi.pageMeta) {
@@ -2498,6 +2579,8 @@
         }
 
         function renderPlannerTab() {
+            app.classList.remove('nap-view-nodes', 'nap-view-links');
+            app.classList.add('nap-view-planner');
             text(refs.page.subtitle, 'Visualize ODF, LCP, and NAP topology in the planner.');
 
             const template = $('#napPlannerTemplate');
@@ -2512,7 +2595,30 @@
             refreshDynamicRefs();
             wirePlannerControls();
             populatePlannerOltFilters();
-            renderPlannerLogicalView();
+
+            const view = getState().planner.view || 'logical';
+
+            $$('[data-planner-view]').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.plannerView === view);
+            });
+
+            const logicalCanvas = $('#plannerLogicalCanvas');
+            const mapCanvas = $('#plannerMapCanvas');
+
+            if (logicalCanvas) {
+                logicalCanvas.classList.toggle('d-none', view !== 'logical');
+            }
+
+            if (mapCanvas) {
+                mapCanvas.classList.toggle('d-none', view !== 'map');
+            }
+
+            if (view === 'map') {
+                renderPlannerMapView();
+            } else {
+                renderPlannerLogicalView();
+            }
+
             updatePlannerInspectorVisibility();
         }
 
@@ -2520,6 +2626,7 @@
             const s = getState();
             const container = $('#plannerLogicalCanvas');
             const tooltipEl = $('#plannerHoverTooltip');
+            const plannerGridUnit = 48;
 
             if (!container || typeof cytoscape !== 'function') {
                 if (container) {
@@ -2532,6 +2639,7 @@
 
             const elements = getFilteredPlannerElements();
             const usePreset = hasSavedPlannerPositions(elements);
+            const hasAnySavedPosition = hasAnySavedPlannerPosition(elements);
 
             container.style.position = 'absolute';
             container.style.inset = '0';
@@ -2732,10 +2840,23 @@
                     }
             });
 
-            if (usePreset) {
+            if (hasAnySavedPosition) {
                 applyPlannerSavedPositions(cy);
                 cy.fit(cy.elements(), 40);
             }
+
+            const syncPlannerGridViewport = () => {
+                const zoom = cy.zoom();
+                const pan = cy.pan();
+                const renderedGridSize = plannerGridUnit * zoom;
+
+                container.style.setProperty('--planner-grid-size', `${renderedGridSize}px`);
+                container.style.setProperty('--planner-grid-offset-x', `${pan.x}px`);
+                container.style.setProperty('--planner-grid-offset-y', `${pan.y}px`);
+            };
+
+            cy.on('pan zoom viewport resize', syncPlannerGridViewport);
+            syncPlannerGridViewport();
 
             patchPlanner({
                 cy,
@@ -2744,29 +2865,49 @@
             });
 
             cy.nodes().forEach((node) => {
-                const isRealPlannerNode = String(node.id()).startsWith('NODE_');
-                node.grabbable(isRealPlannerNode);
+                const nodeId = String(node.id());
+                const isPositionableNode = nodeId.startsWith('NODE_') || nodeId.startsWith('OLT_');
+
+                if (isPositionableNode) {
+                    node.grabify();
+                } else {
+                    node.ungrabify();
+                }
             });
 
             cy.on('dragfree', 'node', async (evt) => {
                 const node = evt.target;
                 const d = node.data();
 
-                if (!String(d.id || '').startsWith('NODE_')) return;
+                const nodeId = String(d.id || '');
+                const isDatabaseNode = nodeId.startsWith('NODE_');
+                const isSyntheticOlt = nodeId.startsWith('OLT_');
+
+                if (!isDatabaseNode && !isSyntheticOlt) return;
 
                 try {
                     const pos = node.position();
+                    const snappedPosition = {
+                        x: Math.round(pos.x / plannerGridUnit) * plannerGridUnit,
+                        y: Math.round(pos.y / plannerGridUnit) * plannerGridUnit
+                    };
 
-                    await savePlannerNodePositionDebounced({
-                        nodeId: d.raw_id,
-                        x: Number(pos.x.toFixed(2)),
-                        y: Number(pos.y.toFixed(2))
-                    });
+                    node.position(snappedPosition);
+
+                    if (isDatabaseNode) {
+                        await savePlannerNodePosition({
+                            nodeId: d.raw_id,
+                            x: Number(snappedPosition.x.toFixed(2)),
+                            y: Number(snappedPosition.y.toFixed(2))
+                        });
+                    } else {
+                        saveSyntheticPlannerPosition(nodeId, snappedPosition);
+                    }
 
                     node.data({
                         ...d,
-                        planner_x: Number(pos.x.toFixed(2)),
-                        planner_y: Number(pos.y.toFixed(2))
+                        planner_x: Number(snappedPosition.x.toFixed(2)),
+                        planner_y: Number(snappedPosition.y.toFixed(2))
                     });
                 } catch (err) {
                     console.error('Failed to save planner node position:', err);
@@ -2854,6 +2995,403 @@
             setTimeout(() => {
                 ensurePlannerToolbarClickable();
             }, 0);
+        }
+
+        function renderPlannerMapView() {
+            const mapCanvas = $('#plannerMapCanvas');
+            const mapEl = $('#napPlannerMap');
+
+            if (!mapCanvas || !mapEl) return;
+
+            if (typeof window.L === 'undefined') {
+                mapEl.innerHTML = `
+            <div class="nx-workspace-map-placeholder">
+                <div class="nx-workspace-map-placeholder-icon">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div class="nx-workspace-map-placeholder-title">Leaflet Not Loaded</div>
+                <div class="nx-workspace-map-placeholder-text">
+                    Please check /assets/leaflet/leaflet.js.
+                </div>
+            </div>
+        `;
+                return;
+            }
+
+            mapCanvas.classList.remove('d-none');
+
+            setTimeout(() => {
+                initPlannerLeafletMap();
+            }, 120);
+        }
+
+        function initPlannerLeafletMap() {
+            const mapEl = $('#napPlannerMap');
+            if (!mapEl || typeof window.L === 'undefined') return;
+
+            const oldMap = getState().planner.map;
+            if (oldMap && typeof oldMap.remove === 'function') {
+                oldMap.remove();
+            }
+
+            mapEl.innerHTML = '';
+
+            maps?.fixLeafletDefaultIcons?.();
+
+            const map = L.map(mapEl, {
+                center: [14.5995, 120.9842],
+                zoom: 13,
+                zoomControl: true
+            });
+
+            const streetLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: 'Tiles &copy; Esri'
+            });
+
+            const satelliteLayer = L.tileLayer(
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                {
+                    maxZoom: 22,
+                    attribution: 'Tiles &copy; Esri'
+                }
+            );
+
+            streetLayer.addTo(map);
+
+            L.control.layers(
+                {
+                    'Map': streetLayer,
+                    'Satellite': satelliteLayer
+                },
+                {},
+                {
+                    position: 'topleft',
+                    collapsed: false
+                }
+            ).addTo(map);
+
+            const markerLayer = L.layerGroup().addTo(map);
+            const linkLayer = L.layerGroup().addTo(map);
+
+            const nodes = getPlannerMapNodes();
+            const links = getPlannerMapLinks(nodes);
+
+            links.forEach((link) => {
+                L.polyline(
+                    [
+                        [link.source.latitude, link.source.longitude],
+                        [link.target.latitude, link.target.longitude]
+                    ],
+                    {
+                        color: getPlannerMapLinkColor(link.link_type),
+                        weight: 5,
+                        opacity: 0.8
+                    }
+                )
+                    .bindPopup(buildPlannerMapLinkPopup(link))
+                    .addTo(linkLayer);
+            });
+
+            nodes.forEach((node) => {
+                const baseColor = getPlannerMapNodeColor(node.node_type);
+                const color = getPlannerMapUtilizationColor(
+                    node.utilization?.percent || 0,
+                    baseColor
+                );
+
+                const marker = L.circleMarker([node.latitude, node.longitude], {
+                    radius: getPlannerMapNodeRadius(node.node_type),
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0.95,
+                    weight: 3
+                })
+                    .bindPopup(buildPlannerMapNodePopup(node))
+                    .on('click', () => {
+                        patchPlanner({
+                            selectedNode: null,
+                            selectedEdge: null
+                        });
+                    })
+                    .addTo(markerLayer);
+
+                marker.bindTooltip(buildPlannerMapNodeLabel(node), {
+                    permanent: true,
+                    direction: 'top',
+                    offset: [0, -8],
+                    opacity: 1,
+                    className: `nap-map-node-label ${String(node.node_type || '').toLowerCase()} ${node.utilizationClass || 'success'}`
+                });
+            });
+
+            if (nodes.length) {
+                const bounds = L.latLngBounds(nodes.map((node) => [node.latitude, node.longitude]));
+                map.fitBounds(bounds, {
+                    padding: [50, 50],
+                    maxZoom: 18
+                });
+            }
+
+            patchPlanner({
+                map,
+                mapLayers: {
+                    markers: markerLayer,
+                    links: linkLayer
+                }
+            });
+
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 250);
+
+            attachPlannerDragBehavior();
+            ensurePlannerToolbarClickable();
+        }
+
+        function buildPlannerMapNodeLabel(node) {
+            const name = node.map_name || '-';
+            const util = node.utilization || { used: 0, total: 0, percent: 0 };
+
+            if (util.total > 0) {
+                return `${name} (${util.used}/${util.total} • ${util.percent}%)`;
+            }
+
+            return name;
+        }
+
+        function getPlannerMapUtilization(source) {
+            const total = num(
+                source?.port_count ||
+                source?.total_ports ||
+                source?.splitter_ratio ||
+                source?.splitter_ports ||
+                0,
+                0
+            );
+
+            const used = num(source?.used_ports || 0, 0);
+            const free = Math.max(total - used, 0);
+            const percent = total > 0 ? Math.round((used / total) * 100) : 0;
+
+            return { used, total, free, percent };
+        }
+
+        function getPlannerMapUtilizationClass(percent) {
+            if (percent >= 96) return 'danger';
+            if (percent >= 81) return 'warning';
+            if (percent >= 51) return 'info';
+            return 'success';
+        }
+
+        function getPlannerMapUtilizationColor(percent, fallbackColor) {
+            if (percent >= 96) return '#dc2626';
+            if (percent >= 81) return '#f97316';
+            if (percent >= 51) return '#facc15';
+            return fallbackColor;
+        }
+        function getPlannerMapNodes() {
+            const elements = getFilteredPlannerElements();
+
+            return safeArray(elements)
+                .filter((el) => {
+                    const d = el?.data || {};
+                    return String(d.id || '').startsWith('NODE_');
+                })
+                .map((el) => {
+                    const d = el.data || {};
+                    const source = getPlannerMapSourceRow(d);
+                    const utilization = getPlannerMapUtilization(source);
+
+                    return {
+                        ...d,
+                        source,
+                        utilization,
+                        utilizationClass: getPlannerMapUtilizationClass(utilization.percent),
+                        node_type: upper(d.type || source?.box_type || source?.node_type || ''),
+                        latitude: toFloatOrNull(source?.latitude),
+                        longitude: toFloatOrNull(source?.longitude),
+                        map_name: d.label || source?.odf_name || source?.box_name || source?.node_name || '-',
+                        map_location: source?.location || d.location || '-',
+                        map_status: source?.status || d.status || 'ACTIVE'
+                    };
+                })
+                .filter((node) => node.latitude != null && node.longitude != null);
+        }
+
+        function getPlannerMapSourceRow(d) {
+            const type = upper(d?.type || '');
+            const refId = num(d?.reference_id || d?.raw_id || 0);
+
+            if (type === 'ODF') return findById(getState().odfs, refId);
+            if (type === 'LCP') return findById(getState().lcps, refId);
+            if (type === 'NAP') return findById(getState().naps, refId);
+
+            return null;
+        }
+
+        function getPlannerMapLinks(nodes) {
+            const elements = getFilteredPlannerElements();
+            const nodeByPlannerId = new Map();
+
+            nodes.forEach((node) => {
+                nodeByPlannerId.set(String(node.id), node);
+                nodeByPlannerId.set(`NODE_${node.raw_id}`, node);
+            });
+
+            return safeArray(elements)
+                .filter((el) => {
+                    const d = el?.data || {};
+                    return String(d.id || '').startsWith('LINK_') || String(d.id || '').includes('EDGE');
+                })
+                .map((el) => {
+                    const d = el.data || {};
+                    const source = nodeByPlannerId.get(String(d.source));
+                    const target = nodeByPlannerId.get(String(d.target));
+
+                    if (!source || !target) return null;
+
+                    return {
+                        ...d,
+                        source,
+                        target,
+                        link_type: upper(d.link_type || 'DISTRIBUTION')
+                    };
+                })
+                .filter(Boolean);
+        }
+
+        function getPlannerMapNodeColor(type) {
+            const t = upper(type || '');
+            if (t === 'ODF') return '#dc2626';
+            if (t === 'LCP') return '#2563eb';
+            if (t === 'NAP') return '#16a34a';
+            return '#64748b';
+
+        }
+
+        function getPlannerMapNodeRadius(type) {
+            const t = upper(type || '');
+
+            if (t === 'ODF') return 11;
+            if (t === 'LCP') return 10;
+            if (t === 'NAP') return 9;
+
+            return 8;
+        }
+
+        function getPlannerMapLinkColor(type) {
+            const t = upper(type || '');
+            if (t === 'FEEDER') return '#7c3aed';
+            if (t === 'DISTRIBUTION') return '#f97316';
+            if (t === 'DROP') return '#0f172a';
+            return '#64748b';
+
+        }
+
+        function buildPlannerMapNodePopup(node) {
+            const util = node.utilization || {
+                used: 0,
+                total: 0,
+                free: 0,
+                percent: 0
+            };
+
+            const badgeClass = getPlannerMapUtilizationClass(util.percent);
+
+            return `
+        <div style="min-width:260px">
+            <div class="fw-bold mb-1">${escape(node.node_type || 'NODE')}: ${escape(node.map_name || '-')}</div>
+            <div><strong>Status:</strong> ${escape(node.map_status || '-')}</div>
+            <div><strong>Location:</strong> ${escape(node.map_location || '-')}</div>
+            <div><strong>Lat/Lon:</strong> ${escape(formatLatLon(node.latitude, node.longitude))}</div>
+
+            <hr class="my-2">
+
+            <div class="d-flex align-items-center justify-content-between gap-2">
+                <strong>Utilization:</strong>
+                <span class="nap-map-util-badge ${badgeClass}">
+                    ${escape(String(util.used))}/${escape(String(util.total))} • ${escape(String(util.percent))}%
+                </span>
+            </div>
+
+            <div class="nap-map-util-bar mt-2">
+                <div class="nap-map-util-bar-fill ${badgeClass}" style="width:${Math.min(util.percent, 100)}%"></div>
+            </div>
+
+            <div class="small text-muted mt-1">
+                Free ports: ${escape(String(util.free))}
+            </div>
+
+            <hr class="my-2">
+
+            <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                onclick="document.dispatchEvent(new CustomEvent('nx:n ap-map-open-node', { detail: { type: '${escape(String(node.node_type || '').toLowerCase())}', id: '${escape(String(node.reference_id || node.raw_id || ''))}' } }))"
+            >
+                View Details
+            </button>
+        </div>
+    `.replace('nx:n ap-map-open-node', 'nx:nap-map-open-node');
+        }
+
+        function buildPlannerMapLinkPopup(link) {
+            const distanceMeters = computeDistanceMeters(
+                link.source.latitude,
+                link.source.longitude,
+                link.target.latitude,
+                link.target.longitude
+            );
+
+            const estimatedCableMeters = distanceMeters * 1.25;
+
+            return `
+        <div style="min-width:260px">
+            <div class="fw-bold mb-1">${escape(link.link_type || 'LINK')}</div>
+
+            <div><strong>From:</strong> ${escape(link.source.map_name || '-')}</div>
+            <div><strong>To:</strong> ${escape(link.target.map_name || '-')}</div>
+            <div><strong>Label:</strong> ${escape(link.label || '-')}</div>
+
+            <hr class="my-2">
+
+            <div><strong>Straight Distance:</strong> ${escape(formatDistanceMeters(distanceMeters))}</div>
+            <div><strong>Estimated Cable:</strong> ${escape(formatDistanceMeters(estimatedCableMeters))}</div>
+            <div class="text-muted small mt-1">Estimated cable includes 25% allowance.</div>
+        </div>
+    `;
+        }
+
+        function computeDistanceMeters(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const toRad = (value) => Number(value) * Math.PI / 180;
+
+            const p1 = toRad(lat1);
+            const p2 = toRad(lat2);
+            const deltaP = toRad(Number(lat2) - Number(lat1));
+            const deltaL = toRad(Number(lon2) - Number(lon1));
+
+            const a =
+                Math.sin(deltaP / 2) * Math.sin(deltaP / 2) +
+                Math.cos(p1) * Math.cos(p2) *
+                Math.sin(deltaL / 2) * Math.sin(deltaL / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
+        }
+
+        function formatDistanceMeters(meters) {
+            const value = Number(meters || 0);
+
+            if (!Number.isFinite(value) || value <= 0) return '-';
+
+            if (value >= 1000) {
+                return `${(value / 1000).toFixed(2)} km`;
+            }
+
+            return `${Math.round(value)} m`;
         }
 
         function applyPlannerLinkTargetFilter(sourceNode) {
@@ -3596,6 +4134,7 @@
             const syntheticNodes = [];
             const syntheticEdges = [];
             const createdOltNodes = new Set();
+            const savedSyntheticPositions = getSyntheticPlannerPositions();
             const visibleNodeIds = new Set(filteredNodeRows.map((row) => `NODE_${row.id}`));
 
             const realEdgeExists = (sourcePlannerId, targetPlannerId) =>
@@ -3621,6 +4160,8 @@
                 const oltNodeId = `OLT_${oltId}`;
 
                 if (!createdOltNodes.has(oltNodeId)) {
+                    const savedPosition = savedSyntheticPositions[oltNodeId] || {};
+
                     syntheticNodes.push({
                         data: {
                             id: oltNodeId,
@@ -3635,7 +4176,9 @@
                             olt_id: oltId,
                             olt_name: getOltLabelById(oltId) || `OLT ${oltId}`,
                             olt_port_id: null,
-                            olt_port_label: ''
+                            olt_port_label: '',
+                            planner_x: Number.isFinite(Number(savedPosition.x)) ? Number(savedPosition.x) : null,
+                            planner_y: Number.isFinite(Number(savedPosition.y)) ? Number(savedPosition.y) : null
                         }
                     });
                     createdOltNodes.add(oltNodeId);
@@ -5747,6 +6290,15 @@
 
             refs.nap.modalEl?.addEventListener('shown.bs.modal', () => {
                 openLeafletPicker('nap', refs.nap);
+            });
+
+            document.addEventListener('nx:nap-map-open-node', (e) => {
+                const type = String(e.detail?.type || '').toLowerCase();
+                const id = e.detail?.id || '';
+
+                if (!type || !id) return;
+
+                openBoxViewer(type, id);
             });
         }
         module.define('nap-management-page', async () => {

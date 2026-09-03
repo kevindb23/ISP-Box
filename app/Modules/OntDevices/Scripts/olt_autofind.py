@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 from netmiko import ConnectHandler
 
 def parse_ont(output):
@@ -40,14 +41,30 @@ def parse_ont(output):
 
 
 def main():
+    raw = sys.stdin.read()
+    if not raw.strip():
+        print(json.dumps({"success": False, "error": "Missing JSON payload."}))
+        return
+
+    try:
+        data = json.loads(raw)
+    except Exception:
+        print(json.dumps({"success": False, "error": "Invalid JSON payload."}))
+        return
+
     device = {
         "device_type": "huawei_olt",
-        "host": "10.0.10.157",
-        "username": "ispadmin",
-        "password": "N3t3ng777$$$$",
+        "host": str(data.get("host", "")).strip(),
+        "username": str(data.get("username", "")).strip(),
+        "password": str(data.get("password", "")).strip(),
+        "port": int(data.get("ssh_port", 22)),
         "fast_cli": False,
         "global_delay_factor": 2
     }
+
+    if not device["host"] or not device["username"] or not device["password"]:
+        print(json.dumps({"success": False, "error": "OLT connection details are incomplete."}))
+        return
 
     try:
         conn = ConnectHandler(**device)

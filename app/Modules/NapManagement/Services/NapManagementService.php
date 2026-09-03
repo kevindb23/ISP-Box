@@ -20,12 +20,14 @@ class NapManagementService
 
     public function __construct(
         NapManagementRepository $repo,
+        CreateNapManagementValidator $createValidator,
+        UpdateNapManagementValidator $updateValidator,
         ?AuditService $audit = null
     ) {
         $this->repo = $repo;
         $this->audit = $audit;
-        $this->createValidator = new CreateNapManagementValidator();
-        $this->updateValidator = new UpdateNapManagementValidator();
+        $this->createValidator = $createValidator;
+        $this->updateValidator = $updateValidator;
     }
 
     private function ok(string $message = '', array $extra = []): array
@@ -2102,6 +2104,7 @@ class NapManagementService
                 $description
             );
         } catch (Throwable $e) {
+            error_log('[Audit][NAP_MANAGEMENT] ' . $e->getMessage());
         }
     }
 }

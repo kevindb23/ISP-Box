@@ -2,6 +2,7 @@
 
 namespace App\Modules\OltManagement\Services;
 
+use App\Infrastructure\NetworkAutomation\NetworkCommandRunner;
 use App\Modules\OltManagement\DTOs\CreateOltManagementDTO;
 use App\Modules\OltManagement\Repositories\OltManagementRepository;
 use App\Modules\OltManagement\Validators\CreateOltManagementValidator;
@@ -10,7 +11,10 @@ class OltManagementService
 {
     private OltManagementRepository $repo;
 
-    public function __construct(OltManagementRepository $repo)
+    public function __construct(
+        OltManagementRepository $repo,
+        private NetworkCommandRunner $networkRunner
+    )
     {
         $this->repo = $repo;
     }
@@ -442,22 +446,20 @@ class OltManagementService
             ];
         }
 
-        $cmd = sprintf(
-            'python3 %s %s %s %s',
-            escapeshellarg($scriptPath),
-            escapeshellarg($olt['ip_address']),
-            escapeshellarg($olt['username']),
-            escapeshellarg($olt['password'])
-        );
-
-        $output = shell_exec($cmd);
-        $decoded = json_decode((string)$output, true);
+        $execution = $this->networkRunner->runPythonJson($scriptPath, [
+            'host' => (string)($olt['ip_address'] ?? ''),
+            'username' => (string)($olt['username'] ?? ''),
+            'password' => (string)($olt['password'] ?? ''),
+            'frame' => 0,
+        ]);
+        $output = $execution->stdout !== '' ? $execution->stdout : $execution->stderr;
+        $decoded = json_decode($output, true);
 
         if (!is_array($decoded)) {
             return [
                 'ok' => false,
                 'message' => 'Invalid response from fetch script.',
-                'raw' => $output,
+                'operation_id' => bin2hex(random_bytes(8)),
                 'errors' => [],
             ];
         }
@@ -2877,21 +2879,15 @@ public function deletePortVlanBinding(int $id): array
             'save_config' => true,
         ], $payload);
 
-        $cmd = sprintf(
-            'python3 %s %s 2>&1',
-            escapeshellarg($scriptPath),
-            escapeshellarg(json_encode($scriptPayload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))
-        );
-
-        $output = shell_exec($cmd);
-        $decoded = json_decode((string)$output, true);
+        $execution = $this->networkRunner->runPythonJson($scriptPath, $scriptPayload);
+        $output = $execution->stdout !== '' ? $execution->stdout : $execution->stderr;
+        $decoded = json_decode($output, true);
 
         if (!is_array($decoded)) {
             return [
                 'success' => false,
                 'message' => 'Invalid response from script.',
-                'raw' => $output,
-                'command' => $cmd,
+                'operation_id' => bin2hex(random_bytes(8)),
             ];
         }
 

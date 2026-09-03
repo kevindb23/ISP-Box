@@ -1,10 +1,8 @@
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="tickets"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The tickets interface is not built.</div><?php endif;return;?>
 <div class="container-fluid nx-page tickets-page" data-tickets-page="index">
-
-    <link rel="stylesheet" href="/module-assets/Tickets/css/Tickets.css">
-
     <div id="ticketsAlert"></div>
 
-    <div class="card border-0 shadow-sm mb-3">
+    <div class="card border-0 shadow-sm mb-3 nx-page-header-card">
         <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <div class="text-primary small fw-bold text-uppercase">

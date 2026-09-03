@@ -6,6 +6,7 @@ use App\Modules\Audit\Services\AuditService;
 use App\Modules\Billing\Repositories\BillingSettingsRepository;
 use App\Modules\Billing\Repositories\InvoiceRepository;
 use App\Modules\Billing\Repositories\PaymentRepository;
+use App\Modules\Subscribers\Services\SubscriberService;
 use Exception;
 use PDO;
 
@@ -16,19 +17,22 @@ class InvoiceService
     private PaymentRepository $payments;
     private BillingSettingsRepository $settings;
     private ?AuditService $audit;
+    private ?SubscriberService $subscribers;
 
     public function __construct(
         PDO $db,
         InvoiceRepository $invoices,
         PaymentRepository $payments,
         BillingSettingsRepository $settings,
-        ?AuditService $audit = null
+        ?AuditService $audit = null,
+        ?SubscriberService $subscribers = null
     ) {
         $this->db = $db;
         $this->invoices = $invoices;
         $this->payments = $payments;
         $this->settings = $settings;
         $this->audit = $audit;
+        $this->subscribers = $subscribers;
     }
 
     public function list(array $filters = []): array
@@ -109,7 +113,9 @@ class InvoiceService
             ?: date('Y-m-d', strtotime($issueDate . ' +' . $defaultDueDays . ' days'));
 
         $prefix = (string)$this->settings->get('invoice_prefix', 'INV');
-        $invoiceNo = $payload['invoice_no'] ?? $this->invoices->generateInvoiceNo($prefix);
+        $invoiceNo = isset($payload['invoice_no']) && trim((string)$payload['invoice_no']) !== ''
+            ? trim((string)$payload['invoice_no'])
+            : null;
 
         $this->db->beginTransaction();
 
@@ -134,6 +140,11 @@ class InvoiceService
                 'notes' => $payload['notes'] ?? null,
             ]);
 
+            if ($invoiceNo === null) {
+                $invoiceNo = sprintf('%s-%s-%06d', $prefix, date('Y'), $invoiceId);
+                $this->invoices->assignInvoiceNo($invoiceId, $invoiceNo);
+            }
+
             foreach ($items as $item) {
                 $this->invoices->createItem($invoiceId, $item);
             }
@@ -157,15 +168,17 @@ class InvoiceService
             );
 
             return $created;
-        } catch (Exception $e) {
-            $this->db->rollBack();
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
             throw $e;
         }
     }
 
     public function cancel(int $id, ?int $userId = null): array
     {
-        $invoice = $this->invoices->find($id);
+        $this->db->beginTransaction();
+        try {
+        $invoice = $this->invoices->findForUpdate($id);
 
         if (!$invoice) {
             throw new Exception('Invoice not found.');
@@ -180,6 +193,8 @@ class InvoiceService
         if (!$ok) {
             throw new Exception('Unable to cancel invoice.');
         }
+        $this->invoices->cancelPendingGatewayTransactions($id);
+        $this->db->commit();
 
         $this->auditLog(
             'CANCEL_INVOICE',
@@ -191,6 +206,7 @@ class InvoiceService
         );
 
         return $this->show($id);
+        } catch (\Throwable $e) { if($this->db->inTransaction())$this->db->rollBack(); throw $e; }
     }
 
     public function recalculate(int $id): array
@@ -445,6 +461,18 @@ class InvoiceService
         $limit = max(1, min(1000, $limit));
 
         $result = $this->invoices->markOverdueInvoices($asOfDate, $limit);
+
+        $result['suspensions'] = [];
+        if ((int)$this->settings->get('auto_suspend_enabled', 0) === 1 && $this->subscribers) {
+            $graceDays = max(0, (int)$this->settings->get('grace_period_days', 3));
+            $subscriberIds = [];
+            foreach ($result['items'] ?? [] as $item) {
+                if ((int)($item['days_overdue'] ?? 0) > $graceDays && (int)($item['subscriber_id'] ?? 0) > 0) $subscriberIds[(int)$item['subscriber_id']] = true;
+            }
+            foreach (array_keys($subscriberIds) as $subscriberId) {
+                $result['suspensions'][] = ['subscriber_id'=>$subscriberId,'result'=>$this->subscribers->suspend($subscriberId)];
+            }
+        }
 
         $this->auditLog(
             'MARK_OVERDUE_INVOICES',

@@ -26,6 +26,7 @@ class TechnicianManagementRepository
                 u.last_login,
 
                 CASE
+                    WHEN sa.id IS NULL OR sa.time_in_at IS NULL OR sa.time_out_at IS NOT NULL THEN 'OFFLINE'
                     WHEN COUNT(CASE WHEN wo.status = 'ON_SITE' THEN 1 END) > 0 THEN 'ON_SITE'
                     WHEN COUNT(CASE WHEN wo.status = 'IN_PROGRESS' THEN 1 END) > 0 THEN 'BUSY'
                     ELSE COALESCE(sa.status, 'OFFLINE')
@@ -71,14 +72,10 @@ class TechnicianManagementRepository
             LEFT JOIN work_orders wo
                 ON wo.assigned_user_id = u.id
             WHERE u.role = 'TECHNICIAN'
+              AND u.status = 'ACTIVE'
         ";
 
         $params = [];
-
-        if (!empty($filters['status'])) {
-            $sql .= " AND COALESCE(sa.status, 'OFFLINE') = :status";
-            $params['status'] = $filters['status'];
-        }
 
         if (!empty($filters['search'])) {
             $sql .= "
@@ -105,6 +102,7 @@ class TechnicianManagementRepository
                 u.email,
                 u.status,
                 u.last_login,
+                sa.id,
                 sa.status,
                 sa.time_in_at,
                 sa.time_out_at,
@@ -115,8 +113,14 @@ class TechnicianManagementRepository
                 tp.skill_level,
                 tp.vehicle,
                 tp.vehicle_plate
-            ORDER BY u.full_name ASC, u.username ASC
         ";
+
+        if (!empty($filters['status'])) {
+            $sql .= ' HAVING availability_status = :status';
+            $params['status'] = strtoupper(trim((string)$filters['status']));
+        }
+
+        $sql .= ' ORDER BY u.full_name ASC, u.username ASC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -136,6 +140,7 @@ class TechnicianManagementRepository
                 u.last_login,
 
                 CASE
+                    WHEN sa.id IS NULL OR sa.time_in_at IS NULL OR sa.time_out_at IS NOT NULL THEN 'OFFLINE'
                     WHEN COUNT(CASE WHEN wo.status = 'ON_SITE' THEN 1 END) > 0 THEN 'ON_SITE'
                     WHEN COUNT(CASE WHEN wo.status = 'IN_PROGRESS' THEN 1 END) > 0 THEN 'BUSY'
                     ELSE COALESCE(sa.status, 'OFFLINE')
@@ -193,6 +198,7 @@ class TechnicianManagementRepository
                 u.email,
                 u.status,
                 u.last_login,
+                sa.id,
                 sa.status,
                 sa.time_in_at,
                 sa.time_out_at,
@@ -235,6 +241,7 @@ class TechnicianManagementRepository
                 SELECT
                     u2.id AS user_id,
                     CASE
+                        WHEN sa2.id IS NULL OR sa2.time_in_at IS NULL OR sa2.time_out_at IS NOT NULL THEN 'OFFLINE'
                         WHEN COUNT(CASE WHEN wo.status = 'ON_SITE' THEN 1 END) > 0 THEN 'ON_SITE'
                         WHEN COUNT(CASE WHEN wo.status = 'IN_PROGRESS' THEN 1 END) > 0 THEN 'BUSY'
                         ELSE COALESCE(sa2.status, 'OFFLINE')
@@ -247,7 +254,7 @@ class TechnicianManagementRepository
                     ON wo.assigned_user_id = u2.id
                     AND wo.status IN ('ASSIGNED','IN_PROGRESS','ON_SITE')
                 WHERE u2.role = 'TECHNICIAN'
-                GROUP BY u2.id, sa2.status
+                GROUP BY u2.id, sa2.id, sa2.status, sa2.time_in_at, sa2.time_out_at
             ) effective ON effective.user_id = u.id
             WHERE u.role = 'TECHNICIAN'
         ");
@@ -453,6 +460,7 @@ class TechnicianManagementRepository
                 u.email,
 
                 CASE
+                    WHEN sa.id IS NULL OR sa.time_in_at IS NULL OR sa.time_out_at IS NOT NULL THEN 'OFFLINE'
                     WHEN COUNT(CASE WHEN wo.status = 'ON_SITE' THEN 1 END) > 0 THEN 'ON_SITE'
                     WHEN COUNT(CASE WHEN wo.status = 'IN_PROGRESS' THEN 1 END) > 0 THEN 'BUSY'
                     ELSE COALESCE(sa.status, 'OFFLINE')
@@ -477,10 +485,15 @@ class TechnicianManagementRepository
                 u.full_name,
                 u.email,
                 sa.status,
+                sa.id,
+                sa.time_in_at,
+                sa.time_out_at,
                 tp.service_area,
                 tp.skill_level
+            HAVING availability_status = 'AVAILABLE'
             ORDER BY
                 CASE
+                    WHEN sa.id IS NULL OR sa.time_in_at IS NULL OR sa.time_out_at IS NOT NULL THEN 6
                     WHEN COUNT(CASE WHEN wo.status = 'ON_SITE' THEN 1 END) > 0 THEN 2
                     WHEN COUNT(CASE WHEN wo.status = 'IN_PROGRESS' THEN 1 END) > 0 THEN 4
                     WHEN COALESCE(sa.status, 'OFFLINE') = 'AVAILABLE' THEN 1
@@ -493,6 +506,27 @@ class TechnicianManagementRepository
         ");
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findWorkOrderAssignment(int $workOrderId): ?array
+    {
+        $stmt = $this->db->prepare('SELECT id, assigned_user_id, status FROM work_orders WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $workOrderId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function hasActiveFieldWork(int $userId): bool
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM work_orders WHERE assigned_user_id = :user_id AND status IN ('IN_PROGRESS','ON_SITE')");
+        $stmt->execute([':user_id' => $userId]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
+    public function hasActiveAttendance(int $userId): bool
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM staff_attendance WHERE user_id = :user_id AND attendance_date = CURDATE() AND time_in_at IS NOT NULL AND time_out_at IS NULL");
+        $stmt->execute([':user_id' => $userId]);
+        return (int)$stmt->fetchColumn() > 0;
     }
 
     public function assignWorkOrderToTechnician(int $workOrderId, int $technicianId, int $changedBy = 0): array
@@ -712,39 +746,8 @@ class TechnicianManagementRepository
             $attendance = $stmt->fetch(PDO::FETCH_ASSOC);
             $oldStatus = $attendance['status'] ?? 'OFFLINE';
 
-            if (!$attendance) {
-                $insert = $this->db->prepare("
-                    INSERT INTO staff_attendance
-                    (
-                        user_id,
-                        attendance_date,
-                        time_in_at,
-                        status,
-                        time_in_ip,
-                        time_in_user_agent,
-                        notes
-                    )
-                    VALUES
-                    (
-                        :user_id,
-                        CURDATE(),
-                        NOW(),
-                        :status,
-                        :ip,
-                        :user_agent,
-                        :notes
-                    )
-                ");
-
-                $insert->execute([
-                    'user_id' => $userId,
-                    'status' => $status,
-                    'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
-                    'notes' => $note ?: null,
-                ]);
-
-                $attendanceId = (int)$this->db->lastInsertId();
+            if (!$attendance || empty($attendance['time_in_at']) || !empty($attendance['time_out_at'])) {
+                throw new \Exception('Technician must be clocked in before availability can be changed.');
             } else {
                 $attendanceId = (int)$attendance['id'];
 

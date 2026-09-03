@@ -2,10 +2,10 @@
 
 namespace App\Modules\SubscriberPlans\Controllers;
 
-use Framework\Controller;
+use Framework\ApiController;
 use App\Modules\SubscriberPlans\Services\SubscriberPlansService;
 
-class SubscriberPlansApiController extends Controller
+class SubscriberPlansApiController extends ApiController
 {
     private SubscriberPlansService $service;
 
@@ -14,43 +14,31 @@ class SubscriberPlansApiController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(): void
     {
-        header('Content-Type: application/json');
-
-        echo json_encode([
-            'success' => true,
-            'data'    => $this->service->getAll()
-        ]);
-        exit;
+        $this->success($this->service->getAll(), 'Subscriber plans loaded.');
     }
 
-    public function store()
+    public function store(): void
     {
-        $result = $this->service->create($_POST);
+        $result = $this->service->create($this->request()->input());
 
-        header('Content-Type: application/json');
-        echo json_encode($result);
-        exit;
+        $this->serviceResult($result, 201);
     }
 
-    public function update($id)
+    public function update($id): void
     {
-        $result = $this->service->update($id, $_POST);
+        $result = $this->service->update($id, $this->request()->input());
 
-        header('Content-Type: application/json');
-        echo json_encode($result);
-        exit;
+        $this->serviceResult($result);
     }
 
-    public function delete()
+    public function delete(): void
     {
-        $id = $_POST['id'] ?? null;
+        $id = $this->request()->value('id');
 
         $result = $this->service->delete($id);
 
-        header('Content-Type: application/json');
-        echo json_encode($result);
-        exit;
+        $this->serviceResult($result);
     }
 }

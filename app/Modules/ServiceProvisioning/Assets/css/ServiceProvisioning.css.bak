@@ -1,0 +1,1181 @@
+/* =========================================================
+   SERVICE PROVISIONING - FINAL PREMIUM UI
+========================================================= */
+
+#serviceProvisioningApp {
+    --sp-blue: #2563eb;
+    --sp-blue-dark: #1d4ed8;
+    --sp-blue-soft: rgba(37, 99, 235, 0.08);
+
+    --sp-ink: #0f172a;
+    --sp-muted: #64748b;
+
+    --sp-line: #e2e8f0;
+    --sp-soft: #f8fafc;
+    --sp-white: #ffffff;
+
+    --sp-green: #10b981;
+    --sp-red: #ef4444;
+    --sp-orange: #f97316;
+    --sp-cyan: #06b6d4;
+
+    --sp-radius-xl: 28px;
+    --sp-radius-lg: 22px;
+    --sp-radius-md: 16px;
+
+    --sp-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+    --sp-shadow-soft: 0 8px 20px rgba(15, 23, 42, 0.045);
+    --sp-shadow-blue: 0 18px 46px rgba(37, 99, 235, 0.13);
+}
+
+/* =========================================================
+   SHELL
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+    padding: 22px 24px;
+    border-radius:3px;
+    border: 1px solid rgba(37, 99, 235, 0.14);
+    background:
+            radial-gradient(circle at top right, rgba(191, 219, 254, 0.65), transparent 34%),
+            linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(255, 255, 255, 0.98)),
+            #ffffff;
+    box-shadow: var(--sp-shadow-blue);
+}
+
+#serviceProvisioningApp .sp-modern-hero-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#serviceProvisioningApp .sp-modern-icon {
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius:3px;
+    color: #ffffff;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--sp-blue-dark), var(--sp-blue));
+    box-shadow: 0 16px 30px rgba(37, 99, 235, 0.24);
+}
+
+#serviceProvisioningApp .sp-modern-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius:3px;
+    background: var(--sp-blue-soft);
+    border: 1px solid rgba(37, 99, 235, 0.14);
+    color: var(--sp-blue-dark);
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#serviceProvisioningApp .sp-modern-hero h3 {
+    margin: 8px 0 4px;
+    color: var(--sp-ink);
+    font-size: 1.55rem;
+    font-weight: 850;
+}
+
+#serviceProvisioningApp .sp-modern-hero p {
+    margin: 0;
+    max-width: 720px;
+    color: var(--sp-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+#serviceProvisioningApp .sp-modern-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 18px;
+    align-items: stretch;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-main-card,
+#serviceProvisioningApp .sp-modern-summary-card {
+    border-radius:3px;
+    border: 1px solid rgba(226, 232, 240, 0.96);
+    background:
+            radial-gradient(circle at top right, rgba(219, 234, 254, 0.25), transparent 28%),
+            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--sp-shadow);
+}
+
+#serviceProvisioningApp .sp-modern-main-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 620px;
+    padding: 20px;
+}
+
+#serviceProvisioningApp .sp-modern-card-head {
+    margin-bottom: 14px;
+}
+
+#serviceProvisioningApp .sp-modern-card-head span,
+#serviceProvisioningApp .sp-modern-side-head span {
+    display: inline-block;
+    margin-bottom: 6px;
+    color: var(--sp-blue-dark);
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+#serviceProvisioningApp .sp-modern-card-head h5 {
+    margin: 0;
+    color: var(--sp-ink);
+    font-size: 1.12rem;
+    font-weight: 850;
+}
+
+/* =========================================================
+   FORM SECTIONS
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-section {
+    padding: 15px;
+    border-radius:3px;
+    border: 1px solid rgba(226, 232, 240, 0.94);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--sp-shadow-soft);
+}
+
+#serviceProvisioningApp .sp-modern-section + .sp-modern-section {
+    margin-top: 12px;
+}
+
+#serviceProvisioningApp .sp-modern-section-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+#serviceProvisioningApp .sp-modern-section-no {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius:3px;
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.13);
+    color: var(--sp-blue-dark);
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+#serviceProvisioningApp .sp-modern-section-head h6 {
+    margin: 0 0 3px;
+    color: var(--sp-ink);
+    font-size: 0.95rem;
+    font-weight: 850;
+}
+
+#serviceProvisioningApp .sp-modern-section-head p {
+    margin: 0;
+    color: var(--sp-muted);
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+#serviceProvisioningApp .form-label {
+    margin-bottom: 0.35rem;
+    color: #334155;
+    font-size: 0.76rem;
+    font-weight: 850;
+}
+
+#serviceProvisioningApp .form-control,
+#serviceProvisioningApp .form-select {
+    min-height: 42px;
+    border-radius:3px;
+    border-color: #dbe2ea;
+    background-color: #ffffff;
+    box-shadow: none;
+    font-size: 0.88rem;
+}
+
+#serviceProvisioningApp .form-control:hover,
+#serviceProvisioningApp .form-select:hover {
+    border-color: #bfdbfe;
+}
+
+#serviceProvisioningApp .form-control:focus,
+#serviceProvisioningApp .form-select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.12);
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    /* margin-top: auto; */
+    padding-top: 18px;
+}
+
+/* =========================================================
+   SIDE PANEL
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-side {
+    position: sticky;
+    top: 16px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#serviceProvisioningApp .sp-modern-summary-card {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+
+#serviceProvisioningApp .sp-modern-summary-dark {
+    background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 30%),
+            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+#serviceProvisioningApp .sp-modern-side-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#serviceProvisioningApp .sp-modern-side-head h5 {
+    margin: 0;
+    color: var(--sp-ink);
+    font-size: 0.95rem;
+    font-weight: 850;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+#serviceProvisioningApp .sp-modern-summary-list {
+    display: grid;
+    gap: 8px;
+}
+
+#serviceProvisioningApp .sp-modern-summary-list > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 11px;
+    border-radius:3px;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.94);
+}
+
+#serviceProvisioningApp .sp-modern-summary-list span {
+    color: var(--sp-muted);
+    font-size: 0.64rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+#serviceProvisioningApp .sp-modern-summary-list strong {
+    color: var(--sp-ink);
+    text-align: right;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+/* =========================================================
+   CHECKLIST
+========================================================= */
+
+#serviceProvisioningApp .sp-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#serviceProvisioningApp .sp-check-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 46px;
+    padding: 10px 11px;
+    border-radius:3px;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.94);
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 750;
+}
+
+#serviceProvisioningApp .sp-check-row i {
+    color: #94a3b8;
+}
+
+#serviceProvisioningApp .sp-check-row.is-complete {
+    background: rgba(16, 185, 129, 0.07);
+    border-color: rgba(16, 185, 129, 0.22);
+}
+
+#serviceProvisioningApp .sp-check-row.is-complete i {
+    color: var(--sp-green);
+}
+
+#serviceProvisioningApp .sp-check-row.is-error {
+    background: rgba(239, 68, 68, 0.07);
+    border-color: rgba(239, 68, 68, 0.22);
+}
+
+#serviceProvisioningApp .sp-check-row.is-error i {
+    color: var(--sp-red);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+#serviceProvisioningApp .btn {
+    border-radius:3px;
+    font-weight: 750;
+}
+
+#serviceProvisioningApp .btn-primary {
+    background: linear-gradient(135deg, var(--sp-blue-dark), var(--sp-blue));
+    border-color: transparent;
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.2);
+}
+
+#serviceProvisioningApp .btn-primary:hover,
+#serviceProvisioningApp .btn-primary:focus {
+    background: linear-gradient(135deg, #1e40af, var(--sp-blue-dark));
+    border-color: transparent;
+}
+
+#serviceProvisioningApp .btn-outline-primary {
+    border-color: rgba(37, 99, 235, 0.35);
+    color: var(--sp-blue-dark);
+}
+
+#serviceProvisioningApp .btn-outline-primary:hover,
+#serviceProvisioningApp .btn-outline-primary:focus {
+    background: linear-gradient(135deg, var(--sp-blue-dark), var(--sp-blue));
+    border-color: transparent;
+    color: #ffffff;
+}
+
+#serviceProvisioningApp .btn-light.border {
+    background: #ffffff;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+/* =========================================================
+   POLL
+========================================================= */
+
+#serviceProvisioningApp .sp-poll-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius:3px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: #ffffff;
+    color: #475569;
+    font-size: 0.68rem;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+#serviceProvisioningApp .sp-poll-dot {
+    width: 8px;
+    height: 8px;
+    border-radius:3px;
+    background: #94a3b8;
+}
+
+#serviceProvisioningApp .sp-poll-indicator.is-active .sp-poll-dot {
+    background: var(--sp-cyan);
+    animation: spPulse 1.6s infinite;
+}
+
+#serviceProvisioningApp .sp-poll-indicator.is-success .sp-poll-dot {
+    background: var(--sp-green);
+}
+
+#serviceProvisioningApp .sp-poll-indicator.is-warning .sp-poll-dot {
+    background: var(--sp-orange);
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+#serviceProvisioningApp .sp-job-modal {
+    border-radius:3px;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    overflow: hidden;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+}
+
+#serviceProvisioningApp .sp-job-modal .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    background:
+            radial-gradient(circle at top right, rgba(219, 234, 254, 0.55), transparent 34%),
+            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+#serviceProvisioningApp .sp-job-modal .modal-body {
+    padding: 22px;
+    background: #ffffff;
+}
+
+#serviceProvisioningApp .sp-job-modal .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+    background: #fbfdff;
+}
+
+#serviceProvisioningApp .sp-modal-status-card {
+    padding: 16px;
+    border-radius:3px;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    background:
+            radial-gradient(circle at top right, rgba(219, 234, 254, 0.32), transparent 30%),
+            linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+#serviceProvisioningApp .sp-modal-status-title {
+    margin: 0 0 6px;
+    color: var(--sp-ink);
+    font-size: 1rem;
+    font-weight: 850;
+}
+
+#serviceProvisioningApp .sp-modal-status-text {
+    margin: 0;
+    color: var(--sp-muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+#serviceProvisioningApp .sp-modal-json,
+#serviceProvisioningApp .sp-job-logs-content {
+    overflow: auto;
+    max-height: 420px;
+    margin: 0;
+    padding: 16px;
+    border-radius:3px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.13), transparent 28%),
+            linear-gradient(180deg, #0f172a 0%, #020617 100%);
+    color: #dbeafe;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+#serviceProvisioningApp .sp-progress-list {
+    display: grid;
+    gap: 10px;
+}
+
+#serviceProvisioningApp .sp-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius:3px;
+    border: 1px solid rgba(226, 232, 240, 0.94);
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.84rem;
+    font-weight: 760;
+}
+
+#serviceProvisioningApp .sp-progress-row i {
+    color: #94a3b8;
+}
+
+#serviceProvisioningApp .sp-progress-row.is-active {
+    background: rgba(6, 182, 212, 0.07);
+    border-color: rgba(6, 182, 212, 0.24);
+}
+
+#serviceProvisioningApp .sp-progress-row.is-active i {
+    color: var(--sp-cyan);
+    animation: spSpin 1.2s linear infinite;
+}
+
+#serviceProvisioningApp .sp-progress-row.is-success {
+    background: rgba(16, 185, 129, 0.07);
+    border-color: rgba(16, 185, 129, 0.22);
+}
+
+#serviceProvisioningApp .sp-progress-row.is-success i {
+    color: var(--sp-green);
+}
+
+#serviceProvisioningApp .sp-progress-row.is-failed {
+    background: rgba(239, 68, 68, 0.07);
+    border-color: rgba(239, 68, 68, 0.22);
+}
+
+#serviceProvisioningApp .sp-progress-row.is-failed i {
+    color: var(--sp-red);
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes spPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.42);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
+    }
+}
+
+@keyframes spSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1199.98px) {
+
+    #serviceProvisioningApp .sp-modern-layout {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    #serviceProvisioningApp .sp-modern-side {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #serviceProvisioningApp .sp-modern-main-card {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 991.98px) {
+
+    #serviceProvisioningApp .sp-modern-hero {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #serviceProvisioningApp .sp-modern-actions,
+    #serviceProvisioningApp .sp-modern-form-actions {
+        width: 100%;
+    }
+
+    #serviceProvisioningApp .sp-modern-actions .btn,
+    #serviceProvisioningApp .sp-modern-form-actions .btn {
+        width: 100%;
+    }
+
+    #serviceProvisioningApp .sp-modern-side {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767.98px) {
+
+    #serviceProvisioningApp .sp-modern-hero,
+    #serviceProvisioningApp .sp-modern-main-card,
+    #serviceProvisioningApp .sp-modern-summary-card {
+        padding: 16px;
+        border-radius:3px;
+    }
+
+    #serviceProvisioningApp .sp-modern-hero-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #serviceProvisioningApp .sp-modern-summary-list > div {
+        flex-direction: column;
+    }
+
+    #serviceProvisioningApp .sp-modern-summary-list strong {
+        text-align: left;
+    }
+}
+/* =========================================================
+   SERVICE PROVISIONING DARK MODE
+   Place at VERY BOTTOM of ServiceProvisioning.css
+========================================================= */
+
+html[data-theme="dark"] #serviceProvisioningApp {
+    --sp-blue: #60a5fa;
+    --sp-blue-dark: #3b82f6;
+    --sp-blue-soft: rgba(59, 130, 246, .16);
+
+    --sp-ink: #f8fafc;
+    --sp-muted: #94a3b8;
+
+    --sp-line: #2b3d56;
+    --sp-soft: #101827;
+    --sp-white: #182235;
+
+    --sp-green: #22c55e;
+    --sp-red: #f87171;
+    --sp-orange: #f59e0b;
+    --sp-cyan: #38bdf8;
+
+    --sp-shadow: 0 18px 42px rgba(0, 0, 0, .34);
+    --sp-shadow-soft: 0 10px 24px rgba(0, 0, 0, .26);
+    --sp-shadow-blue: 0 18px 46px rgba(0, 0, 0, .34);
+}
+
+/* Hero */
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-hero {
+    background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, .14), transparent 34%),
+            linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border-color: rgba(255,255,255,.06) !important;
+    box-shadow: var(--sp-shadow-blue) !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-eyebrow {
+    background: rgba(59, 130, 246, .16) !important;
+    border-color: rgba(147, 197, 253, .18) !important;
+    color: #93c5fd !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-hero h3,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-card-head h5,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section-head h6,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-side-head h5,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modal-status-title {
+    color: var(--sp-ink) !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-hero p,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section-head p,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modal-status-text {
+    color: var(--sp-muted) !important;
+}
+
+/* Cards / sections */
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-main-card,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-card,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modal-status-card {
+    background:
+            radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 30%),
+            linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border-color: rgba(255,255,255,.06) !important;
+    box-shadow: var(--sp-shadow-soft) !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section-no {
+    background: rgba(59,130,246,.16) !important;
+    border-color: rgba(147,197,253,.18) !important;
+    color: #93c5fd !important;
+}
+
+/* Forms */
+html[data-theme="dark"] #serviceProvisioningApp .form-label {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .form-control,
+html[data-theme="dark"] #serviceProvisioningApp .form-select {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .form-control::placeholder {
+    color: #64748b !important;
+}
+
+/* Summary / checklist rows */
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-list > div,
+html[data-theme="dark"] #serviceProvisioningApp .sp-check-row,
+html[data-theme="dark"] #serviceProvisioningApp .sp-progress-row,
+html[data-theme="dark"] #serviceProvisioningApp .sp-poll-indicator {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-list span {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-list strong {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-check-row.is-complete,
+html[data-theme="dark"] #serviceProvisioningApp .sp-progress-row.is-success {
+    background: rgba(34, 197, 94, .12) !important;
+    border-color: rgba(34, 197, 94, .28) !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-check-row.is-error,
+html[data-theme="dark"] #serviceProvisioningApp .sp-progress-row.is-failed {
+    background: rgba(239, 68, 68, .12) !important;
+    border-color: rgba(239, 68, 68, .28) !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-progress-row.is-active {
+    background: rgba(56, 189, 248, .12) !important;
+    border-color: rgba(56, 189, 248, .28) !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] #serviceProvisioningApp .btn-light,
+html[data-theme="dark"] #serviceProvisioningApp .btn-light.border,
+html[data-theme="dark"] #serviceProvisioningApp .btn-outline-primary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .btn-light:hover,
+html[data-theme="dark"] #serviceProvisioningApp .btn-outline-primary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Modals */
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal {
+    background: #182235 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal .modal-header,
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal .modal-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal .modal-body {
+    background: #0b1220 !important;
+}
+
+/* JSON / logs */
+html[data-theme="dark"] #serviceProvisioningApp .sp-modal-json,
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-logs-content {
+    background:
+            radial-gradient(circle at top right, rgba(59,130,246,.13), transparent 28%),
+            linear-gradient(180deg, #020617 0%, #020617 100%) !important;
+    color: #dbeafe !important;
+    border-color: #334155 !important;
+}
+
+/* =========================================================
+   UI AI-SLOP AUDIT
+   Keep the provisioning workflow, controls, and states intact while
+   replacing decorative gradients and repeated floating-card treatment.
+========================================================= */
+
+#serviceProvisioningApp {
+    --sp-blue: #2f5f8f;
+    --sp-blue-dark: #244b70;
+    --sp-blue-soft: #eef3f7;
+    --sp-ink: #172033;
+    --sp-muted: #65748a;
+    --sp-line: #d8e0e8;
+    --sp-soft: #f5f7f9;
+    --sp-green: #2d7a59;
+    --sp-red: #a64b4b;
+    --sp-orange: #a66b18;
+    --sp-cyan: #2f748d;
+    --sp-shadow: none;
+    --sp-shadow-soft: none;
+    --sp-shadow-blue: none;
+}
+
+#serviceProvisioningApp .sp-modern-hero {
+    padding: 20px 22px;
+    border: 1px solid var(--sp-line);
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+#serviceProvisioningApp .sp-modern-icon {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+    border-radius: 2px;
+    background: var(--sp-blue-dark) !important;
+    box-shadow: none !important;
+    font-size: 1.1rem;
+}
+
+#serviceProvisioningApp .sp-modern-eyebrow {
+    padding: 4px 9px;
+    border-radius: 2px;
+    background: var(--sp-blue-soft) !important;
+    border-color: #d4e0ea;
+    color: var(--sp-blue-dark);
+    font-size: .7rem;
+}
+
+#serviceProvisioningApp .sp-modern-hero h3 {
+    font-size: 1.7rem;
+    font-weight: 750;
+}
+
+#serviceProvisioningApp .sp-modern-hero p {
+    font-size: .95rem;
+}
+
+#serviceProvisioningApp .sp-modern-main-card {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+#serviceProvisioningApp .sp-modern-card-head {
+    margin: 0;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--sp-line);
+}
+
+#serviceProvisioningApp .sp-modern-card-head span,
+#serviceProvisioningApp .sp-modern-side-head span {
+    color: var(--sp-blue-dark);
+    font-size: .72rem;
+    letter-spacing: .07em;
+}
+
+#serviceProvisioningApp .sp-modern-card-head h5,
+#serviceProvisioningApp .sp-modern-side-head h5 {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+#serviceProvisioningApp .sp-modern-section {
+    padding: 17px 18px;
+    border: 1px solid var(--sp-line);
+    border-radius: 2px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+#serviceProvisioningApp .sp-modern-section + .sp-modern-section {
+    margin-top: 10px;
+}
+
+#serviceProvisioningApp .sp-modern-section-no {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-radius: 2px;
+    background: #f1f4f7 !important;
+    border-color: var(--sp-line);
+    color: var(--sp-blue-dark);
+    font-size: .8rem;
+}
+
+#serviceProvisioningApp .sp-modern-section-head h6 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+#serviceProvisioningApp .sp-modern-section-head p,
+#serviceProvisioningApp .sp-modern-summary-list span {
+    font-size: .8rem;
+}
+
+#serviceProvisioningApp .form-label {
+    font-size: .82rem;
+    font-weight: 650;
+}
+
+#serviceProvisioningApp .form-control,
+#serviceProvisioningApp .form-select {
+    min-height: 44px;
+    border-color: #cbd5df;
+    background: #ffffff;
+    font-size: .95rem;
+}
+
+#serviceProvisioningApp .form-control:focus,
+#serviceProvisioningApp .form-select:focus {
+    border-color: #8998a8;
+    box-shadow: 0 0 0 2px rgba(100, 116, 139, .14);
+}
+
+#serviceProvisioningApp .sp-modern-summary-card {
+    padding: 16px;
+    border: 1px solid var(--sp-line);
+    border-radius: 2px;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+#serviceProvisioningApp .sp-modern-summary-list,
+#serviceProvisioningApp .sp-checklist {
+    gap: 0;
+}
+
+#serviceProvisioningApp .sp-modern-summary-list > div,
+#serviceProvisioningApp .sp-check-row {
+    min-height: 48px;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: 1px solid #e7ecf1;
+    border-radius: 0;
+    background: transparent !important;
+}
+
+#serviceProvisioningApp .sp-modern-summary-list > div:last-child,
+#serviceProvisioningApp .sp-check-row:last-child {
+    border-bottom: 0;
+}
+
+#serviceProvisioningApp .sp-modern-summary-list strong {
+    font-size: .86rem;
+    font-weight: 650;
+}
+
+#serviceProvisioningApp .sp-check-row {
+    font-size: .86rem;
+    font-weight: 600;
+}
+
+#serviceProvisioningApp .btn-primary {
+    background: var(--sp-blue-dark) !important;
+    border-color: var(--sp-blue-dark) !important;
+    box-shadow: none !important;
+}
+
+#serviceProvisioningApp .btn-primary:hover,
+#serviceProvisioningApp .btn-primary:focus {
+    background: #1d3f5e !important;
+    border-color: #1d3f5e !important;
+}
+
+#serviceProvisioningApp .btn-outline-primary {
+    border-color: #9aabba;
+    color: var(--sp-blue-dark);
+}
+
+#serviceProvisioningApp .btn-outline-primary:hover,
+#serviceProvisioningApp .btn-outline-primary:focus {
+    background: var(--sp-blue-dark) !important;
+    border-color: var(--sp-blue-dark) !important;
+}
+
+#serviceProvisioningApp .sp-job-modal .modal-header,
+#serviceProvisioningApp .sp-job-modal .modal-footer,
+#serviceProvisioningApp .sp-modal-status-card {
+    background: #f7f9fb !important;
+    background-image: none !important;
+}
+
+#serviceProvisioningApp .sp-modal-json,
+#serviceProvisioningApp .sp-job-logs-content {
+    background: #172033 !important;
+    background-image: none !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp {
+    --sp-blue: #7fa8c9;
+    --sp-blue-dark: #6f98ba;
+    --sp-blue-soft: #213247;
+    --sp-ink: #eef3f8;
+    --sp-muted: #a8b6c5;
+    --sp-line: #344456;
+    --sp-soft: #131d2b;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-hero,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-card {
+    background: #182235 !important;
+    background-image: none !important;
+    border-color: var(--sp-line) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-main-card {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-icon {
+    background: #345675 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section-no {
+    background: #213247 !important;
+    border-color: var(--sp-line) !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-list > div,
+html[data-theme="dark"] #serviceProvisioningApp .sp-check-row {
+    border-bottom-color: #344456 !important;
+    background: transparent !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal .modal-header,
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal .modal-footer,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modal-status-card {
+    background: #141f31 !important;
+    background-image: none !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-eyebrow {
+    background: #213247 !important;
+    border-color: #344456 !important;
+    color: #a9c5dd !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-hero h3,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-card-head h5,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section-head h6,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-side-head h5,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-list strong {
+    color: #eef3f8 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-hero p,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-section-head p,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modern-summary-list span,
+html[data-theme="dark"] #serviceProvisioningApp .sp-modal-status-text {
+    color: #a8b6c5 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .form-label {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .form-control,
+html[data-theme="dark"] #serviceProvisioningApp .form-select {
+    background: #101827 !important;
+    border-color: #344456 !important;
+    color: #eef3f8 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-check-row {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-poll-indicator {
+    background: #101827 !important;
+    border-color: #344456 !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .btn-primary {
+    background: #345675 !important;
+    border-color: #345675 !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .btn-primary:hover,
+html[data-theme="dark"] #serviceProvisioningApp .btn-primary:focus {
+    background: #416b8e !important;
+    border-color: #416b8e !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .btn-outline-primary,
+html[data-theme="dark"] #serviceProvisioningApp .btn-light,
+html[data-theme="dark"] #serviceProvisioningApp .btn-light.border {
+    background: #182235 !important;
+    border-color: #344456 !important;
+    color: #dbe5ef !important;
+}
+
+html[data-theme="dark"] #serviceProvisioningApp .sp-job-modal .modal-body {
+    background: #101827 !important;
+}
+
+/* The builder sections already provide the visual grouping; do not draw a
+   second card outline around the entire form column. This selector outranks
+   the global rectilinear card guardrail without changing other modules. */
+body#nxApplication #nxRectilinearTheme #serviceProvisioningApp .sp-modern-main-card {
+    border: 0 !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}

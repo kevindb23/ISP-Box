@@ -2,6 +2,9 @@
 
 namespace App\Modules\Tickets\Services;
 
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\Services\AuditService;
+use App\Modules\Tickets\Entities\Ticket;
 use App\Modules\Tickets\Repositories\TicketsRepository;
 use Exception;
 
@@ -21,7 +24,19 @@ class TicketsService
         'CANCELLED',
     ];
 
-    public function __construct(TicketsRepository $repo)
+    private array $statusTransitions = [
+        'OPEN' => ['IN_PROGRESS', 'WAITING_CUSTOMER', 'WAITING_TECHNICIAN', 'WAITING_CUSTOMER_SCHEDULE', 'RESOLVED', 'CANCELLED'],
+        'IN_PROGRESS' => ['WAITING_CUSTOMER', 'WAITING_TECHNICIAN', 'WAITING_CUSTOMER_SCHEDULE', 'RESOLVED', 'CANCELLED'],
+        'WAITING_CUSTOMER' => ['OPEN', 'IN_PROGRESS', 'CANCELLED'],
+        'WAITING_TECHNICIAN' => ['IN_PROGRESS', 'WAITING_CUSTOMER_SCHEDULE', 'VISIT_SCHEDULED', 'RESOLVED', 'CANCELLED'],
+        'WAITING_CUSTOMER_SCHEDULE' => ['VISIT_SCHEDULED', 'IN_PROGRESS', 'CANCELLED'],
+        'VISIT_SCHEDULED' => ['WAITING_TECHNICIAN', 'IN_PROGRESS', 'RESOLVED', 'CANCELLED'],
+        'RESOLVED' => ['CLOSED', 'OPEN'],
+        'CLOSED' => [],
+        'CANCELLED' => [],
+    ];
+
+    public function __construct(TicketsRepository $repo, private AuditService $audit)
     {
         $this->repo = $repo;
     }
@@ -30,7 +45,7 @@ class TicketsService
     {
         $this->requireStaff($sessionData);
 
-        $this->autoAssignOpenUnassignedTickets();
+        $role = strtoupper((string)($sessionData['role'] ?? ''));
 
         $filterArray = [
             'status' => !empty($filters['status']) ? strtoupper(trim((string)$filters['status'])) : null,
@@ -39,10 +54,17 @@ class TicketsService
             'offset' => isset($filters['offset']) ? max(0, (int)$filters['offset']) : 0,
         ];
 
+        if (in_array($role, ['BILLING', 'NOC', 'SUPPORT'], true)) {
+            $filterArray['queue_role'] = $role;
+        }
+
         return [
-            'items' => $this->repo->getTickets($filterArray),
+            'items' => array_map(
+                static fn(array $row): array => (new Ticket($row))->toArray(),
+                $this->repo->getTickets($filterArray)
+            ),
             'total' => $this->repo->countTickets($filterArray),
-            'summary' => $this->repo->getSummary(),
+            'summary' => $this->repo->getSummary($filterArray),
             'filters' => $filterArray,
         ];
     }
@@ -61,13 +83,10 @@ class TicketsService
             throw new Exception('Ticket not found.');
         }
 
-        if (empty($ticket['assigned_user_id']) && strtoupper((string)$ticket['status']) === 'OPEN') {
-            $this->autoAssignSingleTicket($ticket);
-            $ticket = $this->repo->findTicket($ticketId) ?: $ticket;
-        }
+        $this->ensureTicketAccessFromRow($sessionData, $ticket, 'view');
 
         return [
-            'ticket' => $ticket,
+            'ticket' => (new Ticket($ticket))->toArray(),
             'messages' => $this->repo->getTicketMessages($ticketId, true),
             'assignable_users' => $this->repo->getAssignableUsers(),
         ];
@@ -88,11 +107,20 @@ class TicketsService
         if ($message === '') {
             throw new Exception('Reply message is required.');
         }
+        if (strlen($message) > 5000) {
+            throw new Exception('Reply message must not exceed 5000 characters.');
+        }
 
         $ticket = $this->repo->findTicket($ticketId);
 
         if (!$ticket) {
             throw new Exception('Ticket not found.');
+        }
+
+        $this->ensureTicketAccessFromRow($sessionData, $ticket, 'manage');
+
+        if (in_array(strtoupper((string)$ticket['status']), ['RESOLVED', 'CLOSED', 'CANCELLED'], true)) {
+            throw new Exception('Reopen the ticket before adding a reply.');
         }
 
         $messageId = $this->repo->createTicketMessage([
@@ -105,7 +133,13 @@ class TicketsService
 
         if (strtoupper((string)$ticket['status']) === 'OPEN') {
             $this->repo->updateTicketStatus($ticketId, 'IN_PROGRESS');
+            $this->repo->createStatusLog(['ticket_id' => $ticketId, 'old_status' => 'OPEN', 'new_status' => 'IN_PROGRESS', 'changed_by_user_id' => $userId, 'note' => 'Ticket moved to in progress when staff replied.']);
         }
+
+        $ticketNo = (string)($ticket['ticket_no'] ?? ('#' . $ticketId));
+        $this->auditAction('REPLY', "Staff replied to ticket {$ticketNo}.", $ticketId, [
+            'ticket_no' => $ticketNo, 'message_id' => $messageId,
+        ]);
 
         return [
             'message' => 'Reply sent successfully.',
@@ -129,10 +163,17 @@ class TicketsService
         if ($message === '') {
             throw new Exception('Internal note is required.');
         }
+        if (strlen($message) > 5000) {
+            throw new Exception('Internal note must not exceed 5000 characters.');
+        }
 
-        if (!$this->repo->findTicket($ticketId)) {
+        $ticket = $this->repo->findTicket($ticketId);
+
+        if (!$ticket) {
             throw new Exception('Ticket not found.');
         }
+
+        $this->ensureTicketAccessFromRow($sessionData, $ticket, 'manage');
 
         $messageId = $this->repo->createTicketMessage([
             'ticket_id' => $ticketId,
@@ -140,6 +181,11 @@ class TicketsService
             'sender_user_id' => $userId,
             'message' => $message,
             'is_internal' => 1,
+        ]);
+
+        $ticketNo = (string)($ticket['ticket_no'] ?? ('#' . $ticketId));
+        $this->auditAction('INTERNAL_NOTE', "Staff added an internal note to ticket {$ticketNo}.", $ticketId, [
+            'ticket_no' => $ticketNo, 'message_id' => $messageId,
         ]);
 
         return [
@@ -172,6 +218,8 @@ class TicketsService
             throw new Exception('Ticket not found.');
         }
 
+        $this->ensureTicketAccessFromRow($sessionData, $ticket, 'manage');
+
         $oldStatus = strtoupper((string)($ticket['status'] ?? ''));
 
         if ($oldStatus === $status) {
@@ -181,6 +229,16 @@ class TicketsService
                 'old_status' => $oldStatus,
                 'new_status' => $status,
             ];
+        }
+
+        if (!in_array($status, $this->statusTransitions[$oldStatus] ?? [], true)) {
+            throw new Exception("Ticket cannot move from {$this->formatLabel($oldStatus)} to {$this->formatLabel($status)}.");
+        }
+
+        if (in_array($status, ['RESOLVED', 'CLOSED'], true)
+            && !empty($ticket['work_order_id'])
+            && !in_array(strtoupper((string)($ticket['work_order_status'] ?? '')), ['COMPLETED', 'CANCELLED'], true)) {
+            throw new Exception('Complete or cancel the linked work order before resolving this ticket.');
         }
 
         $this->repo->updateTicketStatus($ticketId, $status);
@@ -207,6 +265,12 @@ class TicketsService
             ]);
         }
 
+        $ticketNo = (string)($ticket['ticket_no'] ?? ('#' . $ticketId));
+        $this->auditAction(
+            'UPDATE_STATUS', "Staff updated ticket {$ticketNo} status.", $ticketId,
+            ['ticket_no' => $ticketNo, 'old_status' => $oldStatus, 'new_status' => $status]
+        );
+
         return [
             'message' => 'Ticket status updated.',
             'ticket_id' => $ticketId,
@@ -232,11 +296,21 @@ class TicketsService
             throw new Exception('Invalid ticket priority.');
         }
 
-        if (!$this->repo->findTicket($ticketId)) {
+        $ticket = $this->repo->findTicket($ticketId);
+
+        if (!$ticket) {
             throw new Exception('Ticket not found.');
         }
 
+        $this->ensureTicketAccessFromRow($sessionData, $ticket, 'manage');
+
         $this->repo->updateTicketPriority($ticketId, $priority);
+
+        $ticketNo = (string)($ticket['ticket_no'] ?? ('#' . $ticketId));
+        $this->auditAction(
+            'UPDATE_PRIORITY', "Staff updated ticket {$ticketNo} priority.", $ticketId,
+            ['ticket_no' => $ticketNo, 'old_priority' => (string)($ticket['priority'] ?? ''), 'new_priority' => $priority]
+        );
 
         return [
             'message' => 'Ticket priority updated.',
@@ -256,17 +330,77 @@ class TicketsService
             throw new Exception('Invalid ticket ID.');
         }
 
-        if (!$this->repo->findTicket($ticketId)) {
+        $ticket = $this->repo->findTicket($ticketId);
+
+        if (!$ticket) {
             throw new Exception('Ticket not found.');
         }
 
+        $this->ensureTicketAccessFromRow($sessionData, $ticket, 'manage');
+
+        $assignee = null;
+        if ($assignedUserId > 0) {
+            $assignee = $this->repo->findAssignableUser($assignedUserId);
+            if (!$assignee) {
+                throw new Exception('Selected assignee is not an active ticket-queue staff member.');
+            }
+            $expectedRole = $this->queueRoleForCategory((string)($ticket['category'] ?? ''));
+            if (strtoupper((string)$assignee['role']) !== $expectedRole) {
+                throw new Exception("This ticket belongs to the {$expectedRole} queue.");
+            }
+        }
+
         $this->repo->assignTicket($ticketId, $assignedUserId > 0 ? $assignedUserId : null);
+
+        $ticketNo = (string)($ticket['ticket_no'] ?? ('#' . $ticketId));
+        $this->auditAction(
+            'ASSIGN', "Staff changed ticket {$ticketNo} assignment.", $ticketId,
+            ['ticket_no' => $ticketNo, 'old_assigned_user_id' => $ticket['assigned_user_id'] ?? null, 'new_assigned_user_id' => $assignedUserId ?: null]
+        );
 
         return [
             'message' => 'Ticket assigned successfully.',
             'ticket_id' => $ticketId,
             'assigned_user_id' => $assignedUserId > 0 ? $assignedUserId : null,
         ];
+    }
+
+    private function auditAction(string $action, string $description, int $ticketId, array $metadata = []): void
+    {
+        $this->audit->logEvent(new AuditEventDTO(
+            module: 'TICKETS', action: $action, description: $description,
+            objectType: 'TICKET', objectId: $ticketId, metadata: $metadata
+        ));
+    }
+
+    private function ensureTicketAccessFromRow(array $sessionData, array $ticket, string $action = 'view'): void
+    {
+        $role = strtoupper((string)($sessionData['role'] ?? ''));
+
+        if (!in_array($role, ['BILLING', 'NOC', 'SUPPORT'], true)) {
+            return;
+        }
+
+        $assignedUserRole = strtoupper((string)($ticket['assigned_user_role'] ?? ''));
+        $queueRole = $this->queueRoleForCategory((string)($ticket['category'] ?? ''));
+
+        if (($assignedUserRole !== '' && $assignedUserRole !== $role)
+            || ($assignedUserRole === '' && $queueRole !== $role)) {
+            throw new Exception(
+                $action === 'manage'
+                    ? 'You are not allowed to manage this ticket.'
+                    : 'You are not allowed to view this ticket.'
+            );
+        }
+    }
+
+    private function queueRoleForCategory(string $category): string
+    {
+        return match (strtoupper($category)) {
+            'INTERNET' => 'NOC',
+            'BILLING' => 'BILLING',
+            default => 'SUPPORT',
+        };
     }
 
     private function autoAssignOpenUnassignedTickets(): void

@@ -2,13 +2,14 @@
 
 namespace App\Modules\Billing\Repositories;
 
+use App\Infrastructure\Security\SecretCipher;
 use PDO;
 
 class BillingSettingsRepository
 {
     private PDO $db;
 
-    public function __construct(PDO $db)
+    public function __construct(PDO $db, private SecretCipher $secrets)
     {
         $this->db = $db;
     }
@@ -26,7 +27,10 @@ class BillingSettingsRepository
         $settings = [];
 
         foreach ($rows as $row) {
-            $settings[$row['setting_key']] = $row['setting_value'];
+            $key = (string)$row['setting_key'];
+            $settings[$key] = $this->isSensitiveSetting($key)
+                ? $this->secrets->decrypt($row['setting_value'])
+                : $row['setting_value'];
         }
 
         return $settings;
@@ -40,7 +44,14 @@ class BillingSettingsRepository
             ORDER BY setting_key ASC
         ");
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($rows as &$row) {
+            if ($this->isSensitiveSetting((string)$row['setting_key'])) {
+                $row['setting_value'] = $this->secrets->decrypt($row['setting_value']);
+            }
+        }
+        unset($row);
+        return $rows;
     }
 
     public function get(string $key, mixed $default = null): mixed
@@ -56,11 +67,14 @@ class BillingSettingsRepository
 
         $value = $stmt->fetchColumn();
 
-        return $value !== false ? $value : $default;
+        if ($value === false) return $default;
+        return $this->isSensitiveSetting($key) ? $this->secrets->decrypt((string)$value) : $value;
     }
 
     public function save(string $key, mixed $value, ?string $description = null): void
     {
+        $storedValue = is_scalar($value) ? (string)$value : json_encode($value);
+        if ($this->isSensitiveSetting($key)) $storedValue = $this->secrets->encrypt($storedValue);
         $stmt = $this->db->prepare("
             INSERT INTO billing_settings (
                 setting_key,
@@ -78,7 +92,7 @@ class BillingSettingsRepository
 
         $stmt->execute([
             ':setting_key' => $key,
-            ':setting_value' => is_scalar($value) ? (string) $value : json_encode($value),
+            ':setting_value' => $storedValue,
             ':description' => $description,
         ]);
     }
@@ -88,5 +102,13 @@ class BillingSettingsRepository
         foreach ($settings as $key => $value) {
             $this->save((string) $key, $value);
         }
+    }
+
+    private function isSensitiveSetting(string $key): bool
+    {
+        return in_array($key, [
+            'xendit_secret_key_live', 'xendit_secret_key_test',
+            'xendit_webhook_token_live', 'xendit_webhook_token_test',
+        ], true);
     }
 }

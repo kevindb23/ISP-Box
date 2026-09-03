@@ -2,6 +2,7 @@
 
 namespace App\Modules\Subscribers\Repositories;
 
+use App\Modules\Radius\Repositories\RadiusSettingsRepository;
 use Framework\DatabaseConnection;
 use PDO;
 use PDOException;
@@ -9,16 +10,21 @@ use PDOException;
 class SubscriberRepository
 {
     private PDO $db;
-    private PDO $radiusDb;
+    private ?PDO $radiusDb = null;
+    private array $radiusConfig;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(DatabaseConnection $database, RadiusSettingsRepository $radiusSettings)
     {
         $this->db = $database->get();
 
-        $config = require __DIR__ . '/../../../../config/database.php';
-        $radius = $config['radius_db'];
+        $this->radiusConfig = $radiusSettings->getConnectionConfig();
+    }
 
-        $this->radiusDb = new PDO(
+    private function radiusDb(): PDO
+    {
+        if ($this->radiusDb instanceof PDO) return $this->radiusDb;
+        $radius = $this->radiusConfig;
+        return $this->radiusDb = new PDO(
             "mysql:host={$radius['host']};dbname={$radius['name']};charset=utf8mb4",
             $radius['user'],
             $radius['pass'],
@@ -97,38 +103,76 @@ class SubscriberRepository
 
                 ss.id AS service_id,
                 ss.ppp_username,
-                ss.ppp_password,
                 ss.plan_id,
                 ss.account_type,
                 ss.status AS service_status,
                 ss.next_due_date,
                 ss.expires_at,
                 ss.service_number,
+                (SELECT COUNT(*) FROM subscriber_services service_count_rows WHERE service_count_rows.subscriber_id = s.id) AS service_count,
 
                 p.plan_name,
 
-                sp.id AS provisioning_id,
-                sp.nap_splitter_port,
-                sp.ont_serial,
-                sp.installed_at,
-                sp.nap_port_id,
-                sp.ont_id,
-                sp.olt_port_id,
-                sp.assigned_at,
-                sp.cvlan,
-                sp.svlan
+                spb.id AS provisioning_id,
+                spb.ont_serial,
+                spb.installed_at,
+                spb.ont_id,
+                spb.olt_port_id,
+                spb.assigned_at,
+                spb.activated_at,
+                spb.cvlan,
+                spb.svlan,
+                od.name AS olt_name,
+                od.ip_address AS olt_ip_address,
+                CONCAT_WS('/', op.frame, op.slot, op.port) AS olt_port_name,
+                ont.ont_id AS ont_assigned_id,
+                ont.status AS ont_status,
+                nb.box_name AS nap_name,
+                nb.box_code AS nap_code,
+                bs.splitter_model,
+                bs.splitter_ratio,
+                sop.port_number AS nap_splitter_port,
+                spj.id AS provisioning_job_id,
+                spj.job_no AS provisioning_job_no,
+                spj.job_status AS provisioning_status,
+                spj.created_at AS provisioning_date,
+                oa.status AS acs_status,
+                oa.wan_ip AS acs_wan_ip,
+                oa.last_seen AS acs_last_seen
 
             FROM subscribers s
             INNER JOIN subscriber_services ss
                 ON ss.subscriber_id = s.id
             INNER JOIN plans p
                 ON p.id = ss.plan_id
-            LEFT JOIN subscriber_provisioning sp
-                ON sp.service_id = ss.id
+            LEFT JOIN service_provisioning_bindings spb ON spb.service_id = ss.id
+            LEFT JOIN olt_devices od ON od.id = spb.olt_id
+            LEFT JOIN olt_ports op ON op.id = spb.olt_port_id
+            LEFT JOIN ont_devices ont ON ont.id = spb.ont_id
+            LEFT JOIN network_boxes nb ON nb.id = spb.network_box_id
+            LEFT JOIN box_splitters bs ON bs.id = spb.splitter_id AND bs.deleted_at IS NULL
+            LEFT JOIN splitter_output_ports sop ON sop.id = spb.splitter_output_port_id AND sop.deleted_at IS NULL
+            LEFT JOIN service_provisioning_jobs spj ON spj.id = (
+                SELECT latest_spj.id
+                FROM service_provisioning_jobs latest_spj
+                WHERE latest_spj.service_id = ss.id
+                ORDER BY latest_spj.id DESC
+                LIMIT 1
+            )
+            LEFT JOIN ont_acs oa ON UPPER(oa.serial_number) = UPPER(spb.ont_serial)
 
             WHERE s.deleted_at IS NULL
               AND ss.plan_id IS NOT NULL
               AND ss.status IS NOT NULL
+              AND ss.id = (
+                  SELECT preferred_service.id
+                  FROM subscriber_services preferred_service
+                  WHERE preferred_service.subscriber_id = s.id
+                  ORDER BY CASE UPPER(preferred_service.status)
+                      WHEN 'ACTIVE' THEN 0 WHEN 'SUSPENDED' THEN 1 WHEN 'PENDING' THEN 2 ELSE 3 END,
+                      preferred_service.id DESC
+                  LIMIT 1
+              )
         ";
 
         if ($search !== '') {
@@ -182,37 +226,69 @@ class SubscriberRepository
 
                 ss.id AS service_id,
                 ss.ppp_username,
-                ss.ppp_password,
                 ss.plan_id,
                 ss.account_type,
                 ss.status AS service_status,
                 ss.next_due_date,
                 ss.expires_at,
                 ss.service_number,
+                (SELECT COUNT(*) FROM subscriber_services service_count_rows WHERE service_count_rows.subscriber_id = s.id) AS service_count,
 
                 p.plan_name,
 
-                sp.id AS provisioning_id,
-                sp.nap_splitter_port,
-                sp.ont_serial,
-                sp.installed_at,
-                sp.nap_port_id,
-                sp.ont_id,
-                sp.olt_port_id,
-                sp.assigned_at,
-                sp.cvlan,
-                sp.svlan
+                spb.id AS provisioning_id,
+                spb.ont_serial,
+                spb.installed_at,
+                spb.ont_id,
+                spb.olt_port_id,
+                spb.assigned_at,
+                spb.activated_at,
+                spb.cvlan,
+                spb.svlan,
+                od.name AS olt_name,
+                od.ip_address AS olt_ip_address,
+                CONCAT_WS('/', op.frame, op.slot, op.port) AS olt_port_name,
+                ont.ont_id AS ont_assigned_id,
+                ont.status AS ont_status,
+                nb.box_name AS nap_name,
+                nb.box_code AS nap_code,
+                bs.splitter_model,
+                bs.splitter_ratio,
+                sop.port_number AS nap_splitter_port,
+                spj.id AS provisioning_job_id,
+                spj.job_no AS provisioning_job_no,
+                spj.job_status AS provisioning_status,
+                spj.created_at AS provisioning_date,
+                oa.status AS acs_status,
+                oa.wan_ip AS acs_wan_ip,
+                oa.last_seen AS acs_last_seen
 
             FROM subscribers s
             INNER JOIN subscriber_services ss
                 ON ss.subscriber_id = s.id
             INNER JOIN plans p
                 ON p.id = ss.plan_id
-            LEFT JOIN subscriber_provisioning sp
-                ON sp.service_id = ss.id
+            LEFT JOIN service_provisioning_bindings spb ON spb.service_id = ss.id
+            LEFT JOIN olt_devices od ON od.id = spb.olt_id
+            LEFT JOIN olt_ports op ON op.id = spb.olt_port_id
+            LEFT JOIN ont_devices ont ON ont.id = spb.ont_id
+            LEFT JOIN network_boxes nb ON nb.id = spb.network_box_id
+            LEFT JOIN box_splitters bs ON bs.id = spb.splitter_id AND bs.deleted_at IS NULL
+            LEFT JOIN splitter_output_ports sop ON sop.id = spb.splitter_output_port_id AND sop.deleted_at IS NULL
+            LEFT JOIN service_provisioning_jobs spj ON spj.id = (
+                SELECT latest_spj.id
+                FROM service_provisioning_jobs latest_spj
+                WHERE latest_spj.service_id = ss.id
+                ORDER BY latest_spj.id DESC
+                LIMIT 1
+            )
+            LEFT JOIN ont_acs oa ON UPPER(oa.serial_number) = UPPER(spb.ont_serial)
 
             WHERE s.id = ?
               AND s.deleted_at IS NULL
+            ORDER BY CASE UPPER(ss.status)
+                WHEN 'ACTIVE' THEN 0 WHEN 'SUSPENDED' THEN 1 WHEN 'PENDING' THEN 2 ELSE 3 END,
+                ss.id DESC
             LIMIT 1
         ");
         $stmt->execute([$id]);
@@ -224,6 +300,32 @@ class SubscriberRepository
 
         $rows = $this->attachOnlineState([$row]);
         return $rows[0] ?? null;
+    }
+
+    public function findPppCredentialContext(int $subscriberId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                s.id AS subscriber_id,
+                s.full_name,
+                ss.id AS service_id,
+                ss.ppp_username,
+                ss.ppp_password,
+                spb.ont_serial
+            FROM subscribers s
+            INNER JOIN subscriber_services ss ON ss.subscriber_id = s.id
+            LEFT JOIN service_provisioning_bindings spb ON spb.service_id = ss.id
+            WHERE s.id = ?
+              AND s.deleted_at IS NULL
+            ORDER BY CASE UPPER(ss.status)
+                WHEN 'ACTIVE' THEN 0 WHEN 'SUSPENDED' THEN 1 WHEN 'PENDING' THEN 2 ELSE 3 END,
+                ss.id DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$subscriberId]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 
     public function sessionStates(string $search = ''): array
@@ -242,6 +344,15 @@ class SubscriberRepository
             WHERE s.deleted_at IS NULL
               AND ss.plan_id IS NOT NULL
               AND ss.status IS NOT NULL
+              AND ss.id = (
+                  SELECT preferred_session_service.id
+                  FROM subscriber_services preferred_session_service
+                  WHERE preferred_session_service.subscriber_id = s.id
+                  ORDER BY CASE UPPER(preferred_session_service.status)
+                      WHEN 'ACTIVE' THEN 0 WHEN 'SUSPENDED' THEN 1 WHEN 'PENDING' THEN 2 ELSE 3 END,
+                      preferred_session_service.id DESC
+                  LIMIT 1
+              )
         ";
 
         if ($search !== '') {
@@ -306,20 +417,25 @@ class SubscriberRepository
         if (!empty($usernames)) {
             $placeholders = implode(',', array_fill(0, count($usernames), '?'));
 
-            $stmt = $this->radiusDb->prepare("
-                SELECT DISTINCT username
-                FROM radacct
-                WHERE acctstoptime IS NULL
-                  AND username IN ($placeholders)
-            ");
-            $stmt->execute($usernames);
+            try {
+                $stmt = $this->radiusDb()->prepare("
+                    SELECT DISTINCT username
+                    FROM radacct
+                    WHERE acctstoptime IS NULL
+                      AND username IN ($placeholders)
+                ");
+                $stmt->execute($usernames);
 
-            $active = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            foreach ($active as $item) {
-                $username = (string)($item['username'] ?? '');
-                if ($username !== '') {
-                    $onlineMap[$username] = 1;
+                $active = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                foreach ($active as $item) {
+                    $username = (string)($item['username'] ?? '');
+                    if ($username !== '') {
+                        $onlineMap[$username] = 1;
+                    }
                 }
+            } catch (PDOException $e) {
+                // Subscriber records remain available while RADIUS telemetry is unavailable.
+                error_log('[SubscriberRepository] RADIUS online-state lookup unavailable: ' . $e->getCode());
             }
         }
 
@@ -358,8 +474,9 @@ class SubscriberRepository
         string $portalUsername,
         string $portalPassword
     ): array {
-        $accountNumber = $this->nextAccountNumber();
-        $serviceNumber = $this->nextServiceNumber();
+        $accountNumber = 0;
+        $serviceNumber = 0;
+        $numberLockHeld = false;
 
         $nextDueDate = null;
         $expiresAt = null;
@@ -372,6 +489,17 @@ class SubscriberRepository
 
         try {
             $this->db->beginTransaction();
+
+            $lockStmt = $this->db->query("SELECT GET_LOCK('nexusbox_subscriber_numbers', 10)");
+            $numberLockHeld = (int)$lockStmt->fetchColumn() === 1;
+
+            if (!$numberLockHeld) {
+                throw new PDOException('Unable to reserve subscriber numbers.');
+            }
+
+            $accountNumber = $this->nextAccountNumber();
+            $serviceNumber = $this->nextServiceNumber();
+            $pppUsername = sprintf('CST%07d', $serviceNumber);
 
             /*
             |--------------------------------------------------------------------------
@@ -469,6 +597,8 @@ class SubscriberRepository
             ]);
 
             $this->db->commit();
+            $this->db->query("SELECT RELEASE_LOCK('nexusbox_subscriber_numbers')");
+            $numberLockHeld = false;
 
             return [
                 'ok' => true,
@@ -488,6 +618,10 @@ class SubscriberRepository
                 $this->db->rollBack();
             }
 
+            if ($numberLockHeld) {
+                $this->db->query("SELECT RELEASE_LOCK('nexusbox_subscriber_numbers')");
+            }
+
             return [
                 'ok' => false,
                 'message' => 'Portal insert failed.',
@@ -497,6 +631,9 @@ class SubscriberRepository
 
     public function updateProfileAndService(int $id, array $data, array $plan): bool
     {
+        $this->db->beginTransaction();
+
+        try {
         $stmt1 = $this->db->prepare("
             UPDATE subscribers
             SET
@@ -543,7 +680,79 @@ class SubscriberRepository
             $id,
         ]);
 
-        return $ok1 && $ok2;
+            if (!$ok1 || !$ok2) {
+                throw new PDOException('Unable to update subscriber records.');
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            return false;
+        }
+    }
+
+    public function restoreProfileAndService(int $id, array $existing): void
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE subscribers
+                SET full_name = ?, address = ?, contact_number = ?, email = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $existing['full_name'] ?? '',
+                $existing['address'] ?? '',
+                $existing['contact_number'] ?? '',
+                $existing['email'] ?? '',
+                $id,
+            ]);
+
+            $stmt = $this->db->prepare("
+                UPDATE subscriber_services
+                SET plan_id = ?, account_type = ?, next_due_date = ?, expires_at = ?
+                WHERE subscriber_id = ?
+            ");
+            $stmt->execute([
+                $existing['plan_id'] ?? null,
+                $existing['account_type'] ?? null,
+                $existing['next_due_date'] ?? null,
+                $existing['expires_at'] ?? null,
+                $id,
+            ]);
+
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    public function rollbackCreatedSubscriber(int $subscriberId, int $userId): void
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $stmt = $this->db->prepare('DELETE FROM subscriber_services WHERE subscriber_id = ?');
+            $stmt->execute([$subscriberId]);
+            $stmt = $this->db->prepare('DELETE FROM subscribers WHERE id = ?');
+            $stmt->execute([$subscriberId]);
+            $stmt = $this->db->prepare("DELETE FROM users WHERE id = ? AND role = 'SUBSCRIBER'");
+            $stmt->execute([$userId]);
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     public function updateSubscriberStatus(int $id, string $status): bool
@@ -569,6 +778,29 @@ class SubscriberRepository
         return $stmt->execute([$status, $subscriberId]);
     }
 
+    public function updateAccountStatuses(int $subscriberId, string $subscriberStatus, string $serviceStatus): bool
+    {
+        $this->db->beginTransaction();
+
+        try {
+            if (!$this->updateSubscriberStatus($subscriberId, $subscriberStatus)) {
+                throw new PDOException('Unable to update subscriber status.');
+            }
+
+            if (!$this->updateServiceStatus($subscriberId, $serviceStatus)) {
+                throw new PDOException('Unable to update service status.');
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            return false;
+        }
+    }
+
     public function updatePppPassword(int $subscriberId, string $password): bool
     {
         $stmt = $this->db->prepare("
@@ -580,8 +812,22 @@ class SubscriberRepository
         return $stmt->execute([$password, $subscriberId]);
     }
 
+    public function updateServicePppPassword(int $serviceId, string $password): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE subscriber_services
+            SET ppp_password = ?
+            WHERE id = ?
+        ");
+
+        return $stmt->execute([$password, $serviceId]);
+    }
+
     public function softDelete(int $subscriberId): bool
     {
+        $this->db->beginTransaction();
+
+        try {
         $stmt1 = $this->db->prepare("
             UPDATE subscribers
             SET
@@ -596,12 +842,23 @@ class SubscriberRepository
             WHERE subscriber_id = ?
         ");
 
-        return $stmt1->execute([$subscriberId]) && $stmt2->execute([$subscriberId]);
+            if (!$stmt1->execute([$subscriberId]) || !$stmt2->execute([$subscriberId])) {
+                throw new PDOException('Unable to delete subscriber.');
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            return false;
+        }
     }
 
     public function radiusTableExists(string $tableName): bool
     {
-        $stmt = $this->radiusDb->prepare("
+        $stmt = $this->radiusDb()->prepare("
             SELECT COUNT(*)
             FROM information_schema.tables
             WHERE table_schema = DATABASE()
@@ -619,39 +876,39 @@ class SubscriberRepository
         string $status = 'ACTIVE',
         ?string $expiresAt = null
     ): void {
-        $del1 = $this->radiusDb->prepare("
+        $del1 = $this->radiusDb()->prepare("
             DELETE FROM radcheck
             WHERE username = ?
               AND attribute = 'Cleartext-Password'
         ");
         $del1->execute([$username]);
 
-        $ins1 = $this->radiusDb->prepare("
+        $ins1 = $this->radiusDb()->prepare("
             INSERT INTO radcheck (username, attribute, op, value)
             VALUES (?, 'Cleartext-Password', ':=', ?)
         ");
         $ins1->execute([$username, $password]);
 
-        $del2 = $this->radiusDb->prepare("
+        $del2 = $this->radiusDb()->prepare("
             DELETE FROM radusergroup
             WHERE username = ?
         ");
         $del2->execute([$username]);
 
-        $ins2 = $this->radiusDb->prepare("
+        $ins2 = $this->radiusDb()->prepare("
             INSERT INTO radusergroup (username, groupname, priority)
             VALUES (?, ?, 1)
         ");
         $ins2->execute([$username, $planName]);
 
         if ($this->radiusTableExists('isp_subscribers')) {
-            $del3 = $this->radiusDb->prepare("
+            $del3 = $this->radiusDb()->prepare("
                 DELETE FROM isp_subscribers
                 WHERE username = ?
             ");
             $del3->execute([$username]);
 
-            $ins3 = $this->radiusDb->prepare("
+            $ins3 = $this->radiusDb()->prepare("
                 INSERT INTO isp_subscribers (username, status, expires_at, plan)
                 VALUES (?, ?, ?, ?)
             ");
@@ -661,20 +918,20 @@ class SubscriberRepository
 
     public function syncRadiusPlan(string $username, string $planName, ?string $expiresAt = null): void
     {
-        $del = $this->radiusDb->prepare("
+        $del = $this->radiusDb()->prepare("
             DELETE FROM radusergroup
             WHERE username = ?
         ");
         $del->execute([$username]);
 
-        $ins = $this->radiusDb->prepare("
+        $ins = $this->radiusDb()->prepare("
             INSERT INTO radusergroup (username, groupname, priority)
             VALUES (?, ?, 1)
         ");
         $ins->execute([$username, $planName]);
 
         if ($this->radiusTableExists('isp_subscribers')) {
-            $stmt = $this->radiusDb->prepare("
+            $stmt = $this->radiusDb()->prepare("
                 UPDATE isp_subscribers
                 SET plan = ?, expires_at = ?
                 WHERE username = ?
@@ -686,7 +943,7 @@ class SubscriberRepository
     public function syncRadiusStatus(string $username, string $status, ?string $expiresAt = null): void
     {
         if ($this->radiusTableExists('isp_subscribers')) {
-            $stmt = $this->radiusDb->prepare("
+            $stmt = $this->radiusDb()->prepare("
                 UPDATE isp_subscribers
                 SET status = ?, expires_at = ?
                 WHERE username = ?
@@ -697,14 +954,14 @@ class SubscriberRepository
 
     public function syncRadiusPassword(string $username, string $password): void
     {
-        $del = $this->radiusDb->prepare("
+        $del = $this->radiusDb()->prepare("
             DELETE FROM radcheck
             WHERE username = ?
               AND attribute = 'Cleartext-Password'
         ");
         $del->execute([$username]);
 
-        $ins = $this->radiusDb->prepare("
+        $ins = $this->radiusDb()->prepare("
             INSERT INTO radcheck (username, attribute, op, value)
             VALUES (?, 'Cleartext-Password', ':=', ?)
         ");
@@ -714,12 +971,12 @@ class SubscriberRepository
     public function radiusDelete(string $username): void
     {
         foreach (['radcheck', 'radusergroup'] as $table) {
-            $stmt = $this->radiusDb->prepare("DELETE FROM {$table} WHERE username = ?");
+            $stmt = $this->radiusDb()->prepare("DELETE FROM {$table} WHERE username = ?");
             $stmt->execute([$username]);
         }
 
         if ($this->radiusTableExists('isp_subscribers')) {
-            $stmt = $this->radiusDb->prepare("DELETE FROM isp_subscribers WHERE username = ?");
+            $stmt = $this->radiusDb()->prepare("DELETE FROM isp_subscribers WHERE username = ?");
             $stmt->execute([$username]);
         }
     }

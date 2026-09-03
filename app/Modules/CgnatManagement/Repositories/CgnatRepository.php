@@ -29,27 +29,42 @@ class CgnatRepository
                 SET
                     enabled = :enabled,
                     inside_network = :inside_network,
+                    bng_interface = :bng_interface,
                     public_start_ip = :public_start_ip,
                     public_end_ip = :public_end_ip,
-                    egress_interface = :egress_interface,
-                    router_next_hop = :router_next_hop,
-                    remarks = :remarks
+                    egress_interface = :egress_interface
                 WHERE id = :id
             ';
             $data['id'] = $existing['id'];
         } else {
             $sql = '
                 INSERT INTO cgnat_settings (
-                    enabled, inside_network, public_start_ip, public_end_ip,
-                    egress_interface, router_next_hop, remarks
+                    enabled, inside_network, bng_interface, public_start_ip, public_end_ip,
+                    egress_interface
                 ) VALUES (
-                    :enabled, :inside_network, :public_start_ip, :public_end_ip,
-                    :egress_interface, :router_next_hop, :remarks
+                    :enabled, :inside_network, :bng_interface, :public_start_ip, :public_end_ip,
+                    :egress_interface
                 )
             ';
         }
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($data);
+    }
+
+    public function markApplied(array $state): void
+    {
+        $existing = $this->get();
+        if (!$existing) return;
+        $stmt = $this->db->prepare('UPDATE cgnat_settings SET applied_state_json = :state, applied_at = NOW() WHERE id = :id');
+        $stmt->execute([':state' => json_encode($state, JSON_UNESCAPED_SLASHES), ':id' => $existing['id']]);
+    }
+
+    public function appliedState(): ?array
+    {
+        $row = $this->get();
+        if (!$row || empty($row['applied_state_json'])) return null;
+        $decoded = json_decode((string)$row['applied_state_json'], true);
+        return is_array($decoded) ? $decoded : null;
     }
 }

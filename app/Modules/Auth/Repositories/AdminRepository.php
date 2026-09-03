@@ -3,6 +3,7 @@
 namespace App\Modules\Auth\Repositories;
 
 use App\Infrastructure\Database\DatabaseConnection;
+use App\Modules\Auth\Entities\AuthenticatedUser;
 use PDO;
 
 class AdminRepository
@@ -14,7 +15,7 @@ class AdminRepository
         $this->db = $connection->get();
     }
 
-    public function findByUsername($username)
+    public function findByUsername(string $username): ?AuthenticatedUser
     {
         $stmt = $this->db->prepare(
             "SELECT * FROM users WHERE username = :username LIMIT 1"
@@ -24,7 +25,8 @@ class AdminRepository
             'username' => $username
         ]);
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? new AuthenticatedUser($row) : null;
     }
 
     public function updateLastLogin(int $id): void

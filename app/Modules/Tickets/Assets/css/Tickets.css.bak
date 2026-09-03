@@ -1,0 +1,219 @@
+/* Module override layer: shared shell, panels, tables, controls, and theme
+   tokens are defined in public/assets/css/nx.css. Keep this file scoped to
+   ticket-specific layout and visual exceptions only. */
+.tickets-page .tickets-clickable-row {
+    cursor: pointer;
+}
+
+.tickets-page .tickets-clickable-row:hover {
+    background: rgba(13, 110, 253, 0.04);
+}
+
+.tickets-page .badge {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.tickets-page table td,
+.tickets-page table th {
+    vertical-align: middle;
+}
+
+.tickets-page .card {
+    border-radius:3px;
+}
+
+.tickets-page .form-control,
+.tickets-page .form-select,
+.tickets-page .btn {
+    border-radius:3px;
+}
+
+.tickets-page .ticket-detail-card {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius:3px;
+    padding: 16px;
+    background: #fff;
+}
+
+.tickets-page .ticket-detail-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tickets-page .ticket-thread {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.tickets-page .ticket-message {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius:3px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+.tickets-page .ticket-message-internal {
+    background: #f8fafc;
+    border-style: dashed;
+}
+/* =========================================================
+   TICKETS DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .tickets-page .card {
+    background: var(--nx-panel-surface-dark) !important;
+    border-color: var(--nx-panel-border-dark) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .tickets-page .card-header,
+html[data-theme="dark"] .tickets-page .card-footer {
+    background: var(--nx-panel-surface-dark) !important;
+    border-color: var(--nx-panel-border-dark) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .tickets-page .card-body {
+    background: var(--nx-panel-surface-dark) !important;
+    color: var(--nx-text-soft) !important;
+}
+
+/* Tables */
+html[data-theme="dark"] .tickets-page table,
+html[data-theme="dark"] .tickets-page .table {
+    background: var(--nx-table-row-surface-dark) !important;
+    color: var(--nx-text-soft) !important;
+}
+
+html[data-theme="dark"] .tickets-page .table thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: var(--nx-text-muted) !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+html[data-theme="dark"] .tickets-page .table tbody td {
+    background: var(--nx-table-row-surface-dark) !important;
+    color: var(--nx-text-soft) !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+html[data-theme="dark"] .tickets-page .table tbody tr:hover td,
+html[data-theme="dark"] .tickets-page .tickets-clickable-row:hover td {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .tickets-page .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Forms */
+html[data-theme="dark"] .tickets-page .form-control,
+html[data-theme="dark"] .tickets-page .form-select,
+html[data-theme="dark"] .tickets-page textarea.form-control {
+    background: var(--nx-control-surface-dark) !important;
+    border-color: var(--nx-control-border-dark) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] .tickets-page .form-control::placeholder,
+html[data-theme="dark"] .tickets-page textarea::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme="dark"] .tickets-page .form-label,
+html[data-theme="dark"] .tickets-page .ticket-detail-label {
+    color: #9aabc1 !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] .tickets-page .btn-light,
+html[data-theme="dark"] .tickets-page .btn-outline-secondary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .tickets-page .btn-light:hover,
+html[data-theme="dark"] .tickets-page .btn-outline-secondary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Detail cards */
+html[data-theme="dark"] .tickets-page .ticket-detail-card {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+/* Messages */
+html[data-theme="dark"] .tickets-page .ticket-message {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] .tickets-page .ticket-message-internal {
+    background: #101827 !important;
+    border-color: #475569 !important;
+}
+
+/* Modal */
+html[data-theme="dark"] .tickets-page .modal-content {
+    background: #182235 !important;
+    border: 1px solid #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .tickets-page .modal-header,
+html[data-theme="dark"] .tickets-page .modal-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .tickets-page .modal-body {
+    background: #0b1220 !important;
+}
+
+/* Typography */
+html[data-theme="dark"] .tickets-page h1,
+html[data-theme="dark"] .tickets-page h2,
+html[data-theme="dark"] .tickets-page h3,
+html[data-theme="dark"] .tickets-page h4,
+html[data-theme="dark"] .tickets-page h5,
+html[data-theme="dark"] .tickets-page h6,
+html[data-theme="dark"] .tickets-page strong {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .tickets-page .text-muted,
+html[data-theme="dark"] .tickets-page small {
+    color: #9aabc1 !important;
+}
+
+/* Tickets-specific layer ends here. Shared surfaces and controls stay in nx.css. */
+html[data-theme="dark"] .tickets-page .tickets-card,
+html[data-theme="dark"] .tickets-page .tickets-panel,
+html[data-theme="dark"] .tickets-page .nx-content-card,
+html[data-theme="dark"] .tickets-page .nx-toolbar-card,
+html[data-theme="dark"] .tickets-page .card {
+    background: var(--nx-panel-surface-dark) !important;
+    border-color: var(--nx-panel-border-dark) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .tickets-page input,
+html[data-theme="dark"] .tickets-page select,
+html[data-theme="dark"] .tickets-page textarea {
+    background: var(--nx-control-surface-dark) !important;
+    border-color: var(--nx-control-border-dark) !important;
+    color: var(--nx-text) !important;
+}

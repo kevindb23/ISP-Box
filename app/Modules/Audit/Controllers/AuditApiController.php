@@ -2,48 +2,41 @@
 
 namespace App\Modules\Audit\Controllers;
 
+use App\Modules\Audit\DTOs\AuditFilterDTO;
 use App\Modules\Audit\Services\AuditService;
+use App\Modules\Audit\Validators\AuditFilterValidator;
+use Framework\ApiController;
 
-class AuditApiController
+class AuditApiController extends ApiController
 {
-    private AuditService $service;
-
-    public function __construct(AuditService $service)
-    {
-        $this->service = $service;
+    public function __construct(
+        private AuditService $service,
+        private AuditFilterValidator $validator
+    ) {
     }
 
     public function index(): void
     {
-        header('Content-Type: application/json');
+        $filter = new AuditFilterDTO($this->request()->query());
+        $errors = $this->validator->validate($filter);
 
-        echo json_encode([
-            'ok' => true,
-            'data' => $this->service->latest()
-        ]);
+        if ($errors !== []) {
+            $this->error('Validation failed.', 422, $errors);
+            return;
+        }
+
+        $this->success($this->service->latest($filter));
     }
 
     public function show($id): void
     {
-        header('Content-Type: application/json');
-
         $item = $this->service->find((int)$id);
 
         if (!$item) {
-
-            http_response_code(404);
-
-            echo json_encode([
-                'ok' => false,
-                'message' => 'Audit log not found.'
-            ]);
-
+            $this->error('Audit log not found.', 404);
             return;
         }
 
-        echo json_encode([
-            'ok' => true,
-            'data' => $item
-        ]);
+        $this->success($item);
     }
 }

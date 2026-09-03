@@ -3,13 +3,14 @@
 namespace App\Modules\ServiceProvisioning\Repositories;
 
 use App\Infrastructure\Database\DatabaseConnection;
+use App\Infrastructure\Security\SecretCipher;
 use PDO;
 
 class ServiceProvisioningRepository
 {
     private PDO $db;
 
-    public function __construct(DatabaseConnection $connection)
+    public function __construct(DatabaseConnection $connection, private SecretCipher $secrets)
     {
         $this->db = $connection->get();
     }
@@ -17,6 +18,42 @@ class ServiceProvisioningRepository
     public function getPdo(): PDO
     {
         return $this->db;
+    }
+
+    public function transaction(callable $callback): mixed
+    {
+        $ownsTransaction = !$this->db->inTransaction();
+        if ($ownsTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $result = $callback();
+            if ($ownsTransaction) {
+                $this->db->commit();
+            }
+            return $result;
+        } catch (\Throwable $e) {
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    public function acquireLock(string $name, int $timeoutSeconds = 15): void
+    {
+        $stmt = $this->db->prepare('SELECT GET_LOCK(?, ?)');
+        $stmt->execute([$name, max(0, $timeoutSeconds)]);
+        if ((int)$stmt->fetchColumn() !== 1) {
+            throw new \RuntimeException('Provisioning resources are busy. Please retry shortly.');
+        }
+    }
+
+    public function releaseLock(string $name): void
+    {
+        $stmt = $this->db->prepare('SELECT RELEASE_LOCK(?)');
+        $stmt->execute([$name]);
     }
 
     public function paginateJobs(int $page = 1, int $limit = 20, string $search = '', string $status = ''): array
@@ -87,7 +124,7 @@ class ServiceProvisioningRepository
                 'page' => $page,
                 'limit' => $limit,
                 'total' => $total,
-                'pages' => $limit > 0 ? (int)ceil($total / $limit) : 1,
+                'pages' => max(1, (int)ceil($total / $limit)),
             ],
         ];
     }
@@ -103,7 +140,6 @@ class ServiceProvisioningRepository
                 s.status AS subscriber_status,
 
                 ss.ppp_username,
-                ss.ppp_password,
                 ss.service_number,
                 ss.status AS service_status,
                 ss.account_type,
@@ -138,6 +174,8 @@ class ServiceProvisioningRepository
                 nb.box_name AS network_box_name,
                 nb.box_code AS network_box_code,
                 nb.location AS network_box_location,
+                nb.latitude AS network_box_latitude,
+                nb.longitude AS network_box_longitude,
                 nb.status AS network_box_status,
 
                 bs.splitter_model,
@@ -564,6 +602,9 @@ class ServiceProvisioningRepository
         $stmt->execute([$oltId]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        }
         return $row ?: null;
     }
 
@@ -890,6 +931,33 @@ class ServiceProvisioningRepository
         $stmt->execute([$status, $serviceId]);
     }
 
+    public function assignOntToSubscriber(int $ontId, int $subscriberId): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE ont_devices
+            SET status = 'ASSIGNED', subscriber_id = ?
+            WHERE id = ?
+              AND (subscriber_id IS NULL OR subscriber_id = ?)
+        ");
+        $stmt->execute([$subscriberId, $ontId, $subscriberId]);
+
+        if ($stmt->rowCount() !== 1) {
+            $check = $this->db->prepare("
+                SELECT subscriber_id, status
+                FROM ont_devices
+                WHERE id = ?
+                LIMIT 1
+            ");
+            $check->execute([$ontId]);
+            $current = $check->fetch(PDO::FETCH_ASSOC);
+            if (!$current
+                || (int)($current['subscriber_id'] ?? 0) !== $subscriberId
+                || strtoupper((string)($current['status'] ?? '')) !== 'ASSIGNED') {
+                throw new \RuntimeException('ONT inventory assignment failed or the ONT belongs to another subscriber.');
+            }
+        }
+    }
+
     public function getSupportSubscribers(string $search = ''): array
     {
         $sql = "
@@ -921,7 +989,6 @@ class ServiceProvisioningRepository
                 existing_service.id AS service_id,
                 existing_service.subscriber_id,
                 existing_service.ppp_username,
-                existing_service.ppp_password,
                 existing_service.status AS service_status,
                 existing_service.service_number,
                 p.plan_name,
@@ -966,7 +1033,7 @@ class ServiceProvisioningRepository
     public function getSupportOlts(string $search = ''): array
     {
         $sql = "
-            SELECT id, name, ip_address, username, password, vendor
+            SELECT id, name, ip_address, vendor
             FROM olt_devices
         ";
 
@@ -1005,6 +1072,7 @@ class ServiceProvisioningRepository
                 CONCAT_WS('/', frame, slot, port) AS label
             FROM olt_ports
             WHERE olt_id = ?
+              AND UPPER(COALESCE(port_type, '')) LIKE '%GPON%'
             ORDER BY frame ASC, slot ASC, port ASC
         ");
         $stmt->execute([$oltId]);
@@ -1224,5 +1292,37 @@ class ServiceProvisioningRepository
             WHERE id = ?
         ");
         $stmt->execute([$serviceId, $reservedLabel, $id]);
+    }
+
+    public function reserveSplitterOutputPort(int $id, int $serviceId): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE splitter_output_ports
+            SET status = 'RESERVED', service_id = ?, reserved_label = 'Provisioning reservation'
+            WHERE id = ? AND UPPER(status) = 'AVAILABLE'
+        ");
+        $stmt->execute([$serviceId, $id]);
+        if ($stmt->rowCount() !== 1) {
+            throw new \RuntimeException('The selected splitter output port is no longer available.');
+        }
+    }
+
+    public function releaseSplitterOutputPortReservation(int $id, int $serviceId): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE splitter_output_ports
+            SET status = 'AVAILABLE', service_id = NULL, reserved_label = NULL
+            WHERE id = ? AND service_id = ? AND UPPER(status) = 'RESERVED'
+        ");
+        $stmt->execute([$id, $serviceId]);
+    }
+
+    public function deleteUnactivatedBinding(int $serviceId): void
+    {
+        $stmt = $this->db->prepare("
+            DELETE FROM service_provisioning_bindings
+            WHERE service_id = ? AND assigned_at IS NULL AND activated_at IS NULL
+        ");
+        $stmt->execute([$serviceId]);
     }
 }

@@ -6,8 +6,9 @@
 |--------------------------------------------------------------------------
 */
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+$debugEnabled = filter_var(getenv('APP_DEBUG') ?: '0', FILTER_VALIDATE_BOOLEAN);
+ini_set('display_errors', $debugEnabled ? '1' : '0');
+ini_set('display_startup_errors', $debugEnabled ? '1' : '0');
 error_reporting(E_ALL);
 
 
@@ -26,10 +27,13 @@ define('BASE_PATH', dirname(__DIR__));
 |--------------------------------------------------------------------------
 */
 
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
-    'secure' => false,
+    'secure' => $isHttps,
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
@@ -45,8 +49,12 @@ session_start();
 
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(self)');
+header("Content-Security-Policy: default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org");
+if ($isHttps) {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 
 
 /*
@@ -83,6 +91,8 @@ spl_autoload_register(function ($class) {
     }
 
 });
+
+set_exception_handler([\Framework\ExceptionHandler::class, 'handle']);
 
 
 /*

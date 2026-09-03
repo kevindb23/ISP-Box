@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle: $('#technicianModalTitle'),
         modalSubtitle: $('#technicianModalSubtitle'),
         detailsContent: $('#technicianDetailsContent'),
+        dispatchCount: $('#technicianDispatchCount'),
+        recordCount: $('#technicianRecordCount'),
     };
 
     bindEvents();
@@ -161,6 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
             state.dispatch.unassignedWorkOrders = safeArray(data.unassigned_work_orders);
             state.dispatch.availableTechnicians = safeArray(data.available_technicians);
 
+            text(refs.dispatchCount, state.dispatch.unassignedWorkOrders.length);
+
             renderDispatchBoard();
         } catch (error) {
             console.error('Dispatch board load failed:', error);
@@ -236,14 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderTable() {
         const rows = getFilteredTechnicians();
+        text(refs.recordCount, `${rows.length} technician${rows.length === 1 ? '' : 's'}`);
 
         if (!rows.length) {
             html(refs.tableHost, `
-                ${renderWorkloadDashboardMarkup()}
-                ${renderDispatchBoardMarkup()}
-                <div class="card border-0 shadow-sm">
-                    <div class="text-center py-5 text-muted">No technicians found.</div>
-                </div>
+                <div class="nx-empty-state"><div class="nx-empty-icon"><i class="bi bi-person-workspace"></i></div><div class="nx-empty-title">No technicians found</div><div class="nx-empty-text">Adjust the search or availability filter.</div></div>
             `);
             return;
         }
@@ -252,35 +253,25 @@ document.addEventListener('DOMContentLoaded', () => {
         state.technicianPager.currentPage = pager.currentPage;
 
         html(refs.tableHost, `
-            ${renderWorkloadDashboardMarkup()}
-            ${renderDispatchBoardMarkup()}
-
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table technician-table mb-0">
-                            <thead class="table-light">
+                    <div class="nx-table-wrap">
+                        <table class="table align-middle technician-table mb-0">
+                            <thead>
                                 <tr>
-                                    <th class="ps-4">Technician</th>
-                                    <th>Status</th>
-                                    <th>Area / Level</th>
-                                    <th>Active</th>
-                                    <th>Completed</th>
-                                    <th>Failed</th>
-                                    <th>Success %</th>
-                                    <th>Last Login</th>
-                                    <th class="text-end pe-4">Actions</th>
+                                    <th>Technician</th>
+                                    <th>Employee / Contact</th>
+                                    <th>Availability</th>
+                                    <th>Service Area</th>
+                                    <th>Active Jobs</th>
+                                    <th>Completion</th>
+                                    <th>Last Activity</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>${pager.rows.map(renderRow).join('')}</tbody>
                         </table>
                     </div>
                     ${renderPagination(pager, 'tech')}
-                </div>
-            </div>
         `);
-
-        renderDispatchBoard();
     }
 
     function renderDispatchBoardMarkup() {
@@ -310,13 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderDispatchBoard() {
-        const host = $('#technicianDispatchContent');
+        const host = document.getElementById('technicianDispatchContent');
         if (!host) return;
 
         const rows = state.dispatch.unassignedWorkOrders;
 
         if (!rows.length) {
-            html(host, `<div class="text-center py-4 text-muted border rounded">No unassigned open work orders.</div>`);
+            html(host, `<div class="nx-empty-state"><div class="nx-empty-icon"><i class="bi bi-clipboard-check"></i></div><div class="nx-empty-title">No unassigned work orders</div><div class="nx-empty-text">New open work orders will appear here for dispatch.</div></div>`);
             return;
         }
 
@@ -324,9 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
         state.dispatchPager.currentPage = pager.currentPage;
 
         html(host, `
-            <div class="table-responsive border rounded">
-                <table class="table mb-0">
-                    <thead class="table-light">
+            <div class="nx-table-wrap">
+                <table class="table align-middle mb-0">
+                    <thead>
                         <tr>
                             <th>WO No.</th>
                             <th>Subscriber</th>
@@ -412,37 +403,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return `
             <tr>
-                <td class="ps-4">
+                <td>
                     <div class="d-flex align-items-center gap-3">
                         <div class="technician-avatar">${escape(initials)}</div>
                         <div>
                             <div class="fw-semibold">${escape(name)}</div>
                             <div class="small text-muted">${escape(row.email || row.username || '-')}</div>
-                            <div class="small text-muted">Emp No: ${escape(row.employee_no || '-')}</div>
                         </div>
                     </div>
                 </td>
-                <td>${statusBadge(row.availability_status)}</td>
                 <td>
-                    <div class="fw-semibold">${escape(row.service_area || '-')}</div>
-                    <div class="small text-muted">${escape(row.skill_level || '-')}</div>
+                    <div class="nx-cell-title">${escape(row.employee_no || 'No employee number')}</div>
+                    <div class="nx-cell-sub">${escape(row.mobile_number || row.email || '-')}</div>
                 </td>
-                <td><span class="fw-semibold">${escape(row.active_work_orders || 0)}</span></td>
-                <td><span class="fw-semibold text-success">${escape(row.completed_work_orders || 0)}</span></td>
-                <td><span class="fw-semibold text-danger">${escape(row.failed_work_orders || 0)}</span></td>
-                <td><span class="badge bg-success">${escape(row.success_rate || 0)}%</span></td>
+                <td>${statusBadge(row.availability_status)}</td>
+                <td><div class="nx-cell-title">${escape(row.service_area || '-')}</div><div class="nx-cell-sub">${escape(row.skill_level || 'JUNIOR')}</div></td>
+                <td><span class="technician-job-count">${escape(row.active_work_orders || 0)}</span></td>
+                <td><div class="nx-cell-title">${escape(row.completion_rate || 0)}%</div><div class="nx-cell-sub">${escape(row.completed_work_orders || 0)} completed · ${escape(row.failed_work_orders || 0)} failed</div></td>
                 <td><span class="small text-muted">${escape(formatDateTime(row.last_login || '') || '-')}</span></td>
-                <td class="text-end pe-4">
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-light border" data-view-technician="${escape(row.id)}">View</button>
-                        <button class="btn btn-sm btn-light border dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                <td class="text-end text-nowrap">
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-light border" data-view-technician="${escape(row.id)}" title="View technician"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-light border dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" title="Change availability"><span class="visually-hidden">Change availability</span></button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             ${renderStatusOption(row.id, 'AVAILABLE', 'Available')}
                             ${renderStatusOption(row.id, 'BUSY', 'Busy')}
                             ${renderStatusOption(row.id, 'ON_SITE', 'On Site')}
                             ${renderStatusOption(row.id, 'TRAVELING', 'Traveling')}
                             ${renderStatusOption(row.id, 'ON_BREAK', 'On Break')}
-                            ${renderStatusOption(row.id, 'OFFLINE', 'Offline')}
                         </ul>
                     </div>
                 </td>
@@ -546,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
-                    <div class="technician-metric-card">
+                    <div class="metric-card">
                         <div class="technician-detail-section-title">Profile</div>
                         <div class="technician-info-list">
                             ${renderInfoItem('Name', tech.full_name || '-')}
@@ -558,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="col-md-4">
-                    <div class="technician-metric-card">
+                    <div class="metric-card">
                         <div class="technician-detail-section-title">Today</div>
                         <div class="technician-info-list">
                             ${renderInfoItem('Time In', formatDateTime(tech.time_in_at || '') || '-')}
@@ -569,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="col-md-4">
-                    <div class="technician-metric-card">
+                    <div class="metric-card">
                         <div class="technician-detail-section-title">Field Info</div>
                         <div class="technician-info-list">
                             ${renderInfoItem('Service Area', tech.service_area || '-')}
@@ -604,7 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderMetricCard(label, value, valueClass = '') {
         return `
             <div class="col-md-4">
-                <div class="technician-metric-card">
+                <div class="metric-card">
                     <div class="technician-metric-label">${escape(label)}</div>
                     <div class="technician-metric-value ${escape(valueClass)}">${escape(value)}</div>
                 </div>
@@ -772,13 +760,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 ` : ''}
 
-                ${['ASSIGNED', 'IN_PROGRESS'].includes(status) ? `
+                ${status === 'IN_PROGRESS' ? `
                     <button class="btn btn-outline-info" data-work-order-id="${id}" data-work-order-status="ON_SITE">
                         On Site
                     </button>
                 ` : ''}
 
-                ${['ASSIGNED', 'IN_PROGRESS', 'ON_SITE'].includes(status) ? `
+                ${['IN_PROGRESS', 'ON_SITE'].includes(status) ? `
                     <button class="btn btn-outline-success" data-work-order-id="${id}" data-work-order-status="COMPLETED">
                         Complete
                     </button>
@@ -786,14 +774,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         Failed
                     </button>
                 ` : ''}
+                ${['ASSIGNED', 'IN_PROGRESS', 'ON_SITE'].includes(status) ? `
+                    <button class="btn btn-outline-secondary" data-work-order-id="${id}" data-work-order-status="CANCELLED">Cancel</button>
+                ` : ''}
             </div>
         `;
     }
 
     async function updateWorkOrderStatus(workOrderId, status) {
-        const note = ['COMPLETED', 'FAILED'].includes(status)
+        const note = ['COMPLETED', 'FAILED', 'CANCELLED'].includes(status)
             ? prompt(`Enter note for ${status.replaceAll('_', ' ')}:`) || ''
             : '';
+
+        if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(status) && !note.trim()) {
+            showAlert('warning', 'A note is required for this status change.');
+            return;
+        }
 
         try {
             const body = new FormData();
@@ -812,7 +808,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadDashboard();
         } catch (error) {
             console.error(error);
-            showAlert('danger', 'Failed to update work order status.');
+            showAlert('danger', error?.message || 'Failed to update work order status.');
         }
     }
 

@@ -4,7 +4,7 @@ namespace App\Modules\ServiceProvisioning\Validators;
 
 class CreateProvisioningValidator
 {
-    public static function validate(array $input): array
+    public function validate(array $input): array
     {
         $errors = [];
 

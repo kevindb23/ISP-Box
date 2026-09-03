@@ -1,4 +1,9 @@
 <?php
+
+require_once BASE_PATH . '/app/Core/Branding/branding.php';
+
+$branding = \App\Core\Branding::get();
+
 $company = $company ?? [];
 $payment = $payment ?? [];
 $invoice = $invoice ?? [];
@@ -25,7 +30,55 @@ $e = static function ($value): string {
 };
 
 $status = strtoupper((string)($payment['payment_status'] ?? 'POSTED'));
-$logoUrl = trim((string)($company['logo_url'] ?? ''));
+
+$companyName = $branding['company_name']
+        ?? $branding['client_name']
+        ?? $company['name']
+        ?? $company['company_name']
+        ?? 'NexusBox ISP';
+
+$companyTagline = $branding['portal_title']
+        ?? $company['tagline']
+        ?? 'Internet Service Provider';
+
+$companyAddress = $branding['company_address']
+        ?? $company['address']
+        ?? '';
+
+$companyContact = trim(
+        (string)($branding['support_email'] ?? '') .
+        (
+        !empty($branding['support_email']) && !empty($branding['support_phone'])
+                ? ' / '
+                : ''
+        ) .
+        (string)($branding['support_phone'] ?? '')
+);
+
+if ($companyContact === '') {
+    $companyContact = $company['contact'] ?? '';
+}
+
+$companyTin = $branding['tin']
+        ?? $company['tin']
+        ?? '';
+
+$companyWebsite = $branding['website']
+        ?? $company['website']
+        ?? '';
+
+$logoUrl = trim((string)(
+        $branding['logo_path']
+        ?? $company['logo_url']
+        ?? $company['logo_path']
+        ?? ''
+));
+
+$primaryColor = trim((string)($branding['primary_color'] ?? '#2563eb'));
+
+if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $primaryColor)) {
+    $primaryColor = '#2563eb';
+}
 
 $subscriberName = $payment['subscriber_name'] ?? ($invoice['subscriber_name'] ?? '—');
 
@@ -42,10 +95,12 @@ $invoiceStatus = $payment['invoice_status'] ?? ($invoice['status'] ?? '—');
 $invoiceTotal = $payment['total_amount'] ?? ($invoice['total_amount'] ?? 0);
 $totalPaid = $payment['paid_amount'] ?? ($invoice['paid_amount'] ?? 0);
 $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ?? 0);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <?php require BASE_PATH . '/app/UI/Views/layouts/vite.php'; ?>
     <meta charset="UTF-8">
     <title>Receipt <?= $e($payment['payment_no'] ?? '') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,7 +111,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
             --muted: #64748b;
             --line: #e2e8f0;
             --soft: #f8fafc;
-            --blue: #2563eb;
+            --blue: <?= $e($primaryColor) ?>;
             --green: #16a34a;
             --red: #dc2626;
         }
@@ -87,7 +142,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
             border: 1px solid #cbd5e1;
             background: #ffffff;
             color: #0f172a;
-            border-radius: 10px;
+            border-radius:3px;
             padding: 10px 14px;
             font-weight: 700;
             cursor: pointer;
@@ -110,7 +165,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
 
         .document {
             background: #ffffff;
-            border-radius: 18px;
+            border-radius:3px;
             overflow: hidden;
             box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
             border: 1px solid rgba(226, 232, 240, 0.9);
@@ -118,7 +173,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
 
         .doc-topline {
             height: 7px;
-            background: linear-gradient(90deg, #16a34a, #2563eb);
+            background: var(--blue);
         }
 
         .doc-body {
@@ -137,12 +192,13 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
             display: flex;
             gap: 14px;
             align-items: flex-start;
+            min-width: 0;
         }
 
         .logo-box {
             width: 76px;
             height: 76px;
-            border-radius: 18px;
+            border-radius:3px;
             border: 1px solid var(--line);
             background: var(--soft);
             display: flex;
@@ -172,7 +228,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
 
         .company-tagline {
             margin-top: 3px;
-            color: var(--green);
+            color: var(--blue);
             font-weight: 700;
         }
 
@@ -204,7 +260,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
             display: inline-flex;
             margin-top: 12px;
             padding: 7px 12px;
-            border-radius: 999px;
+            border-radius:3px;
             font-size: 11px;
             font-weight: 900;
             letter-spacing: 0.04em;
@@ -227,7 +283,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
         .receipt-paid-box {
             margin-top: 24px;
             padding: 24px;
-            border-radius: 18px;
+            border-radius:3px;
             background: linear-gradient(135deg, #ecfdf5, #eff6ff);
             border: 1px solid #bbf7d0;
             display: flex;
@@ -260,7 +316,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
 
         .box {
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             padding: 18px;
             background: #ffffff;
         }
@@ -307,7 +363,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
         .summary-box {
             margin-top: 24px;
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             padding: 18px;
             background: var(--soft);
         }
@@ -399,6 +455,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
         }
     </style>
 </head>
+
 <body>
 
 <div class="print-actions">
@@ -422,16 +479,23 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
                     </div>
 
                     <div>
-                        <h2 class="company-name"><?= $e($company['name'] ?? 'NexusBox ISP') ?></h2>
-                        <div class="company-tagline"><?= $e($company['tagline'] ?? 'Internet Service Provider') ?></div>
+                        <h2 class="company-name"><?= $e($companyName) ?></h2>
+                        <div class="company-tagline"><?= $e($companyTagline) ?></div>
                         <div class="company-meta">
-                            <?= $e($company['address'] ?? '') ?><br>
-                            <?= $e($company['contact'] ?? '') ?>
-                            <?php if (!empty($company['tin'])): ?>
-                                <br>TIN: <?= $e($company['tin']) ?>
+                            <?php if ($companyAddress !== ''): ?>
+                                <?= $e($companyAddress) ?><br>
                             <?php endif; ?>
-                            <?php if (!empty($company['website'])): ?>
-                                <br><?= $e($company['website']) ?>
+
+                            <?php if ($companyContact !== ''): ?>
+                                <?= $e($companyContact) ?>
+                            <?php endif; ?>
+
+                            <?php if (!empty($companyTin)): ?>
+                                <br>TIN: <?= $e($companyTin) ?>
+                            <?php endif; ?>
+
+                            <?php if (!empty($companyWebsite)): ?>
+                                <br><?= $e($companyWebsite) ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -459,9 +523,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
             <div class="grid-2">
                 <div class="box">
                     <div class="label">Received From</div>
-                    <div class="customer-name">
-                        <?= $e($subscriberName) ?>
-                    </div>
+                    <div class="customer-name"><?= $e($subscriberName) ?></div>
                     <div class="muted">
                         Account No: <?= $e($accountNumber !== '' ? $accountNumber : '—') ?><br>
                         Service No: <?= $e($serviceNumber !== '' ? $serviceNumber : '—') ?><br>
@@ -533,7 +595,7 @@ $remainingBalance = $payment['balance_amount'] ?? ($invoice['balance_amount'] ??
 
             <div class="footer">
                 <div>
-                    Generated by NexusBox · <?= $e(date('M d, Y h:i A')) ?> · Asia/Manila
+                    Generated by <?= $e($companyName) ?> · <?= $e(date('M d, Y h:i A')) ?> · Asia/Manila
                 </div>
                 <div>
                     This is a system-generated payment receipt.

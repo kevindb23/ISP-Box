@@ -1,4 +1,9 @@
 <?php
+
+require_once BASE_PATH . '/app/Core/Branding/branding.php';
+
+$branding = \App\Core\Branding::get();
+
 $company = $company ?? [];
 $invoice = $invoice ?? [];
 $items = $items ?? [];
@@ -25,7 +30,59 @@ $e = static function ($value): string {
 };
 
 $status = strtoupper((string)($invoice['status'] ?? 'UNPAID'));
-$logoUrl = trim((string)($company['logo_url'] ?? ''));
+
+/*
+|--------------------------------------------------------------------------
+| Branding first, old $company fallback second
+|--------------------------------------------------------------------------
+*/
+
+$companyName = $branding['company_name']
+        ?? $branding['client_name']
+        ?? $company['name']
+        ?? $company['company_name']
+        ?? 'NexusBox ISP';
+
+$companyTagline = $branding['portal_title']
+        ?? $company['tagline']
+        ?? 'Internet Service Provider';
+
+$companyAddress = $branding['company_address']
+        ?? $company['address']
+        ?? '';
+
+$brandingEmail = trim((string)($branding['support_email'] ?? ''));
+$brandingPhone = trim((string)($branding['support_phone'] ?? ''));
+
+$companyContact = trim(
+        $brandingEmail .
+        ($brandingEmail !== '' && $brandingPhone !== '' ? ' / ' : '') .
+        $brandingPhone
+);
+
+if ($companyContact === '') {
+    $companyContact = $company['contact'] ?? '';
+}
+
+$companyTin = $branding['tin']
+        ?? $company['tin']
+        ?? '';
+
+$companyWebsite = $branding['website']
+        ?? $company['website']
+        ?? '';
+
+$logoUrl = trim((string)(
+        $branding['logo_path']
+        ?? $company['logo_url']
+        ?? $company['logo_path']
+        ?? ''
+));
+
+$primaryColor = trim((string)($branding['primary_color'] ?? '#2563eb'));
+if (!preg_match('/^#[0-9A-Fa-f]{6}$/', $primaryColor)) {
+    $primaryColor = '#2563eb';
+}
 
 $serviceNumber = trim((string)($invoice['service_number'] ?? ''));
 if ($serviceNumber === '') {
@@ -33,10 +90,12 @@ if ($serviceNumber === '') {
 }
 
 $accountNumber = trim((string)($invoice['account_number'] ?? ''));
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <?php require BASE_PATH . '/app/UI/Views/layouts/vite.php'; ?>
     <meta charset="UTF-8">
     <title>Invoice <?= $e($invoice['invoice_no'] ?? '') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,7 +106,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
             --muted: #64748b;
             --line: #e2e8f0;
             --soft: #f8fafc;
-            --blue: #2563eb;
+            --blue: <?= $e($primaryColor) ?>;
             --green: #16a34a;
             --red: #dc2626;
             --amber: #d97706;
@@ -79,7 +138,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
             border: 1px solid #cbd5e1;
             background: #ffffff;
             color: #0f172a;
-            border-radius: 10px;
+            border-radius:3px;
             padding: 10px 14px;
             font-weight: 700;
             cursor: pointer;
@@ -102,7 +161,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
 
         .document {
             background: #ffffff;
-            border-radius: 18px;
+            border-radius:3px;
             overflow: hidden;
             box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
             border: 1px solid rgba(226, 232, 240, 0.9);
@@ -110,7 +169,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
 
         .doc-topline {
             height: 7px;
-            background: linear-gradient(90deg, #2563eb, #16a34a);
+            background: var(--blue);
         }
 
         .doc-body {
@@ -135,7 +194,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
         .logo-box {
             width: 82px;
             height: 82px;
-            border-radius: 18px;
+            border-radius:3px;
             border: 1px solid var(--line);
             background: var(--soft);
             display: flex;
@@ -198,7 +257,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
             display: inline-flex;
             margin-top: 12px;
             padding: 7px 12px;
-            border-radius: 999px;
+            border-radius:3px;
             font-size: 11px;
             font-weight: 900;
             letter-spacing: 0.04em;
@@ -232,7 +291,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
 
         .box {
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             padding: 18px;
             background: #ffffff;
         }
@@ -279,7 +338,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
         .items {
             margin-top: 24px;
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             overflow: hidden;
         }
 
@@ -323,14 +382,14 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
 
         .notes-box {
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             padding: 18px;
             min-height: 150px;
         }
 
         .summary-box {
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             padding: 18px;
             background: var(--soft);
         }
@@ -359,7 +418,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
         .payments-box {
             margin-top: 24px;
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius:3px;
             padding: 18px;
             background: #ffffff;
         }
@@ -435,6 +494,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
         }
     </style>
 </head>
+
 <body>
 
 <div class="print-actions">
@@ -458,16 +518,23 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
                     </div>
 
                     <div>
-                        <h2 class="company-name"><?= $e($company['name'] ?? 'NexusBox ISP') ?></h2>
-                        <div class="company-tagline"><?= $e($company['tagline'] ?? 'Internet Service Provider') ?></div>
+                        <h2 class="company-name"><?= $e($companyName) ?></h2>
+                        <div class="company-tagline"><?= $e($companyTagline) ?></div>
                         <div class="company-meta">
-                            <?= $e($company['address'] ?? '') ?><br>
-                            <?= $e($company['contact'] ?? '') ?>
-                            <?php if (!empty($company['tin'])): ?>
-                                <br>TIN: <?= $e($company['tin']) ?>
+                            <?php if ($companyAddress !== ''): ?>
+                                <?= $e($companyAddress) ?><br>
                             <?php endif; ?>
-                            <?php if (!empty($company['website'])): ?>
-                                <br><?= $e($company['website']) ?>
+
+                            <?php if ($companyContact !== ''): ?>
+                                <?= $e($companyContact) ?>
+                            <?php endif; ?>
+
+                            <?php if (!empty($companyTin)): ?>
+                                <br>TIN: <?= $e($companyTin) ?>
+                            <?php endif; ?>
+
+                            <?php if (!empty($companyWebsite)): ?>
+                                <br><?= $e($companyWebsite) ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -628,7 +695,7 @@ $accountNumber = trim((string)($invoice['account_number'] ?? ''));
 
             <div class="footer">
                 <div>
-                    Generated by NexusBox · <?= $e(date('M d, Y h:i A')) ?> · Asia/Manila
+                    Generated by <?= $e($companyName) ?> · <?= $e(date('M d, Y h:i A')) ?> · Asia/Manila
                 </div>
                 <div>
                     This is a system-generated invoice.

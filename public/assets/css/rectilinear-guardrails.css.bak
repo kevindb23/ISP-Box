@@ -1,0 +1,289 @@
+/*
+ * ISP-in-a-Box rectilinear UI guardrails
+ *
+ * This file intentionally loads after every module stylesheet. Keep it last.
+ * New pages inherit the same restrained geometry without needing local fixes.
+ */
+
+:root {
+    --radius: 3px;
+    --nx-radius-sm: 2px;
+    --nx-radius-md: 2px;
+    --nx-radius-lg: 3px;
+    --nx-radius-xl: 3px;
+    --nx-radius-2xl: 3px;
+    --nx-control-radius: 2px;
+    --nx-panel-radius: 3px;
+    --nx-overlay-radius: 4px;
+}
+
+/*
+ * Hard ceiling for application geometry. Two stable scope IDs deliberately
+ * outrank page-level module selectors, including future module styles.
+ */
+body#nxApplication #nxRectilinearTheme *,
+body#nxApplication #nxRectilinearTheme *::before,
+body#nxApplication #nxRectilinearTheme *::after {
+    /* border-radius: var(--nx-panel-radius) !important; */
+}
+
+/* Standard and conventionally named application surfaces */
+body#nxApplication .card.card,
+body#nxApplication [class$="-card"][class$="-card"],
+body#nxApplication [class*="-card "][class*="-card "],
+body#nxApplication [class$="-panel"][class$="-panel"],
+body#nxApplication [class*="-panel "][class*="-panel "],
+body#nxApplication [class$="-surface"][class$="-surface"],
+body#nxApplication [class*="-surface "][class*="-surface "],
+body#nxApplication [class$="-tile"][class$="-tile"],
+body#nxApplication [class*="-tile "][class*="-tile "],
+body#nxApplication [class$="-block"][class$="-block"],
+body#nxApplication [class*="-block "][class*="-block "],
+body#nxApplication [class$="-box"][class$="-box"],
+body#nxApplication [class*="-box "][class*="-box "] {
+    border: 1px solid var(--border, #E2E8F0) !important;
+    border-radius: var(--nx-panel-radius) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove decorative card rails, top bars, glows, and gradient ornaments. */
+body#nxApplication .card.card::before,
+body#nxApplication .card.card::after,
+body#nxApplication [class$="-card"][class$="-card"]::before,
+body#nxApplication [class$="-card"][class$="-card"]::after,
+body#nxApplication [class*="-card "][class*="-card "]::before,
+body#nxApplication [class*="-card "][class*="-card "]::after,
+body#nxApplication [class$="-panel"][class$="-panel"]::before,
+body#nxApplication [class$="-panel"][class$="-panel"]::after,
+body#nxApplication [class*="-panel "][class*="-panel "]::before,
+body#nxApplication [class*="-panel "][class*="-panel "]::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Buttons and action controls */
+body#nxApplication button:not(.form-check-input),
+body#nxApplication .btn.btn,
+body#nxApplication [role="button"][role="button"],
+body#nxApplication .page-link.page-link,
+body#nxApplication .dropdown-toggle.dropdown-toggle,
+body#nxApplication .swal2-styled.swal2-styled {
+    border-radius: var(--nx-control-radius) !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .btn-primary.btn-primary,
+body#nxApplication .btn-success.btn-success,
+body#nxApplication .btn-warning.btn-warning,
+body#nxApplication .btn-danger.btn-danger {
+    background-image: none !important;
+}
+
+body#nxApplication .btn-primary.btn-primary {
+    color: var(--primary-foreground, #FFFFFF) !important;
+    background-color: var(--primary, #2563EB) !important;
+    border-color: var(--primary, #2563EB) !important;
+}
+
+body#nxApplication .btn-success.btn-success {
+    color: #FFFFFF !important;
+    background-color: var(--nx-success, #16845B) !important;
+    border-color: var(--nx-success, #16845B) !important;
+}
+
+body#nxApplication .btn-warning.btn-warning {
+    color: #FFFFFF !important;
+    background-color: var(--nx-warning, #B76E00) !important;
+    border-color: var(--nx-warning, #B76E00) !important;
+}
+
+body#nxApplication .btn-danger.btn-danger {
+    color: #FFFFFF !important;
+    background-color: var(--destructive, #DC2626) !important;
+    border-color: var(--destructive, #DC2626) !important;
+}
+
+body#nxApplication .btn-group.btn-group,
+body#nxApplication .btn-group-sm.btn-group-sm,
+body#nxApplication .btn-group-lg.btn-group-lg {
+    gap: 4px;
+}
+
+body#nxApplication .btn-group > .btn,
+body#nxApplication .btn-group-sm > .btn,
+body#nxApplication .btn-group-lg > .btn {
+    margin-left: 0 !important;
+    border-radius: var(--nx-control-radius) !important;
+}
+
+/* Inputs and form controls */
+body#nxApplication input:not([type="radio"]):not([type="checkbox"]):not([type="range"]),
+body#nxApplication textarea,
+body#nxApplication select,
+body#nxApplication .form-control.form-control,
+body#nxApplication .form-select.form-select,
+body#nxApplication .input-group-text.input-group-text,
+body#nxApplication .form-check-input:not([type="radio"]) {
+    border-radius: var(--nx-control-radius) !important;
+}
+
+body#nxApplication input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="radio"]):not([type="checkbox"]):not([type="range"]),
+body#nxApplication textarea,
+body#nxApplication select,
+body#nxApplication .form-control.form-control,
+body#nxApplication .form-select.form-select {
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, .08),
+        0 2px 5px rgba(15, 23, 42, .045);
+}
+
+body#nxApplication input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="radio"]):not([type="checkbox"]):not([type="range"]):is(:focus, :active),
+body#nxApplication textarea:is(:focus, :active),
+body#nxApplication select:is(:focus, :active),
+body#nxApplication .form-control.form-control:is(:focus, :active),
+body#nxApplication .form-select.form-select:is(:focus, :active) {
+    border-color: #98a2b3 !important;
+    outline: none !important;
+    box-shadow:
+        0 0 0 2px rgba(71, 85, 105, .14),
+        0 2px 5px rgba(15, 23, 42, .08) !important;
+}
+
+html[data-theme="dark"] body#nxApplication input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="radio"]):not([type="checkbox"]):not([type="range"]),
+html[data-theme="dark"] body#nxApplication textarea,
+html[data-theme="dark"] body#nxApplication select,
+html[data-theme="dark"] body#nxApplication .form-control.form-control,
+html[data-theme="dark"] body#nxApplication .form-select.form-select {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, .28),
+        0 2px 5px rgba(0, 0, 0, .18);
+}
+
+html[data-theme="dark"] body#nxApplication input:not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="radio"]):not([type="checkbox"]):not([type="range"]):is(:focus, :active),
+html[data-theme="dark"] body#nxApplication textarea:is(:focus, :active),
+html[data-theme="dark"] body#nxApplication select:is(:focus, :active),
+html[data-theme="dark"] body#nxApplication .form-control.form-control:is(:focus, :active),
+html[data-theme="dark"] body#nxApplication .form-select.form-select:is(:focus, :active) {
+    border-color: #64748b !important;
+    outline: none !important;
+    box-shadow:
+        0 0 0 2px rgba(148, 163, 184, .20),
+        0 2px 5px rgba(0, 0, 0, .24) !important;
+}
+
+body#nxApplication .input-group.input-group > :not(:first-child),
+body#nxApplication .input-group.input-group > :not(:last-child) {
+    border-radius: var(--nx-control-radius) !important;
+}
+
+/* Tabs, segmented controls, navigation choices, and filters */
+body#nxApplication .nav-pills.nav-pills,
+body#nxApplication .nav-tabs.nav-tabs,
+body#nxApplication .nx-segment-control.nx-segment-control,
+body#nxApplication [class$="-tabs"][class$="-tabs"],
+body#nxApplication [class*="-tabs "][class*="-tabs "] {
+    border-radius: var(--nx-control-radius) !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .nav-link.nav-link,
+body#nxApplication [role="tab"][role="tab"],
+body#nxApplication .nx-segment-item.nx-segment-item,
+body#nxApplication .nx-segment-control__item.nx-segment-control__item,
+body#nxApplication [class$="-tab"][class$="-tab"],
+body#nxApplication [class*="-tab "][class*="-tab "] {
+    border-radius: var(--nx-control-radius) !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication .nx-segment-control.nx-segment-control {
+    gap: 0 !important;
+    padding: 0 !important;
+    background: var(--nx-control-surface-light, #F4F6F8) !important;
+    border: 0 !important;
+}
+
+body#nxApplication .nx-segment-control__item + .nx-segment-control__item,
+body#nxApplication .nx-segment-item + .nx-segment-item {
+    border-left: 0 !important;
+}
+
+body#nxApplication .nx-segment-control__item.is-active,
+body#nxApplication .nx-segment-item.is-active,
+body#nxApplication .nav-link.active[role="tab"] {
+    color: var(--primary-foreground, #FFFFFF) !important;
+    background-color: var(--primary, #2563EB) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+/* Compact labels may be slightly softened, but never pill-shaped. */
+body#nxApplication .badge.badge,
+body#nxApplication [class$="-badge"][class$="-badge"],
+body#nxApplication [class*="-badge "][class*="-badge "],
+body#nxApplication .chip.chip,
+body#nxApplication [class$="-chip"][class$="-chip"],
+body#nxApplication [class*="-chip "][class*="-chip "],
+body#nxApplication .tag.tag,
+body#nxApplication [class$="-tag"][class$="-tag"],
+body#nxApplication [class*="-tag "][class*="-tag "] {
+    border-radius: 2px !important;
+    box-shadow: none !important;
+}
+
+/* Tables, menus, overlays, alerts, and feedback */
+body#nxApplication .table-responsive.table-responsive,
+body#nxApplication .dropdown-menu.dropdown-menu,
+body#nxApplication .modal-content.modal-content,
+body#nxApplication .offcanvas.offcanvas,
+body#nxApplication .alert.alert,
+body#nxApplication .toast.toast,
+body#nxApplication .popover.popover,
+body#nxApplication .tooltip-inner.tooltip-inner,
+body#nxApplication .swal2-popup.swal2-popup {
+    border-radius: var(--nx-overlay-radius) !important;
+}
+
+body#nxApplication .progress.progress,
+body#nxApplication .progress-bar.progress-bar,
+body#nxApplication [class$="-progress"][class$="-progress"],
+body#nxApplication [class*="-progress "][class*="-progress "] {
+    border-radius: 2px !important;
+}
+
+/* Deliberate circular exceptions */
+body#nxApplication #nxRectilinearTheme .user-avatar,
+body#nxApplication #nxRectilinearTheme .avatar,
+body#nxApplication #nxRectilinearTheme [class$="-avatar"],
+body#nxApplication #nxRectilinearTheme [class*="-avatar "],
+body#nxApplication #nxRectilinearTheme .status-dot,
+body#nxApplication #nxRectilinearTheme [class$="-dot"],
+body#nxApplication #nxRectilinearTheme [class*="-dot "],
+body#nxApplication #nxRectilinearTheme .spinner-border,
+body#nxApplication #nxRectilinearTheme input[type="radio"],
+body#nxApplication #nxRectilinearTheme .form-switch .form-check-input,
+body#nxApplication #nxRectilinearTheme .leaflet-marker-icon,
+body#nxApplication #nxRectilinearTheme .leaflet-interactive {
+    border-radius: 50% !important;
+}
+
+/* Brand marks may retain their source silhouette. */
+body#nxApplication #nxRectilinearTheme .topbar-brand-logo {
+    border-radius: 50% !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body#nxApplication *,
+    body#nxApplication *::before,
+    body#nxApplication *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+body#nxApplication [class*="-card "][class*="-card "] {
+    border: none !important;
+}

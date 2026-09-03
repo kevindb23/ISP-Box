@@ -1,0 +1,183 @@
+.staff-attendance-page .staff-attendance-status {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius:3px;
+    padding: 16px;
+    background: #f8fafc;
+}
+
+.staff-attendance-page .staff-attendance-mini {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius:3px;
+    padding: 12px;
+    background: #ffffff;
+}
+
+.staff-attendance-page table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.staff-attendance-page .staff-attendance-log-list {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.staff-attendance-page .staff-attendance-log-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+}
+
+.staff-attendance-page .staff-attendance-log-item:hover {
+    background: #f8fafc;
+}
+
+.staff-attendance-page .staff-attendance-log-item:last-child {
+    border-bottom: 0;
+}
+
+#staffAttendancePage .attendance-hero-card,
+#staffAttendancePage .card {
+    border-radius: 3px;
+    border: 1px solid rgba(226, 232, 240, .9) !important;
+    overflow: hidden;
+}
+#staffAttendancePage .attendance-hero-card { background: radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 28%), linear-gradient(180deg,#fff,#f8fafc); }
+#staffAttendancePage .attendance-table-topline { height: 3px; background: linear-gradient(90deg,#2563eb,#60a5fa,transparent); }
+#staffAttendancePage .nx-table-wrap { overflow-x:auto; }
+#staffAttendancePage .table { min-width:720px; margin:0; }
+#staffAttendancePage .table thead th { padding:12px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#475569; white-space:nowrap; }
+#staffAttendancePage .table tbody td { padding:13px 14px; border-color:#eef2f7; vertical-align:middle; }
+#staffAttendancePage .staff-attendance-log-item { padding:13px 16px; }
+
+/* =========================================================
+   STAFF ATTENDANCE DARK MODE
+   Place at VERY BOTTOM of StaffAttendance.css
+========================================================= */
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status {
+    background: linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini {
+    background: #101827 !important;
+    border: 1px solid #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page table tbody tr:hover,
+html[data-theme="dark"] .staff-attendance-page table tbody tr:hover td {
+    background: #182235 !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-log-list {
+    background: transparent !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-log-item {
+    background: #141f31 !important;
+    border-bottom: 1px solid rgba(255,255,255,.06) !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-log-item:hover {
+    background: #182235 !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-log-item:last-child {
+    border-bottom: 0 !important;
+}
+
+/* Text inside cards */
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status h1,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status h2,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status h3,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status h4,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status h5,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini h1,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini h2,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini h3,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini h4,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini h5,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-log-item strong {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status p,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-status small,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini p,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-mini small,
+html[data-theme="dark"] .staff-attendance-page .staff-attendance-log-item small,
+html[data-theme="dark"] .staff-attendance-page .text-muted {
+    color: #94a3b8 !important;
+}
+/* =========================================================
+   STAFF ATTENDANCE DARK MODE - FINAL FIX
+========================================================= */
+
+html[data-theme="dark"] .staff-attendance-page .card {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .card-header,
+html[data-theme="dark"] .staff-attendance-page .card-body {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .card-header h1,
+html[data-theme="dark"] .staff-attendance-page .card-header h2,
+html[data-theme="dark"] .staff-attendance-page .card-header h3,
+html[data-theme="dark"] .staff-attendance-page .card-header h4,
+html[data-theme="dark"] .staff-attendance-page .card-header h5,
+html[data-theme="dark"] .staff-attendance-page .card-header h6 {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .card-header small,
+html[data-theme="dark"] .staff-attendance-page .card-header .text-muted {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page table,
+html[data-theme="dark"] .staff-attendance-page .table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .table thead,
+html[data-theme="dark"] .staff-attendance-page .table thead tr,
+html[data-theme="dark"] .staff-attendance-page .table thead th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .table tbody,
+html[data-theme="dark"] .staff-attendance-page .table tbody tr,
+html[data-theme="dark"] .staff-attendance-page .table tbody td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255,255,255,.06) !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .table tbody tr:hover,
+html[data-theme="dark"] .staff-attendance-page .table tbody tr:hover td {
+    background: #182235 !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .staff-attendance-page td.text-center,
+html[data-theme="dark"] .staff-attendance-page td.text-muted,
+html[data-theme="dark"] .staff-attendance-page .text-muted {
+    color: #94a3b8 !important;
+}

@@ -41,6 +41,10 @@ class SubscriberPortalServiceAccount
 
     public ?string $olt_name;
     public ?string $olt_port_label;
+    public ?string $acs_status;
+    public ?string $wan_ip;
+    public ?string $acs_last_seen;
+    public ?string $acs_firmware_version;
 
     public function __construct(array $data = [])
     {
@@ -102,6 +106,10 @@ class SubscriberPortalServiceAccount
 
         $this->olt_name = $data['olt_name'] ?? null;
         $this->olt_port_label = $data['olt_port_label'] ?? null;
+        $this->acs_status = isset($data['acs_status']) ? strtoupper((string)$data['acs_status']) : null;
+        $this->wan_ip = $data['wan_ip'] ?? null;
+        $this->acs_last_seen = $data['acs_last_seen'] ?? null;
+        $this->acs_firmware_version = $data['acs_firmware_version'] ?? null;
     }
 
     public function toArray(): array
@@ -149,6 +157,10 @@ class SubscriberPortalServiceAccount
 
             'olt_name' => $this->olt_name,
             'olt_port_label' => $this->olt_port_label,
+            'acs_status' => $this->acs_status,
+            'wan_ip' => $this->wan_ip,
+            'acs_last_seen' => $this->acs_last_seen,
+            'acs_firmware_version' => $this->acs_firmware_version,
         ];
     }
 }

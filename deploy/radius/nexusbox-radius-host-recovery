@@ -1,0 +1,28 @@
+#!/bin/sh
+
+set -eu
+
+ADMIN_BIN="${ADMIN_BIN:-/usr/bin/mariadb-admin}"
+LOGGER_BIN="${LOGGER_BIN:-/usr/bin/logger}"
+LOCK_FILE="${LOCK_FILE:-/run/lock/nexusbox-radius-host-recovery.lock}"
+
+if [ ! -x "$ADMIN_BIN" ]; then
+    "$LOGGER_BIN" -t nexusbox-radius-host-recovery -- "mariadb-admin is unavailable."
+    exit 1
+fi
+
+exec 9>"$LOCK_FILE"
+if ! /usr/bin/flock -n 9; then
+    exit 0
+fi
+
+# FLUSH-HOSTS is idempotent. Running it proactively avoids depending on
+# performance_schema.host_cache counters, which vary by MariaDB version, and
+# prevents a noisy application host from reaching max_connect_errors between
+# timer runs.
+if "$ADMIN_BIN" --protocol=socket flush-hosts >/dev/null 2>&1; then
+    exit 0
+fi
+
+"$LOGGER_BIN" -t nexusbox-radius-host-recovery -- "MariaDB flush-hosts failed."
+exit 1

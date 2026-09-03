@@ -58,22 +58,60 @@ def parse_distance_from_all(output, ont_id):
 
     return None
 
+def parse_location_by_serial(output):
+    patterns = [
+        r"F/S/P\s*:\s*(\d+)\s*/\s*(\d+)\s*/\s*(\d+).*?ONT-ID\s*:\s*(\d+)",
+        r"ONT-ID\s*:\s*(\d+).*?F/S/P\s*:\s*(\d+)\s*/\s*(\d+)\s*/\s*(\d+)",
+    ]
+    for index, pattern in enumerate(patterns):
+        match = re.search(pattern, output, re.IGNORECASE | re.DOTALL)
+        if not match:
+            continue
+        values = [int(value) for value in match.groups()]
+        if index == 0:
+            frame, slot, port, ont_id = values
+        else:
+            ont_id, frame, slot, port = values
+        return frame, slot, port, ont_id
+
+    # Some Huawei releases print a compact table instead of labelled fields.
+    match = re.search(
+        r"^\s*(\d+)\s*/\s*(\d+)\s*/\s*(\d+)\s+(\d+)\s+\S+\s+\S+",
+        output,
+        re.MULTILINE,
+    )
+    if match:
+        return tuple(int(value) for value in match.groups())
+    return None
+
 def main():
-    if len(sys.argv) != 9:
+    raw = sys.stdin.read()
+    if not raw.strip():
         print(json.dumps({
             "success": False,
-            "error": "Usage: python3 olt_optical_info.py <host> <username> <password> <frame> <slot> <port> <ont_id> <ssh_port>"
+            "error": "Missing JSON payload."
         }))
         sys.exit(1)
 
-    host = sys.argv[1]
-    username = sys.argv[2]
-    password = sys.argv[3]
-    frame = sys.argv[4]
-    slot = sys.argv[5]
-    port = sys.argv[6]
-    ont_id = sys.argv[7]
-    ssh_port = int(sys.argv[8])
+    try:
+        data = json.loads(raw)
+    except Exception:
+        print(json.dumps({"success": False, "error": "Invalid JSON payload."}))
+        sys.exit(1)
+
+    host = str(data.get("host", "")).strip()
+    username = str(data.get("username", "")).strip()
+    password = str(data.get("password", "")).strip()
+    serial = str(data.get("serial", "")).strip().upper()
+    frame = data.get("frame")
+    slot = data.get("slot")
+    port = data.get("port")
+    ont_id = data.get("ont_id")
+    ssh_port = int(data.get("ssh_port", 22))
+
+    if not host or not username or not password:
+        print(json.dumps({"success": False, "error": "OLT connection details are incomplete."}))
+        sys.exit(1)
 
     device = {
         "device_type": "huawei_olt",
@@ -95,6 +133,21 @@ def main():
             strip_prompt=False,
             strip_command=False
         )
+
+        if any(value is None for value in (frame, slot, port, ont_id)):
+            if not serial or not re.fullmatch(r"[A-Z0-9._:-]{4,64}", serial):
+                raise RuntimeError("A valid ONT serial number is required for automatic optical lookup.")
+            lookup_output = conn.send_command_timing(
+                f"display ont info by-sn {serial}",
+                strip_prompt=False,
+                strip_command=False,
+            )
+            location = parse_location_by_serial(lookup_output)
+            if location is None:
+                raise RuntimeError(f"ONT serial {serial} was not found on this OLT.")
+            frame, slot, port, ont_id = location
+
+        frame, slot, port, ont_id = (int(frame), int(slot), int(port), int(ont_id))
 
         # Enter GPON interface mode
         intf_output = conn.send_command_timing(

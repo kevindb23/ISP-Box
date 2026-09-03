@@ -1,0 +1,146 @@
+@font-face {
+    font-family: "Poppins";
+    src: url("/assets/fonts/poppins-400.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("/assets/fonts/poppins-500.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("/assets/fonts/poppins-600.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Poppins";
+    src: url("/assets/fonts/poppins-700.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("/assets/fonts/dm-sans-400.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("/assets/fonts/dm-sans-500.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("/assets/fonts/dm-sans-600.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("/assets/fonts/dm-sans-700.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans 3";
+    src: url("/assets/fonts/source-sans-3-400.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans 3";
+    src: url("/assets/fonts/source-sans-3-500.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Source Sans 3";
+    src: url("/assets/fonts/source-sans-3-600.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Manrope";
+    src: url("/assets/fonts/manrope-500.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Manrope";
+    src: url("/assets/fonts/manrope-600.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Manrope";
+    src: url("/assets/fonts/manrope-700.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+
+:root {
+    --nx-font-body: "DM Sans", "Segoe UI", Arial, sans-serif;
+    --nx-font-heading: "DM Sans", "Segoe UI", Arial, sans-serif;
+    --bs-font-sans-serif: var(--nx-font-body);
+    --bs-body-font-family: var(--nx-font-body);
+}
+
+body {
+    font-family: var(--nx-font-body) !important;
+    font-weight: 400;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+    font-weight: 500;
+}
+
+
+/* DM Sans is the application-wide default, including standalone/auth pages. */
+html,
+body,
+body#nxApplication,
+body#nxApplication input,
+body#nxApplication select,
+body#nxApplication textarea,
+body#nxApplication button,
+body#nxApplication table {
+    font-family: var(--nx-font-body) !important;
+}

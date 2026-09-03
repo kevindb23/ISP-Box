@@ -2,25 +2,24 @@
 
 namespace App\Modules\Billing\Controllers;
 
-use App\Modules\Billing\Repositories\BillingSettingsRepository;
+use App\Modules\Billing\DTOs\BillingSettingsDTO;
 use App\Modules\Billing\Services\BillingCycleService;
 use App\Modules\Billing\Services\BillingService;
+use App\Modules\Billing\Validators\CreateInvoicesValidator;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
-use PDO;
 use Throwable;
 
 class BillingApiController extends ApiController
 {
-    private PDO $db;
     private BillingService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(
+        BillingService $service,
+        private BillingCycleService $cycleService,
+        private CreateInvoicesValidator $validator
+    )
     {
-        $this->db = $database->get();
-
-        $settings = new BillingSettingsRepository($this->db);
-        $this->service = new BillingService($this->db, $settings);
+        $this->service = $service;
     }
 
     public function overview(): void
@@ -35,8 +34,9 @@ class BillingApiController extends ApiController
     public function generateDueInvoices(): void
     {
         try {
-            $asOfDate = $_GET['as_of_date'] ?? date('Y-m-d');
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 200;
+            $query = $this->request()->query();
+            $asOfDate = $query['as_of_date'] ?? date('Y-m-d');
+            $limit = isset($query['limit']) ? (int)$query['limit'] : 200;
 
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $asOfDate)) {
                 $this->error('Invalid as_of_date format. Use YYYY-MM-DD.', 422);
@@ -49,8 +49,7 @@ class BillingApiController extends ApiController
 
             $userId = $_SESSION['user']['id'] ?? null;
 
-            $cycleService = new BillingCycleService($this->db);
-            $result = $cycleService->generateDueInvoices(
+            $result = $this->cycleService->generateDueInvoices(
                 $asOfDate,
                 $limit,
                 'MANUAL',
@@ -66,17 +65,16 @@ class BillingApiController extends ApiController
     public function billingRuns(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'run_type' => $_GET['run_type'] ?? null,
-                'status' => $_GET['status'] ?? null,
-                'as_of_date' => $_GET['as_of_date'] ?? null,
-                'limit' => $_GET['limit'] ?? 50,
-                'offset' => $_GET['offset'] ?? 0,
+                'run_type' => $query['run_type'] ?? null,
+                'status' => $query['status'] ?? null,
+                'as_of_date' => $query['as_of_date'] ?? null,
+                'limit' => $query['limit'] ?? 50,
+                'offset' => $query['offset'] ?? 0,
             ];
 
-            $cycleService = new BillingCycleService($this->db);
-
-            $this->success($cycleService->listRuns($filters));
+            $this->success($this->cycleService->listRuns($filters));
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 500);
         }
@@ -85,9 +83,7 @@ class BillingApiController extends ApiController
     public function billingRunShow($id): void
     {
         try {
-            $cycleService = new BillingCycleService($this->db);
-
-            $this->success($cycleService->showRun((int)$id));
+            $this->success($this->cycleService->showRun((int)$id));
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 404);
         }
@@ -105,8 +101,13 @@ class BillingApiController extends ApiController
     public function saveSettings(): void
     {
         try {
-            $payload = $this->input();
-            $this->success($this->service->saveSettings($payload), 'Billing settings saved.');
+            $dto = new BillingSettingsDTO($this->request()->input());
+            $errors = $this->validator->settings($dto);
+            if ($errors !== []) {
+                $this->error('Please correct the highlighted fields.', 422, $errors);
+                return;
+            }
+            $this->success($this->service->saveSettings($dto->toArray()), 'Billing settings saved.');
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 422);
         }
@@ -124,7 +125,8 @@ class BillingApiController extends ApiController
     public function supportServices(): void
     {
         try {
-            $subscriberId = isset($_GET['subscriber_id']) ? (int)$_GET['subscriber_id'] : null;
+            $query = $this->request()->query();
+            $subscriberId = isset($query['subscriber_id']) ? (int)$query['subscriber_id'] : null;
             $this->success($this->service->supportServices($subscriberId));
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 500);
@@ -140,15 +142,4 @@ class BillingApiController extends ApiController
         }
     }
 
-    private function input(): array
-    {
-        $raw = file_get_contents('php://input');
-        $json = json_decode($raw ?: '', true);
-
-        if (is_array($json)) {
-            return $json;
-        }
-
-        return $_POST ?: [];
-    }
 }

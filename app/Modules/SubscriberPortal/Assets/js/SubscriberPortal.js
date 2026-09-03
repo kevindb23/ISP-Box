@@ -5,6 +5,9 @@
         payments: [],
         services: [],
         tickets: [],
+        invoiceTotal: 0,
+        paymentTotal: 0,
+        ticketTotal: 0,
         selectedInvoice: null,
         selectedInvoiceItems: [],
         selectedInvoicePayments: [],
@@ -49,6 +52,7 @@
         const paymentSearchInput = document.getElementById('spPaymentSearch');
         const printBtn = document.getElementById('spPrintInvoiceBtn');
         const payNowBtn = document.getElementById('spPayNowBtn');
+        const manualPaymentForm = document.getElementById('spManualPaymentForm');
         const changePasswordForm = document.getElementById('spChangePasswordForm');
         const raiseConcernForm = document.getElementById('spRaiseConcernForm');
         const ticketReplyForm = document.getElementById('spTicketReplyForm');
@@ -106,6 +110,7 @@
         if (payNowBtn) {
             payNowBtn.addEventListener('click', paySelectedInvoice);
         }
+        if (manualPaymentForm) manualPaymentForm.addEventListener('submit', submitManualPayment);
 
         if (changePasswordForm) {
             changePasswordForm.addEventListener('submit', changePortalPassword);
@@ -168,12 +173,15 @@
     }
 
     async function loadServicesPage() {
-        const response = await apiGet('/api/v1/subscriber-portal/dashboard');
+        const [response, dashboardResponse] = await Promise.all([
+            apiGet('/api/v1/subscriber-portal/services'),
+            apiGet('/api/v1/subscriber-portal/summary'),
+        ]);
         const data = response.data || response;
-
-        const overview = data.overview || {};
+        const dashboard = dashboardResponse.data || dashboardResponse;
+        const overview = dashboard.overview || {};
         const serviceSummary = overview.service_summary || {};
-        const services = data.services || [];
+        const services = data.items || [];
 
         state.services = services;
 
@@ -189,7 +197,7 @@
     }
 
     async function loadDashboardSummaryForInvoices() {
-        const response = await apiGet('/api/v1/subscriber-portal/dashboard');
+        const response = await apiGet('/api/v1/subscriber-portal/summary');
         const data = response.data || response;
 
         const overview = data.overview || {};
@@ -201,7 +209,7 @@
     }
 
     async function loadDashboard() {
-        const response = await apiGet('/api/v1/subscriber-portal/dashboard');
+        const response = await apiGet('/api/v1/subscriber-portal/summary');
         const data = response.data || response;
 
         const profile = data.profile || {};
@@ -245,13 +253,14 @@
         if (status) params.set('status', status);
         if (search) params.set('search', search);
 
-        params.set('limit', '100');
-        params.set('offset', '0');
+        params.set('limit', String(state.invoicePager.rowsPerPage));
+        params.set('offset', String((state.invoicePager.currentPage - 1) * state.invoicePager.rowsPerPage));
 
         const response = await apiGet(`/api/v1/subscriber-portal/invoices?${params.toString()}`);
         const data = response.data || response;
 
         state.invoices = data.items || [];
+        state.invoiceTotal = Number(data.total || 0);
         renderInvoices(state.invoices);
     }
 
@@ -261,28 +270,37 @@
 
         if (search) params.set('search', search);
 
-        params.set('limit', '100');
-        params.set('offset', '0');
+        params.set('limit', String(state.paymentPager.rowsPerPage));
+        params.set('offset', String((state.paymentPager.currentPage - 1) * state.paymentPager.rowsPerPage));
 
         const response = await apiGet(`/api/v1/subscriber-portal/payments?${params.toString()}`);
         const data = response.data || response;
 
         state.payments = data.items || [];
+        state.paymentTotal = Number(data.total || 0);
 
         renderPayments(state.payments);
-        renderPaymentsSummary(state.payments);
+        renderPaymentsSummary(data.summary || {});
     }
 
     async function loadTicketsPage() {
         const params = new URLSearchParams();
+        params.set('limit', String(state.ticketPager.rowsPerPage));
+        params.set('offset', String((state.ticketPager.currentPage - 1) * state.ticketPager.rowsPerPage));
 
-        params.set('limit', '100');
-        params.set('offset', '0');
-
-        const response = await apiGet(`/api/v1/subscriber-portal/tickets?${params.toString()}`);
+        const [response, servicesResponse] = await Promise.all([
+            apiGet(`/api/v1/subscriber-portal/tickets?${params.toString()}`),
+            state.services.length ? Promise.resolve(null) : apiGet('/api/v1/subscriber-portal/services'),
+        ]);
         const data = response.data || response;
 
         state.tickets = data.items || [];
+        state.ticketTotal = Number(data.total || 0);
+        if (servicesResponse) {
+            const servicesData = servicesResponse.data || servicesResponse;
+            state.services = servicesData.items || [];
+        }
+        populateTicketServiceSelect();
 
         renderTickets(state.tickets);
     }
@@ -334,6 +352,18 @@
         }
     }
 
+    function populateTicketServiceSelect() {
+        const select = document.getElementById('spTicketServiceId');
+        if (!select) return;
+        const selected = select.value;
+        select.innerHTML = '<option value="">General account concern</option>' + state.services.map((service) => {
+            const label = [service.service_number || `Service ${service.id}`, service.plan_name, service.ppp_username]
+                .filter(Boolean).join(' · ');
+            return `<option value="${escapeHtml(service.id)}">${escapeHtml(label)}</option>`;
+        }).join('');
+        if ([...select.options].some((option) => option.value === selected)) select.value = selected;
+    }
+
     function renderTickets(items) {
         const body = document.getElementById('spTicketsBody');
         const pager = document.getElementById('spTicketsPager');
@@ -341,7 +371,7 @@
         if (!body) return;
 
         const rows = Array.isArray(items) ? items : [];
-        const pagedRows = paginateRows(rows, state.ticketPager.currentPage, state.ticketPager.rowsPerPage);
+        const pagedRows = rows;
 
         if (!rows.length) {
             body.innerHTML = `<tr><td colspan="6" class="text-muted text-center py-4">No tickets found.</td></tr>`;
@@ -375,12 +405,12 @@
 
         renderPager({
             el: pager,
-            totalRows: rows.length,
+            totalRows: state.ticketTotal,
             currentPage: state.ticketPager.currentPage,
             rowsPerPage: state.ticketPager.rowsPerPage,
             onPageChange: (page) => {
                 state.ticketPager.currentPage = page;
-                renderTickets(state.tickets);
+                loadTicketsPage();
             },
         });
     }
@@ -993,6 +1023,20 @@
 
                                 <div class="col-12 col-md-6">
                                     <div class="sp-mini-info">
+                                        <div class="text-muted small">ACS Status</div>
+                                        <div class="fw-semibold">${statusBadge(item.acs_status || 'UNKNOWN')}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="sp-mini-info">
+                                        <div class="text-muted small">WAN IP</div>
+                                        <div class="fw-semibold">${escapeHtml(item.wan_ip || '-')}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="sp-mini-info">
                                         <div class="text-muted small">NAP Box Name</div>
                                         <div class="fw-semibold">${escapeHtml(napBoxName)}</div>
                                     </div>
@@ -1066,7 +1110,7 @@
         if (!body) return;
 
         const rows = Array.isArray(items) ? items : [];
-        const pagedRows = paginateRows(rows, state.invoicePager.currentPage, state.invoicePager.rowsPerPage);
+        const pagedRows = rows;
 
         if (!rows.length) {
             body.innerHTML = `<tr><td colspan="7" class="text-muted text-center py-4">No invoices found.</td></tr>`;
@@ -1106,12 +1150,12 @@
 
         renderPager({
             el: pager,
-            totalRows: rows.length,
+            totalRows: state.invoiceTotal,
             currentPage: state.invoicePager.currentPage,
             rowsPerPage: state.invoicePager.rowsPerPage,
             onPageChange: (page) => {
                 state.invoicePager.currentPage = page;
-                renderInvoices(state.invoices);
+                loadInvoicesPage();
             },
         });
     }
@@ -1263,6 +1307,7 @@
 
     function renderPayNowButton(invoice, balance, status) {
         const payBtn = document.getElementById('spPayNowBtn');
+        const manualBtn = document.getElementById('spManualPayBtn');
 
         if (!payBtn) return;
 
@@ -1272,6 +1317,7 @@
             payBtn.classList.add('d-none');
             payBtn.disabled = true;
             payBtn.removeAttribute('data-invoice-id');
+            if(manualBtn){manualBtn.classList.add('d-none');manualBtn.disabled=true;}
             return;
         }
 
@@ -1282,6 +1328,13 @@
             <i class="bi bi-credit-card"></i>
             <span>Pay Now ${money(balance)}</span>
         `;
+        if(manualBtn){manualBtn.classList.remove('d-none');manualBtn.disabled=false;document.getElementById('spManualPaymentInvoiceId').value=invoice.id||invoice.invoice_id||'';document.getElementById('spManualPaymentAmount').value=balance.toFixed(2);document.getElementById('spManualPaymentAmount').max=balance.toFixed(2);}
+    }
+
+    async function submitManualPayment(event) {
+        event.preventDefault(); const form=event.currentTarget; const btn=document.getElementById('spManualPaymentSubmitBtn'); setButtonLoading(btn,true,'Submitting...');
+        try { const response=await apiPost('/api/v1/subscriber-portal/payments/submit',new FormData(form)); showToast('success',response.message||'Payment submitted for Billing review.'); form.reset(); closeBootstrapModalAndCleanup('spManualPaymentModal'); if(state.selectedInvoice) await loadInvoiceDetails(state.selectedInvoice.id||state.selectedInvoice.invoice_id); }
+        catch(error){showToast('error',error.message||'Unable to submit payment.');} finally{setButtonLoading(btn,false);}
     }
 
     async function paySelectedInvoice() {
@@ -1326,7 +1379,7 @@
 
         const rows = Array.isArray(items) ? items : [];
         const colspan = state.page === 'payments' ? 8 : 6;
-        const pagedRows = paginateRows(rows, state.paymentPager.currentPage, state.paymentPager.rowsPerPage);
+        const pagedRows = rows;
 
         if (!rows.length) {
             body.innerHTML = `<tr><td colspan="${colspan}" class="text-muted text-center py-4">No payments found.</td></tr>`;
@@ -1380,24 +1433,20 @@
 
         renderPager({
             el: pager,
-            totalRows: rows.length,
+            totalRows: state.paymentTotal,
             currentPage: state.paymentPager.currentPage,
             rowsPerPage: state.paymentPager.rowsPerPage,
             onPageChange: (page) => {
                 state.paymentPager.currentPage = page;
-                renderPayments(state.payments);
+                loadPaymentsPage();
             },
         });
     }
 
-    function renderPaymentsSummary(items) {
-        const postedPayments = items.filter((item) => String(item.payment_status || '').toUpperCase() === 'POSTED');
-        const postedAmount = postedPayments.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-        const latestPayment = items[0] || null;
-
-        setText('spPaymentCount', items.length);
-        setText('spPaymentPostedAmount', money(postedAmount));
-        setText('spLatestPaymentDate', latestPayment?.payment_date || '-');
+    function renderPaymentsSummary(summary) {
+        setText('spPaymentCount', Number(summary.payment_count || 0));
+        setText('spPaymentPostedAmount', money(summary.posted_amount || 0));
+        setText('spLatestPaymentDate', summary.latest_payment_date || '-');
     }
 
     function printSelectedInvoice() {
@@ -1546,59 +1595,15 @@
     }
 
     async function apiGet(url) {
-        const response = await fetch(url, {
-            headers: {
-                Accept: 'application/json',
-            },
-            credentials: 'same-origin',
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return { ok: true, success: true, data: await window.NX.api.get(url) };
     }
 
     async function apiPost(url, formData) {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-            },
-            credentials: 'same-origin',
-            body: formData,
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return window.NX.api.form(url, formData);
     }
 
     async function apiPostJson(url, payload) {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify(payload || {}),
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return window.NX.api.post(url, payload || {});
     }
 
     function setText(id, value) {
@@ -1745,7 +1750,8 @@
         showToast('info', 'Verifying PayMongo payment...');
 
         try {
-            const response = await apiPostJson('/api/v1/payment-gateway/paymongo/verify', {});
+            const invoiceId = Number(params.get('invoice_id') || 0);
+            const response = await apiPostJson('/api/v1/payment-gateway/paymongo/verify', invoiceId > 0 ? { invoice_id: invoiceId } : {});
             const data = response.data || response;
 
             if (data.paid === true || data?.data?.paid === true) {

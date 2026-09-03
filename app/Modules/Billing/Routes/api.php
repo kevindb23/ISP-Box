@@ -74,3 +74,6 @@ $router->get('/api/v1/billing/adjustments/by-invoice/{invoiceId}', [AdjustmentAp
 |--------------------------------------------------------------------------
 */
 $router->get('/api/v1/billing/collections/aging', [CollectionApiController::class, 'aging']);
+$router->post('/api/v1/billing/payments/{id}/approve', [PaymentApiController::class, 'approve']);
+$router->post('/api/v1/billing/payments/{id}/reject', [PaymentApiController::class, 'reject']);
+$router->get('/api/v1/billing/payments/{id}/proof', [PaymentApiController::class, 'proof']);

@@ -2,11 +2,9 @@
 
 namespace App\Modules\SubscriberPortal\Controllers;
 
-use App\Modules\SubscriberPortal\Repositories\SubscriberPortalRepository;
+use App\Modules\SubscriberPortal\DTOs\SubscriberPortalCommandDTO;
 use App\Modules\SubscriberPortal\Services\SubscriberPortalService;
-use App\Modules\SubscriberPortal\Validators\SubscriberPortalAccessValidator;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
 use Framework\SessionManager;
 use Throwable;
 
@@ -14,12 +12,9 @@ class SubscriberPortalApiController extends ApiController
 {
     private SubscriberPortalService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(SubscriberPortalService $service)
     {
-        $repo = new SubscriberPortalRepository($database);
-        $validator = new SubscriberPortalAccessValidator();
-
-        $this->service = new SubscriberPortalService($repo, $validator);
+        $this->service = $service;
     }
 
     public function me(): void
@@ -46,6 +41,15 @@ class SubscriberPortalApiController extends ApiController
         }
     }
 
+    public function summary(): void
+    {
+        try {
+            $this->success($this->service->summary($this->sessionUser()), 'Subscriber summary loaded.');
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 403);
+        }
+    }
+
     public function services(): void
     {
         try {
@@ -61,11 +65,12 @@ class SubscriberPortalApiController extends ApiController
     public function invoices(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'status' => $_GET['status'] ?? null,
-                'search' => $_GET['search'] ?? null,
-                'limit' => $_GET['limit'] ?? 50,
-                'offset' => $_GET['offset'] ?? 0,
+                'status' => $query['status'] ?? null,
+                'search' => $query['search'] ?? null,
+                'limit' => $query['limit'] ?? 50,
+                'offset' => $query['offset'] ?? 0,
             ];
 
             $this->success(
@@ -92,10 +97,11 @@ class SubscriberPortalApiController extends ApiController
     public function payments(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'search' => $_GET['search'] ?? null,
-                'limit' => $_GET['limit'] ?? 50,
-                'offset' => $_GET['offset'] ?? 0,
+                'search' => $query['search'] ?? null,
+                'limit' => $query['limit'] ?? 50,
+                'offset' => $query['offset'] ?? 0,
             ];
 
             $this->success(
@@ -107,10 +113,19 @@ class SubscriberPortalApiController extends ApiController
         }
     }
 
+    public function submitPayment(): void
+    {
+        try { $result=$this->service->submitManualPayment($this->sessionUser(),$this->request()->input(),$this->request()->files()); $this->success($result,$result['message']); }
+        catch(Throwable $e){$this->error($e->getMessage(),422);}
+    }
+
     public function changePassword(): void
     {
         try {
-            $result = $this->service->changePassword($this->sessionUser(), $_POST);
+            $result = $this->service->changePassword(
+                $this->sessionUser(),
+                (new SubscriberPortalCommandDTO($this->request()->input()))->toArray()
+            );
 
             $this->success(
                 $result,
@@ -124,11 +139,12 @@ class SubscriberPortalApiController extends ApiController
     public function tickets(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'status' => $_GET['status'] ?? null,
-                'search' => $_GET['search'] ?? null,
-                'limit' => $_GET['limit'] ?? 50,
-                'offset' => $_GET['offset'] ?? 0,
+                'status' => $query['status'] ?? null,
+                'search' => $query['search'] ?? null,
+                'limit' => $query['limit'] ?? 50,
+                'offset' => $query['offset'] ?? 0,
             ];
 
             $this->success(
@@ -143,7 +159,10 @@ class SubscriberPortalApiController extends ApiController
     public function createTicket(): void
     {
         try {
-            $result = $this->service->createTicket($this->sessionUser(), $_POST);
+            $result = $this->service->createTicket(
+                $this->sessionUser(),
+                (new SubscriberPortalCommandDTO($this->request()->input()))->toArray()
+            );
 
             $this->success(
                 $result,
@@ -157,7 +176,10 @@ class SubscriberPortalApiController extends ApiController
     public function scheduleVisit(): void
     {
         try {
-            $result = $this->service->scheduleVisit($this->sessionUser(), $_POST);
+            $result = $this->service->scheduleVisit(
+                $this->sessionUser(),
+                (new SubscriberPortalCommandDTO($this->request()->input()))->toArray()
+            );
 
             $this->success(
                 $result,
@@ -171,7 +193,7 @@ class SubscriberPortalApiController extends ApiController
     public function visitSlots(): void
     {
         try {
-            $date = trim((string)($_GET['date'] ?? ''));
+            $date = trim((string)($this->request()->query()['date'] ?? ''));
 
             $this->success(
                 $this->service->visitSlots(
@@ -202,7 +224,10 @@ class SubscriberPortalApiController extends ApiController
     public function ticketReply(): void
     {
         try {
-            $result = $this->service->replyTicket($this->sessionUser(), $_POST);
+            $result = $this->service->replyTicket(
+                $this->sessionUser(),
+                (new SubscriberPortalCommandDTO($this->request()->input()))->toArray()
+            );
 
             $this->success(
                 $result,

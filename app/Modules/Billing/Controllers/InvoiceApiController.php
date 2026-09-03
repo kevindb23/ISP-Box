@@ -2,44 +2,32 @@
 
 namespace App\Modules\Billing\Controllers;
 
-use App\Modules\Billing\Repositories\BillingSettingsRepository;
-use App\Modules\Billing\Repositories\InvoiceRepository;
-use App\Modules\Billing\Repositories\PaymentRepository;
+use App\Modules\Billing\DTOs\CreateInvoicesDTO;
 use App\Modules\Billing\Services\InvoiceService;
+use App\Modules\Billing\Validators\CreateInvoicesValidator;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
 use Throwable;
 
 class InvoiceApiController extends ApiController
 {
     private InvoiceService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(InvoiceService $service, private CreateInvoicesValidator $validator)
     {
-        $db = $database->get();
-
-        $invoiceRepo = new InvoiceRepository($db);
-        $paymentRepo = new PaymentRepository($db);
-        $settingsRepo = new BillingSettingsRepository($db);
-
-        $this->service = new InvoiceService(
-            $db,
-            $invoiceRepo,
-            $paymentRepo,
-            $settingsRepo
-        );
+        $this->service = $service;
     }
 
     public function list(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'status' => $_GET['status'] ?? null,
-                'subscriber_id' => $_GET['subscriber_id'] ?? null,
-                'service_id' => $_GET['service_id'] ?? null,
-                'search' => $_GET['search'] ?? null,
-                'limit' => $_GET['limit'] ?? 50,
-                'offset' => $_GET['offset'] ?? 0,
+                'status' => $query['status'] ?? null,
+                'subscriber_id' => $query['subscriber_id'] ?? null,
+                'service_id' => $query['service_id'] ?? null,
+                'search' => $query['search'] ?? null,
+                'limit' => $query['limit'] ?? 50,
+                'offset' => $query['offset'] ?? 0,
             ];
 
             $this->success($this->service->list($filters));
@@ -60,8 +48,13 @@ class InvoiceApiController extends ApiController
     public function create(): void
     {
         try {
-            $payload = $this->input();
-            $this->success($this->service->create($payload), 'Invoice created.');
+            $dto = CreateInvoicesDTO::fromArray($this->request()->input());
+            $errors = $this->validator->invoice($dto);
+            if ($errors !== []) {
+                $this->error('Please correct the highlighted fields.', 422, $errors);
+                return;
+            }
+            $this->success($this->service->create($dto->toArray()), 'Invoice created.');
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 422);
         }
@@ -93,14 +86,15 @@ class InvoiceApiController extends ApiController
     public function markOverdue(): void
     {
         try {
-            $payload = $this->input();
+            $payload = $this->request()->input();
+            $query = $this->request()->query();
 
-            $asOfDate = $_GET['as_of_date']
+            $asOfDate = $query['as_of_date']
                 ?? $payload['as_of_date']
                 ?? date('Y-m-d');
 
-            $limit = isset($_GET['limit'])
-                ? (int)$_GET['limit']
+            $limit = isset($query['limit'])
+                ? (int)$query['limit']
                 : (int)($payload['limit'] ?? 500);
 
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$asOfDate)) {
@@ -121,15 +115,4 @@ class InvoiceApiController extends ApiController
         }
     }
 
-    private function input(): array
-    {
-        $raw = file_get_contents('php://input');
-        $json = json_decode($raw ?: '', true);
-
-        if (is_array($json)) {
-            return $json;
-        }
-
-        return $_POST ?: [];
-    }
 }

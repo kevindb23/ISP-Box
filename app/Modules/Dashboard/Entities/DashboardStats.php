@@ -9,6 +9,7 @@ class DashboardStats
         'active_services' => 0,
         'suspended_services' => 0,
         'unpaid_invoices' => 0,
+        'unpaid_subscribers' => 0,
         'paid_invoices' => 0,
         'today_revenue' => 0.0,
         'active_sessions' => 0,

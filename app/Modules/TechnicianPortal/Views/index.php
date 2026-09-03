@@ -1,10 +1,7 @@
 <div class="container-fluid nx-page technician-portal-page" data-technician-portal-page="index">
-
-    <link rel="stylesheet" href="/module-assets/TechnicianPortal/css/TechnicianPortal.css">
-
     <div id="technicianPortalAlert"></div>
 
-    <div class="card border-0 shadow-sm mb-3">
+    <div class="card border-0 shadow-sm mb-3 nx-page-header-card">
         <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <div class="text-primary small fw-bold text-uppercase">
@@ -12,20 +9,10 @@
                     Technician Portal
                 </div>
                 <h5 class="mb-0 fw-semibold">My Work Orders</h5>
-                <small class="text-muted">View assigned jobs, check in, start work, and submit completion notes.</small>
+                <small class="text-muted">View assigned jobs, check in, start work, upload photos, and submit completion notes.</small>
             </div>
 
             <div class="d-flex flex-wrap gap-2">
-                <button id="techTimeInBtn" class="btn btn-success">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    Time In
-                </button>
-
-                <button id="techTimeOutBtn" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-right"></i>
-                    Time Out
-                </button>
-
                 <button id="techRefreshBtn" class="btn btn-light border">
                     <i class="bi bi-arrow-clockwise"></i>
                     Refresh
@@ -35,7 +22,7 @@
     </div>
 
     <div class="row g-3 mb-3">
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">Assigned</div>
@@ -45,7 +32,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">In Progress</div>
@@ -55,22 +42,12 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">Completed</div>
                     <div class="fs-4 fw-bold" id="techCompletedCount">0</div>
                     <div class="small text-muted">Finished jobs</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">Attendance</div>
-                    <div class="fs-6 fw-bold" id="techAttendanceStatus">OFF DUTY</div>
-                    <div class="small text-muted" id="techAttendanceMeta">Not timed in</div>
                 </div>
             </div>
         </div>
@@ -86,6 +63,7 @@
             <select id="techStatusFilter" class="form-select form-select-sm" style="width: 190px;">
                 <option value="">All Status</option>
                 <option value="ASSIGNED">Assigned</option>
+                <option value="ON_SITE">On Site</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="COMPLETED">Completed</option>
                 <option value="FAILED">Failed</option>
@@ -192,6 +170,75 @@
 
                         <div class="row g-3">
                             <div class="col-12 col-xl-8">
+                                <div class="tech-detail-card mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0 fw-semibold">
+                                            <i class="bi bi-list-check"></i>
+                                            Required Tasks
+                                        </h6>
+                                        <small class="text-muted" id="techTasksCount">0/0 required completed</small>
+                                    </div>
+
+                                    <div id="techTasksList">
+                                        <div class="text-muted text-center py-3">No checklist loaded.</div>
+                                    </div>
+                                </div>
+
+                                <div class="tech-detail-card mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0 fw-semibold">
+                                            <i class="bi bi-images"></i>
+                                            Photo Evidence
+                                        </h6>
+                                        <small class="text-muted" id="techAttachmentsCount">0 photos</small>
+                                    </div>
+
+                                    <div id="techAttachmentsList">
+                                        <div class="text-muted text-center py-3">No photos uploaded yet.</div>
+                                    </div>
+
+                                    <form id="techUploadPhotoForm" class="mt-3" enctype="multipart/form-data">
+                                        <input type="hidden" name="work_order_id" id="techPhotoWorkOrderId">
+
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-4">
+                                                <label class="form-label">Photo Type</label>
+                                                <select name="attachment_type" class="form-select" required>
+                                                    <option value="BEFORE">Before Photo</option>
+                                                    <option value="AFTER">After Photo</option>
+                                                    <option value="ONT">ONT Photo</option>
+                                                    <option value="NAP">NAP Photo</option>
+                                                    <option value="OTHER">Other</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-12 col-md-8">
+                                                <label class="form-label">Photo</label>
+                                                <input type="file"
+                                                       name="photo"
+                                                       class="form-control"
+                                                       accept="image/jpeg,image/png,image/webp"
+                                                       required>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label class="form-label">Remarks</label>
+                                                <input type="text"
+                                                       name="remarks"
+                                                       class="form-control"
+                                                       placeholder="Optional remarks">
+                                            </div>
+
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary" id="techUploadPhotoSubmitBtn">
+                                                    <i class="bi bi-upload"></i>
+                                                    Upload Photo
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
                                 <div class="tech-detail-card h-100">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="mb-0 fw-semibold">Notes</h6>
@@ -216,6 +263,41 @@
                             </div>
 
                             <div class="col-12 col-xl-4">
+                                <div class="tech-detail-card mb-3">
+                                    <div class="tech-detail-label">
+                                        <i class="bi bi-geo-alt"></i>
+                                        GPS Check-in
+                                    </div>
+
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-12">
+                                            <div class="text-muted small">Checked In At</div>
+                                            <div class="fw-semibold" id="techGpsCheckInAt">-</div>
+                                        </div>
+
+                                        <div class="col-6">
+                                            <div class="text-muted small">Latitude</div>
+                                            <div id="techGpsLatitude">-</div>
+                                        </div>
+
+                                        <div class="col-6">
+                                            <div class="text-muted small">Longitude</div>
+                                            <div id="techGpsLongitude">-</div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <a href="#"
+                                               target="_blank"
+                                               rel="noopener"
+                                               class="btn btn-sm btn-outline-primary w-100 d-none"
+                                               id="techGpsMapLink">
+                                                <i class="bi bi-map"></i>
+                                                Open in Google Maps
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="tech-detail-card h-100">
                                     <h6 class="fw-semibold mb-3">Actions</h6>
 
@@ -261,5 +343,5 @@
         </div>
     </div>
 
-    <script src="/module-assets/TechnicianPortal/js/TechnicianPortal.js"></script>
+    <script src="/module-assets/TechnicianPortal/js/TechnicianPortal.js?v=5"></script>
 </div>

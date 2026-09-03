@@ -2,6 +2,8 @@
 
 namespace App\Modules\Billing\Services;
 
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\Services\AuditService;
 use App\Modules\Billing\Repositories\BillingSettingsRepository;
 use App\Modules\Billing\Repositories\InvoiceRepository;
 use App\Modules\Billing\Repositories\PaymentGatewayRepository;
@@ -18,25 +20,31 @@ class XenditGatewayService
     private PaymentGatewayRepository $gatewayRepo;
     private PaymentService $paymentService;
 
-    public function __construct(PDO $db)
+    public function __construct(
+        PDO $db,
+        private AuditService $audit,
+        BillingSettingsRepository $settings,
+        InvoiceRepository $invoices,
+        PaymentRepository $payments,
+        PaymentGatewayRepository $gatewayRepo,
+        PaymentService $paymentService
+    )
     {
         $this->db = $db;
-
-        $this->settings = new BillingSettingsRepository($db);
-        $this->invoices = new InvoiceRepository($db);
-        $this->payments = new PaymentRepository($db);
-        $this->gatewayRepo = new PaymentGatewayRepository($db);
-
-        $this->paymentService = new PaymentService(
-            $db,
-            $this->payments,
-            $this->invoices,
-            $this->settings
-        );
+        $this->settings = $settings;
+        $this->invoices = $invoices;
+        $this->payments = $payments;
+        $this->gatewayRepo = $gatewayRepo;
+        $this->paymentService = $paymentService;
     }
 
     public function createPaymentLink(int $invoiceId): array
     {
+        if (!$this->gatewayRepo->acquireInvoiceCheckoutLock($invoiceId)) {
+            throw new Exception('Another payment-link request is already being processed for this invoice.');
+        }
+
+        try {
         $enabled = (string)$this->settings->get('xendit_enabled', '0');
 
         if ($enabled !== '1') {
@@ -61,6 +69,21 @@ class XenditGatewayService
 
         if ($balance <= 0) {
             throw new Exception('Invoice has no payable balance.');
+        }
+
+        $existing = $this->gatewayRepo->findReusableXenditTransaction($invoiceId);
+        if ($existing) {
+            return [
+                'gateway' => 'XENDIT',
+                'invoice_id' => $invoiceId,
+                'invoice_no' => $invoice['invoice_no'] ?? null,
+                'external_id' => $existing['gateway_reference'],
+                'amount' => (float)$existing['amount'],
+                'currency' => $existing['currency'] ?: 'PHP',
+                'status' => $existing['gateway_status'],
+                'payment_url' => $existing['gateway_payment_url'],
+                'reused' => true,
+            ];
         }
 
         $mode = (string)$this->settings->get('xendit_mode', 'test');
@@ -119,7 +142,7 @@ class XenditGatewayService
         $paymentUrl = (string)($response['invoice_url'] ?? '');
         $xenditId = (string)($response['id'] ?? '');
 
-        $this->gatewayRepo->createTransaction([
+        $transactionId = $this->gatewayRepo->createTransaction([
             'invoice_id' => $invoiceId,
             'subscriber_id' => $invoice['subscriber_id'] ?? null,
             'service_id' => $invoice['service_id'] ?? null,
@@ -132,6 +155,12 @@ class XenditGatewayService
             'raw_request' => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             'raw_response' => json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ]);
+
+        $this->audit->logEvent(new AuditEventDTO(
+            module: 'PAYMENT_GATEWAY', action: 'CREATE_XENDIT_LINK', description: "Created Xendit payment link for invoice {$invoiceId}.",
+            objectType: 'PAYMENT_GATEWAY_TRANSACTION', objectId: $transactionId,
+            newValues: ['invoice_id' => $invoiceId, 'amount' => $balance, 'currency' => 'PHP', 'status' => (string)($response['status'] ?? 'PENDING')]
+        ));
 
         return [
             'gateway' => 'XENDIT',
@@ -146,6 +175,9 @@ class XenditGatewayService
             'payment_url' => $paymentUrl,
             'raw' => $response,
         ];
+        } finally {
+            $this->gatewayRepo->releaseInvoiceCheckoutLock($invoiceId);
+        }
     }
 
     public function handleWebhook(array $payload, ?string $callbackToken = null): array
@@ -155,7 +187,11 @@ class XenditGatewayService
             ? (string)$this->settings->get('xendit_webhook_token_live', '')
             : (string)$this->settings->get('xendit_webhook_token_test', '');
 
-        if ($expectedToken !== '' && $callbackToken !== $expectedToken) {
+        if ($expectedToken === '') {
+            throw new Exception('Xendit webhook token is not configured.');
+        }
+
+        if (!is_string($callbackToken) || !hash_equals($expectedToken, $callbackToken)) {
             throw new Exception('Invalid Xendit webhook token.');
         }
 
@@ -166,18 +202,26 @@ class XenditGatewayService
             throw new Exception('Webhook external_id is missing.');
         }
 
-        $transaction = $this->gatewayRepo->findByGatewayReference('XENDIT', $externalId);
-
-        if (!$transaction) {
-            throw new Exception('Gateway transaction not found.');
-        }
-
-        $this->gatewayRepo->updateByGatewayReference('XENDIT', $externalId, [
-            'gateway_status' => $status ?: 'UNKNOWN',
-            'raw_webhook' => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-        ]);
-
         if (!in_array($status, ['PAID', 'SETTLED'], true)) {
+            $transaction = $this->gatewayRepo->findByGatewayReference('XENDIT', $externalId);
+
+            if (!$transaction) {
+                throw new Exception('Gateway transaction not found.');
+            }
+
+            $this->gatewayRepo->updateByGatewayReference('XENDIT', $externalId, [
+                'gateway_status' => $status ?: 'UNKNOWN',
+                'raw_webhook' => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            ]);
+
+            $this->audit->logEvent(new AuditEventDTO(
+                module: 'PAYMENT_GATEWAY', action: 'PROCESS_XENDIT_WEBHOOK', description: 'Processed non-paid Xendit webhook.',
+                objectType: 'PAYMENT_GATEWAY_TRANSACTION', objectId: (int)$transaction['id'],
+                metadata: ['external_id' => $externalId],
+                oldValues: ['status' => (string)($transaction['gateway_status'] ?? '')],
+                newValues: ['status' => $status ?: 'UNKNOWN']
+            ));
+
             return [
                 'processed' => false,
                 'reason' => 'Webhook status is not paid.',
@@ -186,23 +230,39 @@ class XenditGatewayService
             ];
         }
 
-        if (!empty($transaction['payment_id'])) {
-            return [
-                'processed' => false,
-                'reason' => 'Payment already posted for this gateway transaction.',
-                'payment_id' => (int)$transaction['payment_id'],
-                'external_id' => $externalId,
-            ];
-        }
+        $this->db->beginTransaction();
+
+        try {
+            $transaction = $this->gatewayRepo->findByGatewayReferenceForUpdate('XENDIT', $externalId);
+
+            if (!$transaction) {
+                throw new Exception('Gateway transaction not found.');
+            }
+
+            if (!empty($transaction['payment_id'])) {
+                $this->db->commit();
+
+                return [
+                    'processed' => false,
+                    'reason' => 'Payment already posted for this gateway transaction.',
+                    'payment_id' => (int)$transaction['payment_id'],
+                    'external_id' => $externalId,
+                ];
+            }
 
         $invoiceId = (int)($transaction['invoice_id'] ?? 0);
         $amount = (float)($payload['paid_amount'] ?? $payload['amount'] ?? $transaction['amount'] ?? 0);
+        $expectedAmount = (float)($transaction['amount'] ?? 0);
 
         if ($invoiceId <= 0 || $amount <= 0) {
             throw new Exception('Invalid invoice or amount from gateway transaction.');
         }
 
-        $payment = $this->paymentService->create([
+        if ($expectedAmount <= 0 || abs($amount - $expectedAmount) > 0.01) {
+            throw new Exception('Xendit payment amount does not match the gateway transaction.');
+        }
+
+            $payment = $this->paymentService->create([
             'invoice_id' => $invoiceId,
             'amount' => $amount,
             'method' => 'XENDIT',
@@ -211,22 +271,38 @@ class XenditGatewayService
             'remarks' => 'Posted automatically from Xendit webhook.',
         ]);
 
-        $paymentId = (int)($payment['payment']['id'] ?? $payment['id'] ?? 0);
+            $paymentId = (int)($payment['payment']['id'] ?? $payment['id'] ?? 0);
 
-        $this->gatewayRepo->updateByGatewayReference('XENDIT', $externalId, [
+            $this->gatewayRepo->updateByGatewayReference('XENDIT', $externalId, [
             'payment_id' => $paymentId > 0 ? $paymentId : null,
             'gateway_status' => $status,
             'raw_webhook' => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         ]);
 
-        return [
-            'processed' => true,
-            'external_id' => $externalId,
-            'status' => $status,
-            'invoice_id' => $invoiceId,
-            'payment_id' => $paymentId,
-            'amount' => $amount,
-        ];
+            $this->db->commit();
+
+            $this->audit->logEvent(new AuditEventDTO(
+                module: 'PAYMENT_GATEWAY', action: 'POST_XENDIT_PAYMENT', description: 'Posted payment from verified Xendit webhook.',
+                objectType: 'PAYMENT', objectId: $paymentId,
+                metadata: ['transaction_id' => (int)$transaction['id'], 'external_id' => $externalId],
+                newValues: ['invoice_id' => $invoiceId, 'amount' => $amount, 'status' => $status]
+            ));
+
+            return [
+                'processed' => true,
+                'external_id' => $externalId,
+                'status' => $status,
+                'invoice_id' => $invoiceId,
+                'payment_id' => $paymentId,
+                'amount' => $amount,
+            ];
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
     private function requestXendit(string $method, string $url, array $payload, string $secretKey): array

@@ -7,26 +7,26 @@ use App\Modules\Billing\Repositories\InvoiceRepository;
 use App\Modules\Billing\Repositories\PaymentRepository;
 use App\Modules\Billing\Services\BillingService;
 use Framework\Controller;
-use Framework\DatabaseConnection;
 use Throwable;
 
 class BillingController extends Controller
 {
-    private \PDO $db;
     private BillingService $service;
     private InvoiceRepository $invoiceRepo;
     private PaymentRepository $paymentRepo;
     private BillingSettingsRepository $settingsRepo;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(
+        BillingService $service,
+        InvoiceRepository $invoiceRepo,
+        PaymentRepository $paymentRepo,
+        BillingSettingsRepository $settingsRepo
+    )
     {
-        $this->db = $database->get();
-
-        $this->settingsRepo = new BillingSettingsRepository($this->db);
-        $this->service = new BillingService($this->db, $this->settingsRepo);
-
-        $this->invoiceRepo = new InvoiceRepository($this->db);
-        $this->paymentRepo = new PaymentRepository($this->db);
+        $this->service = $service;
+        $this->invoiceRepo = $invoiceRepo;
+        $this->paymentRepo = $paymentRepo;
+        $this->settingsRepo = $settingsRepo;
     }
 
     public function index()

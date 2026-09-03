@@ -14,6 +14,25 @@ class StaffAttendanceRepository
         $this->db = $connection->get();
     }
 
+    public function transaction(callable $callback): mixed
+    {
+        if ($this->db->inTransaction()) return $callback();
+        $this->db->beginTransaction();
+        try { $result=$callback(); $this->db->commit(); return $result; }
+        catch (\Throwable $e) { if ($this->db->inTransaction()) $this->db->rollBack(); throw $e; }
+    }
+
+    public function acquireUserLock(int $userId): void
+    {
+        $stmt=$this->db->prepare('SELECT GET_LOCK(?,10)'); $stmt->execute(['nexusbox:attendance:'.$userId]);
+        if ((int)$stmt->fetchColumn()!==1) throw new \RuntimeException('Attendance is busy. Please retry.');
+    }
+
+    public function releaseUserLock(int $userId): void
+    {
+        $stmt=$this->db->prepare('SELECT RELEASE_LOCK(?)'); $stmt->execute(['nexusbox:attendance:'.$userId]);
+    }
+
     public function findTodayAttendance(int $userId): ?array
     {
         $stmt = $this->db->prepare("
@@ -87,11 +106,12 @@ class StaffAttendanceRepository
             LIMIT 1
         ");
 
-        return $stmt->execute([
+        $stmt->execute([
             ':user_id' => $userId,
             ':time_out_ip' => $ip,
             ':time_out_user_agent' => $userAgent,
         ]);
+        return $stmt->rowCount() === 1;
     }
 
     public function updateStatus(int $userId, string $status): bool
@@ -108,26 +128,28 @@ class StaffAttendanceRepository
             LIMIT 1
         ");
 
-        return $stmt->execute([
+        $stmt->execute([
             ':user_id' => $userId,
             ':status' => $status,
         ]);
+        return $stmt->rowCount() === 1;
     }
 
     public function getTodayStaff(): array
     {
         $stmt = $this->db->query("
             SELECT
-                sa.*,
+                sa.id, sa.attendance_date, sa.time_in_at, sa.time_out_at,
+                COALESCE(CASE WHEN sa.time_out_at IS NOT NULL THEN 'OFFLINE' ELSE sa.status END, 'OFFLINE') AS status,
                 u.username,
                 u.full_name,
                 u.email,
                 u.role
-            FROM staff_attendance sa
-            INNER JOIN users u ON u.id = sa.user_id
-            WHERE sa.attendance_date = CURDATE()
+            FROM users u
+            LEFT JOIN staff_attendance sa ON sa.user_id = u.id AND sa.attendance_date = CURDATE()
+            WHERE u.status = 'ACTIVE' AND u.role <> 'SUBSCRIBER'
             ORDER BY
-                FIELD(sa.status, 'AVAILABLE', 'BUSY', 'TRAVELING', 'ON_SITE', 'ON_BREAK', 'OFFLINE'),
+                FIELD(COALESCE(sa.status, 'OFFLINE'), 'AVAILABLE', 'BUSY', 'TRAVELING', 'ON_SITE', 'ON_BREAK', 'OFFLINE'),
                 sa.time_in_at ASC
         ");
 
@@ -151,7 +173,7 @@ class StaffAttendanceRepository
               AND sa.time_in_at IS NOT NULL
               AND sa.time_out_at IS NULL
               AND sa.status = 'AVAILABLE'
-              AND u.role IN ('TECHNICIAN', 'NOC')
+              AND u.role = 'TECHNICIAN'
               AND u.status = 'ACTIVE'
             ORDER BY sa.time_in_at ASC
         ");
@@ -197,6 +219,13 @@ class StaffAttendanceRepository
         return (int)$this->db->lastInsertId();
     }
 
+    public function hasActiveFieldWork(int $userId): bool
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM work_orders WHERE assigned_user_id=:user_id AND status IN ('IN_PROGRESS','ON_SITE')");
+        $stmt->execute([':user_id'=>$userId]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
     public function getTodayLogs(): array
     {
         $stmt = $this->db->query("
@@ -229,6 +258,13 @@ class StaffAttendanceRepository
             ':user_id' => $userId,
         ]);
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function getHistory(string $from, string $to, int $limit = 500): array
+    {
+        $stmt=$this->db->prepare("SELECT sa.id,sa.attendance_date,sa.time_in_at,sa.time_out_at,sa.status,sa.notes,u.username,u.full_name,u.email,u.role,TIMESTAMPDIFF(MINUTE,sa.time_in_at,COALESCE(sa.time_out_at,NOW())) AS duty_minutes FROM staff_attendance sa INNER JOIN users u ON u.id=sa.user_id WHERE sa.attendance_date BETWEEN :from_date AND :to_date ORDER BY sa.attendance_date DESC,sa.time_in_at DESC LIMIT :limit");
+        $stmt->bindValue(':from_date',$from); $stmt->bindValue(':to_date',$to); $stmt->bindValue(':limit',max(1,min(2000,$limit)),PDO::PARAM_INT); $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 

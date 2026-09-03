@@ -1,3 +1,4 @@
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="audit"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The audit interface is not built.</div><?php endif;return;?>
 <div id="auditPage" class="container-fluid nx-page">
 
     <!-- PAGE HEADER -->
@@ -126,6 +127,4 @@
     </div>
 
 </div>
-
-<link rel="stylesheet" href="/module-assets/Audit/css/Audit.css?v=2">
 <script src="/module-assets/Audit/js/Audit.js?v=6"></script>

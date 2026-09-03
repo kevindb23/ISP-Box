@@ -2,28 +2,15 @@
 
 namespace App\Modules\Billing\Services;
 
-use App\Modules\Billing\Repositories\BillingSettingsRepository;
-use App\Modules\Billing\Repositories\InvoiceRepository;
-use App\Modules\Billing\Repositories\PaymentRepository;
-use PDO;
 use Throwable;
 
 class BillingAutomationService
 {
     private InvoiceService $invoiceService;
 
-    public function __construct(PDO $db)
+    public function __construct(InvoiceService $invoiceService)
     {
-        $invoiceRepo = new InvoiceRepository($db);
-        $paymentRepo = new PaymentRepository($db);
-        $settingsRepo = new BillingSettingsRepository($db);
-
-        $this->invoiceService = new InvoiceService(
-            $db,
-            $invoiceRepo,
-            $paymentRepo,
-            $settingsRepo
-        );
+        $this->invoiceService = $invoiceService;
     }
 
     public function createInvoiceAfterProvisioning(int $serviceId, ?string $activatedAt = null): array

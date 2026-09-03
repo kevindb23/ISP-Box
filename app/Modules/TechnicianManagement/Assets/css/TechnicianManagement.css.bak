@@ -1,0 +1,542 @@
+.technician-management-page .card {
+    border-radius:3px;
+}
+
+.technician-management-page .table th {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #475569;
+}
+
+.technician-management-page .table td,
+.technician-management-page .table th {
+    vertical-align: middle;
+}
+
+.technician-status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.technician-status-available {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.technician-status-busy {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.technician-status-on-site {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.technician-status-traveling {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.technician-status-on-break {
+    background: #f3e8ff;
+    color: #6b21a8;
+}
+
+.technician-status-offline {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.technician-avatar {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 50%;
+    background: #eef2ff;
+    color: #3730a3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.technician-detail-section-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: .06em;
+    margin-bottom: 10px;
+}
+
+#technicianDispatchBoard {
+    border: 1px solid #e5e7eb;
+}
+
+#technicianDispatchContent .table td {
+    white-space: nowrap;
+}
+
+.technician-management-page .btn-group-sm .btn {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.technician-management-page .badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 8px;
+    border-radius:3px;
+}
+
+.technician-management-page .form-label {
+    color: #334155;
+}
+
+.technician-management-page .modal-xl {
+    max-width: 1120px;
+}
+
+.technician-management-page .modal-body {
+    background: #ffffff;
+}
+
+.technician-tabs {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 18px;
+    gap: 6px;
+}
+
+.technician-tabs .nav-link {
+    border: 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 14px;
+    border-radius:3px;
+}
+
+.technician-tabs .nav-link:hover {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.technician-tabs .nav-link.active {
+    color: #2563eb;
+    background: #eff6ff;
+    border-bottom: 2px solid #2563eb;
+}
+
+.technician-tab-pane {
+    min-height: 260px;
+}
+
+.technician-metric-card {
+    border: 1px solid #e5e7eb;
+    border-radius:3px;
+    padding: 16px;
+    height: 100%;
+    background: #ffffff;
+}
+
+.technician-metric-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.technician-metric-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.technician-info-list {
+    display: grid;
+    gap: 12px;
+}
+
+.technician-info-item {
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #e5e7eb;
+}
+
+.technician-info-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.technician-info-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* RADIUS-aligned management surface */
+#technicianManagementPage {
+    --tech-blue: #2563eb;
+    --tech-ink: #0f172a;
+    --tech-muted: #64748b;
+    --tech-line: #e2e8f0;
+    --tech-soft: #f8fafc;
+}
+
+#technicianManagementPage .technician-hero-card,
+#technicianManagementPage .technician-toolbar-card,
+#technicianManagementPage .technician-content-card {
+    border-radius: 3px;
+    border: 1px solid rgba(226, 232, 240, .9) !important;
+    overflow: hidden;
+}
+
+#technicianManagementPage .technician-hero-card {
+    background: radial-gradient(circle at top right, rgba(37, 99, 235, .10), transparent 28%), linear-gradient(180deg, #fff, #f8fafc);
+}
+
+#technicianManagementPage .technician-hero-body {
+    min-height: 79px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 12px 20px !important;
+}
+
+#technicianManagementPage .technician-toolbar-card .card-body,
+#technicianManagementPage .technician-content-card .card-body {
+    padding: 20px 22px;
+}
+
+#technicianManagementPage .technician-table-topline {
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #60a5fa, transparent);
+}
+
+#technicianManagementPage .technician-main-tabs {
+    gap: 6px;
+    border-bottom-color: var(--tech-line);
+}
+
+#technicianManagementPage .technician-main-tabs .nav-link {
+    border: 0;
+    border-radius: 3px 3px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 11px 16px;
+}
+
+#technicianManagementPage .technician-main-tabs .nav-link.active {
+    color: #1d4ed8;
+    background: #eff6ff;
+    box-shadow: inset 0 -2px #2563eb;
+}
+
+#technicianManagementPage .technician-section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+#technicianManagementPage .technician-section-head h2 {
+    margin: 0 0 3px;
+    color: var(--tech-ink);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+#technicianManagementPage .technician-section-head p,
+#technicianManagementPage .technician-record-count {
+    margin: 0;
+    color: var(--tech-muted);
+    font-size: 12px;
+}
+
+#technicianManagementPage .nx-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--tech-line);
+    border-radius: 3px;
+}
+
+#technicianManagementPage .table {
+    min-width: 920px;
+    margin: 0;
+}
+
+#technicianManagementPage .table thead th {
+    padding: 12px 14px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--tech-line);
+    white-space: nowrap;
+}
+
+#technicianManagementPage .table tbody td {
+    padding: 13px 14px;
+    border-color: #eef2f7;
+}
+
+#technicianManagementPage .table tbody tr:hover td {
+    background: #f8fbff;
+}
+
+#technicianManagementPage .nx-cell-title {
+    color: var(--tech-ink);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#technicianManagementPage .nx-cell-sub {
+    margin-top: 2px;
+    color: var(--tech-muted);
+    font-size: 11px;
+}
+
+#technicianManagementPage .technician-job-count {
+    display: inline-flex;
+    min-width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 800;
+}
+
+#technicianManagementPage .technician-avatar {
+    border-radius: 3px;
+}
+
+#technicianManagementPage .nx-empty-state {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--tech-muted);
+}
+
+#technicianManagementPage .nx-empty-icon {
+    margin-bottom: 8px;
+    color: #94a3b8;
+    font-size: 24px;
+}
+
+#technicianManagementPage .nx-empty-title {
+    color: var(--tech-ink);
+    font-weight: 800;
+}
+
+#technicianManagementPage .nx-empty-text {
+    margin-top: 3px;
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .technician-management-page .table {
+        font-size: 12px;
+    }
+
+    .technician-management-page .btn-group-sm {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .technician-management-page .btn-group-sm .btn {
+        border-radius:3px !important;
+    }
+
+    .technician-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .technician-tabs .nav-link {
+        white-space: nowrap;
+    }
+}
+/* =========================================================
+   TECHNICIAN MANAGEMENT DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .technician-management-page .card,
+html[data-theme="dark"] .technician-management-page .technician-metric-card {
+    background: #182235 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .technician-management-page .card-header,
+html[data-theme="dark"] .technician-management-page .card-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-management-page .table,
+html[data-theme="dark"] .technician-management-page table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] .technician-management-page .table thead th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .technician-management-page .table tbody td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+}
+
+html[data-theme="dark"] .technician-management-page .table tbody tr:hover td {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .technician-management-page .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] #technicianDispatchBoard {
+    border-color: #2b3d56 !important;
+    background: #141f31 !important;
+}
+
+html[data-theme="dark"] .technician-detail-section-title,
+html[data-theme="dark"] .technician-metric-label,
+html[data-theme="dark"] .technician-info-label,
+html[data-theme="dark"] .technician-management-page .text-muted {
+    color: #9aabc1 !important;
+}
+
+html[data-theme="dark"] .technician-metric-value,
+html[data-theme="dark"] .technician-info-value,
+html[data-theme="dark"] .technician-management-page h1,
+html[data-theme="dark"] .technician-management-page h2,
+html[data-theme="dark"] .technician-management-page h3,
+html[data-theme="dark"] .technician-management-page h4,
+html[data-theme="dark"] .technician-management-page h5,
+html[data-theme="dark"] .technician-management-page h6 {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-info-item {
+    border-bottom-color: #334155 !important;
+}
+
+html[data-theme="dark"] .technician-avatar {
+    background: rgba(99, 102, 241, .16) !important;
+    color: #a5b4fc !important;
+}
+
+html[data-theme="dark"] .technician-tabs {
+    border-bottom-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .technician-tabs .nav-link {
+    color: #9aabc1 !important;
+}
+
+html[data-theme="dark"] .technician-tabs .nav-link:hover {
+    color: #93c5fd !important;
+    background: rgba(59, 130, 246, .14) !important;
+}
+
+html[data-theme="dark"] .technician-tabs .nav-link.active {
+    color: #93c5fd !important;
+    background: rgba(59, 130, 246, .16) !important;
+    border-bottom-color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .technician-management-page .form-label {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .technician-management-page .form-control,
+html[data-theme="dark"] .technician-management-page .form-select,
+html[data-theme="dark"] .technician-management-page textarea.form-control {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-management-page .form-control::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme="dark"] .technician-management-page .modal-content {
+    background: #182235 !important;
+    color: #f8fafc !important;
+    border: 1px solid #2b3d56 !important;
+}
+
+html[data-theme="dark"] .technician-management-page .modal-header,
+html[data-theme="dark"] .technician-management-page .modal-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .technician-management-page .modal-body {
+    background: #0b1220 !important;
+}
+
+html[data-theme="dark"] .technician-status-available {
+    background: rgba(34, 197, 94, .16) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .technician-status-busy {
+    background: rgba(239, 68, 68, .16) !important;
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] .technician-status-on-site {
+    background: rgba(59, 130, 246, .16) !important;
+    color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .technician-status-traveling {
+    background: rgba(245, 158, 11, .18) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] .technician-status-on-break {
+    background: rgba(168, 85, 247, .16) !important;
+    color: #d8b4fe !important;
+}
+
+html[data-theme="dark"] .technician-status-offline {
+    background: rgba(148, 163, 184, .14) !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .technician-management-page .btn-light,
+html[data-theme="dark"] .technician-management-page .btn-outline-secondary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .technician-management-page .btn-light:hover,
+html[data-theme="dark"] .technician-management-page .btn-outline-secondary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}

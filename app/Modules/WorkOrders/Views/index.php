@@ -1,10 +1,8 @@
-<div class="container-fluid nx-page work-orders-page" data-work-orders-page="index">
-
-    <link rel="stylesheet" href="/module-assets/WorkOrders/css/WorkOrders.css">
-
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="work-orders"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The work orders interface is not built.</div><?php endif;return;?>
+<div class="container-fluid nx-page work-orders-page" id="workOrdersPage" data-work-orders-page="index">
     <div id="workOrdersAlert"></div>
 
-    <div class="card border-0 shadow-sm mb-3">
+    <div class="card border-0 shadow-sm mb-3 nx-page-header-card work-orders-hero-card">
         <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <div class="text-primary small fw-bold text-uppercase">
@@ -23,7 +21,7 @@
     </div>
 
     <div class="row g-3 mb-3">
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">Open</div>
@@ -33,7 +31,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">Assigned</div>
@@ -43,7 +41,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">Active</div>
@@ -53,7 +51,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small">Completed</div>
@@ -62,9 +60,11 @@
                 </div>
             </div>
         </div>
+        <div class="col-12 col-md-6 col-xl"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Issues</div><div class="fs-4 fw-bold" id="workOrdersIssueCount">0</div><div class="small text-muted">Failed / cancelled</div></div></div></div>
     </div>
 
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm nx-content-card work-orders-content-card">
+        <div class="work-orders-table-topline"></div>
         <div class="card-header bg-white border-0 d-flex flex-wrap gap-2 justify-content-between align-items-center">
             <div>
                 <h6 class="mb-0 fw-semibold">Work Order List</h6>
@@ -191,6 +191,11 @@
                                         <div id="workOrderService">-</div>
                                     </div>
 
+                                    <div class="mb-2">
+                                        <div class="text-muted small">Source Ticket</div>
+                                        <div id="workOrderTicket">Not linked to a ticket</div>
+                                    </div>
+
                                     <div>
                                         <div class="text-muted small">Location</div>
                                         <div id="workOrderLocation">-</div>
@@ -235,7 +240,7 @@
                                                   id="workOrderStatusNote"
                                                   class="form-control mb-2"
                                                   rows="2"
-                                                  placeholder="Optional status note"></textarea>
+                                                  placeholder="Add a status note; required for completion, failure, or cancellation"></textarea>
 
                                         <button type="submit" class="btn btn-sm btn-primary w-100" id="workOrderStatusSubmitBtn">
                                             Update Status

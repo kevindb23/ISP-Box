@@ -2,10 +2,10 @@
 
 namespace App\Modules\NapManagement\Controllers;
 
-use Framework\Controller;
+use Framework\ApiController;
 use App\Modules\NapManagement\Services\NapManagementService;
 
-class NapManagementApiController extends Controller
+class NapManagementApiController extends ApiController
 {
     private NapManagementService $service;
 
@@ -20,18 +20,8 @@ class NapManagementApiController extends Controller
             ob_clean();
         }
 
-        http_response_code($httpCode);
-        header('Content-Type: application/json');
-
-        echo json_encode([
-            'ok' => $ok,
-            'status' => $ok ? 'success' : 'error',
-            'success' => $ok,
-            'message' => $message,
-            'data' => $data,
-            'errors' => $errors,
-        ]);
-
+        $ok ? $this->success($data, $message ?: 'OK', $httpCode)
+            : $this->error($message ?: 'Request failed.', $httpCode, $errors, $data);
         exit;
     }
 
@@ -49,16 +39,7 @@ class NapManagementApiController extends Controller
 
     private function input(): array
     {
-        $input = $_POST;
-
-        if (empty($input)) {
-            $decoded = json_decode(file_get_contents('php://input'), true);
-            if (is_array($decoded)) {
-                $input = $decoded;
-            }
-        }
-
-        return is_array($input) ? $input : [];
+        return $this->request()->input();
     }
 
     /*
@@ -128,8 +109,9 @@ class NapManagementApiController extends Controller
 
     public function lcpPorts($lcpId): void
     {
-        $includeCurrent = isset($_GET['include_current']) && $_GET['include_current'] !== ''
-            ? (int)$_GET['include_current']
+        $query = $this->request()->query();
+        $includeCurrent = isset($query['include_current']) && $query['include_current'] !== ''
+            ? (int)$query['include_current']
             : null;
 
         $this->respond(true, '', $this->service->getAvailablePortsByLcp((int)$lcpId, $includeCurrent), []);
@@ -137,8 +119,9 @@ class NapManagementApiController extends Controller
 
     public function napParentPorts($napId): void
     {
-        $includeCurrent = isset($_GET['include_current']) && $_GET['include_current'] !== ''
-            ? (int)$_GET['include_current']
+        $query = $this->request()->query();
+        $includeCurrent = isset($query['include_current']) && $query['include_current'] !== ''
+            ? (int)$query['include_current']
             : null;
 
         $this->respond(true, '', $this->service->getAvailablePortsByNap((int)$napId, $includeCurrent), []);
@@ -171,8 +154,9 @@ class NapManagementApiController extends Controller
 
     public function napCandidates(): void
     {
-        $excludeBoxId = isset($_GET['exclude_box_id']) && $_GET['exclude_box_id'] !== ''
-            ? (int)$_GET['exclude_box_id']
+        $query = $this->request()->query();
+        $excludeBoxId = isset($query['exclude_box_id']) && $query['exclude_box_id'] !== ''
+            ? (int)$query['exclude_box_id']
             : null;
 
         $this->respond(true, '', $this->service->getNapCandidates($excludeBoxId), []);

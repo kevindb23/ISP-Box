@@ -1,0 +1,210 @@
+.branding-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    border-radius:3px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: 10px;
+}
+
+.branding-card {
+    border-radius:3px;
+}
+
+.branding-section-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 18px;
+}
+
+.branding-preview-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius:3px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .04);
+}
+
+.branding-preview-logo {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    padding: 3px;
+    border-radius: 50%;
+    background: #f8fafc;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 18px;
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+.branding-preview-copy {
+    min-width: 0;
+}
+
+.branding-preview-name {
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.2;
+    letter-spacing: .015em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.branding-preview-subtitle {
+    overflow: hidden;
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 1px;
+    letter-spacing: .055em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.branding-logo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.branding-logo-preview {
+    height: 130px;
+    border: 1px solid #dbe5f1;
+    border-radius:3px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.branding-logo-preview i {
+    font-size: 36px;
+    color: #2563eb;
+}
+
+.branding-logo-preview img,
+.branding-preview-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.branding-upload-box {
+    min-height: 176px;
+    border: 1px dashed #cbd5e1;
+    border-radius:3px;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    cursor: pointer;
+    color: #2563eb;
+    padding: 18px;
+}
+
+.branding-upload-box:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+}
+
+.branding-upload-box input {
+    display: none;
+}
+
+.branding-upload-box i {
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+.branding-upload-box strong {
+    color: #2563eb;
+}
+
+.branding-upload-box span,
+.branding-upload-box small {
+    color: #64748b;
+}
+
+/* =========================================================
+   BRANDING DARK MODE
+   Place at VERY BOTTOM of Branding.css
+========================================================= */
+
+html[data-theme="dark"] .branding-hero-badge {
+    background: rgba(59, 130, 246, .16);
+    color: #93c5fd;
+    border: 1px solid rgba(147, 197, 253, .18);
+}
+
+html[data-theme="dark"] .branding-card {
+    background: linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border: 1px solid rgba(255, 255, 255, .055) !important;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, .28) !important;
+}
+
+html[data-theme="dark"] .branding-section-title,
+html[data-theme="dark"] .branding-preview-name {
+    color: #f8fafc;
+}
+
+html[data-theme="dark"] .branding-preview-subtitle,
+html[data-theme="dark"] .branding-upload-box span,
+html[data-theme="dark"] .branding-upload-box small {
+    color: #9aabc1;
+}
+
+html[data-theme="dark"] .branding-preview-box {
+    background: linear-gradient(180deg, #182235 0%, #141f31 100%);
+    border-color: #2b3d56;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, .24);
+}
+
+html[data-theme="dark"] .branding-preview-logo,
+html[data-theme="dark"] .branding-logo-preview {
+    background: #101827;
+    border-color: #2b3d56;
+    color: #60a5fa;
+}
+
+html[data-theme="dark"] .branding-logo-preview i {
+    color: #60a5fa;
+}
+
+html[data-theme="dark"] .branding-upload-box {
+    background: #101827;
+    border-color: #334155;
+    color: #60a5fa;
+}
+
+html[data-theme="dark"] .branding-upload-box:hover {
+    background: rgba(59, 130, 246, .12);
+    border-color: #60a5fa;
+}
+
+html[data-theme="dark"] .branding-upload-box strong {
+    color: #93c5fd;
+}

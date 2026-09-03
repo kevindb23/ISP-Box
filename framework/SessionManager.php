@@ -13,7 +13,8 @@ class SessionManager
                 'lifetime' => 0,
                 'path' => '/',
                 'domain' => '',
-                'secure' => false, // change to true when using HTTPS
+                'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                    || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https',
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]);
@@ -97,6 +98,22 @@ class SessionManager
         self::start();
 
         return $_SESSION['role'] ?? null;
+    }
+
+    public static function refreshIdentity(array $user): void
+    {
+        self::start();
+        foreach (['username', 'full_name', 'email', 'role', 'status'] as $field) {
+            if (array_key_exists($field, $user)) $_SESSION[$field] = $user[$field];
+        }
+        $_SESSION['user'] = [
+            'id' => $_SESSION['user_id'] ?? null,
+            'username' => $_SESSION['username'] ?? null,
+            'full_name' => $_SESSION['full_name'] ?? null,
+            'email' => $_SESSION['email'] ?? null,
+            'role' => $_SESSION['role'] ?? null,
+            'status' => $_SESSION['status'] ?? null,
+        ];
     }
 
     public static function is($role)

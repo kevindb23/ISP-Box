@@ -17,6 +17,9 @@
             paymentShow: (id) => `/api/v1/billing/payments/show/${id}`,
             paymentCreate: '/api/v1/billing/payments/create',
             paymentVoid: (id) => `/api/v1/billing/payments/void/${id}`,
+            paymentApprove: (id) => `/api/v1/billing/payments/${id}/approve`,
+            paymentReject: (id) => `/api/v1/billing/payments/${id}/reject`,
+            paymentProof: (id) => `/api/v1/billing/payments/${id}/proof`,
             paymentReceipt: (id) => `/billing/payments/receipt/${id}`,
 
             adjustments: '/api/v1/billing/adjustments/list',
@@ -537,21 +540,14 @@
         };
 
         const request = async (url, options = {}) => {
-            const response = await fetch(url, {
-                headers: {
-                    Accept: 'application/json',
-                    ...(options.body ? { 'Content-Type': 'application/json' } : {})
-                },
-                ...options
-            });
-
-            const data = await response.json().catch(() => ({}));
-
-            if (!response.ok || data.success === false || data.ok === false) {
-                throw new Error(data.message || data.error || 'Request failed.');
+            const method = String(options.method || 'GET').toUpperCase();
+            if (method === 'GET') return window.NX.api.get(url);
+            let payload = options.body ?? null;
+            if (typeof payload === 'string') {
+                try { payload = JSON.parse(payload); } catch { /* preserve non-JSON payload */ }
             }
-
-            return data.data ?? data;
+            const result = await window.NX.api.post(url, payload);
+            return result.data ?? result;
         };
 
         const openPrintable = (
@@ -815,6 +811,7 @@
             els.paymentTableBody.innerHTML = rows.map((row) => {
                 const paymentStatus = normalizeStatus(row.payment_status);
                 const isPosted = paymentStatus === 'POSTED';
+                const isPending = paymentStatus === 'PENDING';
 
                 return `
                     <tr>
@@ -857,6 +854,11 @@
                                             title="Void Payment">
                                         <i class="bi bi-x-circle"></i>
                                     </button>
+                                ` : ''}
+                                ${isPending ? `
+                                    <a class="btn btn-outline-secondary" href="${API.paymentProof(row.id)}" target="_blank" title="View Payment Proof"><i class="bi bi-image"></i></a>
+                                    <button type="button" class="btn btn-outline-success" data-action="approve-payment" data-id="${row.id}" title="Approve Payment"><i class="bi bi-check-lg"></i></button>
+                                    <button type="button" class="btn btn-outline-danger" data-action="reject-payment" data-id="${row.id}" title="Reject Payment"><i class="bi bi-x-lg"></i></button>
                                 ` : ''}
                             </div>
                         </td>
@@ -2636,6 +2638,13 @@
                 }
 
                 if (action === 'void-payment') await voidPayment(id);
+                if (action === 'approve-payment' && window.confirm('Confirm that this payment was received and post it to the invoice?')) {
+                    await request(API.paymentApprove(id),{method:'POST'}); toast('success','Payment approved.'); await Promise.all([loadPayments(),loadInvoices(),loadOverview()]);
+                }
+                if (action === 'reject-payment') {
+                    const reason=window.prompt('Reason for rejecting this payment:','');
+                    if(reason?.trim()){await request(API.paymentReject(id),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reason:reason.trim()})});toast('success','Payment rejected.');await loadPayments();}
+                }
             });
 
             els.adjustmentTableBody?.addEventListener('click', async (event) => {

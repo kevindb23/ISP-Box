@@ -2,115 +2,90 @@
 
 namespace App\Modules\PaymentGateway\Controllers;
 
-use App\Modules\PaymentGateway\Repositories\PaymentGatewayRepository;
+use App\Modules\PaymentGateway\DTOs\GatewaySettingsDTO;
+use App\Modules\PaymentGateway\DTOs\PaymentGatewayCommandDTO;
+use App\Modules\PaymentGateway\DTOs\PayMongoWebhookDTO;
 use App\Modules\PaymentGateway\Services\PaymentGatewayService;
-use Framework\Controller;
+use Framework\ApiController;
 use Throwable;
 
-class PaymentGatewayApiController extends Controller
+class PaymentGatewayApiController extends ApiController
 {
     private PaymentGatewayService $service;
 
-    public function __construct(PaymentGatewayRepository $repo)
+    public function __construct(PaymentGatewayService $service)
     {
-        $this->service = new PaymentGatewayService($repo);
+        $this->service = $service;
     }
 
     public function settings()
     {
         try {
-            return $this->json([
-                'success' => true,
-                'data' => $this->service->getSettings(),
-            ]);
+            $this->success($this->service->getSettings(), 'Payment gateway settings loaded.');
         } catch (Throwable $e) {
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            $this->error($e->getMessage(), 500);
         }
     }
 
     public function saveSettings()
     {
         try {
-            $payload = $this->jsonInput();
+            $payload = GatewaySettingsDTO::fromArray($this->request()->input());
 
-            return $this->json([
-                'success' => true,
-                'data' => $this->service->saveSettings($payload),
-                'message' => 'Payment gateway settings saved.',
-            ]);
+            $this->success($this->service->saveSettings($payload), 'Payment gateway settings saved.');
         } catch (Throwable $e) {
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            $this->error($e->getMessage(), 422);
         }
     }
 
     public function transactions()
     {
         try {
-            return $this->json([
-                'success' => true,
-                'data' => [
-                    'items' => $this->service->listTransactions($_GET),
-                ],
-            ]);
+            $this->success(['items' => $this->service->listTransactions($this->request()->query())], 'Transactions loaded.');
         } catch (Throwable $e) {
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+            $this->error($e->getMessage(), 500);
         }
     }
 
     public function createCheckout()
     {
         try {
-            $payload = $this->jsonInput();
+            $payload = PaymentGatewayCommandDTO::fromArray($this->request()->input());
 
-            return $this->json([
-                'success' => true,
-                'data' => $this->service->createPayMongoCheckout($payload),
-            ]);
+            $this->success($this->service->createPayMongoCheckout($payload), 'PayMongo checkout created.');
         } catch (Throwable $e) {
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            $this->error($e->getMessage(), 422);
         }
     }
 
     public function webhook()
     {
         try {
-            $payload = $this->jsonInput();
+            $request = $this->request();
+            $rawPayload = $request->rawBody();
+            $payload = new PayMongoWebhookDTO(
+                $request->input(),
+                $rawPayload,
+                (string)$request->header('Paymongo-Signature', '')
+            );
 
-            return $this->json([
-                'success' => true,
-                'data' => $this->service->handlePayMongoWebhook($payload),
-            ]);
+            $this->success($this->service->handlePayMongoWebhook($payload), 'Webhook processed.');
         } catch (Throwable $e) {
-            return $this->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+            $this->error($e->getMessage(), 422);
         }
     }
 
-    private function json(array $payload, int $status = 200): void
+    public function verify()
     {
-        http_response_code($status);
-        header('Content-Type: application/json');
-
-        echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        exit;
-    }
-
-    private function jsonInput(): array
-    {
-        return json_decode(file_get_contents('php://input'), true) ?: [];
+        try {
+            $this->success(
+                $this->service->verifyPayMongoPayment(
+                    PaymentGatewayCommandDTO::fromArray($this->request()->input())
+                ),
+                'Payment verification completed.'
+            );
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
     }
 }

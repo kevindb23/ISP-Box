@@ -1,0 +1,167 @@
+.work-orders-page .work-order-detail-card {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius:3px;
+    padding: 16px;
+}
+
+.work-orders-page .work-order-detail-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #2563eb;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.work-orders-page .work-order-list-item {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.work-orders-page .work-order-list-item:last-child {
+    border-bottom: 0;
+}
+
+.work-orders-page .nx-icon-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.work-orders-page .nx-cell-stack {
+    line-height: 1.25;
+}
+
+.work-orders-page .nx-cell-title {
+    font-weight: 600;
+}
+
+.work-orders-page .nx-cell-sub {
+    font-size: 0.78rem;
+    color: #64748b;
+}
+
+.work-orders-page .nx-text-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+/* =========================================================
+   WORK ORDERS DARK MODE - FINAL FIX
+========================================================= */
+
+html[data-theme="dark"] .work-orders-page .card,
+html[data-theme="dark"] .work-orders-page .card-header,
+html[data-theme="dark"] .work-orders-page .card-body,
+html[data-theme="dark"] .work-orders-page .nx-content-card,
+html[data-theme="dark"] .work-orders-page .nx-toolbar-card,
+html[data-theme="dark"] .work-orders-page .nx-table-wrap {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5eefb !important;
+}
+
+html[data-theme="dark"] .work-orders-page .card-header {
+    background: #101827 !important;
+}
+
+html[data-theme="dark"] .work-orders-page .card-header h5,
+html[data-theme="dark"] .work-orders-page .card-header h6,
+html[data-theme="dark"] .work-orders-page .card-title,
+html[data-theme="dark"] .work-orders-page .nx-cell-title,
+html[data-theme="dark"] .work-orders-page .fw-semibold {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .work-orders-page .text-muted,
+html[data-theme="dark"] .work-orders-page .small,
+html[data-theme="dark"] .work-orders-page .nx-cell-sub {
+    color: #9aabc1 !important;
+}
+
+/* Table hard override */
+html[data-theme="dark"] .work-orders-page table,
+html[data-theme="dark"] .work-orders-page .table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] .work-orders-page .table thead,
+html[data-theme="dark"] .work-orders-page .table thead tr,
+html[data-theme="dark"] .work-orders-page .table thead th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .work-orders-page .table tbody,
+html[data-theme="dark"] .work-orders-page .table tbody tr,
+html[data-theme="dark"] .work-orders-page .table tbody td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+}
+
+html[data-theme="dark"] .work-orders-page .table tbody tr:hover,
+html[data-theme="dark"] .work-orders-page .table tbody tr:hover td {
+    background: #1d2a40 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .work-orders-page .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+/* Forms */
+html[data-theme="dark"] .work-orders-page .form-control,
+html[data-theme="dark"] .work-orders-page .form-select {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .work-orders-page .form-control::placeholder {
+    color: #64748b !important;
+}
+
+/* Detail cards */
+html[data-theme="dark"] .work-orders-page .work-order-detail-card,
+html[data-theme="dark"] .work-orders-page .work-order-list-item {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #e5eefb !important;
+}
+
+html[data-theme="dark"] .work-orders-page .work-order-detail-label {
+    color: #60a5fa !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] .work-orders-page .nx-icon-btn,
+html[data-theme="dark"] .work-orders-page .btn-light,
+html[data-theme="dark"] .work-orders-page .btn-outline-secondary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .work-orders-page .nx-icon-btn:hover,
+html[data-theme="dark"] .work-orders-page .btn-light:hover,
+html[data-theme="dark"] .work-orders-page .btn-outline-secondary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+/* RADIUS-aligned work-order surface */
+#workOrdersPage .work-orders-hero-card,
+#workOrdersPage .work-orders-content-card { border-radius:3px; border:1px solid rgba(226,232,240,.9) !important; overflow:hidden; }
+#workOrdersPage .work-orders-hero-card { background:radial-gradient(circle at top right,rgba(37,99,235,.10),transparent 28%),linear-gradient(180deg,#fff,#f8fafc); }
+#workOrdersPage .work-orders-table-topline { height:3px; background:linear-gradient(90deg,#2563eb,#60a5fa,transparent); }
+#workOrdersPage .work-orders-content-card > .card-header { padding:18px 22px; border-bottom:1px solid #e2e8f0 !important; }
+#workOrdersPage .work-orders-content-card > .card-body { padding:20px 22px; }
+#workOrdersPage .nx-datatable-wrap { border:1px solid #e2e8f0; border-radius:3px; overflow-x:auto; }
+#workOrdersPage table thead th { background:#f8fafc; color:#475569; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+#workOrdersPage table tbody td { padding-top:13px; padding-bottom:13px; border-color:#eef2f7; }

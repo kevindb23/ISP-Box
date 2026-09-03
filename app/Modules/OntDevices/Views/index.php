@@ -1,6 +1,5 @@
+<?php $ontLegacyUi=isset($_GET['legacy_ui'])&&(string)$_GET['legacy_ui']==='1';if(!$ontLegacyUi):$p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="ont"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The new ONT interface is not built. Use <a href="/ont-devices?legacy_ui=1">the legacy interface</a>.</div><?php endif;return;endif;?>
 <div class="container-fluid nx-page" id="ontDevicesPage">
-    <link rel="stylesheet" href="/module-assets/OntDevices/css/OntDevices.css">
-
     <?php
     $tab = $tab ?? ($_GET['tab'] ?? 'inventory');
     ?>
@@ -88,32 +87,24 @@
 
                                 <div class="mb-2">
                                     <label class="form-label">Vendor</label>
-                                    <select name="vendor" id="ontVendorInput" class="form-select">
-                                        <option value="">Select Vendor</option>
-                                        <option value="Huawei">Huawei</option>
-                                        <option value="Nokia">Nokia</option>
-                                        <option value="ZTE">ZTE</option>
-                                    </select>
+                                    <input type="text" name="vendor" id="ontVendorInput" class="form-control" list="ontVendorOptions" placeholder="Select or type a vendor" autocomplete="off">
+                                    <datalist id="ontVendorOptions"></datalist>
+                                    <div class="form-text">Choose an inventory value or type a new vendor.</div>
                                 </div>
 
                                 <div class="mb-2">
                                     <label class="form-label">Model</label>
-                                    <input type="text" name="model" id="ontModelInput" class="form-control">
+                                    <input type="text" name="model" id="ontModelInput" class="form-control" list="ontModelOptions" placeholder="Select or type a model" autocomplete="off">
+                                    <datalist id="ontModelOptions"></datalist>
+                                    <div class="form-text">Choose an inventory value or type a new model.</div>
                                 </div>
 
                                 <div class="mb-2">
-                                    <label class="form-label">Equipment ID</label>
-                                    <input type="text" name="equipment_id" id="ontEquipmentIdInput" class="form-control">
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="form-label">MAC Address</label>
-                                    <input type="text" name="mac_address" id="ontMacInput" class="form-control">
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="form-label">Subscriber ID</label>
-                                    <input type="number" name="subscriber_id" id="ontSubscriberIdInput" class="form-control">
+                                    <label class="form-label">Subscriber <span class="text-muted fw-normal">(optional)</span></label>
+                                    <input type="text" id="ontSubscriberSearchInput" class="form-control" list="ontSubscriberOptions" placeholder="Type subscriber name or account number" autocomplete="off">
+                                    <datalist id="ontSubscriberOptions"></datalist>
+                                    <input type="hidden" name="subscriber_id" id="ontSubscriberIdInput">
+                                    <div class="form-text" id="ontSubscriberMatchText">Leave empty to keep the ONT unassigned.</div>
                                 </div>
 
                                 <div class="mb-2 nx-span-2">
@@ -173,16 +164,6 @@
                             <div class="nx-field">
                                 <label>Model</label>
                                 <div id="viewInventoryModel">-</div>
-                            </div>
-
-                            <div class="nx-field">
-                                <label>Equipment ID</label>
-                                <div id="viewInventoryEquipmentId">-</div>
-                            </div>
-
-                            <div class="nx-field">
-                                <label>MAC Address</label>
-                                <div id="viewInventoryMac">-</div>
                             </div>
 
                             <div class="nx-field">

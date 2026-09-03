@@ -2,34 +2,19 @@
 
 namespace App\Modules\OntDevices\Services;
 
-use PDO;
+use App\Modules\OntDevices\Repositories\OntDevicesRepository;
 use Throwable;
 
 class AcsService
 {
     private string $acsBaseUrl;
-    private ?PDO $pdo = null;
-
-    public function __construct()
+    public function __construct(private OntDevicesRepository $inventory)
     {
         $this->acsBaseUrl = rtrim(
             getenv('ACS_URL') ?: ($_ENV['ACS_URL'] ?? 'http://10.0.10.156:7557'),
             '/'
         );
 
-        try {
-            if (class_exists(\App\Infrastructure\Database\DatabaseConnection::class)) {
-                $this->pdo = (new \App\Infrastructure\Database\DatabaseConnection())->get();
-            } elseif (class_exists(\Framework\DatabaseConnection::class)) {
-                $this->pdo = (new \Framework\DatabaseConnection())->get();
-            } else {
-                $this->pdo = null;
-                error_log('ACS PDO INIT ERROR: No supported DatabaseConnection class found.');
-            }
-        } catch (Throwable $e) {
-            $this->pdo = null;
-            error_log('ACS PDO INIT ERROR: ' . $e->getMessage());
-        }
     }
 
     public function getDevices(): array
@@ -88,6 +73,15 @@ class AcsService
         return $rows;
     }
 
+    public function syncSnapshots(array $normalizedDevices): void
+    {
+        foreach ($normalizedDevices as $device) {
+            if (is_array($device)) {
+                $this->inventory->upsertAcsSnapshot($device);
+            }
+        }
+    }
+
     public function normalizeDevice(array $device): array
     {
         $deviceId = (string)($device['_id'] ?? $this->firstValue($device, [
@@ -108,6 +102,14 @@ class AcsService
         $wanStatus = $wanInfo['status'] ?? 'UNKNOWN';
         $wanMode = $wanInfo['mode'] ?? 'UNKNOWN';
         $wanUsername = $wanInfo['username'] ?? null;
+        $wanIpSource = 'ACS';
+        if ($wanUsername) {
+            $activeRadiusIp = $this->activeRadiusIp((string)$wanUsername);
+            if ($activeRadiusIp !== null) {
+                $wanIp = $activeRadiusIp;
+                $wanIpSource = 'RADIUS';
+            }
+        }
         $wanService = $wanInfo['service'] ?? null;
         $wanVlan = $wanInfo['vlan'] ?? null;
         $wanEditable = strtoupper((string)$wanMode) !== 'PPPOE';
@@ -116,6 +118,13 @@ class AcsService
         $ssid = $this->extractPrimarySsid($device);
         $clientCount = count($this->extractWifiClients($device));
         $inventory = $this->findInventoryBySerial((string)$serial);
+        $inventoryVendor = trim((string)($inventory['vendor'] ?? ''));
+        if ($inventoryVendor !== '') {
+            $vendor = $inventoryVendor;
+        }
+        if (is_array($inventory)) {
+            unset($inventory['equipment_id']);
+        }
 
         return [
             'id' => $deviceId,
@@ -125,6 +134,7 @@ class AcsService
             'model' => $model ?: '-',
             'firmware_version' => $firmware ?: '-',
             'wan_ip' => $wanIp ?: '-',
+            'wan_ip_source' => $wanIpSource,
             'wan_status' => $wanStatus,
             'wan_mode' => $wanMode,
             'wan_username' => $wanUsername,
@@ -143,6 +153,119 @@ class AcsService
             'inventory_state' => $inventory ? 'MATCHED' : 'UNMATCHED',
             'inventory_info' => $inventory,
         ];
+    }
+
+    /**
+     * Return only the CWMP branches used by the ACS page. Secret parameter
+     * values are replaced before the response reaches the browser.
+     */
+    public function getUiParameters(array $device): array
+    {
+        $result = [];
+        foreach (['_id', '_lastInform', '_registered'] as $key) {
+            if (array_key_exists($key, $device)) {
+                $result[$key] = $device[$key];
+            }
+        }
+
+        $deviceInfoFields = [
+            'Manufacturer', 'ProductClass', 'ModelName', 'HardwareVersion',
+            'SoftwareVersion', 'UpTime', 'X_HW_LastBootReason',
+        ];
+        $paths = [
+            ['DeviceID'],
+            ['InternetGatewayDevice', 'ManagementServer', 'ConnectionRequestURL'],
+            ['Device', 'ManagementServer', 'ConnectionRequestURL'],
+        ];
+        foreach ($deviceInfoFields as $field) {
+            $paths[] = ['InternetGatewayDevice', 'DeviceInfo', $field];
+            $paths[] = ['Device', 'DeviceInfo', $field];
+        }
+        foreach ($paths as $path) {
+            $value = $this->arrayPath($device, $path);
+            if ($value !== null) {
+                $this->setArrayPath($result, $path, $this->sanitizeParameterTree($value));
+            }
+        }
+
+        $wanDevices = $this->arrayPath($device, ['InternetGatewayDevice', 'WANDevice']);
+        if (is_array($wanDevices)) {
+            $projected = [];
+            foreach ($wanDevices as $index => $wanDevice) {
+                if (ctype_digit((string)$index) && is_array($wanDevice) && isset($wanDevice['WANConnectionDevice'])) {
+                    $projected[$index] = ['WANConnectionDevice' => $wanDevice['WANConnectionDevice']];
+                }
+            }
+            $this->setArrayPath($result, ['InternetGatewayDevice', 'WANDevice'], $this->sanitizeParameterTree($projected));
+        }
+
+        $lanDevices = $this->arrayPath($device, ['InternetGatewayDevice', 'LANDevice']);
+        if (is_array($lanDevices)) {
+            $projected = [];
+            foreach ($lanDevices as $index => $lanDevice) {
+                if (!ctype_digit((string)$index) || !is_array($lanDevice)) {
+                    continue;
+                }
+                $entry = [];
+                if (isset($lanDevice['WLANConfiguration'])) {
+                    $entry['WLANConfiguration'] = $lanDevice['WLANConfiguration'];
+                }
+                if (isset($lanDevice['Hosts']['Host'])) {
+                    $entry['Hosts'] = ['Host' => $lanDevice['Hosts']['Host']];
+                }
+                if ($entry !== []) {
+                    $projected[$index] = $entry;
+                }
+            }
+            $this->setArrayPath($result, ['InternetGatewayDevice', 'LANDevice'], $this->sanitizeParameterTree($projected));
+        }
+
+        return $result;
+    }
+
+    private function arrayPath(array $source, array $path): mixed
+    {
+        $value = $source;
+        foreach ($path as $segment) {
+            if (!is_array($value) || !array_key_exists($segment, $value)) {
+                return null;
+            }
+            $value = $value[$segment];
+        }
+        return $value;
+    }
+
+    private function setArrayPath(array &$target, array $path, mixed $value): void
+    {
+        $cursor =& $target;
+        foreach ($path as $segment) {
+            if (!isset($cursor[$segment]) || !is_array($cursor[$segment])) {
+                $cursor[$segment] = [];
+            }
+            $cursor =& $cursor[$segment];
+        }
+        $cursor = $value;
+    }
+
+    private function sanitizeParameterTree(mixed $value, string $parameterName = ''): mixed
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $isSensitive = (bool)preg_match(
+            '/(?:password|passphrase|presharedkey|keypassphrase|secret)$/i',
+            $parameterName
+        );
+        $result = [];
+        foreach ($value as $key => $child) {
+            if ($isSensitive && $key === '_value') {
+                $result[$key] = ($child === null || $child === '') ? '' : '__CONFIGURED__';
+                continue;
+            }
+            $result[$key] = $this->sanitizeParameterTree($child, (string)$key);
+        }
+        return $result;
     }
 
     public function isRecentlyOnline(array $device, int $seconds = 1800): bool
@@ -197,20 +320,28 @@ class AcsService
             throw new \RuntimeException('PPP username and password are required.');
         }
 
-        // Refresh WAN tree first so PPP objects are visible before path selection
-        $initialRefresh = $this->request(
-            'POST',
-            '/devices/' . rawurlencode($deviceId) . '/tasks?connection_request',
-            [
-                'name' => 'refreshObject',
-                'objectName' => 'InternetGatewayDevice.WANDevice.1'
-            ]
-        );
-
         $device = $this->getDevice($deviceId);
 
         if (!$device) {
             throw new \RuntimeException('ACS device not found.');
+        }
+
+        $online = $this->isRecentlyOnline($device, 300);
+        $initialRefresh = null;
+
+        // When the ONT is online, refresh the WAN tree before selecting its PPP
+        // object. Offline ONTs must use the cached tree so the write can still be
+        // queued for their next inform instead of failing before task creation.
+        if ($online) {
+            $initialRefresh = $this->request(
+                'POST',
+                '/devices/' . rawurlencode($deviceId) . '/tasks?connection_request',
+                [
+                    'name' => 'refreshObject',
+                    'objectName' => 'InternetGatewayDevice.WANDevice.1'
+                ]
+            );
+            $device = $this->getDevice($deviceId) ?: $device;
         }
 
         $pppPath = $this->findPppoeConnectionPath($device);
@@ -219,9 +350,11 @@ class AcsService
             throw new \RuntimeException('PPP WAN path not found on ACS device.');
         }
 
+        $taskPath = '/devices/' . rawurlencode($deviceId) . '/tasks'
+            . ($online ? '?connection_request' : '');
         $setTask = $this->request(
             'POST',
-            '/devices/' . rawurlencode($deviceId) . '/tasks?connection_request',
+            $taskPath,
             [
                 'name' => 'setParameterValues',
                 'parameterValues' => [
@@ -233,29 +366,26 @@ class AcsService
             ]
         );
 
-        // Refresh exact PPP object after writing credentials
-        $refreshPpp = $this->request(
-            'POST',
-            '/devices/' . rawurlencode($deviceId) . '/tasks?connection_request',
-            [
+        $refreshPpp = null;
+        $refreshWan = null;
+        if ($online) {
+            // Only issue immediate refreshes when the connection request is
+            // available. An offline ONT will execute the queued password task
+            // during its next periodic inform.
+            $refreshPpp = $this->request('POST', $taskPath, [
                 'name' => 'refreshObject',
                 'objectName' => $pppPath
-            ]
-        );
-
-        // Refresh whole WAN tree so UI sees updated ConnectionStatus / IP if device reports it
-        $refreshWan = $this->request(
-            'POST',
-            '/devices/' . rawurlencode($deviceId) . '/tasks?connection_request',
-            [
+            ]);
+            $refreshWan = $this->request('POST', $taskPath, [
                 'name' => 'refreshObject',
                 'objectName' => 'InternetGatewayDevice.WANDevice.1'
-            ]
-        );
+            ]);
+        }
 
         return [
             'ok' => true,
             'message' => 'PPP credentials pushed to ACS.',
+            'delivery' => $online ? 'IMMEDIATE' : 'QUEUED',
             'ppp_path' => $pppPath,
             'task' => $setTask,
             'refresh_ppp' => $refreshPpp,
@@ -497,6 +627,7 @@ class AcsService
 
         $devices = $this->getDevices();
         $normalized = $this->normalizeDevices($devices);
+        $this->syncSnapshots($normalized);
 
         foreach ($normalized as $device) {
             $deviceSerial = strtoupper(trim((string)($device['serial_number'] ?? '')));
@@ -715,12 +846,17 @@ class AcsService
                     continue;
                 }
 
+                $active = $this->valueFromNode($host['Active'] ?? null);
+                if (!filter_var($active, FILTER_VALIDATE_BOOLEAN)) {
+                    continue;
+                }
+
                 $clients[] = [
                     'host_name' => $this->valueFromNode($host['HostName'] ?? null) ?: '-',
                     'ip_address' => $this->valueFromNode($host['IPAddress'] ?? null) ?: '-',
                     'mac_address' => $this->valueFromNode($host['MACAddress'] ?? null) ?: '-',
                     'interface_type' => $this->valueFromNode($host['InterfaceType'] ?? null) ?: '-',
-                    'active' => $this->valueFromNode($host['Active'] ?? null),
+                    'active' => true,
                     'lease_time_remaining' => $this->valueFromNode($host['LeaseTimeRemaining'] ?? null),
                 ];
             }
@@ -947,6 +1083,11 @@ class AcsService
         }
 
         return (string)$url;
+    }
+
+    private function activeRadiusIp(string $username): ?string
+    {
+        return $this->inventory->findActiveRadiusIpByUsername($username);
     }
 
     private function extractUptimeSeconds(array $device): ?int
@@ -1186,21 +1327,12 @@ class AcsService
 
     private function findInventoryBySerial(string $serial): ?array
     {
-        if (!$this->pdo || $serial === '') {
+        if ($serial === '') {
             return null;
         }
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT *
-                FROM ont_devices
-                WHERE UPPER(TRIM(serial_number)) = UPPER(TRIM(:serial))
-                LIMIT 1
-            ");
-            $stmt->execute(['serial' => $serial]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            return is_array($row) ? $row : null;
+            return $this->inventory->findBySerial($serial);
         } catch (Throwable $e) {
             return null;
         }

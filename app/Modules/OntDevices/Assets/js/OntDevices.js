@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
         inventory: [],
         discovery: [],
         acs: [],
+        olts: [],
+        subscribers: [],
+        selectedDiscoveryOltId: null,
 
         selectedInventoryId: null,
         selectedDiscoverySerial: null,
@@ -98,9 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ontSerialInput: $('#ontSerialInput'),
             ontVendorInput: $('#ontVendorInput'),
             ontModelInput: $('#ontModelInput'),
-            ontEquipmentIdInput: $('#ontEquipmentIdInput'),
-            ontMacInput: $('#ontMacInput'),
             ontSubscriberIdInput: $('#ontSubscriberIdInput'),
+            ontSubscriberSearchInput: $('#ontSubscriberSearchInput'),
+            ontSubscriberMatchText: $('#ontSubscriberMatchText'),
+            ontVendorOptions: $('#ontVendorOptions'),
+            ontModelOptions: $('#ontModelOptions'),
+            ontSubscriberOptions: $('#ontSubscriberOptions'),
             ontStatusInput: $('#ontStatusInput'),
 
             inventoryViewModal: $('#inventoryViewModal'),
@@ -110,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             viewInventoryVendor: $('#viewInventoryVendor'),
             viewInventoryModel: $('#viewInventoryModel'),
             viewInventoryEquipmentId: $('#viewInventoryEquipmentId'),
-            viewInventoryMac: $('#viewInventoryMac'),
             viewInventorySubscriberId: $('#viewInventorySubscriberId'),
             viewInventorySubscriberName: $('#viewInventorySubscriberName'),
             viewInventoryCreatedAt: $('#viewInventoryCreatedAt'),
@@ -191,6 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el.ontForm) {
             el.ontForm.addEventListener('submit', (e) => submitOntForm(ctx, e));
         }
+
+        el.ontSubscriberSearchInput?.addEventListener('input', util.debounce(() => {
+            syncSubscriberSelection(ctx);
+        }, 120));
 
         el.discoveryModalAddBtn?.addEventListener('click', async () => {
             if (!ctx.state.selectedDiscoverySerial) return;
@@ -277,11 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const [inventoryRes, discoveryRes, acsRes, acsDevicesRes] = await Promise.all([
+        const [inventoryRes, discoveryRes, acsRes, acsDevicesRes, oltsRes, subscribersRes] = await Promise.all([
             api.get('/api/v1/ont-devices/inventory').catch(() => []),
             api.get('/api/v1/ont-devices/discovery').catch(() => []),
             api.get('/api/v1/ont-devices/acs').catch(() => []),
-            api.get('/api/v1/ont-devices/acs/devices').catch(() => [])
+            Promise.resolve([]),
+            api.get('/api/v1/olt-management/devices').catch(() => []),
+            api.get('/api/v1/ont-devices/subscribers').catch(() => [])
         ]);
 
         const inventory = safeArray(extractApiPayload(inventoryRes));
@@ -296,6 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const acsCurrentRows = safeArray(extractApiPayload(acsRes));
         const acsRemoteRows = safeArray(extractApiPayload(acsDevicesRes));
+        const olts = safeArray(extractApiPayload(oltsRes));
+        const subscribers = safeArray(extractApiPayload(subscribersRes));
 
         const mergedById = new Map();
 
@@ -317,6 +330,9 @@ document.addEventListener('DOMContentLoaded', () => {
             inventory,
             discovery,
             acs: Array.from(mergedById.values()),
+            olts,
+            subscribers,
+            selectedDiscoveryOltId: ctx.state.selectedDiscoveryOltId || (olts[0] ? Number(olts[0].id) : null),
             loading: {
                 inventory: false,
                 discovery: false,
@@ -401,9 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
         $('#ontSearchInput')?.addEventListener('input', util.debounce((e) => {
             const value = e.target.value || '';
             ctx.patch({ search: value });
-
-            const tableKey = getActiveTableKey(ctx.state.tab);
-            TABLES[tableKey]?.setSearch(value);
         }, 180));
 
         $('#ontExportBtn')?.addEventListener('click', () => exportCurrentTab(ctx));
@@ -420,7 +433,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             `);
         } else if (ctx.state.tab === 'discovery') {
+            const oltOptions = safeArray(ctx.state.olts).map((olt) => `
+                <option value="${Number(olt.id)}" ${Number(ctx.state.selectedDiscoveryOltId) === Number(olt.id) ? 'selected' : ''}>
+                    ${escape(olt.name || 'OLT')} - ${escape(olt.ip_address || '-')}
+                </option>
+            `).join('');
             html(el.headerActions, `
+                <select class="form-select ont-discovery-olt-select" id="ontDiscoveryOltSelect" aria-label="Discovery OLT">
+                    ${oltOptions || '<option value="">No configured OLT</option>'}
+                </select>
                 <button class="btn btn-primary nx-header-btn" type="button" id="runDiscoveryBtn">
                     <i class="bi bi-search"></i><span>Auto Discover</span>
                 </button>
@@ -440,6 +461,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         $('#openAddOntBtn')?.addEventListener('click', () => openCreateOntModal(ctx));
+        $('#ontDiscoveryOltSelect')?.addEventListener('change', (e) => {
+            ctx.state.selectedDiscoveryOltId = Number(e.target.value || 0) || null;
+        });
         $('#runDiscoveryBtn')?.addEventListener('click', () => runDiscovery(ctx));
         $('#bulkAddDiscoveryBtn')?.addEventListener('click', () => bulkAddSelectedDiscovery(ctx));
         $('#refreshOntBtn')?.addEventListener('click', () => refreshStateAndRender(ctx));
@@ -534,11 +558,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     render: (v) => escape(v || '-')
                 },
                 {
-                    key: 'equipment_id',
-                    label: 'Equipment ID',
-                    render: (v) => escape(v || '-')
-                },
-                {
                     key: 'subscriber_name',
                     label: 'Subscriber',
                     render: (v) => escape(v || '-')
@@ -557,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     key: '__actions',
                     label: 'Actions',
                     render: (_, row) => `
-                        <div class="d-flex gap-1 flex-wrap">
+                        <div class="ont-table-actions">
                             <button type="button" class="btn btn-sm btn-outline-secondary nx-icon-btn js-view-inventory" data-id="${parseInt(row.id, 10)}" title="View Details"><i class="bi bi-eye"></i></button>
                             <button type="button" class="btn btn-sm btn-outline-primary nx-icon-btn js-edit-ont" data-id="${parseInt(row.id, 10)}" title="Edit ONT"><i class="bi bi-pencil"></i></button>
                             <button type="button" class="btn btn-sm btn-outline-danger nx-icon-btn js-delete-ont" data-id="${parseInt(row.id, 10)}" title="Delete ONT"><i class="bi bi-trash"></i></button>
@@ -670,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     render: (_, row) => {
                         const isKnown = upper(row.inventory_state) === 'KNOWN';
                         return `
-                            <div class="d-flex gap-1 flex-wrap">
+                            <div class="ont-table-actions">
                                 <button type="button" class="btn btn-sm btn-outline-secondary nx-icon-btn js-view-discovery" data-serial="${escape(row.serial_number)}" title="View Details"><i class="bi bi-eye"></i></button>
                                 ${
                             isKnown
@@ -775,7 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     key: '__actions',
                     label: 'Actions',
                     render: (_, row) => `
-                    <div class="d-flex gap-1 flex-wrap">
+                    <div class="ont-table-actions">
                         <a href="/ont-devices/acs-device/${encodeURIComponent(row.id)}"
                            class="btn btn-sm btn-outline-primary nx-icon-btn"
                            title="Open ACS Page">
@@ -963,7 +982,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 { label: 'Serial Number', value: (r) => r.serial_number },
                 { label: 'Model', value: (r) => r.model },
                 { label: 'Vendor', value: (r) => r.vendor },
-                { label: 'Equipment ID', value: (r) => r.equipment_id },
                 { label: 'Subscriber Name', value: (r) => r.subscriber_name },
                 { label: 'Status', value: (r) => r.status },
                 { label: 'Created At', value: (r) => r.created_at }
@@ -1129,6 +1147,62 @@ document.addEventListener('DOMContentLoaded', () => {
         text(el.ontModalTitle, 'Add ONT');
         text(el.ontModalSubtitle, 'Create inventory record');
         if (el.ontStatusInput) el.ontStatusInput.value = 'UNASSIGNED';
+        if (el.ontSubscriberMatchText) text(el.ontSubscriberMatchText, 'Leave empty to keep the ONT unassigned.');
+    }
+
+    function uniqueInventoryValues(state, field) {
+        return [...new Set(safeArray(state.inventory)
+            .map((row) => String(row[field] || '').trim())
+            .filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b));
+    }
+
+    function subscriberOptionLabel(row) {
+        const name = String(row.full_name || 'Unnamed subscriber').trim();
+        const account = String(row.account_number || row.id || '').trim();
+        return account ? `${name} — ${account}` : name;
+    }
+
+    function syncOntFormOptions(ctx) {
+        const fillOptions = (target, values) => {
+            if (target) html(target, values.map((value) => `<option value="${escape(value)}"></option>`).join(''));
+        };
+
+        fillOptions(el.ontVendorOptions, uniqueInventoryValues(ctx.state, 'vendor'));
+        fillOptions(el.ontModelOptions, uniqueInventoryValues(ctx.state, 'model'));
+
+        if (el.ontSubscriberOptions) {
+            html(el.ontSubscriberOptions, safeArray(ctx.state.subscribers).map((row) => `
+                <option value="${escape(subscriberOptionLabel(row))}"></option>
+            `).join(''));
+        }
+    }
+
+    function syncSubscriberSelection(ctx) {
+        if (!el.ontSubscriberSearchInput || !el.ontSubscriberIdInput) return true;
+        const query = el.ontSubscriberSearchInput.value.trim();
+        if (query === '') {
+            el.ontSubscriberIdInput.value = '';
+            text(el.ontSubscriberMatchText, 'Leave empty to keep the ONT unassigned.');
+            return true;
+        }
+
+        const normalized = query.toLowerCase();
+        const matches = safeArray(ctx.state.subscribers).filter((row) => {
+            return subscriberOptionLabel(row).toLowerCase() === normalized
+                || String(row.full_name || '').trim().toLowerCase() === normalized
+                || String(row.account_number || '').trim().toLowerCase() === normalized;
+        });
+
+        if (matches.length !== 1) {
+            el.ontSubscriberIdInput.value = '';
+            text(el.ontSubscriberMatchText, 'Select one matching subscriber from the suggestions.');
+            return false;
+        }
+
+        el.ontSubscriberIdInput.value = String(matches[0].id);
+        text(el.ontSubscriberMatchText, `Matched: ${subscriberOptionLabel(matches[0])}`);
+        return true;
     }
 
     function findInventoryById(state, id) {
@@ -1148,8 +1222,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openCreateOntModal(ctx) {
-        void ctx;
         resetOntForm();
+        syncOntFormOptions(ctx);
         modal.open(el.ontModal);
     }
 
@@ -1158,6 +1232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!row) return ui.toast('error', 'ONT not found.');
 
         resetOntForm();
+        syncOntFormOptions(ctx);
         el.ontForm.dataset.mode = 'edit';
         el.ontForm.dataset.id = String(id);
 
@@ -1168,9 +1243,11 @@ document.addEventListener('DOMContentLoaded', () => {
             [el.ontSerialInput, row.serial_number || ''],
             [el.ontVendorInput, row.vendor || ''],
             [el.ontModelInput, row.model || ''],
-            [el.ontEquipmentIdInput, row.equipment_id || ''],
-            [el.ontMacInput, row.mac_address || ''],
             [el.ontSubscriberIdInput, row.subscriber_id || ''],
+            [el.ontSubscriberSearchInput, row.subscriber_id ? subscriberOptionLabel(
+                safeArray(ctx.state.subscribers).find((subscriber) => Number(subscriber.id) === Number(row.subscriber_id))
+                    || { id: row.subscriber_id, full_name: row.subscriber_name }
+            ) : ''],
             [el.ontStatusInput, row.status || 'UNASSIGNED']
         ]);
 
@@ -1190,8 +1267,6 @@ document.addEventListener('DOMContentLoaded', () => {
         html(el.viewInventoryStatus, renderStatusBadge(row.status || 'UNKNOWN'));
         text(el.viewInventoryVendor, row.vendor || '-');
         text(el.viewInventoryModel, row.model || '-');
-        text(el.viewInventoryEquipmentId, row.equipment_id || '-');
-        text(el.viewInventoryMac, row.mac_address || '-');
         text(el.viewInventorySubscriberId, row.subscriber_id || '-');
         text(el.viewInventorySubscriberName, row.subscriber_name || '-');
 
@@ -1278,7 +1353,9 @@ document.addEventListener('DOMContentLoaded', () => {
             serial_number: row.serial_number || '',
             model: row.model || '',
             vendor: row.vendor || '',
-            equipment_id: row.model || ''
+            frame: row.frame ?? '',
+            slot: row.slot ?? '',
+            port: row.port ?? ''
         });
 
         const result = await actions.run({
@@ -1301,6 +1378,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function submitOntForm(ctx, e) {
         e.preventDefault();
+
+        if (!syncSubscriberSelection(ctx)) {
+            ui.toast('error', 'Select a matching subscriber or leave the subscriber field empty.');
+            el.ontSubscriberSearchInput?.focus();
+            return;
+        }
 
         const mode = el.ontForm.dataset.mode || 'create';
         const id = el.ontForm.dataset.id || '';
@@ -1351,7 +1434,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmButtonText: 'Run Discovery'
             },
             loading: 'Running discovery...',
-            task: () => api.form('/api/v1/ont-devices/discover', new FormData())
+            task: () => api.form('/api/v1/ont-devices/discover', forms.data({
+                olt_id: ctx.state.selectedDiscoveryOltId || ''
+            }))
         });
 
         if (!result?.ok) return;
@@ -1376,7 +1461,9 @@ document.addEventListener('DOMContentLoaded', () => {
             serial_number: row.serial_number || '',
             model: row.model || '',
             vendor: row.vendor || '',
-            equipment_id: row.model || ''
+            frame: row.frame ?? '',
+            slot: row.slot ?? '',
+            port: row.port ?? ''
         });
 
         const result = await actions.run({
@@ -1438,7 +1525,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 serial_number: row.serial_number || '',
                 model: row.model || '',
                 vendor: row.vendor || '',
-                equipment_id: row.model || ''
+                frame: row.frame ?? '',
+                slot: row.slot ?? '',
+                port: row.port ?? ''
             });
 
             try {

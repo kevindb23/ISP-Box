@@ -18,6 +18,10 @@ foreach ($modules as $module) {
 
     $modulePath = $modulesPath . '/' . $module;
 
+    if (!is_dir($modulePath) || preg_match('/(?:\.bak|\.backup|~)$/i', $module)) {
+        continue;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Load Module Services

@@ -4,12 +4,22 @@ namespace App\Modules\OntDevices\Controllers;
 
 use Framework\Controller;
 use App\Modules\OntDevices\Services\AcsService;
+use Framework\Request;
+use Framework\Response;
 
 class OntDevicesController extends Controller
 {
+    public function __construct(
+        private AcsService $acsService,
+        private Request $request,
+        private Response $response
+    )
+    {
+    }
+
     public function index()
     {
-        $tab = trim((string)($_GET['tab'] ?? 'inventory'));
+        $tab = trim((string)($this->request->query()['tab'] ?? 'inventory'));
 
         return $this->view('OntDevices/index', [
             'tab' => $tab
@@ -25,37 +35,19 @@ class OntDevicesController extends Controller
 
     public function acsPing(): void
     {
-        header('Content-Type: application/json; charset=UTF-8');
-
-        $deviceId = trim($_POST['deviceId'] ?? '');
+        $deviceId = trim((string)$this->request->value('deviceId', ''));
 
         if ($deviceId === '') {
-            http_response_code(422);
-            echo json_encode([
-                'ok' => false,
-                'message' => 'Device ID is required.',
-                'data' => null
-            ]);
+            $this->response->error('Device ID is required.', 422);
             return;
         }
 
         try {
-            $acsService = new AcsService();
-            $result = $acsService->pingDevice($deviceId);
+            $result = $this->acsService->pingDevice($deviceId);
 
-            http_response_code(200);
-            echo json_encode([
-                'ok' => true,
-                'message' => 'ACS ping completed.',
-                'data' => $result
-            ]);
+            $this->response->success($result, 'ACS ping completed.');
         } catch (\Throwable $e) {
-            http_response_code(500);
-            echo json_encode([
-                'ok' => false,
-                'message' => $e->getMessage(),
-                'data' => null
-            ]);
+            $this->response->error($e->getMessage(), 500);
         }
     }
 }

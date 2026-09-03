@@ -4,6 +4,7 @@ namespace App\Modules\WorkOrders\Repositories;
 
 use Framework\DatabaseConnection;
 use PDO;
+use Throwable;
 
 class WorkOrdersRepository
 {
@@ -12,6 +13,41 @@ class WorkOrdersRepository
     public function __construct(DatabaseConnection $connection)
     {
         $this->db = $connection->get();
+    }
+
+    public function transaction(callable $callback): mixed
+    {
+        if ($this->db->inTransaction()) return $callback();
+        $this->db->beginTransaction();
+        try {
+            $result = $callback();
+            $this->db->commit();
+            return $result;
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    public function createWithTasks(array $data, array $statusLog, array $tasks): array
+    {
+        $lockName = 'nexusbox:work-order-number:' . date('Y');
+        $stmt = $this->db->prepare('SELECT GET_LOCK(?, 15)');
+        $stmt->execute([$lockName]);
+        if ((int)$stmt->fetchColumn() !== 1) throw new \RuntimeException('Work order numbering is busy. Please retry.');
+        try {
+            return $this->transaction(function () use ($data, $statusLog, $tasks): array {
+                $data['work_order_no'] = $this->generateWorkOrderNo();
+                $id = $this->createWorkOrder($data);
+                $statusLog['work_order_id'] = $id;
+                $this->createStatusLog($statusLog);
+                foreach ($tasks as $task) $this->createTask($id, (string)$task, true);
+                return ['work_order_id' => $id, 'work_order_no' => $data['work_order_no']];
+            });
+        } finally {
+            $stmt = $this->db->prepare('SELECT RELEASE_LOCK(?)');
+            $stmt->execute([$lockName]);
+        }
     }
 
     public function getWorkOrders(array $filters = []): array
@@ -165,6 +201,7 @@ class WorkOrdersRepository
                 COALESCE(SUM(CASE WHEN status = 'ASSIGNED' THEN 1 ELSE 0 END), 0) AS assigned_count,
                 COALESCE(SUM(CASE WHEN status IN ('IN_PROGRESS','ON_SITE') THEN 1 ELSE 0 END), 0) AS active_count,
                 COALESCE(SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END), 0) AS completed_count,
+                COALESCE(SUM(CASE WHEN status IN ('FAILED','CANCELLED') THEN 1 ELSE 0 END), 0) AS issue_count,
                 COUNT(*) AS total_count
             FROM work_orders
         ");
@@ -176,6 +213,7 @@ class WorkOrdersRepository
             'assigned_count' => (int)($row['assigned_count'] ?? 0),
             'active_count' => (int)($row['active_count'] ?? 0),
             'completed_count' => (int)($row['completed_count'] ?? 0),
+            'issue_count' => (int)($row['issue_count'] ?? 0),
             'total_count' => (int)($row['total_count'] ?? 0),
         ];
     }
@@ -276,6 +314,40 @@ class WorkOrdersRepository
         $next = ((int)$stmt->fetchColumn()) + 1;
 
         return 'WO-' . $year . '-' . str_pad((string)$next, 6, '0', STR_PAD_LEFT);
+    }
+
+    public function findBySource(string $sourceType, int $sourceId, ?string $workOrderType = null): ?array
+    {
+        $typeSql = $workOrderType !== null ? ' AND work_order_type = ?' : '';
+        $stmt = $this->db->prepare("
+            SELECT *
+            FROM work_orders
+            WHERE source_type = ? AND source_id = ? {$typeSql}
+            ORDER BY id DESC
+            LIMIT 1
+        ");
+        $params = [strtoupper($sourceType), $sourceId];
+        if ($workOrderType !== null) $params[] = strtoupper($workOrderType);
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function acquireSourceLock(string $sourceType, int $sourceId): void
+    {
+        $name = sprintf('nexusbox:work-order:%s:%d', strtolower($sourceType), $sourceId);
+        $stmt = $this->db->prepare('SELECT GET_LOCK(?, 15)');
+        $stmt->execute([$name]);
+        if ((int)$stmt->fetchColumn() !== 1) {
+            throw new \RuntimeException('Work order generation is busy. Please retry shortly.');
+        }
+    }
+
+    public function releaseSourceLock(string $sourceType, int $sourceId): void
+    {
+        $name = sprintf('nexusbox:work-order:%s:%d', strtolower($sourceType), $sourceId);
+        $stmt = $this->db->prepare('SELECT RELEASE_LOCK(?)');
+        $stmt->execute([$name]);
     }
 
     public function createWorkOrder(array $data): int
@@ -438,6 +510,46 @@ class WorkOrdersRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
+    public function findNearestAvailableTechnician(float $latitude, float $longitude): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                u.id,
+                u.username,
+                u.full_name,
+                sa.time_in_latitude AS latitude,
+                sa.time_in_longitude AS longitude,
+                COUNT(wo.id) AS active_work_order_count,
+                6371 * ACOS(LEAST(1, GREATEST(-1,
+                    COS(RADIANS(?)) * COS(RADIANS(sa.time_in_latitude))
+                    * COS(RADIANS(sa.time_in_longitude) - RADIANS(?))
+                    + SIN(RADIANS(?)) * SIN(RADIANS(sa.time_in_latitude))
+                ))) AS distance_km
+            FROM staff_attendance sa
+            INNER JOIN users u ON u.id = sa.user_id
+            LEFT JOIN work_orders wo
+                ON wo.assigned_user_id = u.id
+               AND wo.status IN ('ASSIGNED','IN_PROGRESS','ON_SITE')
+            WHERE sa.attendance_date = CURDATE()
+              AND sa.time_in_at IS NOT NULL
+              AND sa.time_out_at IS NULL
+              AND sa.status = 'AVAILABLE'
+              AND sa.time_in_latitude IS NOT NULL
+              AND sa.time_in_longitude IS NOT NULL
+              AND u.status = 'ACTIVE'
+              AND u.role = 'TECHNICIAN'
+            GROUP BY
+                u.id, u.username, u.full_name,
+                sa.time_in_latitude, sa.time_in_longitude,
+                sa.time_in_at
+            ORDER BY distance_km ASC, active_work_order_count ASC, sa.time_in_at ASC, u.id ASC
+            LIMIT 1
+        ");
+        $stmt->execute([$latitude, $longitude, $latitude]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     public function getAssignableTechnicians(): array
     {
         $stmt = $this->db->query("
@@ -484,6 +596,20 @@ class WorkOrdersRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
+    public function findActiveTechnician(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id, username, full_name, role, status FROM users WHERE id = :id AND role = 'TECHNICIAN' AND status = 'ACTIVE' LIMIT 1");
+        $stmt->execute([':id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function findDispatchableTechnician(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT u.id, u.username, u.full_name FROM users u INNER JOIN staff_attendance sa ON sa.user_id=u.id AND sa.attendance_date=CURDATE() WHERE u.id=:id AND u.role='TECHNICIAN' AND u.status='ACTIVE' AND sa.time_in_at IS NOT NULL AND sa.time_out_at IS NULL AND sa.status='AVAILABLE' LIMIT 1");
+        $stmt->execute([':id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
     public function assignWorkOrder(int $workOrderId, ?int $assignedUserId): bool
     {
         $stmt = $this->db->prepare("
@@ -507,7 +633,7 @@ class WorkOrdersRepository
         ]);
     }
 
-    public function updateWorkOrderStatus(int $workOrderId, string $status): bool
+    public function updateWorkOrderStatus(int $workOrderId, string $status, ?int $changedByUserId = null, string $note = ''): bool
     {
         $status = strtoupper($status);
 
@@ -516,23 +642,124 @@ class WorkOrdersRepository
         $completedAtSql = $status === 'COMPLETED' ? ', completed_at = COALESCE(completed_at, NOW())' : '';
         $cancelledAtSql = $status === 'CANCELLED' ? ', cancelled_at = COALESCE(cancelled_at, NOW())' : '';
 
-        $stmt = $this->db->prepare("
-        UPDATE work_orders
-        SET
-            status = :status,
-            updated_at = NOW()
-            {$startedAtSql}
-            {$arrivedAtSql}
-            {$completedAtSql}
-            {$cancelledAtSql}
-        WHERE id = :work_order_id
-        LIMIT 1
-    ");
+        if ($status !== 'COMPLETED') {
+            $stmt = $this->db->prepare("
+                UPDATE work_orders
+                SET status = :status,
+                    updated_at = NOW()
+                    {$startedAtSql}
+                    {$arrivedAtSql}
+                    {$completedAtSql}
+                    {$cancelledAtSql},
+                    completion_notes = CASE WHEN :status_note = 'COMPLETED' AND :note_completion <> '' THEN :note_completion_value ELSE completion_notes END,
+                    failure_reason = CASE WHEN :status_failure = 'FAILED' AND :note_failure <> '' THEN :note_failure_value ELSE failure_reason END
+                WHERE id = :work_order_id
+                LIMIT 1
+            ");
 
-        return $stmt->execute([
-            ':status' => $status,
-            ':work_order_id' => $workOrderId,
-        ]);
+            return $stmt->execute([
+                ':status' => $status,
+                ':work_order_id' => $workOrderId,
+                ':status_note' => $status,
+                ':note_completion' => $note,
+                ':note_completion_value' => $note,
+                ':status_failure' => $status,
+                ':note_failure' => $note,
+                ':note_failure_value' => $note,
+            ]);
+        }
+
+        $ownsTransaction = !$this->db->inTransaction();
+        try {
+            if ($ownsTransaction) $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare("
+                SELECT ticket_id, source_type, source_id, service_id, work_order_type
+                FROM work_orders
+                WHERE id = :work_order_id
+                LIMIT 1
+                FOR UPDATE
+            ");
+            $stmt->execute([':work_order_id' => $workOrderId]);
+            $completionContext = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $ticketId = (int)($completionContext['ticket_id'] ?? 0);
+
+            $stmt = $this->db->prepare("
+                UPDATE work_orders
+                SET status = 'COMPLETED',
+                    updated_at = NOW(),
+                    completed_at = COALESCE(completed_at, NOW()),
+                    completion_notes = CASE WHEN :note <> '' THEN :note_value ELSE completion_notes END
+                WHERE id = :work_order_id
+                LIMIT 1
+            ");
+            $ok = $stmt->execute([':work_order_id' => $workOrderId, ':note' => $note, ':note_value' => $note]);
+
+            if (
+                strtoupper((string)($completionContext['source_type'] ?? '')) === 'SERVICE_PROVISIONING'
+                && strtoupper((string)($completionContext['work_order_type'] ?? '')) === 'ONT_INSTALLATION'
+                && (int)($completionContext['service_id'] ?? 0) > 0
+            ) {
+                $stmt = $this->db->prepare("
+                    UPDATE service_provisioning_bindings
+                    SET installed_at = COALESCE(installed_at, NOW())
+                    WHERE service_id = :service_id
+                      AND activated_at IS NOT NULL
+                ");
+                $stmt->execute([':service_id' => (int)$completionContext['service_id']]);
+                if ($stmt->rowCount() < 1) {
+                    $check = $this->db->prepare("
+                        SELECT installed_at
+                        FROM service_provisioning_bindings
+                        WHERE service_id = :service_id
+                        LIMIT 1
+                    ");
+                    $check->execute([':service_id' => (int)$completionContext['service_id']]);
+                    if (!$check->fetchColumn()) {
+                        throw new \RuntimeException('Installation completion could not update the provisioning binding.');
+                    }
+                }
+            }
+
+            if ($ticketId > 0) {
+                $stmt = $this->db->prepare('SELECT status FROM tickets WHERE id = :ticket_id LIMIT 1 FOR UPDATE');
+                $stmt->execute([':ticket_id' => $ticketId]);
+                $oldTicketStatus = strtoupper((string)$stmt->fetchColumn());
+
+                if ($oldTicketStatus !== '' && !in_array($oldTicketStatus, ['RESOLVED', 'CLOSED'], true)) {
+                    $stmt = $this->db->prepare("
+                        UPDATE tickets
+                        SET status = 'RESOLVED',
+                            resolved_at = COALESCE(resolved_at, NOW()),
+                            updated_at = NOW()
+                        WHERE id = :ticket_id
+                        LIMIT 1
+                    ");
+                    $stmt->execute([':ticket_id' => $ticketId]);
+
+                    $stmt = $this->db->prepare("
+                        INSERT INTO ticket_status_logs
+                            (ticket_id, old_status, new_status, changed_by_user_id, note)
+                        VALUES
+                            (:ticket_id, :old_status, 'RESOLVED', :changed_by_user_id, :note)
+                    ");
+                    $stmt->execute([
+                        ':ticket_id' => $ticketId,
+                        ':old_status' => $oldTicketStatus,
+                        ':changed_by_user_id' => $changedByUserId,
+                        ':note' => 'Automatically resolved when linked work order was completed.',
+                    ]);
+                }
+            }
+
+            if ($ownsTransaction) $this->db->commit();
+            return $ok;
+        } catch (Throwable $e) {
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     public function findTask(int $taskId): ?array

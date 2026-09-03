@@ -1,6 +1,5 @@
+<?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="payment-gateway"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php else:?><div class="alert alert-warning">The Payment Gateway interface is not built.</div><?php endif;return;?>
 <div class="container-fluid nx-page" id="paymentGatewayPage">
-    <link rel="stylesheet" href="/module-assets/PaymentGateway/css/payment-gateway.css">
-
     <div class="card border-0 shadow-sm nx-page-header-card">
         <div class="card-body nx-page-header">
             <div class="nx-page-header-left">
@@ -46,7 +45,7 @@
                             </div>
 
                             <div class="form-check form-switch m-0">
-                                <input class="form-check-input" type="checkbox" id="paymongoEnabled">
+                                <input class="form-check-input" type="checkbox" id="paymongoEnabled" role="switch" aria-label="Enable PayMongo">
                             </div>
                         </div>
 
@@ -63,9 +62,14 @@
                             <input type="text" class="form-control" id="paymongoPublicKey" autocomplete="off">
                         </div>
 
-                        <div class="mb-0">
+                        <div class="mb-3">
                             <label class="form-label">Secret Key</label>
                             <input type="password" class="form-control" id="paymongoSecretKey" autocomplete="off">
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Webhook Secret</label>
+                            <input type="password" class="form-control" id="paymongoWebhookSecret" autocomplete="off">
+                            <div class="form-text">Required to validate callbacks sent by PayMongo.</div>
                         </div>
                     </form>
                 </div>
@@ -94,5 +98,5 @@
         </div>
     </div>
 
-    <script src="/module-assets/PaymentGateway/js/payment-gateway.js"></script>
+    <script src="/module-assets/PaymentGateway/js/payment-gateway.js?v=2"></script>
 </div>

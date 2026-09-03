@@ -4,29 +4,20 @@ namespace App\Modules\OltManagement\Controllers;
 
 use Framework\Controller;
 use App\Modules\OltManagement\Services\OltManagementService;
+use Framework\Request;
 
 class OltManagementController extends Controller
 {
     private OltManagementService $service;
 
-    public function __construct(OltManagementService $service)
+    public function __construct(OltManagementService $service, private Request $request)
     {
         $this->service = $service;
     }
 
     private function jsonResponse(bool $ok, string $message = '', array $data = [], array $errors = []): void
     {
-        header('Content-Type: application/json');
-
-        echo json_encode([
-            'ok'      => $ok,
-            'status'  => $ok ? 'success' : 'error',
-            'success' => $ok,
-            'message' => $message,
-            'data'    => $data,
-            'errors'  => $errors,
-        ]);
-
+        $ok ? $this->success($data, $message ?: 'OK') : $this->error($message ?: 'Request failed.', 422, $errors, $data);
         exit;
     }
 
@@ -67,9 +58,10 @@ class OltManagementController extends Controller
      */
     public function ports()
     {
-        $selectedOltId = (int)($_GET['olt_id'] ?? 0);
-        $selectedSlot = isset($_GET['selected_slot']) && $_GET['selected_slot'] !== ''
-            ? (int)$_GET['selected_slot']
+        $query = $this->request->query();
+        $selectedOltId = (int)($query['olt_id'] ?? 0);
+        $selectedSlot = isset($query['selected_slot']) && $query['selected_slot'] !== ''
+            ? (int)$query['selected_slot']
             : null;
 
         $data = $this->service->getIndexData(
@@ -90,8 +82,9 @@ class OltManagementController extends Controller
      */
     public function profiles()
     {
-        $selectedOltId = (int)($_GET['olt_id'] ?? 0);
-        $activeTab = strtolower(trim((string)($_GET['tab'] ?? 'line')));
+        $query = $this->request->query();
+        $selectedOltId = (int)($query['olt_id'] ?? 0);
+        $activeTab = strtolower(trim((string)($query['tab'] ?? 'line')));
 
         $allowedTabs = ['dba', 'line', 'wan', 'tr069', 'srv'];
         if (!in_array($activeTab, $allowedTabs, true)) {
@@ -116,44 +109,45 @@ class OltManagementController extends Controller
 
     public function createDevice()
     {
-        $this->respondServiceResult($this->service->createDevice($_POST));
+        $this->respondServiceResult($this->service->createDevice($this->request->input()));
     }
 
     public function updateDevice($id)
     {
-        $this->respondServiceResult($this->service->updateDevice((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateDevice((int)$id, $this->request->input()));
     }
 
     public function deleteDevice()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->request->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteDevice($id));
     }
 
     public function updatePort($id)
     {
-        $this->respondServiceResult($this->service->updatePort((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updatePort((int)$id, $this->request->input()));
     }
 
     public function deletePort()
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->request->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deletePort($id));
     }
 
     public function fetchPorts()
     {
-        $oltId = (int)($_POST['olt_id'] ?? 0);
+        $oltId = (int)($this->request->input()['olt_id'] ?? 0);
         $this->respondServiceResult($this->service->fetchPorts($oltId));
     }
 
     public function importFetchedPorts()
     {
-        $oltId = (int)($_POST['olt_id'] ?? 0);
-        $startingSvlanRaw = $_POST['starting_svlan'] ?? '';
+        $input = $this->request->input();
+        $oltId = (int)($input['olt_id'] ?? 0);
+        $startingSvlanRaw = $input['starting_svlan'] ?? '';
         $startingSvlan = ($startingSvlanRaw === '' ? null : (int)$startingSvlanRaw);
 
-        $portsJson = $_POST['ports_json'] ?? '[]';
+        $portsJson = $input['ports_json'] ?? '[]';
         $ports = json_decode($portsJson, true);
 
         if (!is_array($ports)) {

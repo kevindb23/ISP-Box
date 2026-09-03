@@ -4,6 +4,7 @@ namespace App\Modules\Api\v1\Repositories;
 
 use App\Infrastructure\Database\DatabaseConnection;
 use PDO;
+use Throwable;
 
 class ApiTokenRepository
 {
@@ -20,85 +21,53 @@ class ApiTokenRepository
     |--------------------------------------------------------------------------
     */
 
-    public function validate(string $token): bool
+    public function findIdentity(string $token, string $transport = 'HTTP'): ?array
     {
         $stmt = $this->db->prepare("
-            SELECT id
+            SELECT
+                api_tokens.id AS token_id,
+                api_tokens.name AS token_name,
+                api_tokens.purpose,
+                api_tokens.scopes,
+                api_tokens.transport_policy,
+                users.id AS user_id,
+                users.role,
+                users.status
             FROM api_tokens
-            WHERE token = :token
-            AND (expires_at IS NULL OR expires_at > NOW())
+            INNER JOIN users ON users.id = api_tokens.user_id
+            WHERE api_tokens.token = :token
+            AND (api_tokens.transport_policy = 'BOTH' OR api_tokens.transport_policy = :transport)
+            AND (api_tokens.expires_at IS NULL OR api_tokens.expires_at > NOW())
+            AND api_tokens.revoked_at IS NULL
+            AND UPPER(COALESCE(users.status, 'ACTIVE')) = 'ACTIVE'
             LIMIT 1
         ");
 
         $stmt->execute([
-            "token" => hash('sha256', $token)
+            'token' => hash('sha256', $token),
+            'transport' => strtoupper($transport) === 'HTTPS' ? 'HTTPS' : 'HTTP',
         ]);
 
-        return (bool) $stmt->fetch();
+        $identity = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$identity) return null;
+
+        $decodedScopes = json_decode((string)($identity['scopes'] ?? '[]'), true);
+        $identity['scopes'] = is_array($decodedScopes) ? array_values($decodedScopes) : [];
+        $identity['source'] = 'BEARER_TOKEN';
+
+        try {
+            $touch = $this->db->prepare(
+                'UPDATE api_tokens SET last_used_at = NOW(), last_used_ip = :ip WHERE id = :id'
+            );
+            $touch->execute([
+                ':ip' => substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 64) ?: null,
+                ':id' => (int)$identity['token_id'],
+            ]);
+        } catch (Throwable $ignored) {
+            // Authentication must remain available if usage telemetry cannot be updated.
+        }
+
+        return $identity;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Create API Token
-    |--------------------------------------------------------------------------
-    */
-
-    public function create(int $userId, ?string $expiresAt = null): string
-    {
-        $rawToken = bin2hex(random_bytes(32));
-
-        $stmt = $this->db->prepare("
-            INSERT INTO api_tokens (user_id, token, created_at, expires_at)
-            VALUES (:user_id, :token, NOW(), :expires_at)
-        ");
-
-        $stmt->execute([
-            "user_id" => $userId,
-            "token" => hash('sha256', $rawToken),
-            "expires_at" => $expiresAt
-        ]);
-
-        return $rawToken;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Revoke Token
-    |--------------------------------------------------------------------------
-    */
-
-    public function revoke(string $token): void
-    {
-        $stmt = $this->db->prepare("
-            UPDATE api_tokens
-            SET expires_at = NOW()
-            WHERE token = :token
-        ");
-
-        $stmt->execute([
-            "token" => hash('sha256', $token)
-        ]);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Get Tokens for User
-    |--------------------------------------------------------------------------
-    */
-
-    public function getByUser(int $userId): array
-    {
-        $stmt = $this->db->prepare("
-            SELECT id, created_at, expires_at
-            FROM api_tokens
-            WHERE user_id = :user_id
-            ORDER BY created_at DESC
-        ");
-
-        $stmt->execute([
-            "user_id" => $userId
-        ]);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 }

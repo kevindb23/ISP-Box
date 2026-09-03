@@ -2,10 +2,10 @@
 
 namespace App\Modules\OltManagement\Controllers;
 
-use Framework\Controller;
+use Framework\ApiController;
 use App\Modules\OltManagement\Services\OltManagementService;
 
-class OltManagementApiController extends Controller
+class OltManagementApiController extends ApiController
 {
     private OltManagementService $service;
 
@@ -14,20 +14,15 @@ class OltManagementApiController extends Controller
         $this->service = $service;
     }
 
+    private function input(): array
+    {
+        return $this->request()->input();
+    }
+
     private function respond(bool $ok, string $message = '', $data = null, array $errors = [], int $httpCode = 200): void
     {
-        http_response_code($httpCode);
-        header('Content-Type: application/json');
-
-        echo json_encode([
-            'ok'      => $ok,
-            'status'  => $ok ? 'success' : 'error',
-            'success' => $ok,
-            'message' => $message,
-            'data'    => $data,
-            'errors'  => $errors,
-        ]);
-
+        $ok ? $this->success($data, $message ?: 'OK', $httpCode)
+            : $this->error($message ?: 'Request failed.', $httpCode, $errors, $data);
         exit;
     }
 
@@ -70,17 +65,17 @@ class OltManagementApiController extends Controller
 
     public function createDevice(): void
     {
-        $this->respondServiceResult($this->service->createDevice($_POST));
+        $this->respondServiceResult($this->service->createDevice($this->input()));
     }
 
     public function updateDevice($id): void
     {
-        $this->respondServiceResult($this->service->updateDevice((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateDevice((int)$id, $this->input()));
     }
 
     public function deleteDevice(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteDevice($id));
     }
 
@@ -89,7 +84,7 @@ class OltManagementApiController extends Controller
      * ========================================================= */
     public function ports(): void
     {
-        $oltId = (int)($_GET['olt_id'] ?? 0);
+        $oltId = (int)($this->request()->query()['olt_id'] ?? 0);
 
         $data = $oltId > 0
             ? $this->service->getPortsByOltId($oltId)
@@ -121,33 +116,33 @@ class OltManagementApiController extends Controller
 
     public function createPort(): void
     {
-        $this->respondServiceResult($this->service->createPort($_POST));
+        $this->respondServiceResult($this->service->createPort($this->input()));
     }
 
     public function updatePort($id): void
     {
-        $this->respondServiceResult($this->service->updatePort((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updatePort((int)$id, $this->input()));
     }
 
     public function deletePort(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deletePort($id));
     }
 
     public function fetchPorts(): void
     {
-        $oltId = (int)($_POST['olt_id'] ?? 0);
+        $oltId = (int)($this->input()['olt_id'] ?? 0);
         $this->respondServiceResult($this->service->fetchPorts($oltId));
     }
 
     public function importFetchedPorts(): void
     {
-        $oltId = (int)($_POST['olt_id'] ?? 0);
-        $startingSvlanRaw = $_POST['starting_svlan'] ?? '';
+        $oltId = (int)($this->input()['olt_id'] ?? 0);
+        $startingSvlanRaw = $this->input()['starting_svlan'] ?? '';
         $startingSvlan = ($startingSvlanRaw === '') ? null : (int)$startingSvlanRaw;
 
-        $portsJson = $_POST['ports_json'] ?? '[]';
+        $portsJson = $this->input()['ports_json'] ?? '[]';
         $ports = json_decode($portsJson, true);
 
         if (!is_array($ports)) {
@@ -164,7 +159,7 @@ class OltManagementApiController extends Controller
      * ========================================================= */
     public function lineProfiles(): void
     {
-        $oltId = (int)($_GET['olt_id'] ?? 0);
+        $oltId = (int)($this->request()->query()['olt_id'] ?? 0);
 
         $data = $oltId > 0
             ? $this->service->getLineProfilesByOltId($oltId)
@@ -186,17 +181,17 @@ class OltManagementApiController extends Controller
 
     public function createLineProfile(): void
     {
-        $this->respondServiceResult($this->service->createLineProfile($_POST));
+        $this->respondServiceResult($this->service->createLineProfile($this->input()));
     }
 
     public function updateLineProfile($id): void
     {
-        $this->respondServiceResult($this->service->updateLineProfile((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateLineProfile((int)$id, $this->input()));
     }
 
     public function deleteLineProfile(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteLineProfile($id));
     }
 
@@ -216,7 +211,7 @@ class OltManagementApiController extends Controller
      * ========================================================= */
     public function dbaProfiles(): void
     {
-        $oltIdRaw = $_GET['olt_id'] ?? null;
+        $oltIdRaw = $this->request()->query()['olt_id'] ?? null;
         $oltId = ($oltIdRaw === '' || $oltIdRaw === null) ? null : (int)$oltIdRaw;
 
         $data = $oltId !== null && $oltId > 0
@@ -239,17 +234,17 @@ class OltManagementApiController extends Controller
 
     public function createDbaProfile(): void
     {
-        $this->respondServiceResult($this->service->createDbaProfile($_POST));
+        $this->respondServiceResult($this->service->createDbaProfile($this->input()));
     }
 
     public function updateDbaProfile($id): void
     {
-        $this->respondServiceResult($this->service->updateDbaProfile((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateDbaProfile((int)$id, $this->input()));
     }
 
     public function deleteDbaProfile(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteDbaProfile($id));
     }
 
@@ -269,7 +264,7 @@ class OltManagementApiController extends Controller
      * ========================================================= */
     public function wanProfiles(): void
     {
-        $oltIdRaw = $_GET['olt_id'] ?? null;
+        $oltIdRaw = $this->request()->query()['olt_id'] ?? null;
         $oltId = ($oltIdRaw === '' || $oltIdRaw === null) ? null : (int)$oltIdRaw;
 
         $data = $oltId !== null && $oltId > 0
@@ -292,17 +287,17 @@ class OltManagementApiController extends Controller
 
     public function createWanProfile(): void
     {
-        $this->respondServiceResult($this->service->createWanProfile($_POST));
+        $this->respondServiceResult($this->service->createWanProfile($this->input()));
     }
 
     public function updateWanProfile($id): void
     {
-        $this->respondServiceResult($this->service->updateWanProfile((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateWanProfile((int)$id, $this->input()));
     }
 
     public function deleteWanProfile(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteWanProfile($id));
     }
 
@@ -322,7 +317,7 @@ class OltManagementApiController extends Controller
      * ========================================================= */
     public function tr069Profiles(): void
     {
-        $oltIdRaw = $_GET['olt_id'] ?? null;
+        $oltIdRaw = $this->request()->query()['olt_id'] ?? null;
         $oltId = ($oltIdRaw === '' || $oltIdRaw === null) ? null : (int)$oltIdRaw;
 
         $data = $oltId !== null && $oltId > 0
@@ -345,17 +340,17 @@ class OltManagementApiController extends Controller
 
     public function createTr069Profile(): void
     {
-        $this->respondServiceResult($this->service->createTr069Profile($_POST));
+        $this->respondServiceResult($this->service->createTr069Profile($this->input()));
     }
 
     public function updateTr069Profile($id): void
     {
-        $this->respondServiceResult($this->service->updateTr069Profile((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateTr069Profile((int)$id, $this->input()));
     }
 
     public function deleteTr069Profile(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteTr069Profile($id));
     }
 
@@ -375,7 +370,7 @@ class OltManagementApiController extends Controller
      * ========================================================= */
     public function srvProfiles(): void
     {
-        $oltIdRaw = $_GET['olt_id'] ?? null;
+        $oltIdRaw = $this->request()->query()['olt_id'] ?? null;
         $oltId = ($oltIdRaw === '' || $oltIdRaw === null) ? null : (int)$oltIdRaw;
 
         $data = $oltId !== null && $oltId > 0
@@ -398,17 +393,17 @@ class OltManagementApiController extends Controller
 
     public function createSrvProfile(): void
     {
-        $this->respondServiceResult($this->service->createSrvProfile($_POST));
+        $this->respondServiceResult($this->service->createSrvProfile($this->input()));
     }
 
     public function updateSrvProfile($id): void
     {
-        $this->respondServiceResult($this->service->updateSrvProfile((int)$id, $_POST));
+        $this->respondServiceResult($this->service->updateSrvProfile((int)$id, $this->input()));
     }
 
     public function deleteSrvProfile(): void
     {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int)($this->input()['id'] ?? 0);
         $this->respondServiceResult($this->service->deleteSrvProfile($id));
     }
 
@@ -439,8 +434,9 @@ public function controlBoardVlanWorkspace($oltId): void
 
 public function controlBoardVlanOptions($oltId): void
 {
-    $type = (string)($_GET['type'] ?? 'SERVICE');
-    $portId = (int)($_GET['port_id'] ?? 0);
+    $query = $this->request()->query();
+    $type = (string)($query['type'] ?? 'SERVICE');
+    $portId = (int)($query['port_id'] ?? 0);
 
     $this->respond(
         true,
@@ -453,13 +449,13 @@ public function controlBoardVlanOptions($oltId): void
 public function createControlBoardVlanBinding(): void
 {
     $this->respondServiceResult(
-        $this->service->createPortVlanBinding($_POST)
+        $this->service->createPortVlanBinding($this->input())
     );
 }
 
 public function deleteControlBoardVlanBinding(): void
 {
-    $id = (int)($_POST['id'] ?? 0);
+    $id = (int)($this->input()['id'] ?? 0);
 
     $this->respondServiceResult(
         $this->service->deletePortVlanBinding($id)
@@ -468,7 +464,7 @@ public function deleteControlBoardVlanBinding(): void
 
 public function ponSvlanOptions($oltId): void
 {
-    $portId = (int)($_GET['port_id'] ?? 0);
+    $portId = (int)($this->request()->query()['port_id'] ?? 0);
 
     $rows = $this->service->getPonSvlanOptions((int)$oltId, $portId);
 
@@ -477,8 +473,8 @@ public function ponSvlanOptions($oltId): void
 
 public function assignPonSvlan(): void
 {
-    $portId = (int)($_POST['olt_port_id'] ?? 0);
-    $svlan  = (int)($_POST['svlan'] ?? 0);
+    $portId = (int)($this->input()['olt_port_id'] ?? 0);
+    $svlan  = (int)($this->input()['svlan'] ?? 0);
 
     if ($portId <= 0 || $svlan <= 0) {
         $this->respond(false, 'PON port and SVLAN are required.', null, [], 400);
@@ -495,7 +491,7 @@ public function assignPonSvlan(): void
 
 public function unassignPonSvlan(): void
 {
-    $portId = (int)($_POST['olt_port_id'] ?? 0);
+    $portId = (int)($this->input()['olt_port_id'] ?? 0);
 
     if ($portId <= 0) {
         $this->respond(false, 'PON port is required.');

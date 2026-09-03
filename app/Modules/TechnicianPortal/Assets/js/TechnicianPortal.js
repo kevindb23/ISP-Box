@@ -5,26 +5,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         workOrders: [],
         selectedWorkOrder: null,
+        selectedTasks: [],
         selectedNotes: [],
+        selectedAttachments: [],
     };
 
     const refs = {
         refreshBtn: document.getElementById('techRefreshBtn'),
-        timeInBtn: document.getElementById('techTimeInBtn'),
-        timeOutBtn: document.getElementById('techTimeOutBtn'),
         statusFilter: document.getElementById('techStatusFilter'),
         host: document.getElementById('techWorkOrdersHost'),
 
         assignedCount: document.getElementById('techAssignedCount'),
         progressCount: document.getElementById('techProgressCount'),
         completedCount: document.getElementById('techCompletedCount'),
-        attendanceStatus: document.getElementById('techAttendanceStatus'),
-        attendanceMeta: document.getElementById('techAttendanceMeta'),
 
         checkInBtn: document.getElementById('techCheckInBtn'),
         startWorkBtn: document.getElementById('techStartWorkBtn'),
         completeForm: document.getElementById('techCompleteWorkForm'),
         noteForm: document.getElementById('techAddNoteForm'),
+        uploadPhotoForm: document.getElementById('techUploadPhotoForm'),
     };
 
     bindEvents();
@@ -33,18 +32,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function bindEvents() {
         refs.refreshBtn?.addEventListener('click', loadDashboard);
         refs.statusFilter?.addEventListener('change', loadWorkOrders);
-        refs.timeInBtn?.addEventListener('click', timeIn);
-        refs.timeOutBtn?.addEventListener('click', timeOut);
         refs.checkInBtn?.addEventListener('click', checkIn);
         refs.startWorkBtn?.addEventListener('click', startWork);
         refs.completeForm?.addEventListener('submit', completeWork);
         refs.noteForm?.addEventListener('submit', addNote);
+        refs.uploadPhotoForm?.addEventListener('submit', uploadPhoto);
 
         refs.host?.addEventListener('click', (event) => {
             const btn = event.target.closest('[data-work-order-id]');
             if (!btn) return;
 
             loadWorkOrderDetails(btn.getAttribute('data-work-order-id'));
+        });
+
+        document.addEventListener('click', (event) => {
+            const taskBtn = event.target.closest('[data-complete-task-id]');
+            if (taskBtn) {
+                event.preventDefault();
+                completeTask(taskBtn.getAttribute('data-complete-task-id'));
+                return;
+            }
+
+            const btn = event.target.closest('[data-delete-attachment-id]');
+            if (!btn) return;
+
+            event.preventDefault();
+            deletePhoto(btn.getAttribute('data-delete-attachment-id'));
         });
     }
 
@@ -54,8 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = response.data || response;
 
             renderSummary(data.summary || {});
-            renderAttendance(data.attendance || null);
-
             await loadWorkOrders();
         } catch (error) {
             showToast('error', error.message || 'Unable to load technician dashboard.');
@@ -92,24 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setText(refs.assignedCount, summary.assigned_count || 0);
         setText(refs.progressCount, summary.in_progress_count || 0);
         setText(refs.completedCount, summary.completed_count || 0);
-    }
-
-    function renderAttendance(attendance) {
-        if (!attendance) {
-            setText(refs.attendanceStatus, 'OFF DUTY');
-            setText(refs.attendanceMeta, 'Not timed in');
-            return;
-        }
-
-        setText(refs.attendanceStatus, attendance.status || 'AVAILABLE');
-
-        const timeIn = attendance.time_in_at || '-';
-        const timeOut = attendance.time_out_at || '';
-
-        setText(
-            refs.attendanceMeta,
-            timeOut ? `Timed out: ${formatDateTime(timeOut)}` : `Timed in: ${formatDateTime(timeIn)}`
-        );
     }
 
     function renderWorkOrders(items) {
@@ -183,16 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = response.data || response;
 
             state.selectedWorkOrder = data.work_order || {};
+            state.selectedTasks = Array.isArray(data.tasks) ? data.tasks : [];
             state.selectedNotes = Array.isArray(data.notes) ? data.notes : [];
+            state.selectedAttachments = Array.isArray(data.attachments) ? data.attachments : [];
 
-            renderModal(state.selectedWorkOrder, state.selectedNotes);
+            renderModal(state.selectedWorkOrder, state.selectedTasks, state.selectedNotes, state.selectedAttachments);
         } catch (error) {
             hideModalLoading();
             showToast('error', error.message || 'Unable to load work order.');
         }
     }
 
-    function renderModal(workOrder, notes) {
+    function renderModal(workOrder, tasks, notes, attachments) {
         setTextById('techModalTitle', workOrder.work_order_no || '-');
         setTextById('techModalSubtitle', `Scheduled ${workOrder.scheduled_date || '-'} ${formatTime(workOrder.scheduled_time || '')}`);
 
@@ -212,14 +207,134 @@ document.addEventListener('DOMContentLoaded', () => {
         setTextById('techSubscriberEmail', workOrder.email || '-');
         setTextById('techSubscriberAddress', workOrder.address || '-');
 
+        renderGpsCheckIn(workOrder);
+        renderTasks(tasks || []);
+        renderAttachments(attachments || []);
+
         setValueById('techSelectedWorkOrderId', workOrder.id || '');
         setValueById('techCompleteWorkOrderId', workOrder.id || '');
         setValueById('techNoteWorkOrderId', workOrder.id || '');
+        setValueById('techPhotoWorkOrderId', workOrder.id || '');
 
-        renderNotes(notes);
+        renderNotes(notes || []);
         resetForms();
 
         hideModalLoading();
+    }
+
+    function renderTasks(tasks) {
+        const host = document.getElementById('techTasksList');
+        const count = document.getElementById('techTasksCount');
+        const requiredTasks = tasks.filter((task) => Number(task.is_required || 0) === 1);
+        const incompleteRequired = requiredTasks.filter((task) => Number(task.is_completed || 0) !== 1);
+
+        if (count) {
+            count.textContent = `${requiredTasks.length - incompleteRequired.length}/${requiredTasks.length} required completed`;
+        }
+
+        const completeButton = document.getElementById('techCompleteSubmitBtn');
+        if (completeButton) {
+            completeButton.disabled = incompleteRequired.length > 0;
+            completeButton.title = incompleteRequired.length > 0
+                ? 'Complete every required task first.'
+                : '';
+        }
+
+        if (!host) return;
+
+        if (!tasks.length) {
+            host.innerHTML = '<div class="text-muted small">No checklist tasks were created for this work order.</div>';
+            return;
+        }
+
+        host.innerHTML = tasks.map((task) => {
+            const completed = Number(task.is_completed || 0) === 1;
+            const required = Number(task.is_required || 0) === 1;
+
+            return `
+                <div class="d-flex align-items-center justify-content-between gap-3 border rounded p-2 mb-2">
+                    <div>
+                        <div class="fw-semibold ${completed ? 'text-decoration-line-through text-muted' : ''}">
+                            ${escapeHtml(task.task_name || 'Work-order task')}
+                        </div>
+                        <div class="small text-muted">${required ? 'Required' : 'Optional'}${completed ? ' · Completed' : ''}</div>
+                    </div>
+                    ${completed ? `
+                        <span class="badge bg-success-subtle text-success">Done</span>
+                    ` : `
+                        <button type="button" class="btn btn-sm btn-outline-success" data-complete-task-id="${escapeAttr(task.id || '')}">
+                            <i class="bi bi-check2"></i> Mark Done
+                        </button>
+                    `}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderGpsCheckIn(workOrder) {
+        const checkInAt = workOrder.check_in_at || workOrder.arrived_at || '';
+        const latitude = workOrder.check_in_latitude || '';
+        const longitude = workOrder.check_in_longitude || '';
+
+        setTextById('techGpsCheckInAt', checkInAt ? formatDateTime(checkInAt) : '-');
+        setTextById('techGpsLatitude', latitude || '-');
+        setTextById('techGpsLongitude', longitude || '-');
+
+        const mapLink = document.getElementById('techGpsMapLink');
+
+        if (!mapLink) return;
+
+        if (latitude && longitude) {
+            mapLink.href = `https://www.google.com/maps?q=${encodeURIComponent(latitude)},${encodeURIComponent(longitude)}`;
+            mapLink.classList.remove('d-none');
+        } else {
+            mapLink.href = '#';
+            mapLink.classList.add('d-none');
+        }
+    }
+
+    function renderAttachments(attachments) {
+        const host = document.getElementById('techAttachmentsList');
+        const count = document.getElementById('techAttachmentsCount');
+
+        if (count) {
+            count.textContent = `${attachments.length} photo${attachments.length === 1 ? '' : 's'}`;
+        }
+
+        if (!host) return;
+
+        if (!attachments.length) {
+            host.innerHTML = `<div class="text-muted text-center py-3">No photos uploaded yet.</div>`;
+            return;
+        }
+
+        host.innerHTML = `
+            <div class="row g-2">
+                ${attachments.map((item) => `
+                    <div class="col-6 col-md-4">
+                        <div class="tech-photo-card">
+                            <a href="${escapeAttr(item.file_path || '#')}"
+                               target="_blank"
+                               rel="noopener"
+                               class="text-decoration-none text-reset">
+                                <img src="${escapeAttr(item.file_path || '')}"
+                                     alt="${escapeAttr(item.file_name || 'Work order photo')}"
+                                     class="tech-photo-thumb">
+                                <div class="small fw-semibold mt-1">${escapeHtml(formatStatusText(item.attachment_type || 'OTHER'))}</div>
+                                <div class="small text-muted text-truncate">${escapeHtml(item.file_name || '-')}</div>
+                            </a>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger w-100 mt-2"
+                                    data-delete-attachment-id="${escapeAttr(item.id || '')}">
+                                <i class="bi bi-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
 
     function renderNotes(notes) {
@@ -243,25 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="text-muted">${escapeHtml(note.note || '-')}</div>
             </div>
         `).join('');
-    }
-
-    async function timeIn() {
-        const formData = new FormData();
-
-        withLocation(async (coords) => {
-            if (coords) {
-                formData.append('latitude', coords.latitude);
-                formData.append('longitude', coords.longitude);
-            }
-
-            await postAction('/api/v1/technician-portal/attendance/time-in', formData, 'Timed in successfully.');
-            await loadDashboard();
-        });
-    }
-
-    async function timeOut() {
-        await postAction('/api/v1/technician-portal/attendance/time-out', new FormData(), 'Timed out successfully.');
-        await loadDashboard();
     }
 
     async function checkIn() {
@@ -312,6 +408,17 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadDashboard();
     }
 
+    async function completeTask(taskId) {
+        const workOrderId = getSelectedWorkOrderId();
+        if (!taskId || !workOrderId) return;
+
+        const formData = new FormData();
+        formData.append('task_id', taskId);
+
+        await postAction('/api/v1/technician-portal/work-orders/complete-task', formData, 'Task completed.');
+        await loadWorkOrderDetails(workOrderId);
+    }
+
     async function addNote(event) {
         event.preventDefault();
 
@@ -326,6 +433,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await postAction('/api/v1/technician-portal/work-orders/add-note', new FormData(form), 'Note added.');
         await loadWorkOrderDetails(workOrderId);
+    }
+
+    async function uploadPhoto(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const workOrderId = String(form.querySelector('[name="work_order_id"]')?.value || '').trim();
+        const photoInput = form.querySelector('[name="photo"]');
+
+        if (!workOrderId) {
+            showToast('warning', 'Unable to determine work order ID.');
+            return;
+        }
+
+        if (!photoInput || !photoInput.files || !photoInput.files.length) {
+            showToast('warning', 'Please select a photo to upload.');
+            return;
+        }
+
+        const submitBtn = document.getElementById('techUploadPhotoSubmitBtn');
+        const originalText = submitBtn ? submitBtn.innerHTML : '';
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Uploading...';
+        }
+
+        try {
+            await postAction('/api/v1/technician-portal/work-orders/upload-photo', new FormData(form), 'Photo uploaded.');
+            form.reset();
+
+            setValueById('techPhotoWorkOrderId', workOrderId);
+
+            await loadWorkOrderDetails(workOrderId);
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText || '<i class="bi bi-upload"></i> Upload Photo';
+            }
+        }
+    }
+
+    async function deletePhoto(attachmentId) {
+        attachmentId = String(attachmentId || '').trim();
+
+        if (!attachmentId) {
+            showToast('warning', 'Unable to determine photo ID.');
+            return;
+        }
+
+        const confirmed = await confirmDeletePhoto();
+
+        if (!confirmed) return;
+
+        const workOrderId = String(state.selectedWorkOrder?.id || '').trim();
+        const formData = new FormData();
+
+        formData.append('attachment_id', attachmentId);
+
+        await postAction('/api/v1/technician-portal/work-orders/delete-photo', formData, 'Photo deleted.');
+
+        if (workOrderId) {
+            await loadWorkOrderDetails(workOrderId);
+        }
+    }
+
+    async function confirmDeletePhoto() {
+        if (typeof Swal === 'undefined') {
+            return window.confirm('Delete this photo?');
+        }
+
+        const result = await Swal.fire({
+            icon: 'warning',
+            title: 'Delete photo?',
+            text: 'This will remove the photo from this work order.',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+        });
+
+        return result.isConfirmed;
     }
 
     async function postAction(url, formData, fallbackMessage) {
@@ -396,56 +585,40 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetForms() {
         refs.completeForm?.reset();
         refs.noteForm?.reset();
+        refs.uploadPhotoForm?.reset();
 
         if (state.selectedWorkOrder?.id) {
             setValueById('techCompleteWorkOrderId', state.selectedWorkOrder.id);
             setValueById('techNoteWorkOrderId', state.selectedWorkOrder.id);
+            setValueById('techPhotoWorkOrderId', state.selectedWorkOrder.id);
         }
     }
 
     async function apiGet(url) {
-        const response = await fetch(url, {
-            headers: { Accept: 'application/json' },
-            credentials: 'same-origin',
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return { ok: true, success: true, data: await window.NX.api.get(url) };
     }
 
     async function apiPost(url, formData) {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { Accept: 'application/json' },
-            credentials: 'same-origin',
-            body: formData,
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return window.NX.api.form(url, formData);
     }
 
     function statusBadge(status) {
         const value = String(status || '-').toUpperCase();
         let cls = 'bg-secondary';
 
+        if (value === 'OPEN') cls = 'bg-secondary';
         if (value === 'ASSIGNED') cls = 'bg-primary';
+        if (value === 'ON_SITE') cls = 'bg-warning text-dark';
         if (value === 'IN_PROGRESS') cls = 'bg-info text-dark';
         if (value === 'COMPLETED') cls = 'bg-success';
         if (value === 'FAILED') cls = 'bg-danger';
         if (value === 'CANCELLED') cls = 'bg-dark';
 
-        return `<span class="badge ${cls}">${escapeHtml(value.replaceAll('_', ' '))}</span>`;
+        return `<span class="badge ${cls}">${escapeHtml(formatStatusText(value))}</span>`;
+    }
+
+    function formatStatusText(value) {
+        return String(value || '-').replaceAll('_', ' ');
     }
 
     function formatDateTime(value) {
@@ -517,5 +690,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .replaceAll('>', '&gt;')
             .replaceAll('"', '&quot;')
             .replaceAll("'", '&#039;');
+    }
+
+    function escapeAttr(value) {
+        return escapeHtml(value);
     }
 });

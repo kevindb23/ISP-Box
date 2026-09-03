@@ -5,26 +5,27 @@ namespace App\Modules\SubscriberPortal\Controllers;
 use App\Modules\Billing\Repositories\BillingSettingsRepository;
 use App\Modules\Billing\Repositories\InvoiceRepository;
 use App\Modules\Billing\Repositories\PaymentRepository;
+use App\Modules\SubscriberPortal\Repositories\SubscriberPortalRepository;
 use Framework\Controller;
-use Framework\DatabaseConnection;
 use Framework\SessionManager;
-use PDO;
 use Throwable;
 
 class SubscriberPortalController extends Controller
 {
-    private PDO $db;
     private InvoiceRepository $invoiceRepo;
     private PaymentRepository $paymentRepo;
     private BillingSettingsRepository $settingsRepo;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(
+        InvoiceRepository $invoiceRepo,
+        PaymentRepository $paymentRepo,
+        BillingSettingsRepository $settingsRepo,
+        private SubscriberPortalRepository $subscriberRepo
+    )
     {
-        $this->db = $database->get();
-
-        $this->invoiceRepo = new InvoiceRepository($this->db);
-        $this->paymentRepo = new PaymentRepository($this->db);
-        $this->settingsRepo = new BillingSettingsRepository($this->db);
+        $this->invoiceRepo = $invoiceRepo;
+        $this->paymentRepo = $paymentRepo;
+        $this->settingsRepo = $settingsRepo;
     }
 
     public function account()
@@ -136,35 +137,23 @@ class SubscriberPortalController extends Controller
         $role = strtoupper((string)($user['role'] ?? ''));
 
         if ($role !== 'SUBSCRIBER') {
-            header('Location: /logout');
+            SessionManager::destroy();
+            header('Location: /login');
             exit;
         }
 
         $subscriber = $this->findSubscriberByUserId((int)$user['id']);
 
         if (!$subscriber) {
-            header('Location: /logout');
+            SessionManager::destroy();
+            header('Location: /login');
             exit;
         }
     }
 
     private function findSubscriberByUserId(int $userId): ?array
     {
-        $stmt = $this->db->prepare("
-            SELECT *
-            FROM subscribers
-            WHERE user_id = :user_id
-              AND deleted_at IS NULL
-            LIMIT 1
-        ");
-
-        $stmt->execute([
-            ':user_id' => $userId,
-        ]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return $row ?: null;
+        return $this->subscriberRepo->findSubscriberByUserId($userId);
     }
 
     private function getBillingSettingsMap(): array
@@ -221,11 +210,7 @@ class SubscriberPortalController extends Controller
             return;
         }
 
-        $repo = new \App\Modules\SubscriberPortal\Repositories\SubscriberPortalRepository(
-            new DatabaseConnection()
-        );
-
-        $receipt = $repo->findPaymentReceiptForSubscriber(
+        $receipt = $this->subscriberRepo->findPaymentReceiptForSubscriber(
             $paymentId,
             (int)$subscriber['id']
         );

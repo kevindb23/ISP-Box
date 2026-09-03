@@ -18,10 +18,11 @@ class ServiceProvisioningApiController extends ApiController
     public function list()
     {
         try {
-            $page = max(1, (int)($_GET['page'] ?? 1));
-            $limit = max(1, (int)($_GET['limit'] ?? 20));
-            $search = trim((string)($_GET['search'] ?? ''));
-            $status = trim((string)($_GET['status'] ?? ''));
+            $query = $this->request()->query();
+            $page = max(1, (int)($query['page'] ?? 1));
+            $limit = max(1, (int)($query['limit'] ?? 20));
+            $search = trim((string)($query['search'] ?? ''));
+            $status = trim((string)($query['status'] ?? ''));
 
             $this->success(
                 $this->service->paginateJobs($page, $limit, $search, $status),
@@ -119,7 +120,7 @@ class ServiceProvisioningApiController extends ApiController
     public function supportSubscribers()
     {
         try {
-            $search = trim((string)($_GET['search'] ?? ''));
+            $search = trim((string)($this->request()->query()['search'] ?? ''));
 
             $this->success(
                 $this->service->getSupportSubscribers($search),
@@ -133,8 +134,9 @@ class ServiceProvisioningApiController extends ApiController
     public function supportPlans()
     {
         try {
-            $search = trim((string)($_GET['search'] ?? ''));
-            $subscriberId = (int)($_GET['subscriber_id'] ?? 0);
+            $query = $this->request()->query();
+            $search = trim((string)($query['search'] ?? ''));
+            $subscriberId = (int)($query['subscriber_id'] ?? 0);
 
             $this->success(
                 $this->service->getSupportPlans($search, $subscriberId),
@@ -148,7 +150,7 @@ class ServiceProvisioningApiController extends ApiController
     public function supportOlts()
     {
         try {
-            $search = trim((string)($_GET['search'] ?? ''));
+            $search = trim((string)($this->request()->query()['search'] ?? ''));
 
             $this->success(
                 $this->service->getSupportOlts($search),
@@ -162,7 +164,7 @@ class ServiceProvisioningApiController extends ApiController
     public function supportOltPorts()
     {
         try {
-            $oltId = (int)($_GET['olt_id'] ?? 0);
+            $oltId = (int)($this->request()->query()['olt_id'] ?? 0);
 
             if ($oltId <= 0) {
                 $this->error('olt_id is required.', 422);
@@ -181,9 +183,10 @@ class ServiceProvisioningApiController extends ApiController
     public function supportNetworkBoxes()
     {
         try {
-            $oltId = (int)($_GET['olt_id'] ?? 0);
-            $oltPortId = (int)($_GET['olt_port_id'] ?? 0);
-            $boxType = trim((string)($_GET['box_type'] ?? 'NAP'));
+            $query = $this->request()->query();
+            $oltId = (int)($query['olt_id'] ?? 0);
+            $oltPortId = (int)($query['olt_port_id'] ?? 0);
+            $boxType = trim((string)($query['box_type'] ?? 'NAP'));
 
             $this->success(
                 $this->service->getSupportNetworkBoxes($oltId, $oltPortId, $boxType),
@@ -197,7 +200,8 @@ class ServiceProvisioningApiController extends ApiController
     public function supportSplitters()
     {
         try {
-            $networkBoxId = (int)($_GET['network_box_id'] ?? $_GET['nap_id'] ?? 0);
+            $query = $this->request()->query();
+            $networkBoxId = (int)($query['network_box_id'] ?? $query['nap_id'] ?? 0);
 
             if ($networkBoxId <= 0) {
                 $this->error('network_box_id or nap_id is required.', 422);
@@ -216,7 +220,7 @@ class ServiceProvisioningApiController extends ApiController
     public function supportSplitterOutputPorts()
     {
         try {
-            $splitterId = (int)($_GET['splitter_id'] ?? 0);
+            $splitterId = (int)($this->request()->query()['splitter_id'] ?? 0);
 
             if ($splitterId <= 0) {
                 $this->error('splitter_id is required.', 422);
@@ -235,7 +239,7 @@ class ServiceProvisioningApiController extends ApiController
     public function supportOnts()
     {
         try {
-            $search = trim((string)($_GET['search'] ?? ''));
+            $search = trim((string)($this->request()->query()['search'] ?? ''));
 
             $this->success(
                 $this->service->getSupportOnts($search),
@@ -289,15 +293,6 @@ class ServiceProvisioningApiController extends ApiController
 
     private function getInputData(): array
     {
-        $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
-
-        if (stripos($contentType, 'application/json') !== false) {
-            $raw = file_get_contents('php://input');
-            $decoded = json_decode($raw, true);
-
-            return is_array($decoded) ? $decoded : [];
-        }
-
-        return $_POST ?: [];
+        return $this->request()->input();
     }
 }

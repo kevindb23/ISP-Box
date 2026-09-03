@@ -7,6 +7,7 @@
         const dom = NX.dom || {};
         const util = NX.util || {};
         const ui = NX.ui || {};
+        const datatable = NX.datatable || null;
 
         const $ = dom.$ ? dom.$.bind(dom) : (selector, root = document) => root.querySelector(selector);
         const $$ = dom.$$ ? dom.$$.bind(dom) : (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -33,9 +34,9 @@
             tabs: $$('[data-tab]', app),
             panes: $$('[data-tab-pane]', app),
 
-            cVlanTbody: $('#cVlanTbody', app),
-            sVlanTbody: $('#sVlanTbody', app),
-            mgmtVlanTbody: $('#mgmtVlanTbody', app),
+            cVlanTableView: $('#cVlanTableView', app),
+            sVlanTableView: $('#sVlanTableView', app),
+            mgmtVlanTableView: $('#mgmtVlanTableView', app),
 
             summaryTotalVlans: $('#summaryTotalVlans', app),
             summaryTotalCVlans: $('#summaryTotalCVlans', app),
@@ -132,55 +133,9 @@
         }
 
         async function request(url, method = 'GET', body = null) {
-            const opts = {
-                method,
-                headers: {
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            };
-
-            if (body !== null) {
-                opts.headers['Content-Type'] = 'application/json';
-                opts.body = JSON.stringify(body);
-            }
-
-            const res = await fetch(url, opts);
-            const raw = await res.text();
-
-            let json = null;
-            try {
-                json = raw ? JSON.parse(raw) : null;
-            } catch (err) {
-                if (!res.ok) {
-                    throw new Error(raw || `Request failed with status ${res.status}.`);
-                }
-                throw new Error(raw || 'Server returned invalid JSON.');
-            }
-
-            return normalizeApiResponse(json, res.ok, res.status);
-        }
-
-        function normalizeApiResponse(response, isHttpOk = true, statusCode = 200) {
-            if (!response) {
-                throw new Error('Empty server response.');
-            }
-
-            if (typeof response === 'object' && ('success' in response || 'error' in response || 'message' in response || 'data' in response)) {
-                const success = response.success === true || response.ok === true || response.status === 'success';
-
-                if (!success) {
-                    throw new Error(response.error || response.message || `Request failed with status ${statusCode}.`);
-                }
-
-                return response.data ?? [];
-            }
-
-            if (!isHttpOk) {
-                throw new Error(response?.error || response?.message || `Request failed with status ${statusCode}.`);
-            }
-
-            return response;
+            if (String(method).toUpperCase() === 'GET') return window.NX.api.get(url);
+            const result = await window.NX.api.post(url, body);
+            return result.data ?? [];
         }
 
         function escapeHtml(value) {
@@ -259,6 +214,9 @@
         }
 
         function actionButtons(row) {
+            const retry = String(row.deployment_status || '').toUpperCase() === 'FAILED'
+                ? `<button type="button" class="btn btn-outline-warning nx-icon-btn btn-retry-vlan" data-id="${escape(row.id)}" title="Retry deployment"><i class="bi bi-arrow-clockwise"></i></button>`
+                : '';
             return `
                 <div class="nx-vlan-actions">
                     <button
@@ -269,6 +227,7 @@
                     >
                         <i class="bi bi-terminal"></i>
                     </button>
+                    ${retry}
                     <button
                         type="button"
                         class="btn btn-outline-primary nx-icon-btn btn-edit-vlan"
@@ -328,7 +287,7 @@
             `;
         }
 
-        function renderTable(targetTbody, vlanType) {
+        function renderLegacyTable(targetTbody, vlanType) {
             if (!targetTbody) return;
 
             const rows = filterRows(
@@ -393,7 +352,7 @@
             }).join('');
         }
 
-        function renderMgmtTable() {
+        function renderLegacyMgmtTable() {
             if (!els.mgmtVlanTbody) return;
 
             const rows = filterRows(
@@ -440,9 +399,74 @@
             }).join('');
         }
 
+
+        // VLAN datatable integration
+
+        const tableInstances = { cvlan: null, svlan: null, mgmtvlan: null };
+
+        function renderTable(vlanType) {
+            if (!datatable) return;
+            const key = vlanType === 'C_VLAN' ? 'cvlan' : 'svlan';
+            const view = key === 'cvlan' ? els.cVlanTableView : els.sVlanTableView;
+            const rows = filterRows(
+                state.vlans.filter((row) => String(row.vlan_type || '').toUpperCase() === vlanType),
+                (row) => [
+                    row.id, row.olt_id, row.olt_ip_address, row.olt_port_path,
+                    row.vlan_id, row.vlan_type, row.name, row.description,
+                    row.deployment_status, row.deployed_at
+                ].join(' ')
+            );
+            if (!tableInstances[key]) {
+                tableInstances[key] = datatable.create({
+                    el: view,
+                    rows: rows,
+                    search: false,
+                    paginate: true,
+                    pager: { currentPage: 1, rowsPerPage: 20 },
+                    sort: { key: 'vlan_id', dir: 'asc' },
+                    columns: [
+                        { key: 'vlan_id', label: 'VLAN', render: (v, row) => monoStack('VLAN ' + (v || '-'), 'Record #' + (row.id || '-')) },
+                        { key: 'deployment_status', label: 'Status', render: (v) => deploymentBadge(v) },
+                        { key: 'name', label: 'Name', render: (v) => cellStack(v || '-', 'VLAN definition') },
+                        { key: 'description', label: 'Description', render: (v) => cellStack(v || '-', 'Ready for OLT deployment') },
+                        { key: 'deployed_at', label: 'Deployed At', render: (v) => cellStack(fmtDate(v), v ? 'Last successful push' : 'Not deployed yet') },
+                        { key: 'actions', label: 'Actions', render: (_v, row) => actionButtons(row) }
+                    ]
+                });
+            } else {
+                tableInstances[key].setRows(rows);
+            }
+        }
+
+        function renderMgmtTable() {
+            if (!datatable || !els.mgmtVlanTableView) return;
+            const rows = filterRows(
+                state.mgmtVlans,
+                (row) => [row.id, row.olt_id, row.olt_ip_address, row.mgmt_vlan, row.description, row.created_at].join(' ')
+            );
+            if (!tableInstances.mgmtvlan) {
+                tableInstances.mgmtvlan = datatable.create({
+                    el: els.mgmtVlanTableView,
+                    rows: rows,
+                    search: false,
+                    paginate: true,
+                    pager: { currentPage: 1, rowsPerPage: 20 },
+                    sort: { key: 'mgmt_vlan', dir: 'asc' },
+                    columns: [
+                        { key: 'olt_ip_address', label: 'OLT', render: (v, row) => cellStack(v || 'OLT #' + (row.olt_id || '-'), 'OLT ID ' + (row.olt_id || '-')) },
+                        { key: 'mgmt_vlan', label: 'MGMT-VLAN', render: (v) => monoStack('VLAN ' + (v || '-'), 'TR069 management path') },
+                        { key: 'description', label: 'Description', render: (v) => cellStack(v || '-', 'Per-OLT management VLAN') },
+                        { key: 'created_at', label: 'Created At', render: (v) => cellStack(fmtDate(v), v ? 'Record created' : '-') },
+                        { key: 'actions', label: 'Actions', render: (_v, row) => mgmtActionButtons(row) }
+                    ]
+                });
+            } else {
+                tableInstances.mgmtvlan.setRows(rows);
+            }
+        }
         function renderAllTables() {
-            renderTable(els.cVlanTbody, 'C_VLAN');
-            renderTable(els.sVlanTbody, 'S_VLAN');
+            renderTable('C_VLAN');
+            renderTable('S_VLAN');
             renderMgmtTable();
         }
 
@@ -550,9 +574,15 @@
         function getPortOptions(ports, selectedId = '') {
             const selected = String(selectedId || '');
             const options = ['<option value="">Select OLT Port</option>'];
+            const assignedPortIds = new Set(
+                (state.vlans || [])
+                    .filter((row) => String(row.vlan_type || '').toUpperCase() === 'S_VLAN')
+                    .map((row) => String(row.olt_port_id || ''))
+                    .filter(Boolean)
+            );
 
             (ports || [])
-                .filter(isAllowedSvlanPort)
+                .filter((port) => isAllowedSvlanPort(port) && !assignedPortIds.has(String(port.id || '')))
                 .forEach((port) => {
                     const id = String(port.id ?? '');
                     const label = formatPortLabel(port);
@@ -564,12 +594,28 @@
             return options.join('');
         }
 
+        function isH901MpsaPort(port) {
+            return [port?.board_type, port?.board_name, port?.board]
+                .some((value) => String(value || '').toUpperCase().includes('H901MPSA'));
+        }
+
+        function getMgmtPortOptions(ports, selectedId = '') {
+            const selected = String(selectedId || '');
+            const options = ['<option value="">Select H901MPSA port</option>'];
+            (ports || []).filter(isH901MpsaPort).forEach((port) => {
+                const id = String(port.id ?? '');
+                options.push(`<option value="${escape(id)}" ${selected === id ? 'selected' : ''}>${escape(formatPortLabel(port))}</option>`);
+            });
+            return options.join('');
+        }
+
         function vlanCreateFormHtml(values = {}, forcedType = null, ports = []) {
             const currentType = String(
                 forcedType || values.vlan_type || (state.tab === 'svlan' ? 'S_VLAN' : 'C_VLAN')
             ).toUpperCase();
 
             const showPortSelector = currentType === 'S_VLAN';
+            const parentOptions = (state.vlans || []).filter((row) => row.vlan_type === 'S_VLAN' && row.deployment_status === 'DEPLOYED' && String(row.olt_id) === String(values.olt_id || '')).map((row) => `<option value="${escape(row.id)}" ${String(values.parent_svlan_id || '') === String(row.id) ? 'selected' : ''}>S-VLAN ${escape(row.vlan_id)} · ${escape(row.name || '')}</option>`).join('');
 
             return `
                 <div class="text-start">
@@ -589,6 +635,8 @@
                             <div class="form-text">S-VLAN is bound to one GPON OLT port only.</div>
                         </div>
                     ` : ''}
+
+                    ${currentType === 'C_VLAN' ? `<div class="mb-3"><label class="form-label">Parent S-VLAN</label><select class="form-select" id="swalParentSvlanId"><option value="">Select deployed S-VLAN</option>${parentOptions}</select><div class="form-text">The C-VLAN is created only beneath this outer VLAN on the BNG.</div></div>` : ''}
 
                     <div class="mb-3">
                         <label class="form-label">VLAN ID</label>
@@ -668,7 +716,7 @@
             `;
         }
 
-        function mgmtVlanFormHtml(values = {}) {
+        function mgmtVlanFormHtml(values = {}, ports = []) {
             return `
                 <div class="text-start">
                     <div class="mb-3">
@@ -676,6 +724,14 @@
                         <select class="form-select" id="swalMgmtOltId">
                             ${getOltOptions(values.olt_id || '')}
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">H901MPSA Port</label>
+                        <select class="form-select" id="swalMgmtOltPortId">
+                            ${getMgmtPortOptions(ports, values.olt_port_id || '')}
+                        </select>
+                        <div class="form-text">Only non-PON ports under the H901MPSA board are available.</div>
                     </div>
 
                     <div class="mb-3">
@@ -737,11 +793,18 @@
                             }
                         });
                     }
+                    if (forcedType === 'C_VLAN' && oltSelect) {
+                        oltSelect.addEventListener('change', () => {
+                            const select=document.getElementById('swalParentSvlanId'); if(!select)return;
+                            select.innerHTML='<option value="">Select deployed S-VLAN</option>'+ (state.vlans||[]).filter((row)=>row.vlan_type==='S_VLAN'&&row.deployment_status==='DEPLOYED'&&String(row.olt_id)===String(oltSelect.value)).map((row)=>`<option value="${escape(row.id)}">S-VLAN ${escape(row.vlan_id)} · ${escape(row.name||'')}</option>`).join('');
+                        });
+                    }
                 },
                 preConfirm: () => {
                     const payload = {
                         olt_id: $('#swalVlanOltId')?.value.trim(),
                         olt_port_id: $('#swalVlanOltPortId')?.value.trim() || null,
+                        parent_svlan_id: $('#swalParentSvlanId')?.value.trim() || null,
                         vlan_id: $('#swalVlanId')?.value.trim(),
                         vlan_type: forcedType,
                         name: $('#swalVlanName')?.value.trim(),
@@ -755,6 +818,10 @@
 
                     if (payload.vlan_type === 'S_VLAN' && !payload.olt_port_id) {
                         window.Swal.showValidationMessage('OLT Port is required for S-VLAN.');
+                        return false;
+                    }
+                    if (payload.vlan_type === 'C_VLAN' && !payload.parent_svlan_id) {
+                        window.Swal.showValidationMessage('Parent S-VLAN is required.');
                         return false;
                     }
 
@@ -877,18 +944,28 @@
     const existing = id
         ? state.mgmtVlans.find((x) => String(x.id) === String(id)) || null
         : null;
+    const selectedOltId = existing?.olt_id || state.olts[0]?.id || '';
+    const mgmtPorts = selectedOltId ? await loadPortsByOltId(selectedOltId) : [];
 
     const result = await window.Swal.fire({
         title: existing ? 'Edit MGMT-VLAN' : 'Set MGMT-VLAN',
-        html: mgmtVlanFormHtml(existing || { olt_id: state.olts[0]?.id || '' }),
+        html: mgmtVlanFormHtml(existing || { olt_id: selectedOltId }, mgmtPorts),
         focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: existing ? 'Update' : 'Save & Deploy',
         width: 640,
+        didOpen: () => {
+            $('#swalMgmtOltId')?.addEventListener('change', async (event) => {
+                const select = $('#swalMgmtOltPortId');
+                if (!select) return;
+                select.innerHTML = getMgmtPortOptions(await loadPortsByOltId(event.target.value), '');
+            });
+        },
         preConfirm: () => {
             const payload = {
                 id: existing?.id || null,
                 olt_id: $('#swalMgmtOltId')?.value.trim(),
+                olt_port_id: $('#swalMgmtOltPortId')?.value.trim(),
                 mgmt_vlan: $('#swalMgmtVlanId')?.value.trim(),
                 description: $('#swalMgmtDescription')?.value.trim()
             };
@@ -900,6 +977,11 @@
 
             if (!payload.mgmt_vlan) {
                 window.Swal.showValidationMessage('MGMT-VLAN is required.');
+                return false;
+            }
+
+            if (!payload.olt_port_id) {
+                window.Swal.showValidationMessage('Select a port under the H901MPSA board.');
                 return false;
             }
 
@@ -1004,6 +1086,33 @@
             }
         }
 
+        async function retryVlan(id) {
+            const row = state.vlans.find((x) => String(x.id) === String(id));
+            if (!row || !window.Swal) return;
+
+            const res = await window.Swal.fire({
+                title: 'Retry VLAN deployment?',
+                html: `Retry <b>${escape(typeLabel(row.vlan_type))} ${escape(row.vlan_id)}</b> on its configured OLT and BNG? Existing VLAN/interface commands are idempotent.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Retry Deployment',
+                showLoaderOnConfirm: true,
+                preConfirm: async () => {
+                    try {
+                        return await request(`/api/v1/vlan-management/vlans/${id}/retry`, 'POST', {});
+                    } catch (err) {
+                        window.Swal.showValidationMessage(extractErrorMessage(err, 'Retry failed.'));
+                        return false;
+                    }
+                },
+                allowOutsideClick: () => !window.Swal.isLoading()
+            });
+
+            if (!res.isConfirmed || !res.value) return;
+            await loadAll();
+            toast('success', `VLAN ${row.vlan_id} deployed successfully.`);
+        }
+
         async function deleteMgmtVlan(id) {
     const row = state.mgmtVlans.find((x) => String(x.id) === String(id));
     if (!row || !window.Swal) return;
@@ -1072,10 +1181,13 @@
                 title: `Output for VLAN ${row.vlan_id}`,
                 html: `
                     <div class="text-start">
-                        <pre class="p-3 rounded bg-light border small mb-0" style="max-height:320px;overflow:auto;">${escape(pretty)}</pre>
+                        <pre class="vlan-output-code mb-0">${escape(pretty)}</pre>
                     </div>
                 `,
-                width: 900
+                width: 900,
+                customClass: {
+                    popup: 'vlan-output-popup'
+                }
             });
         }
 
@@ -1132,6 +1244,12 @@
                     const editBtn = e.target.closest('.btn-edit-vlan');
                     if (editBtn) {
                         await openEditVlan(editBtn.dataset.id);
+                        return;
+                    }
+
+                    const retryBtn = e.target.closest('.btn-retry-vlan');
+                    if (retryBtn) {
+                        await retryVlan(retryBtn.dataset.id);
                         return;
                     }
 

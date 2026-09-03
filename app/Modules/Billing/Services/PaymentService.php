@@ -7,6 +7,7 @@ use App\Modules\Billing\Repositories\BillingActivityLogRepository;
 use App\Modules\Billing\Repositories\BillingSettingsRepository;
 use App\Modules\Billing\Repositories\InvoiceRepository;
 use App\Modules\Billing\Repositories\PaymentRepository;
+use App\Modules\Subscribers\Services\SubscriberService;
 use Exception;
 use PDO;
 use Throwable;
@@ -19,21 +20,24 @@ class PaymentService
     private BillingSettingsRepository $settings;
     private BillingActivityLogRepository $activityLogs;
     private ?AuditService $audit;
+    private ?SubscriberService $subscribers;
 
     public function __construct(
         PDO $db,
         PaymentRepository $payments,
         InvoiceRepository $invoices,
         BillingSettingsRepository $settings,
-        ?BillingActivityLogRepository $activityLogs = null,
-        ?AuditService $audit = null
+        BillingActivityLogRepository $activityLogs,
+        ?AuditService $audit = null,
+        ?SubscriberService $subscribers = null
     ) {
         $this->db = $db;
         $this->payments = $payments;
         $this->invoices = $invoices;
         $this->settings = $settings;
-        $this->activityLogs = $activityLogs ?: new BillingActivityLogRepository($db);
+        $this->activityLogs = $activityLogs;
         $this->audit = $audit;
+        $this->subscribers = $subscribers;
     }
 
     public function list(array $filters = []): array
@@ -85,28 +89,6 @@ class PaymentService
             throw new Exception('Payment amount must be greater than zero.');
         }
 
-        $invoice = $this->invoices->find($invoiceId);
-
-        if (!$invoice) {
-            throw new Exception('Invoice not found.');
-        }
-
-        $invoiceStatus = strtoupper((string)($invoice['status'] ?? ''));
-
-        if ($invoiceStatus === 'CANCELLED') {
-            throw new Exception('Cannot record payment for a cancelled invoice.');
-        }
-
-        $balance = (float)($invoice['balance_amount'] ?? 0);
-
-        if ($balance <= 0) {
-            throw new Exception('Invoice is already fully paid.');
-        }
-
-        if ($amount > $balance) {
-            throw new Exception('Payment amount cannot exceed invoice balance.');
-        }
-
         $method = strtoupper(trim((string)($payload['method'] ?? 'CASH')));
         $paymentStatus = strtoupper(trim((string)($payload['payment_status'] ?? 'POSTED')));
 
@@ -118,12 +100,44 @@ class PaymentService
             $paymentStatus = 'POSTED';
         }
 
-        $prefix = (string)$this->settings->get('payment_prefix', 'PAY');
-        $paymentNo = $payload['payment_no'] ?? $this->payments->generatePaymentNo($prefix);
+        if (!in_array($paymentStatus, ['PENDING', 'POSTED'], true)) {
+            throw new Exception('A new payment must be pending or posted.');
+        }
 
-        $this->db->beginTransaction();
+        $ownsTransaction = !$this->db->inTransaction();
+
+        if ($ownsTransaction) {
+            $this->db->beginTransaction();
+        }
 
         try {
+            // Serialize all balance validation and allocation updates for this invoice.
+            // This also works when a gateway callback already owns the transaction.
+            $invoice = $this->invoices->findForUpdate($invoiceId);
+
+            if (!$invoice) {
+                throw new Exception('Invoice not found.');
+            }
+
+            $invoiceStatus = strtoupper((string)($invoice['status'] ?? ''));
+
+            if ($invoiceStatus === 'CANCELLED') {
+                throw new Exception('Cannot record payment for a cancelled invoice.');
+            }
+
+            $balance = (float)($invoice['balance_amount'] ?? 0);
+
+            if ($balance <= 0) {
+                throw new Exception('Invoice is already fully paid.');
+            }
+
+            if ($amount > $balance) {
+                throw new Exception('Payment amount cannot exceed invoice balance.');
+            }
+
+            $prefix = strtoupper(trim((string)$this->settings->get('payment_prefix', 'PAY'))) ?: 'PAY';
+            $paymentNo = trim((string)($payload['payment_no'] ?? '')) ?: null;
+
             $paymentId = $this->payments->create([
                 'payment_no' => $paymentNo,
                 'invoice_id' => $invoiceId,
@@ -135,8 +149,17 @@ class PaymentService
                 'reference_no' => $payload['reference_no'] ?? null,
                 'payment_status' => $paymentStatus,
                 'remarks' => $payload['remarks'] ?? null,
+                'proof_file_path' => $payload['proof_file_path'] ?? null,
+                'proof_file_name' => $payload['proof_file_name'] ?? null,
+                'proof_file_type' => $payload['proof_file_type'] ?? null,
+                'submitted_by_user_id' => $payload['submitted_by_user_id'] ?? null,
                 'received_by' => $payload['received_by'] ?? null,
             ]);
+
+            if ($paymentNo === null) {
+                $paymentNo = sprintf('%s-%s-%06d', $prefix, date('Y'), $paymentId);
+                $this->payments->assignPaymentNo($paymentId, $paymentNo);
+            }
 
             if ($paymentStatus === 'POSTED') {
                 $this->payments->createAllocation($paymentId, $invoiceId, $amount);
@@ -210,7 +233,9 @@ class PaymentService
                 )
             );
 
-            $this->db->commit();
+            if ($ownsTransaction) {
+                $this->db->commit();
+            }
 
             return [
                 'payment' => $payment,
@@ -218,7 +243,9 @@ class PaymentService
                 'invoice' => $updatedInvoice,
             ];
         } catch (Throwable $e) {
-            $this->db->rollBack();
+            if ($ownsTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             throw new Exception($e->getMessage());
         }
     }
@@ -239,17 +266,21 @@ class PaymentService
         if ($paymentId <= 0) {
             throw new Exception('Invalid payment ID.');
         }
-
-        $payment = $this->payments->find($paymentId);
-
-        if (!$payment) {
-            throw new Exception('Payment not found.');
+        if (trim((string)$reason) === '') {
+            throw new Exception('Void reason is required.');
         }
 
-        $paymentStatus = strtoupper((string)($payment['payment_status'] ?? ''));
+        $this->db->beginTransaction();
 
-        if ($paymentStatus !== 'POSTED') {
+        try {
+        $payment = $this->payments->findForUpdate($paymentId);
+
+        if (!$payment) throw new Exception('Payment not found.');
+        if (strtoupper((string)($payment['payment_status'] ?? '')) !== 'POSTED') {
             throw new Exception('Only posted payments can be voided.');
+        }
+        if (strtoupper((string)($payment['method'] ?? '')) === 'PAYMONGO') {
+            throw new Exception('PayMongo payments must be refunded or reconciled through the gateway before they can be voided.');
         }
 
         $allocationsBeforeVoid = $this->payments->getAllocationsByPayment($paymentId);
@@ -279,12 +310,9 @@ class PaymentService
         $oldInvoices = [];
 
         foreach ($affectedInvoiceIds as $invoiceId) {
-            $oldInvoices[$invoiceId] = $this->invoices->find($invoiceId);
+            $oldInvoices[$invoiceId] = $this->invoices->findForUpdate($invoiceId);
         }
 
-        $this->db->beginTransaction();
-
-        try {
             $voided = $this->payments->void($paymentId, $userId, $reason);
 
             if (!$voided) {
@@ -383,9 +411,65 @@ class PaymentService
                 'reason' => $reason,
             ];
         } catch (Throwable $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) $this->db->rollBack();
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function approve(int $paymentId, int $userId): array
+    {
+        if ($paymentId <= 0 || $userId <= 0) throw new Exception('Invalid payment approval request.');
+        $this->db->beginTransaction();
+        try {
+            $payment=$this->payments->findForUpdate($paymentId);
+            if(!$payment || strtoupper((string)$payment['payment_status'])!=='PENDING') throw new Exception('Pending payment not found.');
+            if(trim((string)($payment['proof_file_path']??''))==='') throw new Exception('Payment proof is required before approval.');
+            $invoiceId=(int)$payment['invoice_id'];
+            $invoice=$this->invoices->findForUpdate($invoiceId);
+            if(!$invoice || strtoupper((string)$invoice['status'])==='CANCELLED') throw new Exception('The linked invoice cannot receive this payment.');
+            $amount=(float)$payment['amount']; $balance=(float)$invoice['balance_amount'];
+            if($amount<=0 || $amount>$balance) throw new Exception('Pending payment exceeds the current invoice balance.');
+            if(!$this->payments->approvePending($paymentId,$userId)) throw new Exception('Payment approval failed.');
+            $this->payments->createAllocation($paymentId,$invoiceId,$amount);
+            $this->invoices->updatePaymentTotals($invoiceId);
+            $updatedInvoice=$this->invoices->find($invoiceId);
+            $this->db->commit();
+            $restoration=null;
+            $subscriberId = (int)$invoice['subscriber_id'];
+            if (
+                strtoupper((string)($updatedInvoice['status'] ?? '')) === 'PAID'
+                && $this->subscribers
+                && $this->payments->subscriberIsSuspended($subscriberId)
+                && !$this->payments->subscriberHasOutstandingOverdueInvoices($subscriberId)
+            ) {
+                $restoration = $this->subscribers->reactivate($subscriberId);
+            }
+            $this->auditLog('APPROVE_PENDING_PAYMENT', sprintf('Approved pending payment %s for invoice %s.', $payment['payment_no']??('#'.$paymentId), $invoice['invoice_no']??('#'.$invoiceId)));
+            return ['payment'=>$this->payments->find($paymentId),'invoice'=>$updatedInvoice,'service_restoration'=>$restoration];
+        } catch(Throwable $e) { if($this->db->inTransaction())$this->db->rollBack(); throw new Exception($e->getMessage()); }
+    }
+
+    public function reject(int $paymentId, int $userId, string $reason): array
+    {
+        $reason=trim($reason); if($reason==='') throw new Exception('Rejection reason is required.');
+        $this->db->beginTransaction();
+        try {
+            $payment=$this->payments->findForUpdate($paymentId);
+            if(!$payment || strtoupper((string)$payment['payment_status'])!=='PENDING') throw new Exception('Pending payment not found.');
+            if(!$this->payments->rejectPending($paymentId,$userId,$reason)) throw new Exception('Payment rejection failed.');
+            $this->db->commit();
+            $this->auditLog('REJECT_PENDING_PAYMENT', sprintf('Rejected pending payment %s. Reason: %s',$payment['payment_no']??('#'.$paymentId),$reason));
+            return ['payment'=>$this->payments->find($paymentId)];
+        } catch(Throwable $e) { if($this->db->inTransaction())$this->db->rollBack(); throw new Exception($e->getMessage()); }
+    }
+
+    public function proof(int $paymentId, int $userId, bool $staff): array
+    {
+        $payment=$this->payments->findProofForUser($paymentId,$userId,$staff);
+        if(!$payment || empty($payment['proof_file_path'])) throw new Exception('Payment proof not found or access denied.');
+        $base=realpath(BASE_PATH.'/storage/uploads/payment-proofs'); $path=realpath(BASE_PATH.(string)$payment['proof_file_path']);
+        if(!$base || !$path || !str_starts_with($path,$base.DIRECTORY_SEPARATOR) || !is_file($path)) throw new Exception('Payment proof file is unavailable.');
+        return ['path'=>$path,'name'=>basename((string)($payment['proof_file_name']??'payment-proof')),'mime'=>(string)($payment['proof_file_type']??'application/octet-stream')];
     }
 
     private function logActivity(array $data): void
@@ -393,6 +477,7 @@ class PaymentService
         try {
             $this->activityLogs->create($data);
         } catch (Throwable $e) {
+            error_log('[Billing activity] ' . $e->getMessage());
         }
     }
 
@@ -409,6 +494,7 @@ class PaymentService
                 $description
             );
         } catch (Throwable $e) {
+            error_log('[Audit][BILLING] ' . $e->getMessage());
         }
     }
 }

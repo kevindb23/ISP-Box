@@ -20,6 +20,7 @@ class TicketsRepository
             SELECT
                 t.*,
                 s.account_number,
+                s.user_id AS subscriber_user_id,
                 s.full_name AS subscriber_name,
                 s.contact_number,
                 s.email,
@@ -27,6 +28,7 @@ class TicketsRepository
                 ss.ppp_username,
                 au.full_name AS assigned_user_name,
                 au.username AS assigned_username,
+                au.role AS assigned_user_role,
                 wo.id AS work_order_id,
                 wo.work_order_no,
                 wo.status AS work_order_status,
@@ -47,6 +49,12 @@ class TicketsRepository
             $params[':status'] = strtoupper((string)$filters['status']);
         }
 
+        if (!empty($filters['queue_role'])) {
+            $sql .= " AND (au.role = :queue_assigned_role OR (t.assigned_user_id IS NULL AND " . $this->queueCategorySql(':queue_category_role') . "))";
+            $params[':queue_assigned_role'] = strtoupper((string)$filters['queue_role']);
+            $params[':queue_category_role'] = strtoupper((string)$filters['queue_role']);
+        }
+
         if (!empty($filters['search'])) {
             $sql .= "
                 AND (
@@ -60,6 +68,9 @@ class TicketsRepository
                     OR s.email LIKE :search
                     OR ss.service_number LIKE :search
                     OR ss.ppp_username LIKE :search
+                    OR au.full_name LIKE :search
+                    OR au.username LIKE :search
+                    OR au.role LIKE :search
                     OR wo.work_order_no LIKE :search
                 )
             ";
@@ -92,6 +103,7 @@ class TicketsRepository
             FROM tickets t
             INNER JOIN subscribers s ON s.id = t.subscriber_id
             LEFT JOIN subscriber_services ss ON ss.id = t.service_id
+            LEFT JOIN users au ON au.id = t.assigned_user_id
             LEFT JOIN work_orders wo ON wo.ticket_id = t.id
             WHERE 1 = 1
         ";
@@ -101,6 +113,12 @@ class TicketsRepository
         if (!empty($filters['status'])) {
             $sql .= " AND t.status = :status";
             $params[':status'] = strtoupper((string)$filters['status']);
+        }
+
+        if (!empty($filters['queue_role'])) {
+            $sql .= " AND (au.role = :queue_assigned_role OR (t.assigned_user_id IS NULL AND " . $this->queueCategorySql(':queue_category_role') . "))";
+            $params[':queue_assigned_role'] = strtoupper((string)$filters['queue_role']);
+            $params[':queue_category_role'] = strtoupper((string)$filters['queue_role']);
         }
 
         if (!empty($filters['search'])) {
@@ -116,6 +134,9 @@ class TicketsRepository
                     OR s.email LIKE :search
                     OR ss.service_number LIKE :search
                     OR ss.ppp_username LIKE :search
+                    OR au.full_name LIKE :search
+                    OR au.username LIKE :search
+                    OR au.role LIKE :search
                     OR wo.work_order_no LIKE :search
                 )
             ";
@@ -129,22 +150,35 @@ class TicketsRepository
         return (int)$stmt->fetchColumn();
     }
 
-    public function getSummary(): array
+    public function getSummary(array $filters = []): array
     {
-        $stmt = $this->db->query("
+        $sql = "
             SELECT
-                COALESCE(SUM(CASE WHEN status = 'OPEN' THEN 1 ELSE 0 END), 0) AS open_count,
-                COALESCE(SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END), 0) AS in_progress_count,
-                COALESCE(SUM(CASE WHEN status IN (
+                COALESCE(SUM(CASE WHEN t.status = 'OPEN' THEN 1 ELSE 0 END), 0) AS open_count,
+                COALESCE(SUM(CASE WHEN t.status = 'IN_PROGRESS' THEN 1 ELSE 0 END), 0) AS in_progress_count,
+                COALESCE(SUM(CASE WHEN t.status IN (
                     'WAITING_CUSTOMER',
                     'WAITING_TECHNICIAN',
                     'WAITING_CUSTOMER_SCHEDULE',
                     'VISIT_SCHEDULED'
                 ) THEN 1 ELSE 0 END), 0) AS waiting_count,
-                COALESCE(SUM(CASE WHEN status = 'RESOLVED' THEN 1 ELSE 0 END), 0) AS resolved_count,
+                COALESCE(SUM(CASE WHEN t.status = 'RESOLVED' THEN 1 ELSE 0 END), 0) AS resolved_count,
                 COUNT(*) AS total_count
-            FROM tickets
-        ");
+            FROM tickets t
+            LEFT JOIN users au ON au.id = t.assigned_user_id
+            WHERE 1 = 1
+        ";
+
+        $params = [];
+
+        if (!empty($filters['queue_role'])) {
+            $sql .= " AND (au.role = :queue_assigned_role OR (t.assigned_user_id IS NULL AND " . $this->queueCategorySql(':queue_category_role') . "))";
+            $params[':queue_assigned_role'] = strtoupper((string)$filters['queue_role']);
+            $params[':queue_category_role'] = strtoupper((string)$filters['queue_role']);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
@@ -172,6 +206,7 @@ class TicketsRepository
                 ss.status AS service_status,
                 au.full_name AS assigned_user_name,
                 au.username AS assigned_username,
+                au.role AS assigned_user_role,
                 wo.id AS work_order_id,
                 wo.work_order_no,
                 wo.status AS work_order_status,
@@ -262,22 +297,25 @@ class TicketsRepository
     {
         $status = strtoupper($status);
 
-        $resolvedAtSql = $status === 'RESOLVED' ? ', resolved_at = NOW()' : '';
-        $closedAtSql = $status === 'CLOSED' ? ', closed_at = NOW()' : '';
-
         $stmt = $this->db->prepare("
             UPDATE tickets
             SET
                 status = :status,
+                resolved_at = CASE
+                    WHEN :status_resolved = 'RESOLVED' THEN COALESCE(resolved_at, NOW())
+                    WHEN :status_resolved NOT IN ('RESOLVED', 'CLOSED') THEN NULL
+                    ELSE resolved_at
+                END,
+                closed_at = CASE WHEN :status_closed = 'CLOSED' THEN COALESCE(closed_at, NOW()) ELSE NULL END,
                 updated_at = NOW()
-                {$resolvedAtSql}
-                {$closedAtSql}
             WHERE id = :ticket_id
             LIMIT 1
         ");
 
         return $stmt->execute([
             ':status' => $status,
+            ':status_resolved' => $status,
+            ':status_closed' => $status,
             ':ticket_id' => $ticketId,
         ]);
     }
@@ -383,14 +421,12 @@ class TicketsRepository
                 status
             FROM users
             WHERE status = 'ACTIVE'
-              AND role != 'SUBSCRIBER'
+              AND role IN ('NOC', 'SUPPORT', 'BILLING')
             ORDER BY
                 CASE role
-                    WHEN 'SUPERADMIN' THEN 1
-                    WHEN 'NOC' THEN 2
-                    WHEN 'SUPPORT' THEN 3
-                    WHEN 'TECHNICIAN' THEN 4
-                    WHEN 'BILLING' THEN 5
+                    WHEN 'NOC' THEN 1
+                    WHEN 'SUPPORT' THEN 2
+                    WHEN 'BILLING' THEN 3
                     ELSE 9
                 END,
                 full_name ASC,
@@ -398,6 +434,18 @@ class TicketsRepository
         ");
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function findAssignableUser(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id, username, full_name, role, status FROM users WHERE id = :id AND status = 'ACTIVE' AND role IN ('NOC','SUPPORT','BILLING') LIMIT 1");
+        $stmt->execute([':id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    private function queueCategorySql(string $rolePlaceholder): string
+    {
+        return "CASE t.category WHEN 'INTERNET' THEN 'NOC' WHEN 'BILLING' THEN 'BILLING' ELSE 'SUPPORT' END = {$rolePlaceholder}";
     }
 
     public function findBestAvailableAssignee(?string $category = null): ?array

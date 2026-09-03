@@ -2,43 +2,34 @@
 
 namespace App\Modules\Billing\Controllers;
 
-use App\Modules\Billing\Repositories\AdjustmentRepository;
-use App\Modules\Billing\Repositories\InvoiceRepository;
+use App\Modules\Billing\DTOs\CreateAdjustmentDTO;
 use App\Modules\Billing\Services\AdjustmentService;
+use App\Modules\Billing\Validators\CreateInvoicesValidator;
 use Framework\ApiController;
-use Framework\DatabaseConnection;
 use Throwable;
 
 class AdjustmentApiController extends ApiController
 {
     private AdjustmentService $service;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(AdjustmentService $service, private CreateInvoicesValidator $validator)
     {
-        $db = $database->get();
-
-        $adjustmentRepo = new AdjustmentRepository($db);
-        $invoiceRepo = new InvoiceRepository($db);
-
-        $this->service = new AdjustmentService(
-            $db,
-            $adjustmentRepo,
-            $invoiceRepo
-        );
+        $this->service = $service;
     }
 
     public function list(): void
     {
         try {
+            $query = $this->request()->query();
             $filters = [
-                'invoice_id' => $_GET['invoice_id'] ?? null,
-                'subscriber_id' => $_GET['subscriber_id'] ?? null,
-                'service_id' => $_GET['service_id'] ?? null,
-                'adjustment_type' => $_GET['adjustment_type'] ?? null,
-                'status' => $_GET['status'] ?? null,
-                'search' => $_GET['search'] ?? null,
-                'limit' => $_GET['limit'] ?? 50,
-                'offset' => $_GET['offset'] ?? 0,
+                'invoice_id' => $query['invoice_id'] ?? null,
+                'subscriber_id' => $query['subscriber_id'] ?? null,
+                'service_id' => $query['service_id'] ?? null,
+                'adjustment_type' => $query['adjustment_type'] ?? null,
+                'status' => $query['status'] ?? null,
+                'search' => $query['search'] ?? null,
+                'limit' => $query['limit'] ?? 50,
+                'offset' => $query['offset'] ?? 0,
             ];
 
             $this->success($this->service->list($filters));
@@ -59,7 +50,13 @@ class AdjustmentApiController extends ApiController
     public function create(): void
     {
         try {
-            $payload = $this->input();
+            $dto = new CreateAdjustmentDTO($this->request()->input());
+            $errors = $this->validator->adjustment($dto);
+            if ($errors !== []) {
+                $this->error('Please correct the highlighted fields.', 422, $errors);
+                return;
+            }
+            $payload = $dto->toArray();
 
             if (!isset($payload['created_by'])) {
                 $payload['created_by'] = $_SESSION['user']['id'] ?? null;
@@ -77,7 +74,7 @@ class AdjustmentApiController extends ApiController
     public function void($id): void
     {
         try {
-            $payload = $this->input();
+            $payload = $this->request()->input();
 
             $userId = $_SESSION['user']['id'] ?? null;
             $reason = $payload['reason'] ?? $payload['void_reason'] ?? null;
@@ -106,15 +103,4 @@ class AdjustmentApiController extends ApiController
         }
     }
 
-    private function input(): array
-    {
-        $raw = file_get_contents('php://input');
-        $json = json_decode($raw ?: '', true);
-
-        if (is_array($json)) {
-            return $json;
-        }
-
-        return $_POST ?: [];
-    }
 }

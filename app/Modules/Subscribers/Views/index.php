@@ -1,6 +1,197 @@
-<div class="container-fluid nx-page" id="subscribersPage">
-    <link rel="stylesheet" href="/module-assets/Subscribers/css/subscribers.css">
+<?php
+$subscribers = $subscribers ?? [];
+$plans = $plans ?? [];
+$subscribersLegacyUi = isset($_GET['legacy_ui']) && (string)$_GET['legacy_ui'] === '1';
 
+if (!$subscribersLegacyUi):
+    $subscriberRows = array_map(static function (array $s): array {
+        $online = (int)($s['online'] ?? 0);
+        return [
+            'id' => (int)($s['id'] ?? 0),
+            'account_number' => (string)($s['account_number'] ?? ''),
+            'full_name' => (string)($s['full_name'] ?? ''),
+            'contact_number' => (string)($s['contact_number'] ?? ''),
+            'email' => (string)($s['email'] ?? ''),
+            'address' => (string)($s['address'] ?? ''),
+            'ppp_username' => (string)($s['ppp_username'] ?? ''),
+            'plan_id' => (int)($s['plan_id'] ?? 0),
+            'plan_name' => (string)($s['plan_name'] ?? ''),
+            'account_type' => (string)($s['account_type'] ?? 'POSTPAID'),
+            'service_status' => (string)($s['service_status'] ?? 'UNKNOWN'),
+            'service_number' => (string)($s['service_number'] ?? ''),
+            'next_due_date' => (string)($s['next_due_date'] ?? ''),
+            'expires_at' => (string)($s['expires_at'] ?? ''),
+            'nap_name' => (string)($s['nap_name'] ?? ''),
+            'nap_splitter_port' => (string)($s['nap_splitter_port'] ?? ''),
+            'ont_serial' => (string)($s['ont_serial'] ?? ''),
+            'installed_at' => (string)($s['installed_at'] ?? ''),
+            'cvlan' => (string)($s['cvlan'] ?? ''),
+            'svlan' => (string)($s['svlan'] ?? ''),
+            'online' => $online,
+            'online_text' => $online === 1 ? 'ONLINE' : 'OFFLINE',
+            'last_seen' => $s['last_seen'] ?? null,
+        ];
+    }, $subscribers);
+    $subscriberPlanOptions = array_map(static fn(array $p): array => [
+        'id' => (int)($p['id'] ?? 0),
+        'plan_name' => (string)($p['plan_name'] ?? ''),
+        'plan_type' => (string)($p['plan_type'] ?? ''),
+        'is_active' => (int)($p['is_active'] ?? 1),
+    ], $plans);
+    $nxNextManifestPath = BASE_PATH . '/public/build-next/.vite/manifest.json';
+    $nxNextManifest = is_file($nxNextManifestPath) ? (json_decode((string)file_get_contents($nxNextManifestPath), true) ?: []) : [];
+    $nxNextEntry = $nxNextManifest['src/main.ts'] ?? [];
+    $nxNextVersion = is_file($nxNextManifestPath) ? (string)filemtime($nxNextManifestPath) : (string)time();
+    foreach (($nxNextEntry['css'] ?? []) as $nxNextCss): ?>
+        <link rel="stylesheet" href="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextCss, '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>">
+    <?php endforeach; ?>
+    <div class="container-fluid nx-page" data-nx-next-root="subscribers">
+        <script type="application/json" data-nx-next-props><?= json_encode(['subscribers' => $subscriberRows, 'plans' => $subscriberPlanOptions], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
+    </div>
+    <?php if (!empty($nxNextEntry['file'])): ?>
+        <script type="module" src="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextEntry['file'], '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"></script>
+    <?php else: ?>
+        <div class="alert alert-warning">The new Subscribers interface is not built. Use <a href="/subscribers?legacy_ui=1">the legacy interface</a>.</div>
+    <?php endif;
+    return;
+endif;
+?>
+
+<style>
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subscribers-add-btn {
+        background: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #fff !important;
+    }
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subscribers-add-btn:hover,
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subscribers-add-btn:focus-visible {
+        background: #1d4ed8 !important;
+        border-color: #1d4ed8 !important;
+        color: #fff !important;
+    }
+    body#nxApplication #nxRectilinearTheme #subscribersPage .nx-toolbar-card .toolbar-shell {
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+    }
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subs-toolbar-grid,
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subs-search-wrap,
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subs-search-control {
+        width: 100% !important;
+        max-width: none !important;
+    }
+    body#nxApplication #nxRectilinearTheme #subscribersPage .subs-toolbar-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-content,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-content > form,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-header,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-footer,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-body,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-body .nx-section-card {
+        background-color: var(--card, #fff) !important;
+        color: var(--foreground, #171717) !important;
+    }
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-header,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-footer,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-body .nx-section-card {
+        border-color: var(--border, #d5d5d2) !important;
+    }
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-body .nx-field > div,
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-body .nx-section-title,
+    html:not([data-theme="dark"]) #subscribersPage .modal-title {
+        color: var(--foreground, #171717) !important;
+    }
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-body :is(.nx-field > label, .form-label, .text-muted),
+    html:not([data-theme="dark"]) #subscribersPage .nx-modal-header .text-muted {
+        color: var(--muted-foreground, #737373) !important;
+    }
+
+    html[data-theme="dark"] #subscribersPage .nx-modal-content,
+    html[data-theme="dark"] #subscribersPage .nx-modal-content > form,
+    html[data-theme="dark"] #subscribersPage .nx-modal-header,
+    html[data-theme="dark"] #subscribersPage .nx-modal-footer {
+        background-color: var(--card, #252728) !important;
+        color: var(--foreground, #f5f5f5) !important;
+        border-color: var(--border, #414344) !important;
+    }
+    html[data-theme="dark"] #subscribersPage .nx-modal-body {
+        background-color: var(--muted, #202122) !important;
+        color: var(--foreground, #f5f5f5) !important;
+    }
+    html[data-theme="dark"] #subscribersPage .nx-modal-body .nx-section-card {
+        background-color: var(--card, #252728) !important;
+        color: var(--foreground, #f5f5f5) !important;
+        border: 1px solid var(--border, #414344) !important;
+        box-shadow: none !important;
+    }
+    html[data-theme="dark"] #subscribersPage .nx-modal-body .nx-field > div,
+    html[data-theme="dark"] #subscribersPage .nx-modal-body .nx-section-title,
+    html[data-theme="dark"] #subscribersPage .modal-title {
+        color: var(--foreground, #f5f5f5) !important;
+    }
+    html[data-theme="dark"] #subscribersPage .nx-modal-body :is(.nx-field > label, .form-label, .text-muted),
+    html[data-theme="dark"] #subscribersPage .nx-modal-header .text-muted {
+        color: var(--muted-foreground, #a3a3a3) !important;
+    }
+    html[data-theme="dark"] #subscribersPage .nx-modal-header .btn-close {
+        filter: invert(1) grayscale(1);
+        opacity: .8;
+    }
+    html[data-theme="dark"] :is(#subscriberViewModal, #subscriberEditModal, #createModal).modal.show {
+        background: transparent !important;
+    }
+    html[data-theme="dark"] body:has(#subscriberViewModal.show) > .modal-backdrop.show,
+    html[data-theme="dark"] body:has(#subscriberEditModal.show) > .modal-backdrop.show,
+    html[data-theme="dark"] body:has(#createModal.show) > .modal-backdrop.show {
+        background-color: #000 !important;
+        opacity: .28 !important;
+    }
+    /* Subscriber details are injected after the modal opens. Keep these final
+       selectors stronger than legacy module text-color declarations. */
+    html:not([data-theme="dark"]) body#nxApplication #nxRectilinearTheme #subscriberViewModal :is(.modal-title, .nx-section-title, .nx-field > div) {
+        color: var(--foreground, #171717) !important;
+    }
+    html:not([data-theme="dark"]) body#nxApplication #nxRectilinearTheme #subscriberViewModal .nx-field > div {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        opacity: 1 !important;
+    }
+    html:not([data-theme="dark"]) body#nxApplication #nxRectilinearTheme #subscriberViewModal :is(input, select, textarea, .form-control, .form-select) {
+        background-color: #fff !important;
+        border-color: #cbd5e1 !important;
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        opacity: 1 !important;
+    }
+    html:not([data-theme="dark"]) body#nxApplication #nxRectilinearTheme #subscriberViewModal :is(.text-muted, .nx-field > label) {
+        color: var(--muted-foreground, #737373) !important;
+    }
+    html[data-theme="dark"] body#nxApplication #nxRectilinearTheme #subscriberViewModal :is(.modal-title, .nx-section-title, .nx-field > div) {
+        color: var(--foreground, #f5f5f5) !important;
+    }
+    html[data-theme="dark"] body#nxApplication #nxRectilinearTheme #subscriberViewModal .nx-field > div {
+        background-color: #202122 !important;
+        border-color: #414344 !important;
+        color: #f8fafc !important;
+        -webkit-text-fill-color: #f8fafc !important;
+        opacity: 1 !important;
+    }
+    html[data-theme="dark"] body#nxApplication #nxRectilinearTheme #subscriberViewModal :is(input, select, textarea, .form-control, .form-select) {
+        background-color: #202122 !important;
+        border-color: #464849 !important;
+        color: #f8fafc !important;
+        -webkit-text-fill-color: #f8fafc !important;
+        opacity: 1 !important;
+    }
+    html[data-theme="dark"] body#nxApplication #nxRectilinearTheme #subscriberViewModal :is(.text-muted, .nx-field > label) {
+        color: var(--muted-foreground, #a3a3a3) !important;
+    }
+</style>
+
+<div class="container-fluid nx-page" id="subscribersPage">
     <?php
     $subscribers = $subscribers ?? [];
     $plans = $plans ?? [];
@@ -20,7 +211,6 @@
                 'email' => (string)($s['email'] ?? ''),
                 'address' => (string)($s['address'] ?? ''),
                 'ppp_username' => (string)($s['ppp_username'] ?? ''),
-                'ppp_password' => (string)($s['ppp_password'] ?? ''),
                 'plan_id' => (int)($s['plan_id'] ?? 0),
                 'plan_name' => (string)($s['plan_name'] ?? ''),
                 'account_type' => $accountType,
@@ -61,7 +251,7 @@
             </div>
 
             <div class="nx-page-actions">
-                <button class="btn btn-primary nx-header-btn" data-bs-toggle="modal" data-bs-target="#createModal">
+                <button class="btn btn-primary nx-header-btn subscribers-add-btn" data-bs-toggle="modal" data-bs-target="#createModal">
                     <i class="bi bi-person-plus"></i>
                     <span>Add Subscriber</span>
                 </button>
@@ -76,7 +266,7 @@
 
     <div class="row g-3 nx-subscriber-summary-row">
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="nx-summary-card nx-summary-primary">
+            <div class="nx-summary-card summary-item nx-summary-primary">
                 <div class="nx-summary-top">
                     <div>
                         <div class="nx-summary-label">Total Subscribers</div>
@@ -91,7 +281,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="nx-summary-card nx-summary-success">
+            <div class="nx-summary-card summary-item nx-summary-success">
                 <div class="nx-summary-top">
                     <div>
                         <div class="nx-summary-label">Active Services</div>
@@ -106,7 +296,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="nx-summary-card nx-summary-danger">
+            <div class="nx-summary-card summary-item nx-summary-danger">
                 <div class="nx-summary-top">
                     <div>
                         <div class="nx-summary-label">Suspended</div>
@@ -121,7 +311,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="nx-summary-card nx-summary-cyan">
+            <div class="nx-summary-card summary-item nx-summary-cyan">
                 <div class="nx-summary-top">
                     <div>
                         <div class="nx-summary-label">Currently Online</div>
@@ -137,13 +327,13 @@
     </div>
 
     <div class="card border-0 shadow-sm nx-toolbar-card">
-        <div class="card-body">
+        <div class="card-body toolbar-shell">
             <div class="subs-toolbar-grid">
                 <div class="subs-search-wrap">
                     <i class="bi bi-search subs-search-icon"></i>
                     <input type="text"
                            id="subscribersSearchInput"
-                           class="form-control subs-toolbar-control subs-search-control"
+                           class="form-control subs-toolbar-control subs-search-control toolbar-control"
                            placeholder="Search by account number, subscriber, PPP username, email, or contact number"
                            value="<?= htmlspecialchars($searchVal) ?>">
                 </div>
@@ -151,11 +341,8 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm nx-content-card">
-        <div class="subs-table-topline"></div>
-        <div class="card-body">
-            <div id="subscribersTableHost"></div>
-        </div>
+    <div id="subscribersTableShell" class="table-container">
+        <div id="subscribersTableHost"></div>
     </div>
 
     <script id="subscribersTableData" type="application/json"><?= json_encode($subscriberTableRows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
@@ -366,5 +553,5 @@
         </div>
     </div>
 
-    <script src="/module-assets/Subscribers/js/subscribers.js"></script>
+    <script src="/module-assets/Subscribers/js/subscribers.js?v=plans3"></script>
 </div>

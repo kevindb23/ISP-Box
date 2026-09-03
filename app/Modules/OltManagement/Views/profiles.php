@@ -8,12 +8,16 @@ $allowedTabs = ['dba', 'line', 'wan', 'tr069', 'srv'];
 if (!in_array($activeTab, $allowedTabs, true)) {
     $activeTab = 'dba';
 }
+$oltProfilesLegacyUi = isset($_GET['legacy_ui']) && (string)$_GET['legacy_ui'] === '1';
+if (!$oltProfilesLegacyUi):
+    $nxNextManifestPath = BASE_PATH . '/public/build-next/.vite/manifest.json'; $nxNextManifest = is_file($nxNextManifestPath) ? (json_decode((string)file_get_contents($nxNextManifestPath), true) ?: []) : []; $nxNextEntry = $nxNextManifest['src/main.ts'] ?? []; $nxNextVersion = is_file($nxNextManifestPath) ? (string)filemtime($nxNextManifestPath) : (string)time();
+    foreach (($nxNextEntry['css'] ?? []) as $nxNextCss): ?><link rel="stylesheet" href="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextCss, '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"><?php endforeach; ?>
+    <div class="container-fluid nx-page" data-nx-next-root="olt" data-mode="profiles" data-olt-id="<?= $selectedOltId ?>" data-profile-tab="<?= htmlspecialchars($activeTab, ENT_QUOTES, 'UTF-8') ?>"></div>
+    <?php if (!empty($nxNextEntry['file'])): ?><script type="module" src="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextEntry['file'], '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"></script><?php else: ?><div class="alert alert-warning">The new OLT Profiles interface is not built. Use the legacy interface.</div><?php endif; return;
+endif;
 ?>
 
 <div class="container-fluid nx-page" id="oltManagementPage">
-
-    <link rel="stylesheet" href="/module-assets/OltManagement/css/OltManagement.css">
-
     <div id="oltManagementApp"
          data-page-mode="profiles"
          data-initial-olt-id="<?= (int)$selectedOltId ?>"
@@ -23,7 +27,7 @@ if (!in_array($activeTab, $allowedTabs, true)) {
         <section class="card border-0 mb-0 nx-page-header-card">
             <div class="nx-page-header">
                 <div class="nx-page-header-left">
-                    <div class="olt-hero-badge">
+                    <div class="page-hero-badge">
                         <i class="bi bi-sliders2"></i>
                         <span>Provisioning Profiles Workspace</span>
                     </div>
@@ -57,10 +61,10 @@ if (!in_array($activeTab, $allowedTabs, true)) {
             <div class="olt-table-topline"></div>
 
             <div class="card-body">
-                <div class="olt-section-head mb-3">
+                <div class="section-head mb-3">
                     <div>
-                        <h2 class="olt-section-title">Provisioning Profiles</h2>
-                        <p class="olt-section-subtitle">
+                        <h2 class="section-title">Provisioning Profiles</h2>
+                        <p class="section-subtitle">
                             Switch between Huawei profile objects inside one OLT-scoped workspace
                         </p>
                     </div>

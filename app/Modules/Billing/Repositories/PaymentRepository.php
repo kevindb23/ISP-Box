@@ -193,6 +193,14 @@ class PaymentRepository
         return $row ?: null;
     }
 
+    public function findForUpdate(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM payments WHERE id = :id LIMIT 1 FOR UPDATE');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     public function create(array $data): int
     {
         $stmt = $this->db->prepare("
@@ -207,6 +215,10 @@ class PaymentRepository
                 reference_no,
                 payment_status,
                 remarks,
+                proof_file_path,
+                proof_file_name,
+                proof_file_type,
+                submitted_by_user_id,
                 received_by,
                 posted_at
             ) VALUES (
@@ -220,6 +232,10 @@ class PaymentRepository
                 :reference_no,
                 :payment_status,
                 :remarks,
+                :proof_file_path,
+                :proof_file_name,
+                :proof_file_type,
+                :submitted_by_user_id,
                 :received_by,
                 :posted_at
             )
@@ -238,11 +254,22 @@ class PaymentRepository
             ':reference_no' => $data['reference_no'] ?? null,
             ':payment_status' => $paymentStatus,
             ':remarks' => $data['remarks'] ?? null,
+            ':proof_file_path' => $data['proof_file_path'] ?? null,
+            ':proof_file_name' => $data['proof_file_name'] ?? null,
+            ':proof_file_type' => $data['proof_file_type'] ?? null,
+            ':submitted_by_user_id' => $data['submitted_by_user_id'] ?? null,
             ':received_by' => $data['received_by'] ?? null,
             ':posted_at' => $paymentStatus === 'POSTED' ? ($data['posted_at'] ?? date('Y-m-d H:i:s')) : null,
         ]);
 
         return (int)$this->db->lastInsertId();
+    }
+
+    public function assignPaymentNo(int $paymentId, string $paymentNo): void
+    {
+        $stmt = $this->db->prepare('UPDATE payments SET payment_no = :payment_no WHERE id = :id AND payment_no IS NULL');
+        $stmt->execute(['payment_no' => $paymentNo, 'id' => $paymentId]);
+        if ($stmt->rowCount() !== 1) throw new \RuntimeException('Unable to assign payment number.');
     }
 
     public function createAllocation(int $paymentId, int $invoiceId, float $amount): int
@@ -328,27 +355,42 @@ class PaymentRepository
         return $stmt->rowCount() > 0;
     }
 
-    public function generatePaymentNo(string $prefix = 'PAY'): string
+    public function approvePending(int $paymentId, int $reviewedBy): bool
     {
-        $stmt = $this->db->prepare("
-            SELECT payment_no
-            FROM payments
-            WHERE payment_no LIKE :prefix_like
-            ORDER BY id DESC
-            LIMIT 1
-        ");
-
-        $stmt->execute([
-            ':prefix_like' => $prefix . '-%',
-        ]);
-
-        $last = (string)$stmt->fetchColumn();
-        $next = 1;
-
-        if ($last && preg_match('/(\d+)$/', $last, $matches)) {
-            $next = ((int)$matches[1]) + 1;
-        }
-
-        return sprintf('%s-%s-%06d', $prefix, date('Y'), $next);
+        $stmt = $this->db->prepare("UPDATE payments SET payment_status='POSTED', reviewed_by_user_id=:reviewed_by, reviewed_at=NOW(), posted_at=NOW(), received_by=:reviewed_by WHERE id=:id AND payment_status='PENDING'");
+        $stmt->execute([':id'=>$paymentId, ':reviewed_by'=>$reviewedBy]);
+        return $stmt->rowCount() === 1;
     }
+
+    public function rejectPending(int $paymentId, int $reviewedBy, string $reason): bool
+    {
+        $stmt = $this->db->prepare("UPDATE payments SET payment_status='REJECTED', reviewed_by_user_id=:reviewed_by, reviewed_at=NOW(), rejection_reason=:reason WHERE id=:id AND payment_status='PENDING'");
+        $stmt->execute([':id'=>$paymentId, ':reviewed_by'=>$reviewedBy, ':reason'=>$reason]);
+        return $stmt->rowCount() === 1;
+    }
+
+    public function findProofForUser(int $paymentId, int $userId, bool $staff): ?array
+    {
+        $sql = "SELECT p.*,s.user_id AS subscriber_user_id FROM payments p LEFT JOIN subscribers s ON s.id=p.subscriber_id WHERE p.id=:id";
+        if (!$staff) $sql .= " AND s.user_id=:user_id";
+        $stmt=$this->db->prepare($sql . ' LIMIT 1');
+        $params=[':id'=>$paymentId]; if(!$staff)$params[':user_id']=$userId;
+        $stmt->execute($params); return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function subscriberIsSuspended(int $subscriberId): bool
+    {
+        $stmt=$this->db->prepare("SELECT COUNT(*) FROM subscribers s JOIN subscriber_services ss ON ss.subscriber_id=s.id WHERE s.id=:id AND (s.status='SUSPENDED' OR ss.status='SUSPENDED')");
+        $stmt->execute([':id'=>$subscriberId]); return (int)$stmt->fetchColumn()>0;
+    }
+
+    public function subscriberHasOutstandingOverdueInvoices(int $subscriberId): bool
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM invoices WHERE subscriber_id=:id AND status IN ('OVERDUE','UNPAID','PARTIAL') AND due_date<CURDATE() AND balance_amount>0"
+        );
+        $stmt->execute([':id' => $subscriberId]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
 }

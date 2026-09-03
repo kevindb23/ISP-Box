@@ -6,6 +6,8 @@ class ExceptionHandler
 {
     public static function handle($e)
     {
+        error_log('[NexusBox] Unhandled exception: ' . $e->getMessage());
+
         if (str_starts_with($_SERVER['REQUEST_URI'], "/api/")) {
 
             http_response_code(500);
@@ -18,6 +20,7 @@ class ExceptionHandler
             return;
         }
 
-        echo $e->getMessage();
+        http_response_code(500);
+        echo 'An internal server error occurred.';
     }
 }

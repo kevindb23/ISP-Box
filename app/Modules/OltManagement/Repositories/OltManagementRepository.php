@@ -2,6 +2,7 @@
 
 namespace App\Modules\OltManagement\Repositories;
 
+use App\Infrastructure\Security\SecretCipher;
 use Framework\DatabaseConnection;
 use PDO;
 
@@ -9,7 +10,7 @@ class OltManagementRepository
 {
     private PDO $db;
 
-    public function __construct(DatabaseConnection $database)
+    public function __construct(DatabaseConnection $database, private SecretCipher $secrets)
     {
         $this->db = $database->get();
     }
@@ -31,7 +32,7 @@ class OltManagementRepository
         ORDER BY id DESC
     ");
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return $this->decryptRows($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [], 'password');
     }
 
     public function findDeviceById(int $id): ?array
@@ -54,7 +55,7 @@ class OltManagementRepository
         $stmt->execute([$id]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $row ? $this->decryptRow($row, 'password') : null;
     }
 
     public function createDevice(array $data): int
@@ -78,7 +79,7 @@ class OltManagementRepository
             $data['name'],
             $data['ip_address'],
             $data['username'],
-            $data['password'],
+            $this->secrets->encrypt((string)$data['password']),
             $data['vendor'],
             (int)($data['enable_home_gateway_omci'] ?? 0),
             (int)($data['auto_detect_omci_support'] ?? 0),
@@ -106,7 +107,7 @@ class OltManagementRepository
             $data['name'],
             $data['ip_address'],
             $data['username'],
-            $data['password'],
+            $this->secrets->encrypt((string)$data['password']),
             $data['vendor'],
             (int)($data['enable_home_gateway_omci'] ?? 0),
             (int)($data['auto_detect_omci_support'] ?? 0),
@@ -1002,7 +1003,7 @@ class OltManagementRepository
         ORDER BY p.olt_id ASC, p.profile_id ASC, p.id ASC
     ");
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return $this->decryptRows($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [], 'acs_password');
     }
 
     public function getTr069ProfilesByOltId(int $oltId): array
@@ -1021,7 +1022,7 @@ class OltManagementRepository
     ");
         $stmt->execute([$oltId]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return $this->decryptRows($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [], 'acs_password');
     }
 
     public function findTr069ProfileById(int $id): ?array
@@ -1041,7 +1042,7 @@ class OltManagementRepository
         $stmt->execute([$id]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $row ? $this->decryptRow($row, 'acs_password') : null;
     }
 
     public function createTr069Profile(array $data): int
@@ -1069,7 +1070,7 @@ class OltManagementRepository
             $data['profile_name'],
             $data['acs_url'],
             $data['acs_username'] ?? '',
-            $data['acs_password'] ?? '',
+            $this->secrets->encrypt((string)($data['acs_password'] ?? '')),
             $data['periodic_inform_enable'],
             $data['periodic_inform_interval'],
             $data['description'] ?? '',
@@ -1101,7 +1102,7 @@ class OltManagementRepository
             $data['profile_name'],
             $data['acs_url'],
             $data['acs_username'] ?? '',
-            $data['acs_password'] ?? '',
+            $this->secrets->encrypt((string)($data['acs_password'] ?? '')),
             $data['periodic_inform_enable'],
             $data['periodic_inform_interval'],
             $data['description'] ?? '',
@@ -1113,6 +1114,17 @@ class OltManagementRepository
     {
         $stmt = $this->db->prepare("DELETE FROM olt_tr069_profiles WHERE id = ?");
         return $stmt->execute([$id]);
+    }
+
+    private function decryptRows(array $rows, string $field): array
+    {
+        return array_map(fn(array $row): array => $this->decryptRow($row, $field), $rows);
+    }
+
+    private function decryptRow(array $row, string $field): array
+    {
+        if (array_key_exists($field, $row)) $row[$field] = $this->secrets->decrypt($row[$field]);
+        return $row;
     }
 
     /* =========================================================
@@ -1600,15 +1612,6 @@ public function clearPonPortSvlan(int $portId): void
         ':id' => $portId,
     ]);
 }
-
-    public function unassignPonSvlan(): void
-    {
-        $portId = (int)($_POST['olt_port_id'] ?? 0);
-
-        $this->respondServiceResult(
-            $this->service->unassignPonPortSvlan($portId)
-        );
-    }
 
     /* =========================================================
      * HELPERS

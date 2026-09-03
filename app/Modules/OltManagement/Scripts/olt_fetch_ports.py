@@ -267,17 +267,28 @@ def fetch_ports(host, username, password, frame=0):
 
 
 def main():
-    if len(sys.argv) < 4:
+    raw = sys.stdin.read()
+    if not raw.strip():
         print(json.dumps({
             "success": False,
-            "error": "Usage: olt_fetch_ports.py <host> <username> <password> [frame]"
+            "error": "Missing JSON payload."
         }))
         return
 
-    host = sys.argv[1]
-    username = sys.argv[2]
-    password = sys.argv[3]
-    frame = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+    try:
+        data = json.loads(raw)
+    except Exception:
+        print(json.dumps({"success": False, "error": "Invalid JSON payload."}))
+        return
+
+    host = str(data.get("host", "")).strip()
+    username = str(data.get("username", "")).strip()
+    password = str(data.get("password", "")).strip()
+    frame = int(data.get("frame", 0))
+
+    if not host or not username or not password:
+        print(json.dumps({"success": False, "error": "OLT connection details are incomplete."}))
+        return
 
     result = fetch_ports(host, username, password, frame)
     print(json.dumps(result))

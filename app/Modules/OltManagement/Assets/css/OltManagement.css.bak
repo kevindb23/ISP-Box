@@ -1,0 +1,2284 @@
+#oltManagementPage {
+    --olt-blue: #2563eb;
+    --olt-blue-dark: #1d4ed8;
+    --olt-ink: #0f172a;
+    --olt-muted: #64748b;
+    --olt-line: #e2e8f0;
+    --olt-surface: #ffffff;
+    --olt-surface-soft: #f8fafc;
+    --olt-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.05);
+    --olt-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+#oltManagementPage #oltManagementApp {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* =========================================================
+   HERO / HEADER
+========================================================= */
+#oltManagementPage .nx-page-header-card,
+#oltManagementPage .nx-toolbar-card,
+#oltManagementPage .nx-content-card {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+#oltManagementPage .nx-page-header-card {
+    border: 1px solid rgba(37, 99, 235, 0.08);
+    background:
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
+            linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.94) 100%);
+    box-shadow: var(--olt-shadow-lg);
+}
+
+#oltManagementPage .nx-page-header {
+    min-height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 28px;
+}
+
+/* Match the compact VLAN/Radius hero rhythm. Override the shared shell's
+   legacy 92px minimum for this module's actual header element. */
+html body#nxApplication .main-content #oltManagementPage > .nx-page-header-card > .nx-page-header {
+    min-height: 79px !important;
+    height: 79px !important;
+    padding: 12px 0 10px !important;
+    align-items: flex-start !important;
+}
+
+#oltManagementPage .nx-page-header-left {
+    max-width: 860px;
+}
+
+#oltManagementPage .olt-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius:3px;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--olt-blue-dark);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+#oltManagementPage .olt-hero-badge i {
+    font-size: 11px;
+    line-height: 1;
+}
+
+#oltManagementPage .nx-page-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--olt-ink);
+    line-height: 1.2;
+}
+
+#oltManagementPage .nx-page-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--olt-muted);
+    line-height: 1.55;
+}
+
+#oltManagementPage .nx-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#oltManagementPage .nx-header-btn {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: none;
+}
+
+#oltManagementPage .btn-primary.nx-header-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+}
+
+#oltManagementPage .btn-primary.nx-header-btn:hover,
+#oltManagementPage .btn-primary.nx-header-btn:focus {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border-color: #1d4ed8;
+}
+
+#oltManagementPage .btn-light.nx-header-btn {
+    background: #fff;
+    border-color: #dbe3ef;
+    color: #0f172a;
+}
+
+#oltManagementPage .btn-light.nx-header-btn:hover,
+#oltManagementPage .btn-light.nx-header-btn:focus {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+#oltManagementPage .btn-outline-primary.nx-header-btn {
+    background: #fff;
+    border-color: #bfdbfe;
+    color: #2563eb;
+}
+
+#oltManagementPage .btn-outline-primary.nx-header-btn:hover,
+#oltManagementPage .btn-outline-primary.nx-header-btn:focus {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+#oltManagementPage .nx-olt-summary-row {
+    margin-bottom: 18px;
+}
+
+#oltManagementPage .nx-summary-card {
+    position: relative;
+    min-height: 142px;
+    border-radius:3px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: var(--olt-shadow-soft);
+    overflow: hidden;
+    padding: 22px 28px;
+}
+
+#oltManagementPage .nx-summary-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    border-radius:3px;
+}
+
+#oltManagementPage .nx-summary-primary::before {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+#oltManagementPage .nx-summary-success::before {
+    background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+}
+
+#oltManagementPage .nx-summary-danger::before {
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+}
+
+#oltManagementPage .nx-summary-cyan::before {
+    background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+}
+
+#oltManagementPage .nx-summary-top {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+#oltManagementPage .nx-summary-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+}
+
+#oltManagementPage .nx-summary-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+#oltManagementPage .nx-summary-text {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.45;
+    max-width: 260px;
+}
+
+#oltManagementPage .nx-summary-icon {
+    width: 38px;
+    height: 38px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 15px;
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+#oltManagementPage .nx-toolbar-card {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--olt-shadow-soft);
+}
+
+#oltManagementPage .nx-toolbar-card .card-body {
+    padding: 20px 22px;
+}
+
+#oltManagementPage .olt-toolbar-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+#oltManagementPage .olt-toolbar-block {
+    min-width: 0;
+}
+
+#oltManagementPage .olt-toolbar-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 7px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+#oltManagementPage .olt-search-wrap {
+    position: relative;
+    min-width: 0;
+}
+
+#oltManagementPage .olt-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+#oltManagementPage .olt-toolbar-control {
+    height: 42px;
+    min-height: 42px;
+    border-radius:3px;
+    border-color: #dbe3ef;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+#oltManagementPage .olt-search-control {
+    padding-left: 40px;
+}
+
+#oltManagementPage .olt-toolbar-control:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+#oltManagementPage .olt-toolbar-note {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #64748b;
+}
+
+#oltManagementPage .olt-toolbar-meta {
+    text-align: right;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* =========================================================
+   CONTENT / TABLE CARD
+========================================================= */
+#oltManagementPage .nx-content-card {
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--olt-shadow-lg);
+}
+
+#oltManagementPage .olt-table-topline {
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 25%, rgba(37,99,235,0.10) 100%);
+}
+
+#oltManagementPage .nx-content-card .card-body {
+    padding: 10px 18px 14px;
+}
+
+#oltManagementPage .olt-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 6px 8px;
+}
+
+#oltManagementPage .olt-section-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+#oltManagementPage .olt-section-subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+#oltManagementPage .nx-table-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+#oltManagementPage table {
+    table-layout: auto;
+    width: 100%;
+}
+
+#oltManagementPage .table {
+    margin-bottom: 0;
+}
+
+#oltManagementPage .table th,
+#oltManagementPage .table td {
+    vertical-align: middle;
+}
+
+#oltManagementPage .table thead th {
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #475569;
+    border-bottom-color: #e2e8f0;
+    padding-top: 18px;
+    padding-bottom: 14px;
+    background: #f8fafc;
+}
+
+#oltManagementPage .table tbody td {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-bottom-color: #edf2f7;
+}
+
+#oltManagementPage .table td:last-child,
+#oltManagementPage .table th:last-child {
+    text-align: right;
+    white-space: nowrap;
+}
+
+#oltManagementPage .sort-indicator {
+    font-size: 11px;
+    margin-left: 4px;
+    color: #64748b;
+}
+
+#oltManagementPage .nx-cell-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+#oltManagementPage .nx-cell-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#oltManagementPage .nx-cell-sub {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#oltManagementPage .nx-text-mono {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+#oltManagementPage .nx-olt-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    min-width: 168px;
+}
+
+#oltManagementPage .nx-icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: none;
+}
+
+#oltManagementPage .nx-icon-btn i {
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#oltManagementPage .btn-outline-secondary.nx-icon-btn {
+    border-color: #d9e1ec;
+    color: #64748b;
+    background: #fff;
+}
+
+#oltManagementPage .btn-outline-secondary.nx-icon-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+#oltManagementPage .btn-outline-primary.nx-icon-btn {
+    border-color: #bfdbfe;
+    color: #2563eb;
+    background: #fff;
+}
+
+#oltManagementPage .btn-outline-primary.nx-icon-btn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+#oltManagementPage .btn-outline-success.nx-icon-btn {
+    border-color: #bbf7d0;
+    color: #16a34a;
+    background: #fff;
+}
+
+#oltManagementPage .btn-outline-success.nx-icon-btn:hover {
+    background: #f0fdf4;
+    border-color: #86efac;
+    color: #15803d;
+}
+
+#oltManagementPage .btn-outline-danger.nx-icon-btn {
+    border-color: #fecaca;
+    color: #ef4444;
+    background: #fff;
+}
+
+#oltManagementPage .btn-outline-danger.nx-icon-btn:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+#oltManagementPage .btn-outline-info.nx-icon-btn {
+    border-color: #bae6fd;
+    color: #0284c7;
+    background: #fff;
+}
+
+#oltManagementPage .btn-outline-info.nx-icon-btn:hover {
+    background: #ecfeff;
+    border-color: #7dd3fc;
+    color: #0369a1;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+#oltManagementPage .nx-soft-badge,
+#oltManagementPage .badge {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius:3px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    min-width: 96px;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+}
+
+#oltManagementPage .nx-soft-badge-success {
+    background: #e8f8ef;
+    color: #15803d;
+}
+
+#oltManagementPage .nx-soft-badge-danger {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+#oltManagementPage .nx-soft-badge-warning {
+    background: #fffbeb;
+    color: #b45309;
+}
+
+#oltManagementPage .nx-soft-badge-info {
+    background: #ecfeff;
+    color: #0891b2;
+}
+
+#oltManagementPage .nx-soft-badge-slate {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+#oltManagementPage .nx-soft-badge {
+    min-width: auto;
+    width: fit-content;
+}
+
+#oltManagementPage .nx-cell-stack .nx-soft-badge {
+    min-width: 120px;
+}
+
+#oltManagementPage .nx-soft-badge-primary {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+#oltManagementPage .nx-empty-state {
+    padding: 36px 20px;
+    text-align: center;
+}
+
+#oltManagementPage .nx-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
+    border-radius:3px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+#oltManagementPage .nx-empty-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+}
+
+#oltManagementPage .nx-empty-text {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.55;
+    margin-bottom: 16px;
+}
+
+/* =========================================================
+   PHYSICAL PANEL
+========================================================= */
+#oltManagementPage .olt-panel-shell {
+    padding: 10px 12px 14px;
+}
+
+#oltManagementPage .ma5800-svg-twin {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    border-radius:3px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #eef2f7 0%, #e5edf7 100%);
+    border: 1px solid #dbe6f2;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+#oltManagementPage .ma5800-base-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+#oltManagementPage .ma5800-svg-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    overflow: visible;
+}
+
+#oltManagementPage .ma5800-svg-port-group {
+    cursor: pointer;
+    transition: opacity .14s ease;
+}
+
+#oltManagementPage .ma5800-svg-port-rect {
+    fill: rgba(148, 163, 184, 0.12);
+    stroke: rgba(15, 23, 42, 0.34);
+    stroke-width: 1;
+    transition: fill .14s ease, stroke .14s ease, filter .14s ease;
+}
+
+#oltManagementPage .ma5800-svg-port-label {
+    fill: #ffffff;
+    font-size: 8px;
+    font-weight: 900;
+    paint-order: stroke;
+    stroke: rgba(0, 0, 0, 0.65);
+    stroke-width: 1.8px;
+    stroke-linejoin: round;
+    pointer-events: none;
+}
+
+#oltManagementPage .ma5800-svg-port-group:hover .ma5800-svg-port-rect {
+    filter:
+            drop-shadow(0 0 0.8px rgba(255,255,255,.9))
+            drop-shadow(0 0 3px rgba(37, 99, 235, .3));
+    stroke: rgba(255,255,255,.92);
+    stroke-width: 1.2;
+}
+
+#oltManagementPage .ma5800-svg-port-group.is-selected-slot .ma5800-svg-port-rect,
+#oltManagementPage .ma5800-svg-port-group.is-selected-port .ma5800-svg-port-rect {
+    stroke: rgba(37, 99, 235, .95);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 4px rgba(37, 99, 235, .45));
+}
+
+#oltManagementPage .ma5800-svg-port-group.online .ma5800-svg-port-rect {
+    fill: rgba(34, 197, 94, 0.34);
+    stroke: rgba(21, 128, 61, 0.62);
+}
+
+#oltManagementPage .ma5800-svg-port-group.no-ont .ma5800-svg-port-rect {
+    fill: rgba(148, 163, 184, 0.24);
+    stroke: rgba(71, 85, 105, 0.38);
+}
+
+#oltManagementPage .ma5800-svg-port-group.offline .ma5800-svg-port-rect {
+    fill: rgba(239, 68, 68, 0.34);
+    stroke: rgba(185, 28, 28, 0.62);
+}
+
+#oltManagementPage .ma5800-svg-port-group.warning .ma5800-svg-port-rect {
+    fill: rgba(245, 158, 11, 0.36);
+    stroke: rgba(180, 83, 9, 0.64);
+}
+
+#oltManagementPage .ma5800-svg-twin.image-load-failed {
+    min-height: 280px;
+    background: linear-gradient(180deg, #eef2f7 0%, #e2e8f0 100%);
+    border: 1px dashed #cbd5e1;
+}
+
+#oltManagementPage .ma5800-svg-twin.image-load-failed::before {
+    content: "Failed to load MA5800-X2 image. Check the IMAGE_PATH in OltManagement.js.";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1;
+}
+
+#oltManagementPage .ma5800-legend-real {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+#oltManagementPage .ma5800-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius:3px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#oltManagementPage .ma5800-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+#oltManagementPage .ma5800-legend-dot.online { background: #22c55e; }
+#oltManagementPage .ma5800-legend-dot.no-ont { background: #94a3b8; }
+#oltManagementPage .ma5800-legend-dot.offline { background: #ef4444; }
+#oltManagementPage .ma5800-legend-dot.warning { background: #f59e0b; }
+
+#oltManagementPage .olt-context-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 2px 0 12px;
+}
+
+#oltManagementPage .olt-context-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    border-radius:3px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   CONTROL BOARD VLAN ACCESS
+========================================================= */
+#oltManagementPage .olt-control-vlan-panel {
+    width: 100%;
+    max-width: 360px;
+    padding: 10px;
+    border-radius:3px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+#oltManagementPage .olt-control-vlan-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+#oltManagementPage .olt-control-vlan-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+#oltManagementPage .olt-control-vlan-sub {
+    font-size: 11px;
+    color: #64748b;
+}
+
+#oltManagementPage .olt-control-vlan-panel-head .btn {
+    height: 30px;
+    padding: 0 10px;
+    border-radius:3px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+#oltManagementPage .olt-control-vlan-section {
+    margin-top: 8px;
+}
+
+#oltManagementPage .olt-control-vlan-section-label {
+    margin-bottom: 5px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+#oltManagementPage .olt-vlan-binding-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#oltManagementPage .olt-vlan-binding-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius:3px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+#oltManagementPage .olt-vlan-binding-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+#oltManagementPage .olt-vlan-binding-icon {
+    width: 24px;
+    height: 24px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    flex: 0 0 auto;
+}
+
+#oltManagementPage .olt-vlan-binding-card.is-mgmt .olt-vlan-binding-icon {
+    background: #ecfeff;
+    color: #0891b2;
+}
+
+#oltManagementPage .olt-vlan-binding-title {
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.15;
+}
+
+#oltManagementPage .olt-vlan-binding-sub {
+    margin-top: 1px;
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 210px;
+}
+
+#oltManagementPage .olt-vlan-unbind-btn {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    padding: 0;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#oltManagementPage .olt-vlan-empty-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius:3px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#oltManagementPage #controlBoardVlanCliPreview {
+    color: #1d4ed8;
+    font-weight: 900;
+}
+
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+#oltManagementPage .nx-modal .modal-dialog {
+    max-width: 1100px;
+}
+
+#oltManagementPage .nx-modal .modal-dialog-scrollable {
+    height: calc(100vh - 40px);
+}
+
+#oltManagementPage .nx-modal-content {
+    border: 0;
+    border-radius:3px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#oltManagementPage .nx-modal-content > form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#oltManagementPage .nx-modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+#oltManagementPage .nx-modal-body {
+    background: #f8fafc;
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#oltManagementPage .nx-modal-content > form .nx-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#oltManagementPage .nx-modal-footer {
+    padding: 16px 22px;
+    border-top: 1px solid #eef2f7;
+    background: #fff;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+#oltManagementPage .nx-section-card {
+    background: #fff;
+    border: 1px solid #edf2f7;
+    border-radius:3px;
+    padding: 18px 18px 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+}
+
+#oltManagementPage .nx-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+#oltManagementPage .nx-section-title span {
+    font-size: 18px;
+}
+
+#oltManagementPage .nx-grid-2,
+#oltManagementPage .olt-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+}
+
+#oltManagementPage .nx-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+#oltManagementPage .nx-field div {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius:3px;
+    color: #111827;
+    word-break: break-word;
+}
+
+#oltManagementPage input[readonly] {
+    background: #f8fafc;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+#oltManagementPage .password-mask {
+    letter-spacing: .08em;
+}
+
+/* =========================================================
+   SWEETALERT
+========================================================= */
+.swal2-popup.nx-toast-popup {
+    border-radius:3px !important;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, .16) !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 1199px) {
+    #oltManagementPage table {
+        table-layout: auto;
+        min-width: 1080px;
+    }
+
+    #oltManagementPage .olt-toolbar-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #oltManagementPage .olt-toolbar-meta {
+        text-align: left;
+        white-space: normal;
+    }
+}
+
+@media (max-width: 992px) {
+    #oltManagementPage .nx-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #oltManagementPage .nx-page-actions {
+        width: 100%;
+    }
+
+    #oltManagementPage .nx-grid-2,
+    #oltManagementPage .olt-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #oltManagementPage .nx-modal .modal-dialog {
+        max-width: calc(100% - 24px);
+        margin: 12px auto;
+    }
+
+    #oltManagementPage .ma5800-svg-port-label {
+        font-size: 7px;
+    }
+}
+
+@media (max-width: 767px) {
+    #oltManagementPage .nx-summary-card {
+        min-height: 128px;
+        padding: 20px 22px;
+    }
+
+    #oltManagementPage .nx-content-card .card-body,
+    #oltManagementPage .nx-toolbar-card .card-body {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    #oltManagementPage .ma5800-legend-real {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    #oltManagementPage .ma5800-svg-port-label {
+        display: none;
+    }
+}
+
+/* =========================================================
+   OLT MANAGEMENT DARK MODE
+   Place at VERY BOTTOM of OltManagement.css
+========================================================= */
+
+html[data-theme="dark"] #oltManagementPage {
+    --olt-blue: #60a5fa;
+    --olt-blue-dark: #3b82f6;
+    --olt-ink: #f8fafc;
+    --olt-muted: #9aabc1;
+    --olt-line: #2b3d56;
+    --olt-surface: #182235;
+    --olt-surface-soft: #101827;
+    --olt-shadow-soft: 0 12px 26px rgba(0, 0, 0, .28);
+    --olt-shadow-lg: 0 18px 36px rgba(0, 0, 0, .34);
+}
+
+/* Hero / cards */
+html[data-theme="dark"] #oltManagementPage .nx-page-header-card,
+html[data-theme="dark"] #oltManagementPage .nx-toolbar-card,
+html[data-theme="dark"] #oltManagementPage .nx-content-card,
+html[data-theme="dark"] #oltManagementPage .nx-summary-card,
+html[data-theme="dark"] #oltManagementPage .nx-section-card,
+html[data-theme="dark"] #oltManagementPage .olt-control-vlan-panel {
+    background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, .10), transparent 30%),
+            linear-gradient(180deg, #182235 0%, #141f31 100%) !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+    box-shadow: var(--olt-shadow-soft) !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-page-header-card:hover,
+html[data-theme="dark"] #oltManagementPage .nx-toolbar-card:hover,
+html[data-theme="dark"] #oltManagementPage .nx-content-card:hover,
+html[data-theme="dark"] #oltManagementPage .nx-summary-card:hover {
+    border-color: rgba(96, 165, 250, .35) !important;
+}
+
+/* Text */
+html[data-theme="dark"] #oltManagementPage .nx-page-title,
+html[data-theme="dark"] #oltManagementPage .nx-summary-value,
+html[data-theme="dark"] #oltManagementPage .olt-section-title,
+html[data-theme="dark"] #oltManagementPage .nx-cell-title,
+html[data-theme="dark"] #oltManagementPage .nx-empty-title,
+html[data-theme="dark"] #oltManagementPage .olt-control-vlan-title,
+html[data-theme="dark"] #oltManagementPage .olt-vlan-binding-title,
+html[data-theme="dark"] #oltManagementPage .nx-modal-header .modal-title,
+html[data-theme="dark"] #oltManagementPage .nx-section-title,
+html[data-theme="dark"] #oltManagementPage .nx-field div {
+    color: var(--olt-ink) !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-page-subtitle,
+html[data-theme="dark"] #oltManagementPage .nx-summary-label,
+html[data-theme="dark"] #oltManagementPage .nx-summary-text,
+html[data-theme="dark"] #oltManagementPage .olt-toolbar-label,
+html[data-theme="dark"] #oltManagementPage .olt-toolbar-note,
+html[data-theme="dark"] #oltManagementPage .olt-toolbar-meta,
+html[data-theme="dark"] #oltManagementPage .olt-section-subtitle,
+html[data-theme="dark"] #oltManagementPage .nx-cell-sub,
+html[data-theme="dark"] #oltManagementPage .sort-indicator,
+html[data-theme="dark"] #oltManagementPage .nx-empty-text,
+html[data-theme="dark"] #oltManagementPage .olt-control-vlan-sub,
+html[data-theme="dark"] #oltManagementPage .olt-control-vlan-section-label,
+html[data-theme="dark"] #oltManagementPage .olt-vlan-binding-sub,
+html[data-theme="dark"] #oltManagementPage .nx-field label,
+html[data-theme="dark"] #oltManagementPage .nx-modal-subtitle {
+    color: var(--olt-muted) !important;
+}
+
+/* Badge */
+html[data-theme="dark"] #oltManagementPage .olt-hero-badge {
+    background: rgba(59, 130, 246, .16) !important;
+    color: #93c5fd !important;
+    border: 1px solid rgba(147, 197, 253, .18) !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] #oltManagementPage .btn-light.nx-header-btn,
+html[data-theme="dark"] #oltManagementPage .btn-outline-primary.nx-header-btn {
+    background: #1f2937 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .btn-light.nx-header-btn:hover,
+html[data-theme="dark"] #oltManagementPage .btn-outline-primary.nx-header-btn:hover {
+    background: #273549 !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Summary icons */
+html[data-theme="dark"] #oltManagementPage .nx-summary-icon {
+    border: 1px solid rgba(255, 255, 255, .06) !important;
+    backdrop-filter: blur(6px);
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-summary-primary .nx-summary-icon {
+    background: rgba(59, 130, 246, .14) !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-summary-success .nx-summary-icon {
+    background: rgba(34, 197, 94, .14) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-summary-danger .nx-summary-icon {
+    background: rgba(239, 68, 68, .14) !important;
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-summary-cyan .nx-summary-icon {
+    background: rgba(56, 189, 248, .14) !important;
+    color: #38bdf8 !important;
+}
+
+/* Forms */
+html[data-theme="dark"] #oltManagementPage .form-control,
+html[data-theme="dark"] #oltManagementPage .form-select,
+html[data-theme="dark"] #oltManagementPage .olt-toolbar-control,
+html[data-theme="dark"] #oltManagementPage input[readonly] {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .form-control::placeholder,
+html[data-theme="dark"] #oltManagementPage .olt-toolbar-control::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-search-icon {
+    color: #64748b !important;
+}
+
+/* Tables */
+html[data-theme="dark"] #oltManagementPage .nx-table-wrap,
+html[data-theme="dark"] #oltManagementPage .table-responsive,
+html[data-theme="dark"] #oltManagementPage table,
+html[data-theme="dark"] #oltManagementPage .table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .table thead,
+html[data-theme="dark"] #oltManagementPage .table thead tr,
+html[data-theme="dark"] #oltManagementPage .table thead th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .table tbody,
+html[data-theme="dark"] #oltManagementPage .table tbody tr,
+html[data-theme="dark"] #oltManagementPage .table tbody td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255, 255, 255, .06) !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .table tbody tr:hover,
+html[data-theme="dark"] #oltManagementPage .table tbody tr:hover td {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+/* Action buttons */
+html[data-theme="dark"] #oltManagementPage .btn-outline-secondary.nx-icon-btn,
+html[data-theme="dark"] #oltManagementPage .btn-outline-primary.nx-icon-btn,
+html[data-theme="dark"] #oltManagementPage .btn-outline-success.nx-icon-btn,
+html[data-theme="dark"] #oltManagementPage .btn-outline-danger.nx-icon-btn,
+html[data-theme="dark"] #oltManagementPage .btn-outline-info.nx-icon-btn {
+    background: #182235 !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .btn-outline-secondary.nx-icon-btn {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .btn-outline-primary.nx-icon-btn {
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .btn-outline-success.nx-icon-btn {
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .btn-outline-danger.nx-icon-btn {
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .btn-outline-info.nx-icon-btn {
+    color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-icon-btn:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+}
+
+/* Soft badges */
+html[data-theme="dark"] #oltManagementPage .nx-soft-badge-success {
+    background: rgba(34, 197, 94, .14) !important;
+    color: #4ade80 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-soft-badge-danger {
+    background: rgba(239, 68, 68, .14) !important;
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-soft-badge-warning {
+    background: rgba(245, 158, 11, .16) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-soft-badge-info {
+    background: rgba(56, 189, 248, .14) !important;
+    color: #7dd3fc !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-soft-badge-slate {
+    background: rgba(148, 163, 184, .14) !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-soft-badge-primary {
+    background: rgba(59, 130, 246, .14) !important;
+    color: #93c5fd !important;
+}
+
+/* Empty state */
+html[data-theme="dark"] #oltManagementPage .nx-empty-icon {
+    background: rgba(59, 130, 246, .14) !important;
+    color: #60a5fa !important;
+}
+
+/* Physical panel */
+html[data-theme="dark"] #oltManagementPage .ma5800-svg-twin {
+    background: linear-gradient(180deg, #101827 0%, #0b1220 100%) !important;
+    border-color: #2b3d56 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04) !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .ma5800-svg-twin.image-load-failed {
+    background: linear-gradient(180deg, #101827 0%, #0b1220 100%) !important;
+    border-color: #334155 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .ma5800-svg-twin.image-load-failed::before {
+    color: #9aabc1 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .ma5800-legend-item,
+html[data-theme="dark"] #oltManagementPage .olt-context-chip {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+/* VLAN panel */
+html[data-theme="dark"] #oltManagementPage .olt-control-vlan-panel-head {
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-vlan-binding-card,
+html[data-theme="dark"] #oltManagementPage .olt-vlan-empty-chip {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-vlan-binding-icon {
+    background: rgba(59, 130, 246, .14) !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-vlan-binding-card.is-mgmt .olt-vlan-binding-icon {
+    background: rgba(56, 189, 248, .14) !important;
+    color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage #controlBoardVlanCliPreview {
+    color: #93c5fd !important;
+}
+
+/* Modals */
+html[data-theme="dark"] #oltManagementPage .nx-modal,
+html[data-theme="dark"] #oltManagementPage .nx-modal-content,
+html[data-theme="dark"] .modal-content.nx-modal {
+    background: #182235 !important;
+    color: #f8fafc !important;
+    border: 1px solid #2b3d56 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-modal-header,
+html[data-theme="dark"] #oltManagementPage .nx-modal-footer,
+html[data-theme="dark"] .modal-content.nx-modal .nx-modal-header,
+html[data-theme="dark"] .modal-content.nx-modal .nx-modal-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-modal-body,
+html[data-theme="dark"] .modal-content.nx-modal .nx-modal-body {
+    background: #0b1220 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-field div {
+    background: #101827 !important;
+    border-color: #334155 !important;
+}
+
+/* CLI Preview - covers PHP modals and JS-generated modals outside #oltManagementPage */
+html[data-theme="dark"] .nx-code-block-wrap,
+html[data-theme="dark"] .modal .nx-code-block-wrap {
+    background: #020617 !important;
+    border: 1px solid #334155 !important;
+    border-radius:3px !important;
+    padding: 14px !important;
+    overflow: hidden !important;
+}
+
+html[data-theme="dark"] pre.nx-code-block,
+html[data-theme="dark"] .modal pre.nx-code-block,
+html[data-theme="dark"] [id$="CliPreviewContent"],
+html[data-theme="dark"] .modal [id$="CliPreviewContent"] {
+    display: block !important;
+    width: 100% !important;
+    min-height: 220px !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    background: #020617 !important;
+    background-color: #020617 !important;
+    color: #dbeafe !important;
+    border: 0 !important;
+    border-radius:3px !important;
+    box-shadow: none !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+}
+
+html[data-theme="dark"] pre.nx-code-block::selection,
+html[data-theme="dark"] [id$="CliPreviewContent"]::selection {
+    background: rgba(96, 165, 250, .35) !important;
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   AI-SLOP AUDIT
+   Flatten decorative treatments and normalize the enterprise type scale.
+   Existing borders, routes, controls, and module behavior are preserved.
+========================================================= */
+#oltManagementPage {
+    font-family: var(--nx-font-body, "Source Sans 3", sans-serif);
+    color: #172033;
+}
+
+#oltManagementPage h1,
+#oltManagementPage h2,
+#oltManagementPage h3,
+#oltManagementPage h4,
+#oltManagementPage h5,
+#oltManagementPage h6,
+#oltManagementPage .nx-page-title,
+#oltManagementPage .olt-section-title,
+#oltManagementPage .olt-device-name {
+    font-family: var(--nx-font-heading, "Manrope", sans-serif);
+}
+
+#oltManagementPage .nx-page-title { font-size: 25px; line-height: 1.2; font-weight: 650; }
+#oltManagementPage .nx-page-subtitle,
+#oltManagementPage .olt-section-subtitle { font-size: 13px; line-height: 1.4; }
+#oltManagementPage .btn { font-size: 13px; font-weight: 600; }
+#oltManagementPage table { font-size: 12px; }
+#oltManagementPage th { font-size: 10px; letter-spacing: .06em; }
+#oltManagementPage td { line-height: 1.35; }
+
+#oltManagementPage .nx-page-header-card,
+#oltManagementPage .nx-toolbar-card,
+#oltManagementPage .nx-content-card,
+#oltManagementPage .nx-summary-card,
+#oltManagementPage .olt-kpi-card,
+#oltManagementPage .olt-device-card,
+#oltManagementPage .olt-table-topline,
+#oltManagementPage .nx-section-card {
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+#oltManagementPage .nx-page-header-card,
+#oltManagementPage .nx-toolbar-card,
+#oltManagementPage .nx-content-card {
+    background-color: #fff !important;
+}
+
+#oltManagementPage .olt-hero-badge {
+    color: #2f5f8f;
+    background: #edf3f8;
+    font-weight: 650;
+}
+
+#oltManagementPage .olt-section-head { padding-bottom: 12px; }
+#oltManagementPage .olt-section-title { font-size: 17px; font-weight: 650; }
+#oltManagementPage .olt-table-topline { background: #2f5f8f; }
+
+#oltManagementPage .btn-primary,
+#oltManagementPage .btn-success,
+#oltManagementPage .btn-warning {
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] #oltManagementPage {
+    color: #e7edf5;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-page-header-card,
+html[data-theme="dark"] #oltManagementPage .nx-toolbar-card,
+html[data-theme="dark"] #oltManagementPage .nx-content-card,
+html[data-theme="dark"] #oltManagementPage .nx-summary-card,
+html[data-theme="dark"] #oltManagementPage .olt-kpi-card,
+html[data-theme="dark"] #oltManagementPage .olt-device-card,
+html[data-theme="dark"] #oltManagementPage .nx-section-card {
+    background-color: #182235 !important;
+    background-image: none !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-hero-badge {
+    color: #b9d0e6;
+    background: #22344c;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-table-topline { background: #4b759d; }
+
+/* Remove the decorative full-width rail; the device panel already provides
+   the necessary hierarchy through its title, spacing, and table header. */
+#oltManagementPage .olt-table-topline {
+    display: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+/* BORDER AUDIT: keep the toolbar's single outer boundary, but remove the
+   redundant outlines that make each field read like a nested card. */
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-grid,
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-block,
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-search-wrap,
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-note {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* Inputs remain usable and retain a quiet focus treatment, without the
+   duplicated card-like shadow/border supplied by the global guardrails. */
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-control {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+}
+
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-control:focus,
+body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-control:active {
+    border-color: #98a2b3 !important;
+    box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.12) !important;
+}
+
+html[data-theme="dark"] body#nxApplication #nxRectilinearTheme #oltManagementPage #oltToolbarCard .olt-toolbar-control {
+    border-color: #475569 !important;
+    background: #101827 !important;
+}
+
+html body#nxApplication .main-content .nx-page-header-card > .card-body, html body#nxApplication .main-content .nx-page-header-card > .nx-page-header {
+    min-height: 79px !important;
+}
+
+html body#nxApplication .main-content .nx-page-header-card, html body#nxApplication .main-content .nx-page-header-card.card {
+    min-height: 79px !important;
+}
+
+/* =========================================================
+   STANDARD UI CONTRACT
+   Keep OLT devices, ports, and profile views aligned with the
+   Subscribers table and the shared NexusBox component tokens.
+========================================================= */
+#oltManagementPage {
+    font-family: var(--nx-font-body) !important;
+    color: var(--nx-text) !important;
+}
+
+#oltManagementPage #oltManagementApp {
+    gap: 24px !important;
+}
+
+#oltManagementPage .nx-page-header-card,
+#oltManagementPage .nx-toolbar-card,
+#oltManagementPage .nx-content-card,
+#oltManagementPage .nx-section-card,
+#oltManagementPage .nx-summary-card,
+#oltManagementPage .olt-kpi-card,
+#oltManagementPage .olt-device-card {
+    background: var(--nx-panel-surface-light) !important;
+    background-image: none !important;
+    border: 1px solid var(--nx-panel-border-light) !important;
+    border-radius: var(--nx-panel-radius) !important;
+    box-shadow: none !important;
+}
+
+#oltManagementPage .nx-page-header-card {
+    min-height: 0 !important;
+}
+
+#oltManagementPage .nx-page-header {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 0 16px !important;
+}
+
+#oltManagementPage .nx-page-title,
+#oltManagementPage .olt-section-title,
+#oltManagementPage .nx-section-title,
+#oltManagementPage .olt-device-name {
+    font-family: var(--nx-font-heading) !important;
+    font-weight: 500 !important;
+}
+
+#oltManagementPage .nx-page-title {
+    font-size: 25px !important;
+    line-height: 1.2 !important;
+}
+
+#oltManagementPage .nx-page-subtitle,
+#oltManagementPage .olt-section-subtitle,
+#oltManagementPage .nx-summary-text,
+#oltManagementPage .olt-toolbar-note,
+#oltManagementPage .olt-toolbar-meta {
+    font-size: var(--nx-font-size-sm) !important;
+    font-weight: 400 !important;
+}
+
+#oltManagementPage .nx-header-btn,
+#oltManagementPage .btn {
+    font-family: var(--nx-font-body) !important;
+    font-weight: 400 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+#oltManagementPage .nx-header-btn {
+    height: 36px !important;
+    min-height: 36px !important;
+}
+
+#oltManagementPage .nx-summary-card,
+#oltManagementPage .olt-kpi-card {
+    min-height: 142px !important;
+    padding: 22px !important;
+}
+
+#oltManagementPage .olt-summary-label,
+#oltManagementPage .nx-summary-label,
+#oltManagementPage .olt-toolbar-label,
+#oltManagementPage .nx-field label {
+    font-weight: 500 !important;
+}
+
+#oltManagementPage .nx-summary-value {
+    font-weight: 400 !important;
+}
+
+#oltManagementPage .nx-toolbar-card,
+#oltManagementPage .nx-content-card {
+    margin-top: 0 !important;
+}
+
+#oltManagementPage .nx-toolbar-card > .card-body,
+#oltManagementPage .nx-content-card > .card-body {
+    padding: 20px !important;
+}
+
+#oltManagementPage .olt-toolbar-grid,
+#oltManagementPage .olt-toolbar-block,
+#oltManagementPage .olt-toolbar-note,
+#oltManagementPage .olt-search-wrap {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+#oltManagementPage .olt-toolbar-control,
+#oltManagementPage .nx-field input,
+#oltManagementPage .nx-field select,
+#oltManagementPage .nx-field textarea {
+    min-height: 36px !important;
+    border: 1px solid var(--nx-control-border-light) !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    font-family: var(--nx-font-body) !important;
+    font-weight: 400 !important;
+}
+
+#oltManagementPage .olt-section-head {
+    padding-bottom: 16px !important;
+}
+
+#oltManagementPage .olt-table-topline {
+    display: none !important;
+}
+
+#oltManagementPage .nx-table-wrap,
+#oltManagementPage .table-responsive,
+#oltManagementPage .table-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+#oltManagementPage .nx-table-wrap > table,
+#oltManagementPage .nx-table-wrap > .table,
+#oltManagementPage table.table {
+    table-layout: fixed !important;
+    font-family: var(--nx-font-body) !important;
+    font-size: var(--nx-font-size-sm) !important;
+    font-weight: 400 !important;
+}
+
+#oltManagementPage table thead th,
+#oltManagementPage .table thead th {
+    font-size: var(--nx-font-size-table-head) !important;
+    font-weight: 500 !important;
+}
+
+#oltManagementPage table tbody td,
+#oltManagementPage .table tbody td {
+    font-size: var(--nx-font-size-sm) !important;
+    font-weight: 400 !important;
+    line-height: 1.45 !important;
+    vertical-align: middle !important;
+}
+
+#oltManagementPage .nx-icon-btn,
+#oltManagementPage .icon-button,
+#oltManagementPage .btn-icon,
+#oltManagementPage table .btn {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    border-radius: 3px !important;
+}
+
+#oltManagementPage .nx-empty-state,
+#oltManagementPage .olt-panel-shell,
+#oltManagementPage .olt-vlan-binding-card,
+#oltManagementPage .olt-vlan-empty-chip,
+#oltManagementPage .olt-context-chip {
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-page-header-card,
+html[data-theme="dark"] #oltManagementPage .nx-toolbar-card,
+html[data-theme="dark"] #oltManagementPage .nx-content-card,
+html[data-theme="dark"] #oltManagementPage .nx-section-card,
+html[data-theme="dark"] #oltManagementPage .nx-summary-card,
+html[data-theme="dark"] #oltManagementPage .olt-kpi-card,
+html[data-theme="dark"] #oltManagementPage .olt-device-card {
+    background: var(--nx-panel-surface-dark) !important;
+    border-color: var(--nx-panel-border-dark) !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-toolbar-control,
+html[data-theme="dark"] #oltManagementPage .nx-field input,
+html[data-theme="dark"] #oltManagementPage .nx-field select,
+html[data-theme="dark"] #oltManagementPage .nx-field textarea {
+    background: var(--nx-control-surface-dark) !important;
+    border-color: var(--nx-control-border-dark) !important;
+    color: var(--nx-text) !important;
+}
+
+@media (max-width: 767.98px) {
+    #oltManagementPage .nx-page-header {
+        padding-bottom: 12px !important;
+    }
+
+    #oltManagementPage .nx-toolbar-card > .card-body,
+    #oltManagementPage .nx-content-card > .card-body {
+        padding: 16px !important;
+    }
+
+    #oltManagementPage .nx-page-actions {
+        width: 100%;
+    }
+
+    #oltManagementPage .nx-page-actions .btn {
+        flex: 1 1 auto;
+    }
+}
+
+
+/* Surface rule: non-card panels and filter wrappers are transparent.
+   Their controls align with the page grid without an extra horizontal inset. */
+#oltManagementPage .nx-toolbar-card,
+#oltManagementPage .nx-content-card {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+#oltManagementPage .nx-toolbar-card > .card-body,
+#oltManagementPage .nx-content-card > .card-body {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#oltManagementPage .olt-toolbar-grid,
+#oltManagementPage .olt-toolbar-block,
+#oltManagementPage .olt-toolbar-note,
+#oltManagementPage .olt-toolbar-meta,
+#oltManagementPage .olt-search-wrap {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+#oltManagementPage .olt-section-head {
+    padding: 0 0 16px !important;
+    margin: 0 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .nx-toolbar-card,
+html[data-theme="dark"] #oltManagementPage .nx-content-card {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+
+/* Final cascade override: global card guardrails must not repaint
+   OLT non-card toolbar/content wrappers. */
+html body#nxApplication .main-content #oltManagementPage #oltToolbarCard,
+html body#nxApplication .main-content #oltManagementPage #oltDevicesCard,
+html body#nxApplication .main-content #oltManagementPage #oltPhysicalCard,
+html body#nxApplication .main-content #oltManagementPage #oltPortsTableCard,
+html body#nxApplication .main-content #oltManagementPage #oltProfilesCard {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html body#nxApplication .main-content #oltManagementPage #oltToolbarCard > .card-body,
+html body#nxApplication .main-content #oltManagementPage #oltDevicesCard > .card-body,
+html body#nxApplication .main-content #oltManagementPage #oltPhysicalCard > .card-body,
+html body#nxApplication .main-content #oltManagementPage #oltPortsTableCard > .card-body,
+html body#nxApplication .main-content #oltManagementPage #oltProfilesCard > .card-body {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    padding: 0 !important;
+}
+
+html[data-theme="dark"] body#nxApplication .main-content #oltManagementPage #oltToolbarCard,
+html[data-theme="dark"] body#nxApplication .main-content #oltManagementPage #oltDevicesCard,
+html[data-theme="dark"] body#nxApplication .main-content #oltManagementPage #oltPhysicalCard,
+html[data-theme="dark"] body#nxApplication .main-content #oltManagementPage #oltPortsTableCard,
+html[data-theme="dark"] body#nxApplication .main-content #oltManagementPage #oltProfilesCard {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+
+/* Match the standard page rhythm: the hero badge is decorative and must
+   not reserve vertical space above the page title. */
+#oltManagementPage .olt-hero-badge {
+    display: none !important;
+}
+
+#oltManagementPage #oltManagementApp {
+    gap: 16px !important;
+}
+
+html body#nxApplication .main-content #oltManagementPage > #oltManagementApp > .nx-page-header-card > .nx-page-header {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0px 0 8px !important;
+}
+
+
+/* Keep the standard 1.25rem rhythm between filters and their table/content. */
+#oltManagementPage #oltManagementApp > .nx-content-card {
+    margin-top: 4px !important;
+}
+
+
+/* Reserve enough table width for the complete action group. Without an
+   explicit Actions column width, fixed-layout tables let the buttons spill
+   into adjacent cells at narrower desktop widths. */
+#oltManagementPage .nx-table-wrap table thead th:last-child,
+#oltManagementPage .nx-table-wrap table tbody td:last-child {
+    width: 220px !important;
+    min-width: 220px !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-olt-actions {
+    width: 220px !important;
+    min-width: 220px !important;
+    display: inline-flex !important;
+    flex: 0 0 220px !important;
+    justify-content: flex-end !important;
+    overflow: visible !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-olt-actions .nx-icon-btn {
+    flex: 0 0 34px !important;
+}
+
+
+/* Let the table measure the action group before applying horizontal scroll.
+   Fixed layout was compressing the last cell despite its width declaration. */
+#oltManagementPage .nx-table-wrap > table,
+#oltManagementPage .nx-table-wrap > .table {
+    table-layout: auto !important;
+    min-width: 100% !important;
+}
+
+#oltManagementPage .nx-table-wrap table thead th:last-child,
+#oltManagementPage .nx-table-wrap table tbody td:last-child {
+    width: 240px !important;
+    min-width: 240px !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-olt-actions {
+    width: 240px !important;
+    min-width: 240px !important;
+    flex-basis: 240px !important;
+}
+
+/* Canonical OLT table layout. Keep this block last so older module-specific
+   experiments cannot reintroduce oversized action cells or uneven spacing. */
+#oltManagementPage .nx-table-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+}
+
+#oltManagementPage .nx-table-wrap > table,
+#oltManagementPage .nx-table-wrap > .table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    margin-bottom: 0 !important;
+}
+
+#oltManagementPage .nx-table-wrap table thead th {
+    height: 44px !important;
+    padding: 0 14px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .nx-table-wrap table tbody td {
+    padding: 13px 14px !important;
+    line-height: 1.35 !important;
+    vertical-align: middle !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-cell-stack {
+    min-width: 0 !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-cell-title,
+#oltManagementPage .nx-table-wrap .nx-cell-sub {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-olt-actions {
+    display: inline-flex !important;
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .nx-table-wrap .nx-olt-actions .nx-icon-btn {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    flex: 0 0 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#oltManagementApp[data-page-mode="devices"] .nx-table-wrap table th:last-child,
+#oltManagementApp[data-page-mode="devices"] .nx-table-wrap table td:last-child {
+    width: 212px !important;
+    min-width: 212px !important;
+    text-align: right !important;
+}
+
+#oltManagementApp[data-page-mode="ports"] .nx-table-wrap table th:last-child,
+#oltManagementApp[data-page-mode="ports"] .nx-table-wrap table td:last-child {
+    width: 136px !important;
+    min-width: 136px !important;
+    text-align: right !important;
+}
+
+#oltManagementApp[data-page-mode="profiles"] .nx-table-wrap table th:last-child,
+#oltManagementApp[data-page-mode="profiles"] .nx-table-wrap table td:last-child {
+    width: 178px !important;
+    min-width: 178px !important;
+    text-align: right !important;
+}
+
+@media (max-width: 991.98px) {
+    #oltManagementPage .nx-table-wrap > table,
+    #oltManagementPage .nx-table-wrap > .table {
+        min-width: 860px !important;
+        table-layout: auto !important;
+    }
+}
+
+/* Compact control-board VLAN access. H901MPSA rows must remain table rows,
+   not expand into embedded management cards. */
+#oltManagementPage .olt-control-vlan-summary {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+}
+
+#oltManagementPage .olt-control-vlan-summary-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+}
+
+#oltManagementPage .olt-control-vlan-summary-label {
+    width: 48px !important;
+    flex: 0 0 48px !important;
+    color: #64748b !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+}
+
+#oltManagementPage .olt-control-vlan-summary-values {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+}
+
+#oltManagementPage .olt-control-vlan-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    min-height: 24px !important;
+    padding: 3px 4px 3px 7px !important;
+    border: 1px solid #bfdbfe !important;
+    border-radius: 3px !important;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    font: 700 11px/1.1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .olt-control-vlan-tag.is-mgmt {
+    border-color: #a5f3fc !important;
+    background: #ecfeff !important;
+    color: #0e7490 !important;
+}
+
+#oltManagementPage .olt-control-vlan-tag-remove {
+    width: 18px !important;
+    height: 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 2px !important;
+    background: transparent !important;
+    color: currentColor !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#oltManagementPage .olt-control-vlan-none {
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+#oltManagementApp[data-page-mode="ports"] .nx-table-wrap table th:nth-last-child(2),
+#oltManagementApp[data-page-mode="ports"] .nx-table-wrap table td:nth-last-child(2) {
+    width: 230px !important;
+    min-width: 230px !important;
+}
+
+#oltManagementPage table .olt-show-vlans-btn {
+    width: 100% !important;
+    max-width: 190px !important;
+    min-height: 46px !important;
+    padding: 6px 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    border-color: #dbe5f1 !important;
+    border-radius: 5px !important;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
+    color: #1e293b !important;
+    text-align: left !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04) !important;
+    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease !important;
+}
+
+#oltManagementPage table .olt-show-vlans-btn:hover,
+#oltManagementPage table .olt-show-vlans-btn:focus-visible {
+    border-color: #93c5fd !important;
+    background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+    color: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .12) !important;
+    transform: translateY(-1px) !important;
+}
+
+#oltManagementPage .olt-show-vlans-icon {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+    border-radius: 4px !important;
+    background: #eaf2ff !important;
+    color: #2563eb !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+}
+
+#oltManagementPage .olt-show-vlans-copy {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+}
+
+#oltManagementPage .olt-show-vlans-copy strong {
+    color: #1e293b !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    letter-spacing: .025em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .olt-show-vlans-copy small {
+    color: #64748b !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+}
+
+#oltManagementPage .olt-show-vlans-arrow {
+    flex: 0 0 auto !important;
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+    transition: transform .16s ease, color .16s ease !important;
+}
+
+#oltManagementPage .olt-show-vlans-btn:hover .olt-show-vlans-arrow {
+    color: #2563eb !important;
+    transform: translateX(2px) !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-show-vlans-btn {
+    border-color: #334155 !important;
+    background: linear-gradient(135deg, #111827 0%, #172033 100%) !important;
+    color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-show-vlans-copy strong {
+    color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-show-vlans-copy small {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] #oltManagementPage .olt-show-vlans-icon {
+    background: rgba(37, 99, 235, .18) !important;
+    color: #93c5fd !important;
+}
+
+#oltManagementPage .olt-vlan-type-badge {
+    display: inline-flex !important;
+    padding: 5px 8px !important;
+    border-radius: 3px !important;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+}
+
+#oltManagementPage .olt-vlan-type-badge.is-mgmt {
+    background: #ecfeff !important;
+    color: #0e7490 !important;
+}
+
+#oltManagementPage .olt-vlan-list-empty {
+    padding: 28px 12px !important;
+    color: #64748b !important;
+    text-align: center !important;
+}

@@ -32,9 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshBtn: $('#plansRefreshBtn'),
 
         summaryTotal: $('#plansSummaryTotal'),
-        summaryActive: $('#plansSummaryActive'),
         summaryPrepaid: $('#plansSummaryPrepaid'),
         summaryPostpaid: $('#plansSummaryPostpaid'),
+        summaryArpu: $('#plansSummaryArpu'),
 
         formModal: $('#planFormModal'),
         formModalTitle: $('#planFormModalTitle'),
@@ -96,14 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSummary() {
         const total = state.rows.length;
-        const active = state.rows.filter((r) => Number(r.is_active || 0) === 1).length;
         const prepaid = state.rows.filter((r) => String(r.plan_type || '').toUpperCase() === 'PREPAID').length;
         const postpaid = state.rows.filter((r) => String(r.plan_type || '').toUpperCase() === 'POSTPAID').length;
+        const averagePrice = total
+            ? state.rows.reduce((sum, row) => sum + Number(row.price || 0), 0) / total
+            : 0;
 
         text(el.summaryTotal, String(total));
-        text(el.summaryActive, String(active));
         text(el.summaryPrepaid, String(prepaid));
         text(el.summaryPostpaid, String(postpaid));
+        text(el.summaryArpu, peso(averagePrice));
     }
 
     function filteredRows() {

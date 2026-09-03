@@ -3,15 +3,20 @@
 namespace App\Modules\OntDevices\Controllers;
 
 use App\Modules\OntDevices\Services\OntDevicesService;
-use Framework\Controller;
+use Framework\ApiController;
 
-class OntDevicesApiController extends Controller
+class OntDevicesApiController extends ApiController
 {
     private OntDevicesService $service;
 
     public function __construct(OntDevicesService $service)
     {
         $this->service = $service;
+    }
+
+    private function input(): array
+    {
+        return $this->request()->input();
     }
 
     private function respond(
@@ -25,18 +30,8 @@ class OntDevicesApiController extends Controller
             ob_clean();
         }
 
-        http_response_code($httpCode);
-        header('Content-Type: application/json');
-
-        echo json_encode([
-            'ok' => $ok,
-            'status' => $ok ? 'success' : 'error',
-            'success' => $ok,
-            'message' => $message,
-            'data' => $data,
-            'errors' => $errors,
-        ]);
-
+        $ok ? $this->success($data, $message ?: 'OK', $httpCode)
+            : $this->error($message ?: 'Request failed.', $httpCode, $errors, $data);
         exit;
     }
 
@@ -68,6 +63,11 @@ class OntDevicesApiController extends Controller
         $this->respond(true, '', $row, []);
     }
 
+    public function subscribers(): void
+    {
+        $this->respond(true, '', $this->service->getSubscriberOptions(), []);
+    }
+
     public function discovery(): void
     {
         $this->respond(true, '', $this->service->getDiscovery(), []);
@@ -75,12 +75,12 @@ class OntDevicesApiController extends Controller
 
     public function discover(): void
     {
-        $this->respondServiceResult($this->service->discoverAndSave());
+        $this->respondServiceResult($this->service->discoverAndSave((int)($this->input()['olt_id'] ?? 0)));
     }
 
     public function addToInventory(): void
     {
-        $this->respondServiceResult($this->service->addToInventory($_POST));
+        $this->respondServiceResult($this->service->addToInventory($this->input()));
     }
 
     public function acs(): void
@@ -90,12 +90,12 @@ class OntDevicesApiController extends Controller
 
     public function store(): void
     {
-        $this->respondServiceResult($this->service->create($_POST));
+        $this->respondServiceResult($this->service->create($this->input()));
     }
 
     public function update($id): void
     {
-        $payload = $_POST;
+        $payload = $this->input();
         $payload['id'] = (int)$id;
 
         $this->respondServiceResult($this->service->update($payload));
@@ -103,6 +103,6 @@ class OntDevicesApiController extends Controller
 
     public function delete(): void
     {
-        $this->respondServiceResult($this->service->delete((int)($_POST['id'] ?? 0)));
+        $this->respondServiceResult($this->service->delete((int)($this->input()['id'] ?? 0)));
     }
 }

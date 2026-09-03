@@ -5,6 +5,9 @@ namespace Framework;
 class ApiController
 {
 
+    private ?Request $requestInstance = null;
+    private ?Response $responseInstance = null;
+
     /*
     |--------------------------------------------------------------------------
     | JSON Response
@@ -13,11 +16,7 @@ class ApiController
 
     protected function json($data, $status = 200)
     {
-        http_response_code($status);
-
-        header('Content-Type: application/json');
-
-        echo json_encode($data);
+        $this->response()->json((array)$data, (int)$status);
     }
 
     /*
@@ -26,13 +25,9 @@ class ApiController
     |--------------------------------------------------------------------------
     */
 
-    protected function success($data = [], $message = "OK")
+    protected function success($data = [], $message = "OK", int $status = 200): void
     {
-        $this->json([
-            "success" => true,
-            "message" => $message,
-            "data" => $data
-        ]);
+        $this->response()->success($data, (string)$message, $status);
     }
 
     /*
@@ -41,12 +36,39 @@ class ApiController
     |--------------------------------------------------------------------------
     */
 
-    protected function error($message, $status = 400)
+    protected function error($message, $status = 400, array $errors = [], $data = null): void
     {
-        $this->json([
-            "success" => false,
-            "error" => $message
-        ], $status);
+        $this->response()->error((string)$message, (int)$status, $errors, $data);
+    }
+
+    /**
+     * Convert the legacy service-result convention into the single public API
+     * envelope without making individual controllers reproduce response logic.
+     */
+    protected function serviceResult(array $result, int $successStatus = 200, int $errorStatus = 422): void
+    {
+        $ok = (bool)($result['ok'] ?? $result['success'] ?? false);
+        $message = (string)($result['message'] ?? ($ok ? 'OK' : 'Request failed.'));
+        $errors = is_array($result['errors'] ?? null) ? $result['errors'] : [];
+        $data = $result;
+        unset($data['ok'], $data['success'], $data['status'], $data['message'], $data['error'], $data['errors']);
+
+        if ($ok) {
+            $this->success($data, $message, $successStatus);
+            return;
+        }
+
+        $this->error($message, $errorStatus, $errors, $data ?: null);
+    }
+
+    protected function request(): Request
+    {
+        return $this->requestInstance ??= new Request();
+    }
+
+    protected function response(): Response
+    {
+        return $this->responseInstance ??= new Response();
     }
 
 }

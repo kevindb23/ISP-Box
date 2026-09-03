@@ -16,6 +16,7 @@
         document.getElementById('staffTimeInBtn')?.addEventListener('click', timeIn);
         document.getElementById('staffTimeOutBtn')?.addEventListener('click', timeOut);
         document.getElementById('staffDutyStatusBtn')?.addEventListener('click', updateDutyStatus);
+        document.getElementById('staffHistoryLoadBtn')?.addEventListener('click', loadHistory);
     }
 
     async function loadAttendance() {
@@ -34,10 +35,26 @@
             renderStaffTable(state.staff);
             renderMyLogs(state.myLogs);
             renderAllLogs(state.logs);
+            if (document.getElementById('staffHistoryBody')) await loadHistory();
         } catch (error) {
             showAlert(error.message || 'Unable to load attendance.', 'danger');
         }
     }
+
+    async function loadHistory() {
+        const body=document.getElementById('staffHistoryBody'); if(!body) return;
+        const from=document.getElementById('staffHistoryFrom')?.value||'';
+        const to=document.getElementById('staffHistoryTo')?.value||'';
+        body.innerHTML='<tr><td colspan="7" class="text-center text-muted py-4">Loading history...</td></tr>';
+        try {
+            const response=await apiGet(`/api/v1/staff-attendance/history?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+            const rows=response?.data?.items||response?.items||[];
+            if(!rows.length){body.innerHTML='<tr><td colspan="7" class="text-center text-muted py-4">No attendance records in this period.</td></tr>';return;}
+            body.innerHTML=rows.map(row=>`<tr><td><div class="fw-semibold">${escapeHtml(row.full_name||row.username||'-')}</div><div class="small text-muted">${escapeHtml(row.email||'')}</div></td><td>${escapeHtml(row.role||'-')}</td><td>${escapeHtml(row.attendance_date||'-')}</td><td>${escapeHtml(formatDateTime(row.time_in_at||'-'))}</td><td>${escapeHtml(formatDateTime(row.time_out_at||'-'))}</td><td>${escapeHtml(formatDuration(row.duty_minutes))}</td><td>${statusBadge(row.time_out_at?'OFFLINE':row.status)}</td></tr>`).join('');
+        } catch(error){body.innerHTML=`<tr><td colspan="7" class="text-center text-danger py-4">${escapeHtml(error.message||'Unable to load history.')}</td></tr>`;}
+    }
+
+    function formatDuration(minutes){const value=Number(minutes||0);return `${Math.floor(value/60)}h ${value%60}m`;}
 
     async function timeIn() {
         const btn = document.getElementById('staffTimeInBtn');
@@ -229,35 +246,11 @@
     }
 
     async function apiGet(url) {
-        const response = await fetch(url, {
-            headers: { Accept: 'application/json' },
-            credentials: 'same-origin',
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return { ok: true, success: true, data: await window.NX.api.get(url) };
     }
 
     async function apiPost(url, formData) {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { Accept: 'application/json' },
-            credentials: 'same-origin',
-            body: formData,
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return window.NX.api.form(url, formData);
     }
 
     function statusBadge(status) {

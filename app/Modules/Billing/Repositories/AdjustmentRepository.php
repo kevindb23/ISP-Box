@@ -215,6 +215,14 @@ class AdjustmentRepository
         return $row ?: null;
     }
 
+    public function findForUpdate(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM billing_adjustments WHERE id = :id LIMIT 1 FOR UPDATE');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     public function findByAdjustmentNo(string $adjustmentNo): ?array
     {
         $stmt = $this->db->prepare("
@@ -298,6 +306,25 @@ class AdjustmentRepository
         return (int)$this->db->lastInsertId();
     }
 
+    public function assignAdjustmentNo(int $id, string $expectedTemporaryNo, string $adjustmentNo): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE billing_adjustments
+            SET adjustment_no = :adjustment_no
+            WHERE id = :id
+              AND adjustment_no = :expected_temporary_no
+        ");
+        $stmt->execute([
+            ':id' => $id,
+            ':expected_temporary_no' => $expectedTemporaryNo,
+            ':adjustment_no' => $adjustmentNo,
+        ]);
+
+        if ($stmt->rowCount() !== 1) {
+            throw new \RuntimeException('Unable to assign adjustment number.');
+        }
+    }
+
     public function void(int $id, ?int $userId = null, ?string $reason = null): bool
     {
         $stmt = $this->db->prepare("
@@ -318,30 +345,6 @@ class AdjustmentRepository
         ]);
 
         return $stmt->rowCount() > 0;
-    }
-
-    public function generateAdjustmentNo(string $prefix = 'ADJ'): string
-    {
-        $stmt = $this->db->prepare("
-            SELECT adjustment_no
-            FROM billing_adjustments
-            WHERE adjustment_no LIKE :prefix_like
-            ORDER BY id DESC
-            LIMIT 1
-        ");
-
-        $stmt->execute([
-            ':prefix_like' => $prefix . '-%',
-        ]);
-
-        $last = (string)$stmt->fetchColumn();
-        $next = 1;
-
-        if ($last && preg_match('/(\d+)$/', $last, $matches)) {
-            $next = ((int)$matches[1]) + 1;
-        }
-
-        return sprintf('%s-%s-%06d', $prefix, date('Y'), $next);
     }
 
     public function getPostedAdjustmentTotalsByInvoice(int $invoiceId): array
@@ -406,5 +409,54 @@ class AdjustmentRepository
         ]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function invoiceItemsSubtotal(int $invoiceId): float
+    {
+        $stmt = $this->db->prepare('SELECT COALESCE(SUM(line_total), 0) FROM invoice_items WHERE invoice_id = :invoice_id');
+        $stmt->execute([':invoice_id' => $invoiceId]);
+        return (float)$stmt->fetchColumn();
+    }
+
+    public function postedPaidAmount(int $invoiceId): float
+    {
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(pa.allocated_amount), 0) FROM payment_allocations pa INNER JOIN payments p ON p.id = pa.payment_id WHERE pa.invoice_id = :invoice_id AND p.payment_status = 'POSTED'");
+        $stmt->execute([':invoice_id' => $invoiceId]);
+        return round((float)$stmt->fetchColumn(), 2);
+    }
+
+    public function updateInvoiceFinancials(int $invoiceId, array $values): void
+    {
+        $stmt = $this->db->prepare("UPDATE invoices SET amount = :amount, subtotal = :subtotal, discount_amount = :discount_amount, tax_amount = :tax_amount, total_amount = :total_amount, paid_amount = :paid_amount, balance_amount = :balance_amount, status = :status WHERE id = :id");
+        $stmt->execute([
+            ':amount' => $values['total'],
+            ':subtotal' => $values['subtotal'],
+            ':discount_amount' => $values['discount_amount'],
+            ':tax_amount' => $values['tax_amount'],
+            ':total_amount' => $values['total'],
+            ':paid_amount' => $values['paid'],
+            ':balance_amount' => $values['balance'],
+            ':status' => $values['status'],
+            ':id' => $invoiceId,
+        ]);
+    }
+
+    public function createActivityLog(array $data): void
+    {
+        $stmt = $this->db->prepare("INSERT INTO activity_logs (entity_type, entity_id, action, status, title, message, old_values, new_values, meta_json, performed_by, ip_address, user_agent, created_at) VALUES (:entity_type, :entity_id, :action, :status, :title, :message, :old_values, :new_values, :meta_json, :performed_by, :ip_address, :user_agent, NOW())");
+        $stmt->execute([
+            ':entity_type' => $data['entity_type'],
+            ':entity_id' => $data['entity_id'],
+            ':action' => $data['action'],
+            ':status' => $data['status'],
+            ':title' => $data['title'],
+            ':message' => $data['message'],
+            ':old_values' => !empty($data['old_values']) ? json_encode($data['old_values'], JSON_UNESCAPED_SLASHES) : null,
+            ':new_values' => !empty($data['new_values']) ? json_encode($data['new_values'], JSON_UNESCAPED_SLASHES) : null,
+            ':meta_json' => !empty($data['meta']) ? json_encode($data['meta'], JSON_UNESCAPED_SLASHES) : null,
+            ':performed_by' => $data['performed_by'] ?: null,
+            ':ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
+            ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+        ]);
     }
 }

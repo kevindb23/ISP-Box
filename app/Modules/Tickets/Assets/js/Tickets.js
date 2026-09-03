@@ -283,8 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderTicketModal(ticket, messages);
         } catch (error) {
-            hideTicketModalLoading();
-            nxToast('error', error?.message || 'Unable to load ticket details.');
+            const message = error?.message || 'Unable to load ticket details.';
+            showTicketModalError(message);
+            nxToast('error', message);
         }
     }
 
@@ -308,7 +309,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentEl = document.getElementById('ticketModalContent');
 
         if (statusEl) statusEl.innerHTML = '';
-        if (loadingEl) loadingEl.classList.remove('d-none');
+        if (loadingEl) {
+            loadingEl.classList.remove('d-none');
+            loadingEl.innerHTML = `
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Loading ticket details...
+            `;
+        }
         if (contentEl) contentEl.classList.add('d-none');
 
         if (refs.createWorkOrderBtn) {
@@ -320,6 +327,25 @@ document.addEventListener('DOMContentLoaded', () => {
             refs.requestScheduleBtn.disabled = true;
             refs.requestScheduleBtn.dataset.ticketId = '';
             refs.requestScheduleBtn.classList.add('d-none');
+        }
+    }
+
+    function showTicketModalError(message) {
+        state.selectedTicket = null;
+        state.selectedMessages = [];
+        state.assignableUsers = [];
+
+        setText('ticketModalSubtitle', 'Details could not be loaded');
+        const loadingEl = document.getElementById('ticketModalLoading');
+        const contentEl = document.getElementById('ticketModalContent');
+        if (contentEl) contentEl.classList.add('d-none');
+        if (loadingEl) {
+            loadingEl.classList.remove('d-none');
+            loadingEl.innerHTML = `
+                <div class="alert alert-danger mb-0 text-start" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>${escape(message)}
+                </div>
+            `;
         }
     }
 
@@ -681,22 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function apiPost(url, formData) {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-            },
-            credentials: 'same-origin',
-            body: formData,
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return api.form(url, formData);
     }
 
     function statusBadge(status) {

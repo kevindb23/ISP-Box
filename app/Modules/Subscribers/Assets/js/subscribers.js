@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dataJson: null,
         plansJson: null,
         createForm: null,
+        createPlanSelect: null,
         editForm: null,
         editPlanSelect: null,
         viewModal: null,
@@ -50,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const subscribersPage = page.create({
-        storageKey: 'nexusbox_subscribers_ui_state_v15',
         state: {
             search: '',
             rows: [],
@@ -65,13 +65,16 @@ document.addEventListener('DOMContentLoaded', () => {
         async init(ctx) {
             cacheDom();
             bindDomState(ctx);
-            bindModalTracking();
+            bindModalTracking(ctx);
             hydratePlans(ctx);
             setupForms(ctx);
         },
 
         async load(ctx) {
-            await fetchSubscribers(ctx, { silent: false });
+            await Promise.all([
+                fetchSubscribers(ctx, { silent: false }),
+                refreshPlans(ctx)
+            ]);
             startPolling(ctx);
         },
 
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refs.dataJson = $('#subscribersTableData');
         refs.plansJson = $('#subscriberPlanOptions');
         refs.createForm = $('#createSubscriberForm');
+        refs.createPlanSelect = refs.createForm?.querySelector('[name="plan_id"]') || null;
         refs.editForm = $('#subscriberEditForm');
         refs.editPlanSelect = $('#subscriberEditPlanSelect');
         refs.viewModal = document.getElementById('subscriberViewModal');
@@ -114,11 +118,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function bindModalTracking() {
+    function bindModalTracking(ctx) {
         const createModalEl = document.getElementById('createModal');
         if (createModalEl) {
-            createModalEl.addEventListener('shown.bs.modal', () => {
+            createModalEl.addEventListener('shown.bs.modal', async () => {
                 isCreateOpen = true;
+                await refreshPlans(ctx);
             });
 
             createModalEl.addEventListener('hidden.bs.modal', () => {
@@ -147,18 +152,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function closeModalFully(modalEl) {
+        return new Promise((resolve) => {
+            if (!modalEl) {
+                resolve();
+                return;
+            }
+
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+
+                if (!document.querySelector('.modal.show')) {
+                    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => backdrop.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                    document.body.style.removeProperty('padding-right');
+                }
+                resolve();
+            };
+
+            modalEl.addEventListener('hidden.bs.modal', finish, { once: true });
+            modal.close(modalEl);
+            window.setTimeout(finish, 500);
+        });
+    }
+
     function hydratePlans(ctx) {
         const raw = refs.plansJson?.textContent || '[]';
 
         try {
             const plans = safeArray(JSON.parse(raw));
             ctx.set('plans', plans);
-            populateEditPlanOptions(plans);
+            populatePlanOptions(plans);
         } catch (err) {
             console.error('[Subscribers] Failed to parse plans JSON', err);
             ctx.set('plans', []);
-            populateEditPlanOptions([]);
+            populatePlanOptions([]);
         }
+    }
+
+    async function refreshPlans(ctx) {
+        try {
+            const plans = safeArray(await api.get('/api/v1/subscribers/plans'));
+            ctx.set('plans', plans);
+            populatePlanOptions(plans);
+            return plans;
+        } catch (err) {
+            console.error('[Subscribers] Failed to refresh plans', err);
+            return safeArray(ctx.state.plans);
+        }
+    }
+
+    function populatePlanOptions(plans) {
+        const createSelected = refs.createPlanSelect?.value || '';
+        if (refs.createPlanSelect) {
+            select.fill(refs.createPlanSelect, plans, {
+                valueKey: 'id',
+                placeholder: 'Select Plan',
+                selected: createSelected,
+                label: (plan) => `${plan.plan_name} - ${plan.speed_mbps} Mbps - ${plan.plan_type}`
+            });
+        }
+        populateEditPlanOptions(plans, refs.editPlanSelect?.value || '');
     }
 
     function populateEditPlanOptions(plans, selected = '') {
@@ -284,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 email: row.email ?? '',
                 address: row.address ?? '',
                 ppp_username: row.ppp_username ?? '',
-                ppp_password: row.ppp_password ?? '',
                 plan_id: row.plan_id ?? 0,
                 plan_name: row.plan_name ?? '',
                 account_type: row.account_type ?? '',
@@ -542,7 +598,78 @@ document.addEventListener('DOMContentLoaded', () => {
             columns
         });
 
+        appendMobileCards(rows, hasLastSeen);
         tooltip.refresh(refs.tableHost);
+    }
+
+    function appendMobileCards(rows, hasLastSeen = false) {
+        const root = document.getElementById('subscribersDataTable');
+        if (!root) return;
+
+        const mobileHtml = `
+            <div class="subs-mobile-list">
+                ${rows.map((row) => renderMobileCard(row, hasLastSeen)).join('')}
+            </div>
+        `;
+
+        root.insertAdjacentHTML('beforeend', mobileHtml);
+    }
+
+    function renderMobileCard(row, hasLastSeen = false) {
+        const lastSeenBlock = hasLastSeen ? `
+            <div class="subs-mobile-item">
+                <div class="subs-mobile-item__label">Last Seen</div>
+                <div class="subs-mobile-item__value">${row.last_seen ? escape(util.formatDateTime(row.last_seen)) : '-'}</div>
+            </div>
+        ` : '';
+
+        return `
+            <article class="subs-mobile-card">
+                <div class="subs-mobile-card__header">
+                    <div class="subs-mobile-card__identity">
+                        <div class="subs-mobile-card__title">${escape(row.full_name || '-')}</div>
+                        <div class="subs-mobile-card__meta">Account # ${escape(row.account_number || '-')}</div>
+                    </div>
+                    <div class="subs-mobile-card__status">
+                        ${renderBadge(row.service_status, 'service_status')}
+                    </div>
+                </div>
+
+                <div class="subs-mobile-card__grid">
+                    <div class="subs-mobile-item">
+                        <div class="subs-mobile-item__label">PPP Username</div>
+                        <div class="subs-mobile-item__value nx-text-mono">${escape(row.ppp_username || '-')}</div>
+                    </div>
+
+                    <div class="subs-mobile-item">
+                        <div class="subs-mobile-item__label">Plan</div>
+                        <div class="subs-mobile-item__value">${escape(row.plan_name || '-')}</div>
+                        <div class="subs-mobile-item__sub">${escape(row.account_type || '-')}</div>
+                    </div>
+
+                    <div class="subs-mobile-item">
+                        <div class="subs-mobile-item__label">Contact</div>
+                        <div class="subs-mobile-item__value">${escape(row.contact_number || row.email || '-')}</div>
+                    </div>
+
+                    <div class="subs-mobile-item">
+                        <div class="subs-mobile-item__label">Online State</div>
+                        <div class="subs-mobile-item__value">${renderBadge(row.online_text, 'online')}</div>
+                    </div>
+
+                    <div class="subs-mobile-item">
+                        <div class="subs-mobile-item__label">Service Number</div>
+                        <div class="subs-mobile-item__value">${escape(row.service_number || '-')}</div>
+                    </div>
+
+                    ${lastSeenBlock}
+                </div>
+
+                <div class="subs-mobile-card__actions">
+                    ${renderActions(row)}
+                </div>
+            </article>
+        `;
     }
 
     function bindStaticEvents(ctx) {
@@ -553,7 +680,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 250));
 
         refs.refreshBtn?.addEventListener('click', async () => {
-            await fetchSubscribers(ctx, { silent: false });
+            await Promise.all([
+                fetchSubscribers(ctx, { silent: false }),
+                refreshPlans(ctx)
+            ]);
             nxToast('success', 'Subscribers refreshed.');
         });
     }
@@ -629,8 +759,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
+                const createModalEl = document.getElementById('createModal');
+                await closeModalFully(createModalEl);
+
+                forms.reset(formEl);
+                await fetchSubscribers(ctx, { silent: true });
+
                 if (typeof Swal !== 'undefined') {
-                    Swal.fire({
+                    await Swal.fire({
                         icon: 'success',
                         title: 'Subscriber Created',
                         html: htmlMessage,
@@ -647,11 +783,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
                 }
 
-                const createModalEl = document.getElementById('createModal');
-                if (createModalEl) modal.close(createModalEl);
-
-                forms.reset(formEl);
-                await fetchSubscribers(ctx, { silent: true });
             },
             onError: async (payload) => {
                 ui.closeLoading();
@@ -960,6 +1091,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
 
                             <div class="nx-field">
+                                <label>Subscriber Services</label>
+                                <div>${escape(data.service_count || 1)} total · showing preferred active service</div>
+                            </div>
+
+                            <div class="nx-field">
                                 <label>Plan</label>
                                 <div>${escape(data.plan_name || '-')}</div>
                             </div>
@@ -998,10 +1134,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div>${escape(data.ppp_username || '-')}</div>
                             </div>
 
-                            <div class="nx-field">
-                                <label>PPP Password</label>
-                                <div class="password-mask">${escape(data.ppp_password || '-')}</div>
-                            </div>
                         </div>
                     </div>
 
@@ -1013,34 +1145,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <div class="nx-subscriber-detail-grid">
                             <div class="nx-field">
-                                <label>NAP Box</label>
-                                <div>${escape(data.nap_name || '-')}</div>
+                                <label>Provisioning Status</label>
+                                <div>${escape(data.provisioning_status || 'Not provisioned')}</div>
                             </div>
 
                             <div class="nx-field">
-                                <label>NAP Splitter Port</label>
-                                <div>${escape(data.nap_splitter_port || '-')}</div>
+                                <label>Provisioning Job</label>
+                                <div>${escape(data.provisioning_job_no || 'No provisioning job')}</div>
                             </div>
 
                             <div class="nx-field">
-                                <label>ONT Serial</label>
-                                <div>${escape(data.ont_serial || '-')}</div>
+                                <label>Provisioning Date</label>
+                                <div>${escape(data.provisioning_date || 'Not provisioned')}</div>
                             </div>
 
                             <div class="nx-field">
-                                <label>Actual Installed Date</label>
-                                <div>${escape(data.installed_at || '-')}</div>
+                                <label>Installation Date</label>
+                                <div>${escape(data.installed_at || 'Not installed')}</div>
                             </div>
+
+                            <div class="nx-field"><label>OLT</label><div>${escape(data.olt_name || 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>OLT Address</label><div>${escape(data.olt_ip_address || 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>PON</label><div>${escape(data.olt_port_name || 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>ONT ID</label><div>${escape(data.ont_assigned_id ?? 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>ONT Serial</label><div>${escape(data.ont_serial || 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>ONT Status</label><div>${escape(data.ont_status || 'Unknown')}</div></div>
+                            <div class="nx-field"><label>NAP</label><div>${escape(data.nap_name || 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>NAP Code</label><div>${escape(data.nap_code || 'Not assigned')}</div></div>
+                            <div class="nx-field"><label>Splitter</label><div>${escape(data.splitter_model || (data.splitter_ratio ? `1:${data.splitter_ratio}` : 'Not assigned'))}</div></div>
+                            <div class="nx-field"><label>Splitter Port</label><div>${escape(data.nap_splitter_port ?? 'Not assigned')}</div></div>
 
                             <div class="nx-field">
                                 <label>CVLAN</label>
-                                <div>${escape(data.cvlan || '-')}</div>
+                                <div>${escape(data.cvlan ?? 'Not assigned')}</div>
                             </div>
 
                             <div class="nx-field">
                                 <label>SVLAN</label>
-                                <div>${escape(data.svlan || '-')}</div>
+                                <div>${escape(data.svlan ?? 'Not assigned')}</div>
                             </div>
+                            <div class="nx-field"><label>ACS Status</label><div>${escape(data.acs_status || 'Not discovered in ACS')}</div></div>
+                            <div class="nx-field"><label>WAN IP</label><div>${escape(data.acs_wan_ip || 'No ACS WAN address')}</div></div>
+                            <div class="nx-field"><label>PPP Session</label><div>${escape(data.online ? 'ONLINE' : 'OFFLINE')}</div></div>
                         </div>
                     </div>
                 `;

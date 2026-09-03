@@ -1,4 +1,22 @@
 <?php
+$vlanLegacyUi = isset($_GET['legacy_ui']) && (string)$_GET['legacy_ui'] === '1';
+if (!$vlanLegacyUi):
+    $nxNextManifestPath = BASE_PATH . '/public/build-next/.vite/manifest.json';
+    $nxNextManifest = is_file($nxNextManifestPath) ? (json_decode((string)file_get_contents($nxNextManifestPath), true) ?: []) : [];
+    $nxNextEntry = $nxNextManifest['src/main.ts'] ?? [];
+    $nxNextVersion = is_file($nxNextManifestPath) ? (string)filemtime($nxNextManifestPath) : (string)time();
+    foreach (($nxNextEntry['css'] ?? []) as $nxNextCss): ?>
+        <link rel="stylesheet" href="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextCss, '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>">
+    <?php endforeach; ?>
+    <div class="container-fluid nx-page" data-nx-next-root="vlans"></div>
+    <?php if (!empty($nxNextEntry['file'])): ?>
+        <script type="module" src="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextEntry['file'], '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"></script>
+    <?php else: ?>
+        <div class="alert alert-warning">The new VLAN interface is not built. Use <a href="/vlan-management?legacy_ui=1">the legacy interface</a>.</div>
+    <?php endif;
+    return;
+endif;
+
 $summary = $summary ?? [
         'total_vlans' => 0,
         'total_c_vlans' => 0,
@@ -8,24 +26,22 @@ $summary = $summary ?? [
 ?>
 
 <div class="container-fluid nx-page" id="vlanManagementApp">
-    <link rel="stylesheet" href="/module-assets/VlanManagement/css/VlanManagement.css">
-
-    <div class="card border-0 shadow-sm mb-4 nx-page-header-card vlan-hero-card">
-        <div class="card-body vlan-hero-body">
-            <div class="vlan-hero-left">
-                <div class="vlan-hero-badge">
+    <div class="card border-0 shadow-sm mb-4 nx-page-header-card page-hero-card">
+        <div class="card-body page-hero-body">
+            <div class="page-hero-left">
+                <div class="page-hero-badge">
                     <i class="bi bi-diagram-3"></i>
                     <span>OLT VLAN Deployment</span>
                 </div>
 
-                <h1 class="vlan-hero-title">VLAN Management</h1>
+                <h1 class="page-hero-title">VLAN Management</h1>
 
-                <p class="vlan-hero-text">
+                <p class="page-hero-text">
                     Create, deploy, review, and remove C-VLAN and S-VLAN definitions directly on the OLT for subscriber and QinQ service delivery, and manage the ACS MGMT-VLAN per OLT.
                 </p>
             </div>
 
-            <div class="vlan-hero-actions">
+            <div class="page-hero-actions">
                 <button type="button" class="btn btn-light border" id="btnRefreshVlanManagement">
                     <i class="bi bi-arrow-clockwise"></i>
                     Refresh
@@ -101,14 +117,13 @@ $summary = $summary ?? [
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-3 nx-toolbar-card">
-        <div class="card-body">
-            <div class="vlan-toolbar-grid">
-                <div class="vlan-toolbar-left">
+    <div class="nx-toolbar-card mb-3">
+            <div class="toolbar-grid">
+                <div class="toolbar-left">
                     <div class="nx-segment-control">
-                        <button type="button" class="nx-segment-item active" data-tab="cvlan">C-VLAN</button>
-                        <button type="button" class="nx-segment-item" data-tab="svlan">S-VLAN</button>
-                        <button type="button" class="nx-segment-item" data-tab="mgmtvlan">MGMT-VLAN</button>
+                        <button type="button" class="nx-segment-control__item active" data-tab="cvlan">C-VLAN</button>
+                        <button type="button" class="nx-segment-control__item" data-tab="svlan">S-VLAN</button>
+                        <button type="button" class="nx-segment-control__item" data-tab="mgmtvlan">MGMT-VLAN</button>
                     </div>
                 </div>
 
@@ -117,16 +132,15 @@ $summary = $summary ?? [
                     <input
                             type="text"
                             id="vlanManagementSearch"
-                            class="form-control vlan-toolbar-control vlan-search-control"
+                            class="form-control toolbar-control vlan-search-control"
                             placeholder="Search VLAN ID, name, status, output..."
                     >
                 </div>
 
-                <div class="vlan-toolbar-meta">
+                <div class="toolbar-meta">
 
                 </div>
             </div>
-        </div>
     </div>
 
     <div class="card border-0 shadow-sm nx-content-card" data-tab-pane="cvlan">
@@ -137,25 +151,7 @@ $summary = $summary ?? [
             <div class="text-muted small">Customer-side VLAN definitions and deployment state.</div>
         </div>
 
-        <div class="table-responsive nx-table-wrap">
-            <table class="table align-middle mb-0" id="cVlanTable">
-                <thead>
-                <tr>
-                    <th class="ps-4">VLAN</th>
-                    <th>Status</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Deployed At</th>
-                    <th class="text-end pe-4">Actions</th>
-                </tr>
-                </thead>
-                <tbody id="cVlanTbody">
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">Loading C-VLAN records...</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <div id="cVlanTableView"></div>
     </div>
 
     <div class="card border-0 shadow-sm nx-content-card d-none" data-tab-pane="svlan">
@@ -166,25 +162,7 @@ $summary = $summary ?? [
             <div class="text-muted small">Service-side QinQ VLAN definitions and deployment state.</div>
         </div>
 
-        <div class="table-responsive nx-table-wrap">
-            <table class="table align-middle mb-0" id="sVlanTable">
-                <thead>
-                <tr>
-                    <th class="ps-4">VLAN</th>
-                    <th>Status</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Deployed At</th>
-                    <th class="text-end pe-4">Actions</th>
-                </tr>
-                </thead>
-                <tbody id="sVlanTbody">
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">Loading S-VLAN records...</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <div id="sVlanTableView"></div>
     </div>
 
     <div class="card border-0 shadow-sm nx-content-card d-none" data-tab-pane="mgmtvlan">
@@ -202,24 +180,7 @@ $summary = $summary ?? [
             </button>
         </div>
 
-        <div class="table-responsive nx-table-wrap">
-            <table class="table align-middle mb-0" id="mgmtVlanTable">
-                <thead>
-                <tr>
-                    <th class="ps-4">OLT</th>
-                    <th>MGMT-VLAN</th>
-                    <th>Description</th>
-                    <th>Created At</th>
-                    <th class="text-end pe-4">Actions</th>
-                </tr>
-                </thead>
-                <tbody id="mgmtVlanTbody">
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-4">Loading MGMT-VLAN records...</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <div id="mgmtVlanTableView"></div>
     </div>
 </div>
 

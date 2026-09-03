@@ -1,7 +1,13 @@
+<?php
+$oltPortsLegacyUi = isset($_GET['legacy_ui']) && (string)$_GET['legacy_ui'] === '1';
+if (!$oltPortsLegacyUi):
+    $selectedOltId = (int)($selectedOltId ?? ($_GET['olt_id'] ?? 0)); $nxNextManifestPath = BASE_PATH . '/public/build-next/.vite/manifest.json'; $nxNextManifest = is_file($nxNextManifestPath) ? (json_decode((string)file_get_contents($nxNextManifestPath), true) ?: []) : []; $nxNextEntry = $nxNextManifest['src/main.ts'] ?? []; $nxNextVersion = is_file($nxNextManifestPath) ? (string)filemtime($nxNextManifestPath) : (string)time();
+    foreach (($nxNextEntry['css'] ?? []) as $nxNextCss): ?><link rel="stylesheet" href="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextCss, '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"><?php endforeach; ?>
+    <div class="container-fluid nx-page" data-nx-next-root="olt" data-mode="ports" data-olt-id="<?= $selectedOltId ?>"></div>
+    <?php if (!empty($nxNextEntry['file'])): ?><script type="module" src="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextEntry['file'], '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"></script><?php else: ?><div class="alert alert-warning">The new OLT Ports interface is not built. Use the legacy interface.</div><?php endif; return;
+endif;
+?>
 <div class="container-fluid nx-page" id="oltManagementPage">
-
-    <link rel="stylesheet" href="/module-assets/OltManagement/css/OltManagement.css">
-
     <?php
     $selectedOltId = (int)($selectedOltId ?? ($_GET['olt_id'] ?? 0));
     $selectedSlot = isset($selectedSlot)
@@ -18,7 +24,7 @@
         <section class="card border-0 mb-0 nx-page-header-card">
             <div class="nx-page-header">
                 <div class="nx-page-header-left">
-                    <div class="olt-hero-badge">
+                    <div class="page-hero-badge">
                         <i class="bi bi-diagram-3"></i>
                         <span>Physical & Logical Port Operations</span>
                     </div>
@@ -55,14 +61,14 @@
             <div class="olt-table-topline"></div>
 
             <div class="card-body">
-                <div class="olt-section-head">
+                <div class="section-head">
                     <div>
-                        <h2 class="olt-section-title">Physical View</h2>
-                        <p class="olt-section-subtitle">MA5800-X2 front panel with live slot and port coloring</p>
+                        <h2 class="section-title">Physical View</h2>
+                        <p class="section-subtitle">MA5800-X2 front panel with live slot and port coloring</p>
                     </div>
                 </div>
 
-                <div class="olt-panel-shell">
+                <div class="panel">
                     <div id="oltPhysicalView"></div>
                 </div>
             </div>
@@ -73,10 +79,10 @@
             <div class="olt-table-topline"></div>
 
             <div class="card-body">
-                <div class="olt-section-head">
+                <div class="section-head">
                     <div>
-                        <h2 class="olt-section-title">OLT Ports</h2>
-                        <p class="olt-section-subtitle">Imported ports for the selected OLT with drilldown actions</p>
+                        <h2 class="section-title">OLT Ports</h2>
+                        <p class="section-subtitle">Imported ports for the selected OLT with drilldown actions</p>
                     </div>
                 </div>
 
@@ -178,6 +184,39 @@
                     </div>
                 </div>
 
+                <div class="modal-footer nx-modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTROL BOARD VLAN LIST MODAL -->
+    <div class="modal fade" id="controlVlanListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable nx-modal">
+            <div class="modal-content nx-modal-content">
+                <div class="modal-header nx-modal-header">
+                    <div>
+                        <h5 class="modal-title mb-0">Allowed VLANs</h5>
+                        <small class="text-muted" id="controlVlanListSubtitle">-</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body nx-modal-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 olt-vlan-list-table">
+                            <thead>
+                            <tr>
+                                <th>VLAN ID</th>
+                                <th>VLAN Name</th>
+                                <th>Type</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="controlVlanListBody"></tbody>
+                        </table>
+                    </div>
+                </div>
                 <div class="modal-footer nx-modal-footer">
                     <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Close</button>
                 </div>

@@ -17,6 +17,12 @@ class CreateOntDevicesValidator
             $errors[] = 'Invalid status selected.';
         }
 
+        foreach (['olt_id', 'frame', 'slot', 'port', 'ont_id', 'subscriber_id'] as $field) {
+            if (($data[$field] ?? null) !== null && (int)$data[$field] < 0) {
+                $errors[] = sprintf('%s cannot be negative.', str_replace('_', ' ', ucfirst($field)));
+            }
+        }
+
         return $errors;
     }
 }

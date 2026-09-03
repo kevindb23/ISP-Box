@@ -182,6 +182,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    function formatOpticalValue(value, unit = '') {
+        if (value === '-' || value === null || value === undefined || Number.isNaN(Number(value))) {
+            return 'Not available';
+        }
+        return `${value}${unit ? ` ${unit}` : ''}`;
+    }
+
     function collectWanInterfaces(state) {
         const results = [];
         const wanDevices = getIndexedNode(state, 'InternetGatewayDevice.WANDevice');
@@ -313,12 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort((a, b) => Number(a) - Number(b))
             .forEach(k => {
                 const h = hostBase[k] || {};
+                const active = toBool(valueOf(h.Active));
+                if (!active) return;
                 rows.push({
                     hostName: valueOf(h.HostName) || '-',
                     ipAddress: valueOf(h.IPAddress) || '-',
                     macAddress: valueOf(h.MACAddress) || '-',
                     interfaceType: valueOf(h.InterfaceType) || '-',
-                    active: String(valueOf(h.Active) ?? '-')
+                    active
                 });
             });
 
@@ -330,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return {
             serial: d.serial_number || '-',
-            manufacturer: getParam(state, [
+            manufacturer: d.inventory_info?.vendor || getParam(state, [
                 'InternetGatewayDevice.DeviceInfo.Manufacturer',
                 'Device.DeviceInfo.Manufacturer'
             ], d.vendor || '-'),
@@ -625,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="acs-stat-text">
                                         <div class="acs-stat-label">ONT Rx Power</div>
                                         <div class="acs-stat-value" id="opticalRxWrap">
-                                            <span id="opticalRx">${escape(String(optical.rx))} dBm</span>
+                                            <span id="opticalRx">${escape(formatOpticalValue(optical.rx, 'dBm'))}</span>
                                             <span id="opticalRxBadge"></span>
                                         </div>
                                     </div>
@@ -635,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <div class="acs-stat-icon"><i class="bi bi-arrow-up-circle"></i></div>
                                     <div class="acs-stat-text">
                                         <div class="acs-stat-label">ONT Tx Power</div>
-                                        <div class="acs-stat-value" id="opticalTx">${escape(String(optical.tx))} dBm</div>
+                                        <div class="acs-stat-value" id="opticalTx">${escape(formatOpticalValue(optical.tx, 'dBm'))}</div>
                                     </div>
                                 </div>
                             </div>
@@ -643,27 +652,27 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="acs-overview-grid">
                                 <div class="acs-overview-item">
                                     <div class="acs-overview-label">OLT Rx ONT Power</div>
-                                    <div class="acs-overview-value" id="opticalOltRx">${escape(String(optical.oltRx))} dBm</div>
+                                    <div class="acs-overview-value" id="opticalOltRx">${escape(formatOpticalValue(optical.oltRx, 'dBm'))}</div>
                                 </div>
 
                                 <div class="acs-overview-item">
                                     <div class="acs-overview-label">Temperature</div>
-                                    <div class="acs-overview-value" id="opticalTemp">${escape(String(optical.temperature))} °C</div>
+                                    <div class="acs-overview-value" id="opticalTemp">${escape(formatOpticalValue(optical.temperature, '°C'))}</div>
                                 </div>
 
                                 <div class="acs-overview-item">
                                     <div class="acs-overview-label">Voltage</div>
-                                    <div class="acs-overview-value" id="opticalVolt">${escape(String(optical.voltage))} V</div>
+                                    <div class="acs-overview-value" id="opticalVolt">${escape(formatOpticalValue(optical.voltage, 'V'))}</div>
                                 </div>
 
                                 <div class="acs-overview-item">
                                     <div class="acs-overview-label">Laser Bias Current</div>
-                                    <div class="acs-overview-value" id="opticalCurrent">${escape(String(optical.current))} mA</div>
+                                    <div class="acs-overview-value" id="opticalCurrent">${escape(formatOpticalValue(optical.current, 'mA'))}</div>
                                 </div>
 
                                 <div class="acs-overview-item">
                                     <div class="acs-overview-label">Distance</div>
-                                    <div class="acs-overview-value" id="opticalDistance">${escape(String(optical.distance))} m</div>
+                                    <div class="acs-overview-value" id="opticalDistance">${escape(formatOpticalValue(optical.distance, 'm'))}</div>
                                 </div>
 
                                 <div class="acs-overview-item">
@@ -747,15 +756,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="ont-acs-info-value">${escape(iface.connectionType)}</div>
                     </div>
 
-                    <div class="ont-acs-info-item">
-                        <div class="ont-acs-info-label">Username</div>
-                        <div class="ont-acs-info-value">${escape(iface.username)}</div>
-                    </div>
+                    ${role !== 'TR069' ? `
+                        <div class="ont-acs-info-item">
+                            <div class="ont-acs-info-label">Username</div>
+                            <div class="ont-acs-info-value">${escape(iface.username)}</div>
+                        </div>
+                    ` : ''}
 
-                    <div class="ont-acs-info-item">
-                        <div class="ont-acs-info-label">Service List</div>
-                        <div class="ont-acs-info-value">${escape(iface.serviceList)}</div>
-                    </div>
+                    ${upper(iface.type) !== 'PPP' && role !== 'TR069' ? `
+                        <div class="ont-acs-info-item">
+                            <div class="ont-acs-info-label">Service List</div>
+                            <div class="ont-acs-info-value">${escape(iface.serviceList)}</div>
+                        </div>
+                    ` : ''}
 
                     <div class="ont-acs-info-item">
                         <div class="ont-acs-info-label">VLAN ID</div>
@@ -1180,7 +1193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <div class="ont-acs-info-label">Security Key</div>
                                         ${
                 isPrimaryEditable
-                    ? `<input type="text" class="form-control" id="acsWifiPasswordInput" value="" placeholder="Leave blank to keep current password">`
+                    ? `<input type="password" class="form-control" id="acsWifiPasswordInput" value="" placeholder="Leave blank to keep current password" autocomplete="new-password">`
                     : `<div class="ont-acs-info-value">${escape(wifi.password ? '********' : 'Not configured')}</div>`
             }
                                     </div>
@@ -1512,7 +1525,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <td>${escape(client.ipAddress)}</td>
                                         <td>${escape(client.macAddress)}</td>
                                         <td>${escape(client.interfaceType)}</td>
-                                        <td>${escape(client.active)}</td>
+                                        <td>${statusBadge(client.active ? 'ACTIVE' : 'INACTIVE')}</td>
                                     </tr>
                                 `).join('') : `
                                     <tr>
@@ -2106,7 +2119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isEmpty = value === '-' || value === null || value === undefined || Number.isNaN(num);
 
             if (isEmpty) {
-                node.textContent = '-';
+                node.textContent = 'Not available';
                 node.classList.remove('optical-good', 'optical-warning', 'optical-critical');
                 return;
             }
@@ -2152,19 +2165,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Refreshing...`;
             }
 
-            const response = await api.get(
-                `/api/v1/ont-devices/acs/device/${encodeURIComponent(ctx.state.deviceId)}/optical`
+            const response = await api.urlEncoded(
+                `/api/v1/ont-devices/acs/device/${encodeURIComponent(ctx.state.deviceId)}/optical`,
+                {}
             );
+            const result = response?.data ?? response;
 
-            if (!(response && response.optical)) {
+            if (!(result && result.optical)) {
                 throw {
                     isOpticalError: true,
                     message: 'Failed to refresh optical values.',
-                    details: response || {}
+                    details: result || {}
                 };
             }
 
-            const optical = response.optical;
+            const optical = result.optical;
             const newPolledAtRaw = new Date().toISOString();
 
             ctx.patch({

@@ -1,13 +1,208 @@
+<?php
+$napLegacyUi = isset($_GET['legacy_ui']) && (string)$_GET['legacy_ui'] === '1';
+if (!$napLegacyUi):
+    $nxNextManifestPath = BASE_PATH . '/public/build-next/.vite/manifest.json'; $nxNextManifest = is_file($nxNextManifestPath) ? (json_decode((string)file_get_contents($nxNextManifestPath), true) ?: []) : []; $nxNextEntry = $nxNextManifest['src/main.ts'] ?? []; $nxNextVersion = is_file($nxNextManifestPath) ? (string)filemtime($nxNextManifestPath) : (string)time();
+    foreach (($nxNextEntry['css'] ?? []) as $nxNextCss): ?><link rel="stylesheet" href="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextCss, '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"><?php endforeach; ?>
+    <link rel="stylesheet" href="/assets/leaflet/leaflet.css?v=1.9.4">
+    <div class="container-fluid nx-page" data-nx-next-root="nap"></div>
+    <?php if (!empty($nxNextEntry['file'])): ?><script type="module" src="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextEntry['file'], '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"></script><?php else: ?><div class="alert alert-warning">The new NAP interface is not built. Use <a href="/nap-management?legacy_ui=1">the legacy interface</a>.</div><?php endif; return;
+endif;
+$napPlannerOnly = isset($_GET['tab']) && (string)$_GET['tab'] === 'planner';
+?>
 <div class="container-fluid nx-page">
-    <link rel="stylesheet" href="/module-assets/NapManagement/css/NapManagement.css">
+    <link rel="stylesheet" href="/assets/leaflet/leaflet.css?v=<?= time() ?>">
 
     <style>
+        /* Prevent framework image rules from resizing or aligning individual
+           Leaflet tiles, which produces visible seams in modal map pickers. */
+        .nx-map-picker.leaflet-container .leaflet-tile {
+            /* Leaflet positions tiles on a 256px grid. Rendering every image
+               one pixel larger creates a harmless overlap that removes the
+               sub-pixel seams Chromium can show between adjacent tiles. */
+            width: 257px !important;
+            height: 257px !important;
+            max-width: none !important;
+            max-height: none !important;
+            vertical-align: top !important;
+            image-rendering: auto;
+            outline: 1px solid transparent;
+        }
+        .nx-map-picker.leaflet-container .leaflet-pane,
+        .nx-map-picker.leaflet-container .leaflet-tile-pane {
+            backface-visibility: visible;
+        }
         #napManagementApp {
             visibility: hidden;
         }
         #napManagementApp.nap-ready {
             visibility: visible;
         }
+        <?php if ($napPlannerOnly): ?>
+        /* Modern planner shell. The canvas IDs and interaction classes are
+           intentionally unchanged so Cytoscape/Leaflet behavior is preserved. */
+        #napManagementApp {
+            --planner-surface: var(--nx-surface, var(--card, #fff));
+            --planner-muted: var(--nx-surface-muted, var(--secondary, #f5f7fa));
+            --planner-border: var(--nx-border, var(--border, #d9e0e8));
+            --planner-text: var(--nx-text, var(--foreground, #172033));
+            --planner-subtle: var(--nx-text-muted, var(--muted-foreground, #667085));
+            color: var(--planner-text);
+        }
+        #napManagementApp > .nx-page-header-card {
+            margin-bottom: 1rem;
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+        }
+        #napManagementApp > .nx-page-header-card > .card-body {
+            padding: .25rem 0 1rem !important;
+            border-bottom: 1px solid var(--planner-border);
+        }
+        #napManagementApp .nx-page-kicker {
+            margin-bottom: .45rem;
+            color: var(--nx-primary, #2563eb);
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        #napManagementApp .nx-page-title {
+            color: var(--planner-text);
+            font-size: clamp(1.45rem, 2vw, 2rem);
+            font-weight: 750;
+            letter-spacing: -.025em;
+        }
+        #napManagementApp .nx-page-subtitle { color: var(--planner-subtle); }
+        #napManagementApp #napHeaderActions .btn {
+            min-height: 2.65rem;
+            padding: .6rem .9rem;
+            display: inline-flex;
+            align-items: center;
+            border-color: var(--planner-border) !important;
+            border-radius: .6rem;
+            color: var(--planner-text);
+            background: var(--planner-surface) !important;
+            font-size: .82rem;
+            font-weight: 700;
+        }
+        #napManagementApp > .nx-toolbar-card {
+            position: relative;
+            z-index: 10;
+            margin-bottom: .75rem;
+            background: var(--planner-surface) !important;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .75rem !important;
+            box-shadow: 0 1px 2px rgb(15 23 42 / 5%) !important;
+        }
+        #napManagementApp > .nx-content-card {
+            overflow: hidden;
+            background: var(--planner-surface) !important;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .8rem !important;
+            box-shadow: 0 8px 26px rgb(15 23 42 / 8%) !important;
+        }
+        #napManagementApp .nx-workspace-card,
+        #napManagementApp .nx-workspace-canvas-container {
+            min-height: min(74vh, 780px);
+            background: var(--planner-muted) !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+        }
+        #napManagementApp .nx-workspace-canvas-surface {
+            min-height: min(74vh, 780px);
+            background-color: var(--planner-muted) !important;
+        }
+        #napManagementApp .nx-floating-panel {
+            color: var(--planner-text);
+            background: color-mix(in srgb, var(--planner-surface) 94%, transparent) !important;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .75rem !important;
+            box-shadow: 0 12px 30px rgb(15 23 42 / 14%) !important;
+            backdrop-filter: blur(12px);
+        }
+        #napManagementApp .nx-floating-toolbar { padding: .55rem !important; }
+        #napManagementApp .nx-panel-drag-handle,
+        #napManagementApp .nx-toolbar-toggle,
+        #napManagementApp .nx-tool-icon {
+            width: 2.35rem;
+            height: 2.35rem;
+            display: inline-grid;
+            place-items: center;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .5rem !important;
+            color: var(--planner-text);
+            background: var(--planner-surface) !important;
+        }
+        #napManagementApp .nx-tool-icon:hover,
+        #napManagementApp .nx-toolbar-toggle:hover {
+            border-color: var(--nx-primary, #2563eb) !important;
+            color: var(--nx-primary, #2563eb);
+            background: color-mix(in srgb, var(--nx-primary, #2563eb) 8%, var(--planner-surface)) !important;
+        }
+        #napManagementApp .nx-tool-icon-danger { color: #dc2626; }
+        #napManagementApp .nx-tool-icon-success { color: #059669; }
+        #napManagementApp .nx-tool-icon-primary { color: var(--nx-primary, #2563eb); }
+        #napManagementApp .nx-toggle-group {
+            padding: .2rem !important;
+            gap: .15rem;
+            background: var(--planner-muted) !important;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .55rem !important;
+        }
+        #napManagementApp .nx-toggle-group button {
+            min-height: 2rem;
+            padding: .35rem .65rem !important;
+            border: 0 !important;
+            border-radius: .4rem !important;
+            color: var(--planner-subtle) !important;
+            background: transparent !important;
+            font-size: .74rem;
+            font-weight: 700;
+        }
+        #napManagementApp .nx-toggle-group button.active {
+            color: #fff !important;
+            background: var(--nx-primary, #2563eb) !important;
+            box-shadow: 0 1px 3px rgb(15 23 42 / 16%);
+        }
+        #napManagementApp .nx-toolbar-select-md,
+        #napManagementApp .nx-toolbar-select-sm {
+            min-height: 2.35rem;
+            padding: .35rem 2rem .35rem .7rem;
+            color: var(--planner-text);
+            background-color: var(--planner-surface);
+            border: 1px solid var(--planner-border);
+            border-radius: .5rem;
+            font-size: .78rem;
+        }
+        #napManagementApp .nx-inspector {
+            color: var(--planner-text);
+            background: color-mix(in srgb, var(--planner-surface) 96%, transparent) !important;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .75rem !important;
+            box-shadow: 0 14px 36px rgb(15 23 42 / 16%) !important;
+            backdrop-filter: blur(12px);
+        }
+        #napManagementApp .nx-inspector-header,
+        #napManagementApp .nx-inspector-section { border-color: var(--planner-border) !important; }
+        #napManagementApp .nx-inspector-title,
+        #napManagementApp .nx-inspector-section-title { color: var(--planner-text); font-weight: 750; }
+        #napManagementApp .nx-inspector-subtitle,
+        #napManagementApp .nx-inspector-body { color: var(--planner-subtle) !important; }
+        #napManagementApp .nap-map-legend {
+            color: var(--planner-text);
+            background: color-mix(in srgb, var(--planner-surface) 94%, transparent) !important;
+            border: 1px solid var(--planner-border) !important;
+            border-radius: .65rem !important;
+            box-shadow: 0 8px 20px rgb(15 23 42 / 12%);
+            backdrop-filter: blur(10px);
+        }
+        @media (max-width: 991.98px) {
+            #napManagementApp .nx-floating-toolbar { max-width: calc(100% - 1rem); }
+            #napManagementApp .nx-floating-toolbar-main,
+            #napManagementApp .nx-floating-toolbar-center,
+            #napManagementApp .nx-floating-toolbar-actions { flex-wrap: wrap; }
+        }
+        <?php endif; ?>
     </style>
 
     <script>
@@ -16,7 +211,7 @@
                 var key = 'nap-management-ui-v10';
                 var raw = localStorage.getItem(key);
                 var saved = raw ? JSON.parse(raw) : {};
-                var tab = saved.tab || 'planner';
+                var tab = <?= $napPlannerOnly ? "'planner'" : "(saved.tab || 'planner')" ?>;
 
                 window.__NAP_BOOT_STATE__ = saved;
                 window.__NAP_BOOT_TAB__ = tab;
@@ -57,23 +252,32 @@
                         <div class="nx-page-kicker">FTTH Infrastructure</div>
                         <h1 class="nx-page-title mb-1">NAP Management</h1>
                         <div class="nx-page-subtitle" id="napPageSubtitle">
-                            Plan, manage, and visualize ODF, LCP, NAP, and physical network link infrastructure.
+                            <?= $napPlannerOnly
+                                ? 'Visualize and manage the physical ODF, LCP, and NAP topology.'
+                                : 'Plan, manage, and visualize ODF, LCP, NAP, and physical network link infrastructure.' ?>
                         </div>
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 align-items-center" id="napHeaderActions">
+                        <?php if ($napPlannerOnly): ?>
+                            <a href="/nap-management" class="btn btn-light border">
+                                <i class="bi bi-arrow-left me-1"></i> Back to NAP Management
+                            </a>
+                        <?php else: ?>
                         <span class="nx-soft-badge nx-soft-badge-info">
                             <i class="bi bi-diagram-3 me-1"></i> Visual Planner Ready
                         </span>
                         <span class="nx-soft-badge nx-soft-badge-success">
                             <i class="bi bi-geo-alt me-1"></i> Map Picker Enabled
                         </span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- SEGMENT -->
+        <?php if (!$napPlannerOnly): ?>
         <div class="nx-page-section">
             <div class="nx-segment-control nx-segment-control-wide">
                 <a href="#" class="nx-segment-item <?= $tab === 'planner' ? 'active' : '' ?>" data-tab-link="planner">
@@ -87,6 +291,7 @@
                 </a>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- TOP TOOLBAR -->
         <div class="card border-0 nx-toolbar-card">
@@ -208,7 +413,7 @@
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-lg-7">
+                            <div class="col-12">
                                 <div class="nx-section-card h-100">
                                     <div class="nx-section-head">
                                         <div>
@@ -272,7 +477,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-5">
+                            <div class="col-12">
                                 <div class="nx-section-card h-100">
                                     <div class="nx-section-head">
                                         <div>
@@ -343,7 +548,7 @@
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-lg-7">
+                            <div class="col-12">
                                 <div class="nx-section-card h-100">
                                     <div class="nx-section-head">
                                         <div>
@@ -392,7 +597,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-5">
+                            <div class="col-12">
                                 <div class="nx-section-card h-100">
                                     <div class="nx-section-head">
                                         <div>
@@ -463,7 +668,7 @@
                         </div>
 
                         <div class="row g-3">
-                            <div class="col-lg-7">
+                            <div class="col-12">
                                 <div class="nx-section-card h-100">
                                     <div class="nx-section-head">
                                         <div>
@@ -522,7 +727,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-5">
+                            <div class="col-12">
                                 <div class="nx-section-card h-100">
                                     <div class="nx-section-head">
                                         <div>
@@ -730,13 +935,36 @@
                 <div id="plannerLogicalCanvas" class="nx-workspace-canvas-surface"></div>
 
                 <div id="plannerMapCanvas" class="nx-workspace-canvas-surface d-none">
-                    <div class="nx-workspace-map-placeholder">
-                        <div class="nx-workspace-map-placeholder-icon">
-                            <i class="bi bi-geo-alt"></i>
-                        </div>
-                        <div class="nx-workspace-map-placeholder-title">Map View Placeholder</div>
-                        <div class="nx-workspace-map-placeholder-text">
-                            Geographic plotting for ODF, LCP, and NAP will render here.
+                    <div class="nap-map-shell">
+                        <div id="napPlannerMap"></div>
+
+                        <div class="nap-map-legend">
+                            <div class="nap-map-legend-title">Map Legend</div>
+
+                            <div class="nap-map-legend-row">
+                                <span class="nap-map-dot odf"></span>
+                                <span>ODF</span>
+                            </div>
+
+                            <div class="nap-map-legend-row">
+                                <span class="nap-map-dot lcp"></span>
+                                <span>LCP</span>
+                            </div>
+
+                            <div class="nap-map-legend-row">
+                                <span class="nap-map-dot nap"></span>
+                                <span>NAP</span>
+                            </div>
+
+                            <div class="nap-map-legend-row">
+                                <span class="nap-map-line feeder"></span>
+                                <span>Feeder</span>
+                            </div>
+
+                            <div class="nap-map-legend-row mb-0">
+                                <span class="nap-map-line distribution"></span>
+                                <span>Distribution</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -824,5 +1052,7 @@
     </div>
 
     <script src="/module-assets/NapManagement/js/cytoscape.min.js"></script>
-    <script src="/module-assets/NapManagement/js/NapManagement.js"></script>
+    <script src="/assets/leaflet/leaflet.js"></script>
+    <?php $napManagementJsVersion = (string)(@filemtime(BASE_PATH . '/app/Modules/NapManagement/Assets/js/NapManagement.js') ?: time()); ?>
+    <script src="/module-assets/NapManagement/js/NapManagement.js?v=<?= htmlspecialchars($napManagementJsVersion, ENT_QUOTES, 'UTF-8') ?>"></script>
 </div>

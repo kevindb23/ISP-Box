@@ -1,0 +1,1521 @@
+#subscriberPlansApp {
+    --plans-blue: #2563eb;
+    --plans-blue-dark: #1d4ed8;
+    --plans-ink: #0f172a;
+    --plans-muted: #64748b;
+    --plans-line: #e2e8f0;
+    --plans-surface: #ffffff;
+    --plans-surface-soft: #f8fafc;
+    --plans-shadow-soft: 0 12px 28px rgba(15, 23, 42, 0.05);
+    --plans-shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* The global .nx-page sibling rule adds 18px above every direct child.
+   SubscriberPlans owns its section rhythm explicitly instead. */
+#subscriberPlansApp > * + * {
+    margin-top: 0;
+}
+
+/* Keep the empty table state centered inside its full-width host. */
+#subscriberPlansApp #plansTableView {
+    width: 100%;
+}
+
+#subscriberPlansApp #plansTableView .nx-empty-state {
+    min-height: 142px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#subscriberPlansApp #plansTableView .nx-empty-icon {
+    margin: 0 auto 12px;
+}
+
+#subscriberPlansApp #plansTableView .nx-empty-title,
+#subscriberPlansApp #plansTableView .nx-empty-text {
+    text-align: center;
+}
+
+#subscriberPlansApp .plans-hero-card,
+#subscriberPlansApp .plans-toolbar-shell,
+#subscriberPlansApp .plans-table-card {
+    border-radius:3px;
+    overflow: hidden;
+}
+
+#subscriberPlansApp .plans-hero-card {
+    border: 1px solid rgba(37, 99, 235, 0.08);
+    background:
+            radial-gradient(circle at top right, rgba(37, 99, 235, 0.10), transparent 28%),
+            linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.94) 100%);
+    box-shadow: var(--plans-shadow-lg);
+}
+
+#subscriberPlansApp .plans-hero-body {
+    min-height: 132px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 26px 28px;
+}
+
+#subscriberPlansApp .plans-hero-left {
+    max-width: 780px;
+}
+
+#subscriberPlansApp .plans-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius:3px;
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--plans-blue-dark);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+#subscriberPlansApp .plans-hero-badge i {
+    font-size: 11px;
+}
+
+#subscriberPlansApp .plans-hero-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--plans-ink);
+    line-height: 1.2;
+}
+
+#subscriberPlansApp .plans-hero-text {
+    margin: 0;
+    font-size: 14px;
+    color: var(--plans-muted);
+    line-height: 1.55;
+}
+
+#subscriberPlansApp .plans-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-secondary {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    vertical-align: middle;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .nx-btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+}
+
+#subscriberPlansApp .nx-btn-primary:hover,
+#subscriberPlansApp .nx-btn-primary:focus {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border-color: #1d4ed8;
+}
+
+#subscriberPlansApp .nx-btn-secondary {
+    background: #fff;
+    border-color: #dbe3ef;
+    color: #0f172a;
+}
+
+#subscriberPlansApp .nx-btn-secondary:hover,
+#subscriberPlansApp .nx-btn-secondary:focus {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+#subscriberPlansApp .nx-btn-primary i,
+#subscriberPlansApp .nx-btn-secondary i {
+    font-size: 14px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#subscriberPlansApp .plans-summary-row {
+    margin-bottom: 18px;
+}
+
+#subscriberPlansApp .plans-summary-card {
+    position: relative;
+    min-height: 152px;
+    border-radius:3px;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: var(--plans-shadow-soft);
+    overflow: hidden;
+}
+
+#subscriberPlansApp .plans-summary-card .card-body {
+    position: relative;
+    z-index: 1;
+    padding: 24px 28px;
+}
+
+#subscriberPlansApp .plans-summary-accent {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    border-radius:3px;
+}
+
+#subscriberPlansApp .plans-summary-card--primary .plans-summary-accent {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+#subscriberPlansApp .plans-summary-card--success .plans-summary-accent {
+    background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+}
+
+#subscriberPlansApp .plans-summary-card--cyan .plans-summary-accent {
+    background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%);
+}
+
+#subscriberPlansApp .plans-summary-card--slate .plans-summary-accent {
+    background: linear-gradient(180deg, #64748b 0%, #334155 100%);
+}
+
+#subscriberPlansApp .plans-summary-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+}
+
+#subscriberPlansApp .plans-summary-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 8px;
+}
+
+#subscriberPlansApp .plans-summary-text {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.45;
+}
+
+#subscriberPlansApp .plans-toolbar-shell {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--plans-shadow-soft);
+}
+
+#subscriberPlansApp .plans-toolbar-body {
+    padding: 20px 22px;
+}
+
+#subscriberPlansApp .plans-toolbar-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 0.65fr) auto;
+    gap: 12px;
+    align-items: center;
+}
+
+#subscriberPlansApp .plans-search-wrap {
+    position: relative;
+}
+
+#subscriberPlansApp .plans-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+#subscriberPlansApp .plans-toolbar-control {
+    height: 42px;
+    min-height: 42px;
+    border-radius:3px;
+    border-color: #dbe3ef;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-search-control {
+    padding-left: 40px;
+}
+
+#subscriberPlansApp .plans-toolbar-control:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+#subscriberPlansApp .plans-toolbar-meta {
+    text-align: right;
+    white-space: nowrap;
+}
+
+#subscriberPlansApp .plans-pagination-top {
+    display: inline-block;
+    font-size: 13px;
+    color: #64748b;
+}
+
+#subscriberPlansApp .plans-table-card {
+    position: relative;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--plans-shadow-lg);
+}
+
+#subscriberPlansApp .plans-table-topline {
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 25%, rgba(37,99,235,0.10) 100%);
+}
+
+#subscriberPlansApp .plans-table-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+#subscriberPlansApp .plans-table-actions .btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-table-actions .btn i {
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary {
+    border-color: #d9e1ec;
+    color: #64748b;
+    background: #fff;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-primary {
+    border-color: #bfdbfe;
+    color: #2563eb;
+    background: #fff;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-primary:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-danger {
+    border-color: #fecaca;
+    color: #ef4444;
+    background: #fff;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-danger:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+#subscriberPlansApp .badge {
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius:3px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+/* =========================
+   NX MODAL (FINAL - SCROLLABLE)
+========================= */
+
+#subscriberPlansApp .nx-modal .modal-dialog {
+    max-width: 760px;
+}
+
+#subscriberPlansApp .nx-modal .modal-dialog-scrollable {
+    height: auto;
+    max-height: calc(100vh - 6rem);
+}
+
+#subscriberPlansApp .nx-modal-content {
+    border: 0;
+    border-radius:3px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+    height: auto;
+    max-height: calc(100vh - 6rem);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#subscriberPlansApp .nx-modal-content > form {
+    height: auto;
+    max-height: inherit;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#subscriberPlansApp .nx-modal-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eef2f7;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+#subscriberPlansApp .nx-modal-body {
+    background: #f8fafc;
+    padding: 12px 16px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#subscriberPlansApp .nx-modal-content > form .nx-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#subscriberPlansApp .nx-modal-footer {
+    padding: 10px 16px;
+    border-top: 1px solid #eef2f7;
+    background: #fff;
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+#subscriberPlansApp .sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+#subscriberPlansApp .nx-section-card {
+    background: #fff;
+    border: 1px solid #edf2f7;
+    border-radius:3px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+}
+
+#subscriberPlansApp .nx-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+#subscriberPlansApp .nx-section-title span {
+    font-size: 18px;
+}
+
+#subscriberPlansApp .nx-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+#subscriberPlansApp .nx-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+#subscriberPlansApp .nx-field div {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius:3px;
+    color: #111827;
+    word-break: break-word;
+}
+
+#subscriberPlansApp .form-control,
+#subscriberPlansApp .form-select,
+#subscriberPlansApp textarea.form-control {
+    font-size: 14px;
+}
+
+@media (max-width: 1199px) {
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #subscriberPlansApp .plans-toolbar-meta {
+        text-align: left;
+    }
+}
+
+@media (max-width: 992px) {
+    #subscriberPlansApp .plans-hero-body {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #subscriberPlansApp .plans-hero-actions {
+        width: 100%;
+    }
+
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #subscriberPlansApp .nx-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    #subscriberPlansApp .nx-modal .modal-dialog {
+        max-width: calc(100% - 24px);
+        margin: 12px auto;
+    }
+}
+
+/* =========================================================
+   1WAN OPERATIONS CONSOLE
+========================================================= */
+
+#subscriberPlansApp {
+    --plans-blue: #2563EB;
+    --plans-ink: #101828;
+    --plans-muted: #667085;
+    --plans-line: #D9DEE7;
+    --plans-surface-soft: #F9FAFB;
+}
+
+#subscriberPlansApp .plans-hero-card {
+    margin-bottom: 16px !important;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-hero-body {
+    min-height: 104px;
+    padding: 20px;
+    align-items: center;
+}
+
+#subscriberPlansApp .plans-hero-badge {
+    margin: 0 0 5px;
+    padding: 0;
+    color: var(--plans-blue);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+}
+
+#subscriberPlansApp .plans-hero-title {
+    margin-bottom: 3px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -.03em;
+}
+
+#subscriberPlansApp .plans-hero-text {
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+#subscriberPlansApp .plans-hero-actions { padding-top: 0; }
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-secondary {
+    height: 36px;
+    min-height: 36px;
+    padding: 0 13px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-primary:hover,
+#subscriberPlansApp .nx-btn-primary:focus {
+    background: #2563EB;
+    border-color: #2563EB;
+}
+
+#subscriberPlansApp .plans-summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 12px !important;
+    background: transparent;
+    border-block: 0;
+}
+
+#subscriberPlansApp .plans-summary-item {
+    min-width: 0;
+    padding: 0;
+}
+
+#subscriberPlansApp .plans-summary-card {
+    height: 100%;
+    min-height: 104px;
+    background: #fff;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-summary-card .card-body { padding: 16px 20px; }
+#subscriberPlansApp .plans-summary-accent,
+#subscriberPlansApp .plans-summary-icon { display: none; }
+
+#subscriberPlansApp .plans-summary-label {
+    margin-bottom: 7px;
+    color: var(--plans-muted);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+#subscriberPlansApp .plans-summary-value {
+    margin: 0;
+    color: var(--plans-ink);
+    font-size: 27px;
+    font-weight: 600;
+    letter-spacing: -.035em;
+}
+
+#subscriberPlansApp .plans-summary-text {
+    margin-top: 3px;
+    color: var(--plans-muted);
+    font-size: 10px;
+}
+
+#subscriberPlansApp .plans-toolbar-shell {
+    margin-bottom: 16px !important;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-toolbar-body { padding: 0; }
+
+#subscriberPlansApp .plans-toolbar-grid {
+    grid-template-columns: minmax(260px, 1.4fr) 164px 164px auto;
+    gap: 12px;
+}
+
+#subscriberPlansApp .plans-toolbar-control {
+    height: 38px;
+    min-height: 38px;
+    border-radius: 3px;
+    border-color: var(--plans-line);
+    font-size: 11px;
+}
+
+#subscriberPlansApp .plans-table-card {
+    background: #fff;
+    border: 1px solid var(--plans-line);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-table-topline { display: none; }
+
+#subscriberPlansApp .plans-table-actions .btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 2px;
+}
+
+#subscriberPlansApp .badge {
+    padding: 4px 6px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 600;
+}
+
+#subscriberPlansApp .nx-modal-content { border-radius: 3px; }
+#subscriberPlansApp .nx-section-card { border-radius: 3px; box-shadow: none; }
+
+@media (max-width: 1199.98px) {
+    #subscriberPlansApp .plans-summary-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(160px, .5fr);
+    }
+}
+
+@media (max-width: 992px) {
+    #subscriberPlansApp .plans-hero-body {
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    #subscriberPlansApp .plans-hero-actions {
+        padding-top: 0;
+    }
+
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 767.98px) {
+    #subscriberPlansApp .plans-hero-body {
+        display: block;
+        padding: 16px;
+    }
+    #subscriberPlansApp .plans-hero-title { font-size: 24px; }
+    #subscriberPlansApp .plans-hero-actions {
+        margin-top: 16px;
+    }
+    #subscriberPlansApp .plans-summary-row {
+        grid-template-columns: 1fr;
+    }
+    #subscriberPlansApp .plans-toolbar-grid { grid-template-columns: 1fr 1fr; }
+    #subscriberPlansApp .plans-toolbar-body { padding: 0; }
+    #subscriberPlansApp .plans-search-wrap,
+    #subscriberPlansApp .plans-toolbar-meta { grid-column: 1 / -1; }
+    #subscriberPlansApp .nx-btn-primary,
+    #subscriberPlansApp .nx-btn-secondary,
+    #subscriberPlansApp .plans-toolbar-control {
+        min-height: 44px;
+        height: 44px;
+    }
+    #subscriberPlansApp .plans-table-actions .btn {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* UI AI-SLOP AUDIT: make filter selects read as deliberate dropdowns. */
+#subscriberPlansApp .plans-toolbar-grid > div:has(> .plans-toolbar-control) {
+    position: relative;
+}
+
+#subscriberPlansApp select.plans-toolbar-control {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+    color: #1f2937;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364758b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px 14px;
+}
+
+#subscriberPlansApp select.plans-toolbar-control:hover {
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+}
+
+#subscriberPlansApp select.plans-toolbar-control:focus,
+#subscriberPlansApp select.plans-toolbar-control:active {
+    border-color: #64748b !important;
+    box-shadow: 0 0 0 2px rgba(100, 116, 139, .14) !important;
+    outline: none;
+}
+
+html[data-theme="dark"] #subscriberPlansApp select.plans-toolbar-control {
+    color: #e5e7eb;
+    background-color: #101827;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+html[data-theme="dark"] #subscriberPlansApp select.plans-toolbar-control:hover {
+    background-color: #172033;
+}
+
+html.nx-theme-transition #subscriberPlansApp *,
+html.nx-theme-transition #subscriberPlansApp *::before,
+html.nx-theme-transition #subscriberPlansApp *::after {
+    outline: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Dashboard-aligned final visual normalization for Plans. Keep this block
+   last so older module-era styles cannot reintroduce gradients, rails, or
+   stronger borders. */
+#subscriberPlansApp {
+    --plans-ink: #172033;
+    --plans-muted: #69778c;
+    --plans-line: #dfe5ec;
+    --plans-line-soft: #e9edf2;
+    --plans-surface: var(--nx-panel-surface-light, #ffffff);
+    --plans-table-head: var(--nx-table-head-surface-light, #f8fafc);
+    --plans-table-row: #ffffff;
+    --plans-table-row-alt: #fbfdff;
+    --plans-control-bg: #ffffff;
+    --plans-control-border: var(--nx-control-border-light, #dbe3ef);
+    --plans-control-focus: var(--nx-control-focus, #64748b);
+}
+
+html[data-theme="dark"] #subscriberPlansApp {
+    --plans-ink: #e5e7eb;
+    --plans-muted: #9aa9bc;
+    --plans-line: #343f4b;
+    --plans-line-soft: #2d3742;
+    --plans-surface: #2b333d;
+    --plans-table-head: #252d36;
+    --plans-table-row: #28323c;
+    --plans-table-row-alt: #2c3742;
+    --plans-control-bg: #212a34;
+    --plans-control-border: #2f3a46;
+}
+
+#subscriberPlansApp .plans-hero-card,
+#subscriberPlansApp .plans-toolbar-shell,
+#subscriberPlansApp .plans-table-card {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+#subscriberPlansApp .plans-hero-body {
+    min-height: 104px;
+    padding: 0 0 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+#subscriberPlansApp .plans-hero-left {
+    max-width: 760px;
+}
+
+#subscriberPlansApp .plans-hero-badge {
+    display: none;
+}
+
+#subscriberPlansApp .plans-hero-title {
+    margin: 0 0 6px;
+    color: var(--plans-ink);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+#subscriberPlansApp .plans-hero-text {
+    margin: 0;
+    color: var(--plans-muted);
+}
+
+#subscriberPlansApp .plans-hero-actions {
+    padding-top: 14px;
+    gap: 9px;
+}
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-secondary {
+    min-width: 82px;
+    min-height: 34px;
+    height: 34px;
+    padding-inline: 14px;
+    gap: 7px;
+    border-radius: 3px !important;
+    font-weight: 600;
+    box-shadow: none !important;
+}
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-primary:hover,
+#subscriberPlansApp .nx-btn-primary:focus {
+    color: #ffffff;
+    background: var(--nx-primary-2, #2563eb);
+    border-color: var(--nx-primary-2, #2563eb);
+}
+
+#subscriberPlansApp .nx-btn-secondary,
+#subscriberPlansApp .nx-btn-secondary:hover,
+#subscriberPlansApp .nx-btn-secondary:focus {
+    color: var(--plans-ink);
+    background: var(--plans-control-bg);
+    border-color: var(--plans-control-border);
+}
+
+#subscriberPlansApp .plans-summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 12px !important;
+}
+
+#subscriberPlansApp .plans-summary-card {
+    min-height: 104px;
+    background: var(--plans-surface) !important;
+    border: 0 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+
+#subscriberPlansApp .plans-summary-card .card-body {
+    padding: 15px 17px 14px;
+}
+
+#subscriberPlansApp .plans-summary-accent,
+#subscriberPlansApp .plans-summary-icon {
+    display: none !important;
+}
+
+#subscriberPlansApp .plans-summary-label {
+    margin-bottom: 9px;
+    color: var(--plans-muted);
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+}
+
+#subscriberPlansApp .plans-summary-value {
+    margin: 0;
+    color: var(--plans-ink);
+    font-size: 25px;
+    line-height: 30px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+#subscriberPlansApp .plans-summary-text {
+    margin-top: 2px;
+    color: var(--plans-muted);
+    font-size: 10px;
+    line-height: 15px;
+}
+
+#subscriberPlansApp .plans-toolbar-body {
+    padding: 0;
+}
+
+#subscriberPlansApp .plans-toolbar-grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 0.65fr) auto;
+    gap: 12px;
+    align-items: center;
+}
+
+#subscriberPlansApp .plans-toolbar-control {
+    height: 38px;
+    min-height: 38px;
+    border-radius: 3px;
+    border: 1px solid var(--plans-control-border);
+    background: var(--plans-control-bg);
+    color: var(--plans-ink);
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-toolbar-control:hover {
+    border-color: var(--plans-control-border);
+}
+
+#subscriberPlansApp .plans-toolbar-control:focus,
+#subscriberPlansApp .plans-toolbar-control:active {
+    border-color: var(--plans-control-focus) !important;
+    box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.12) !important;
+    outline: none;
+}
+
+#subscriberPlansApp .plans-search-wrap {
+    position: relative;
+}
+
+#subscriberPlansApp .plans-search-control {
+    padding-left: 40px;
+}
+
+#subscriberPlansApp .plans-search-icon {
+    color: var(--plans-muted);
+}
+
+#subscriberPlansApp .plans-pagination-top {
+    color: var(--plans-muted);
+}
+
+#subscriberPlansApp .plans-table-card {
+    overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+#subscriberPlansApp .plans-table-topline {
+    display: none;
+}
+
+#subscriberPlansApp .plans-table-card .nx-data-table,
+#subscriberPlansApp .plans-table-card .table,
+#subscriberPlansApp .plans-table-card table {
+    margin: 0;
+    color: var(--plans-ink);
+    background: transparent !important;
+}
+
+#subscriberPlansApp .plans-table-card .nx-data-table thead th,
+#subscriberPlansApp .plans-table-card .table thead th,
+#subscriberPlansApp .plans-table-card table thead th {
+    height: 37px;
+    padding: 0 16px;
+    color: var(--plans-muted);
+    background: var(--plans-table-head);
+    border-bottom: 0;
+    font-weight: 600;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+html[data-theme="dark"]#subscriberPlansApp .plans-table-card .nx-data-table tbody tr,
+html[data-theme="dark"]#subscriberPlansApp .plans-table-card .table tbody tr,
+html[data-theme="dark"]#subscriberPlansApp .plans-table-card table tbody tr {
+    /* background: var(--plans-table-row); */
+    /* background: transparent !important; */
+    background: #1f293136 !important;
+}
+
+html[data-theme="dark"]#subscriberPlansApp .plans-table-card .nx-data-table tbody tr:nth-child(even),
+html[data-theme="dark"]#subscriberPlansApp .plans-table-card .table tbody tr:nth-child(even),
+html[data-theme="dark"]#subscriberPlansApp .plans-table-card table tbody tr:nth-child(even) {
+    /* background: var(--plans-table-row-alt); */
+    /* background: transparent !important; */
+    background: #1f293136 !important;
+
+}
+
+html:not([data-theme="dark"])#subscriberPlansApp .plans-table-card .nx-data-table tbody tr,
+html:not([data-theme="dark"])#subscriberPlansApp .plans-table-card .table tbody tr,
+html:not([data-theme="dark"])#subscriberPlansApp .plans-table-card table tbody tr {
+    /* background: var(--plans-table-row); */
+    background: transparent !important;
+    /* background: #1f293136 !important; */
+}
+
+html:not([data-theme="dark"])#subscriberPlansApp .plans-table-card .nx-data-table tbody tr:nth-child(even),
+html:not([data-theme="dark"])#subscriberPlansApp .plans-table-card .table tbody tr:nth-child(even),
+html:not([data-theme="dark"])#subscriberPlansApp .plans-table-card table tbody tr:nth-child(even) {
+    /* background: var(--plans-table-row-alt); */
+    background: transparent !important;
+    /* background: #1f293136 !important; */
+
+}
+
+#subscriberPlansApp .plans-table-card .nx-data-table tbody td,
+#subscriberPlansApp .plans-table-card .table tbody td,
+#subscriberPlansApp .plans-table-card table tbody td {
+    padding: 16px;
+    color: var(--plans-ink);
+    /* background: var(--plans-table-row); */
+    border-bottom: 0;
+    vertical-align: middle;
+}
+
+#subscriberPlansApp .plans-table-card .nx-data-table tbody tr + tr td,
+#subscriberPlansApp .plans-table-card .table tbody tr + tr td,
+#subscriberPlansApp .plans-table-card table tbody tr + tr td {
+    border-top: 1px solid var(--plans-line-soft);
+}
+
+#subscriberPlansApp .plans-table-actions {
+    gap: 8px;
+}
+
+#subscriberPlansApp .plans-table-actions .btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border-radius: 3px;
+    border: 0;
+    box-shadow: none;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary,
+#subscriberPlansApp .plans-table-actions .btn-outline-primary,
+#subscriberPlansApp .plans-table-actions .btn-outline-danger {
+    background: rgba(148, 163, 184, 0.12);
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary {
+    color: var(--plans-muted);
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-primary {
+    color: var(--nx-primary-2, #2563eb);
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-danger {
+    color: #ef4444;
+}
+
+#subscriberPlansApp .plans-table-actions .btn-outline-secondary:hover,
+#subscriberPlansApp .plans-table-actions .btn-outline-primary:hover,
+#subscriberPlansApp .plans-table-actions .btn-outline-danger:hover {
+    background: rgba(148, 163, 184, 0.18);
+}
+
+html[data-theme="dark"] #subscriberPlansApp select.plans-toolbar-control {
+    color: var(--plans-ink);
+    background-color: var(--plans-control-bg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239aa9bc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+html[data-theme="dark"] #subscriberPlansApp .plans-table-actions .btn-outline-secondary,
+html[data-theme="dark"] #subscriberPlansApp .plans-table-actions .btn-outline-primary,
+html[data-theme="dark"] #subscriberPlansApp .plans-table-actions .btn-outline-danger {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] #subscriberPlansApp .plans-table-actions .btn-outline-secondary:hover,
+html[data-theme="dark"] #subscriberPlansApp .plans-table-actions .btn-outline-primary:hover,
+html[data-theme="dark"] #subscriberPlansApp .plans-table-actions .btn-outline-danger:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 1199.98px) {
+    #subscriberPlansApp .plans-toolbar-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #subscriberPlansApp .plans-toolbar-meta {
+        text-align: left;
+    }
+}
+
+@media (max-width: 767.98px) {
+    #subscriberPlansApp .plans-hero-body {
+        display: block;
+        padding-bottom: 18px;
+    }
+
+    #subscriberPlansApp .plans-hero-title {
+        font-size: 24px;
+        line-height: 30px;
+    }
+
+    #subscriberPlansApp .plans-hero-actions {
+        margin-top: 14px;
+        padding-top: 0;
+    }
+
+    #subscriberPlansApp .plans-summary-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   FINAL TYPE NORMALIZATION
+   Keep main-content sizing on the shared nx.css scale.
+========================================================= */
+#subscriberPlansApp .plans-hero-title,
+#subscriberPlansApp .sp-page-title-card h1,
+#subscriberPlansApp .sp-page-title-card h5 {
+    font-size: 26px !important;
+    line-height: 32px !important;
+}
+
+#subscriberPlansApp .plans-hero-text,
+#subscriberPlansApp .sp-page-title-card p,
+#subscriberPlansApp .sp-page-title-card small {
+    font-size: 12px !important;
+    line-height: 18px !important;
+}
+
+#subscriberPlansApp .nx-btn-primary,
+#subscriberPlansApp .nx-btn-secondary,
+#subscriberPlansApp .plans-toolbar-control,
+#subscriberPlansApp .plans-pagination-top,
+#subscriberPlansApp .plans-table-card .nx-data-table,
+#subscriberPlansApp .plans-table-card .table,
+#subscriberPlansApp .plans-table-card table,
+#subscriberPlansApp .plans-table-card .nx-data-table tbody td,
+#subscriberPlansApp .plans-table-card .table tbody td,
+#subscriberPlansApp .plans-table-card table tbody td,
+#subscriberPlansApp .plans-table-card .nx-table-footer,
+#subscriberPlansApp .plans-table-card .nx-table-footer__label,
+#subscriberPlansApp .plans-table-card .nx-table-footer__btn,
+#subscriberPlansApp .plans-table-card .nx-table-footer__select {
+    font-size: var(--nx-font-size-sm, 13px) !important;
+    line-height: 1.5 !important;
+}
+
+html body#nxApplication .main-content .plans-summary-card {
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+/* Keep every summary card in the same bordered frame. */
+#subscriberPlansApp .plans-summary-item {
+    border: 1px solid #d7e0ea !important;
+    border-radius: 3px;
+    background: transparent;
+}
+
+#subscriberPlansApp .plans-summary-card {
+    border: 0 !important;
+}
+
+html[data-theme="dark"] #subscriberPlansApp .plans-summary-item {
+    border-color: #334155 !important;
+}
+
+
+
+/* Subscribers table contract: shared sizing, spacing, surfaces and typography. */
+body#nxApplication .main-content #subscriberPlansApp .plans-toolbar-shell,
+body#nxApplication .main-content #subscriberPlansApp .plans-toolbar-shell .card-body {
+    padding: 0 0 16px !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card {
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--nx-table-border-light) !important;
+    border-radius: 3px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-data-table {
+    width: 100%;
+    margin: 0 !important;
+    table-layout: fixed;
+    border: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent !important;
+    font-size: 13px !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card thead th {
+    height: 38px !important;
+    padding: 0 16px !important;
+    background: var(--nx-table-head-surface-light) !important;
+    color: var(--nx-text-muted) !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--nx-table-border-light) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: .07em;
+    line-height: 1.35 !important;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody tr {
+    background: var(--nx-table-row-surface-light) !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody tr:nth-child(even) {
+    background: var(--nx-table-row-surface-light-alt) !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody td {
+    padding: 16px !important;
+    background: transparent !important;
+    color: var(--nx-text) !important;
+    border: 0 !important;
+    border-top: 1px solid var(--nx-border-soft) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.35 !important;
+    vertical-align: middle;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody tr:first-child td {
+    border-top: 0 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-cell-title,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-cell-sub,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card small {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap {
+    border-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: #9aa9bc !important;
+    border-bottom-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody tr {
+    background: var(--nx-table-row-surface-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody tr:nth-child(even) {
+    background: var(--nx-table-row-surface-dark-alt) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card tbody td {
+    color: #e5e7eb !important;
+    border-top-color: rgba(154, 169, 188, .12) !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer {
+    padding-top: 18px;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer__page,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer__label {
+    font-weight: 500 !important;
+}
+
+
+
+/* Final Subscribers-compatible table contract. */
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap {
+    overflow-x: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table.table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: fixed !important;
+    border: 1px solid var(--nx-table-border-light) !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: transparent !important;
+    font-size: 13px !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead tr,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead th {
+    background: var(--nx-table-head-surface-light) !important;
+    background-image: none !important;
+    color: var(--nx-text-muted) !important;
+    border-color: var(--nx-table-border-light) !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead th {
+    height: 38px !important;
+    padding: 0 16px !important;
+    border-width: 0 0 1px 0 !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: .07em !important;
+    line-height: 1.35 !important;
+    text-transform: uppercase !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td {
+    background: var(--nx-table-row-surface-light) !important;
+    background-image: none !important;
+    color: var(--nx-text) !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr:nth-child(even),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr:nth-child(even) td {
+    background: var(--nx-table-row-surface-light-alt) !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td {
+    min-height: 56px !important;
+    padding: 16px !important;
+    border: 0 !important;
+    border-top: 1px solid var(--nx-border-soft) !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.35 !important;
+    vertical-align: middle !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr:first-child td {
+    border-top: 0 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table .nx-cell-title,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table .nx-cell-sub,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table small {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer__records {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer__page,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-footer__label {
+    font-weight: 500 !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table {
+    border-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead,
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead tr,
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: #9aa9bc !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody,
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr,
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td {
+    background: var(--nx-table-row-surface-dark) !important;
+    color: #e5e7eb !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr:nth-child(even),
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody tr:nth-child(even) td {
+    background: var(--nx-table-row-surface-dark-alt) !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td {
+    border-top-color: rgba(154, 169, 188, .12) !important;
+}
+
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .plans-table-actions .btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    border: 1px solid #cbd5df !important;
+    border-radius: 2px !important;
+    background: #f1f4f7 !important;
+    color: #315b82 !important;
+    box-shadow: none !important;
+}
+html[data-theme="dark"] body#nxApplication .main-content #subscriberPlansApp .plans-table-card .plans-table-actions .btn {
+    border-color: #344456 !important;
+    background: #213247 !important;
+    color: #a9c5dd !important;
+}
+
+
+
+/* Exact Subscribers table metrics. */
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table.table {
+    table-layout: fixed !important;
+    font-size: 14px !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead th {
+    height: 37px !important;
+    padding: 0 16px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    letter-spacing: .07em !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td {
+    padding: 16px !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td .nx-cell-sub,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td small {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td .nx-cell-title,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table tbody td .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+}
+
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(1),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(1) { width: 13% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(2),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(2) { width: 12% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(3),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(3) { width: 11% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(4),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(4) { width: 10% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(5),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(5) { width: 10% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(6),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(6) { width: 9% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(7),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(7) { width: 20% !important; }
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table th:nth-child(8),
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table td:nth-child(8) { width: 15% !important; }
+
+
+
+/* Use the global table-header token everywhere. */
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card .nx-table-wrap > table thead th,
+body#nxApplication .main-content #subscriberPlansApp .plans-table-card table.table thead th {
+    font-size: var(--nx-font-size-table-head) !important;
+}

@@ -1,0 +1,229 @@
+.technician-portal-page .tech-detail-card {
+    border: 1px solid #eef0f4;
+    border-radius:3px;
+    padding: 16px;
+    background: #fff;
+}
+
+.technician-portal-page .tech-detail-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.technician-portal-page .tech-note-item {
+    border: 1px solid #eef0f4;
+    border-radius:3px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #fafbfc;
+}
+
+.technician-portal-page .table td,
+.technician-portal-page .table th {
+    vertical-align: middle;
+}
+
+@media (max-width: 768px) {
+    .technician-portal-page .card-body {
+        padding: 14px;
+    }
+
+    .technician-portal-page .modal-dialog {
+        margin: 8px;
+    }
+
+    .technician-portal-page .table {
+        font-size: 13px;
+    }
+}
+.technician-portal-page .tech-photo-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #eef0f4;
+    border-radius:3px;
+    padding: 8px;
+    background: #fafbfc;
+    transition: all .15s ease;
+}
+
+.technician-portal-page .tech-photo-card:hover {
+    border-color: #cfd6e4;
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, .08);
+}
+
+.technician-portal-page .tech-photo-thumb {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius:3px;
+    background: #eef0f4;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .technician-portal-page .tech-photo-thumb {
+        height: 96px;
+    }
+}
+/* =========================================================
+   TECHNICIAN PORTAL DARK MODE
+========================================================= */
+
+html[data-theme="dark"] .technician-portal-page .card {
+    background: #182235 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .card-header,
+html[data-theme="dark"] .technician-portal-page .card-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .card-body {
+    background: #182235 !important;
+    color: #dbe4f0 !important;
+}
+
+/* Detail cards */
+html[data-theme="dark"] .technician-portal-page .tech-detail-card {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .tech-detail-label {
+    color: #9aabc1 !important;
+}
+
+/* Notes */
+html[data-theme="dark"] .technician-portal-page .tech-note-item {
+    background: #101827 !important;
+    border-color: #2b3d56 !important;
+    color: #dbe4f0 !important;
+}
+
+/* Tables */
+html[data-theme="dark"] .technician-portal-page table,
+html[data-theme="dark"] .technician-portal-page .table {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .table thead th {
+    background: #101827 !important;
+    color: #9aabc1 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .table tbody td {
+    background: #141f31 !important;
+    color: #dbe4f0 !important;
+    border-color: rgba(255,255,255,.06) !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .table tbody tr:hover td {
+    background: #182235 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Forms */
+html[data-theme="dark"] .technician-portal-page .form-label {
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .form-control,
+html[data-theme="dark"] .technician-portal-page .form-select,
+html[data-theme="dark"] .technician-portal-page textarea.form-control {
+    background: #101827 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .form-control::placeholder,
+html[data-theme="dark"] .technician-portal-page textarea::placeholder {
+    color: #64748b !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] .technician-portal-page .btn-light,
+html[data-theme="dark"] .technician-portal-page .btn-outline-secondary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .btn-light:hover,
+html[data-theme="dark"] .technician-portal-page .btn-outline-secondary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Photo cards */
+html[data-theme="dark"] .technician-portal-page .tech-photo-card {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .tech-photo-card:hover {
+    background: #182235 !important;
+    border-color: #475569 !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.35) !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .tech-photo-thumb {
+    background: #0f172a !important;
+}
+
+/* Badges */
+html[data-theme="dark"] .technician-portal-page .badge.bg-light {
+    background: #22324b !important;
+    color: #e2e8f0 !important;
+}
+
+/* Modal */
+html[data-theme="dark"] .technician-portal-page .modal-content {
+    background: #182235 !important;
+    border: 1px solid #2b3d56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .modal-header,
+html[data-theme="dark"] .technician-portal-page .modal-footer {
+    background: #141f31 !important;
+    border-color: #2b3d56 !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .modal-body {
+    background: #0b1220 !important;
+}
+
+/* Text */
+html[data-theme="dark"] .technician-portal-page h1,
+html[data-theme="dark"] .technician-portal-page h2,
+html[data-theme="dark"] .technician-portal-page h3,
+html[data-theme="dark"] .technician-portal-page h4,
+html[data-theme="dark"] .technician-portal-page h5,
+html[data-theme="dark"] .technician-portal-page h6,
+html[data-theme="dark"] .technician-portal-page strong {
+    color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .technician-portal-page .text-muted,
+html[data-theme="dark"] .technician-portal-page small {
+    color: #9aabc1 !important;
+}

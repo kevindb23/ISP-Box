@@ -2,16 +2,18 @@
 
 namespace App\Modules\WorkOrders\Controllers;
 
+use App\Modules\WorkOrders\DTOs\WorkOrderCommandDTO;
 use App\Modules\WorkOrders\Services\WorkOrdersService;
-use Framework\Controller;
+use App\Modules\WorkOrders\Validators\WorkOrderCommandValidator;
+use Framework\ApiController;
 use Framework\SessionManager;
 use Throwable;
 
-class WorkOrdersApiController extends Controller
+class WorkOrdersApiController extends ApiController
 {
     private WorkOrdersService $service;
 
-    public function __construct(WorkOrdersService $service)
+    public function __construct(WorkOrdersService $service, private WorkOrderCommandValidator $validator)
     {
         $this->service = $service;
     }
@@ -23,15 +25,10 @@ class WorkOrdersApiController extends Controller
                 'success' => true,
                 'data' => $this->service->workOrders(
                     SessionManager::user() ?? [],
-                    $_GET
+                    $this->request()->query()
                 ),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function show(int $id): void
@@ -44,12 +41,7 @@ class WorkOrdersApiController extends Controller
                     $id
                 ),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function createFromTicket(): void
@@ -59,15 +51,10 @@ class WorkOrdersApiController extends Controller
                 'success' => true,
                 'data' => $this->service->createFromTicket(
                     SessionManager::user() ?? [],
-                    $_POST
+                    $this->command('create')
                 ),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function assign(): void
@@ -77,15 +64,10 @@ class WorkOrdersApiController extends Controller
                 'success' => true,
                 'data' => $this->service->assign(
                     SessionManager::user() ?? [],
-                    $_POST
+                    $this->command('assign')
                 ),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function updateStatus(): void
@@ -95,15 +77,10 @@ class WorkOrdersApiController extends Controller
                 'success' => true,
                 'data' => $this->service->updateStatus(
                     SessionManager::user() ?? [],
-                    $_POST
+                    $this->command('status')
                 ),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function completeTask(): void
@@ -113,15 +90,10 @@ class WorkOrdersApiController extends Controller
                 'success' => true,
                 'data' => $this->service->completeTask(
                     SessionManager::user() ?? [],
-                    $_POST
+                    $this->command('complete_task')
                 ),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function reopenTask(): void
@@ -131,7 +103,7 @@ class WorkOrdersApiController extends Controller
                 'success' => true,
                 'data' => $this->service->reopenTask(
                     SessionManager::user() ?? [],
-                    $_POST
+                    $this->command('reopen_task')
                 ),
             ]);
         } catch (Throwable $e) {
@@ -142,12 +114,19 @@ class WorkOrdersApiController extends Controller
         }
     }
 
-    private function json(array $payload, int $statusCode = 200): void
+    private function command(string $action): array
     {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
+        $dto = new WorkOrderCommandDTO($this->request()->input());
+        $errors = $this->validator->validate($dto, $action);
+        if ($errors !== []) throw new \InvalidArgumentException((string)reset($errors));
+        return $dto->toArray();
+    }
 
-        echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
+    private function respondException(Throwable $e): void
+    {
+        $message=$e->getMessage(); $status=$e instanceof \InvalidArgumentException ? 422 : 400;
+        if (str_contains(strtolower($message),'not found')) $status=404;
+        if (str_contains(strtolower($message),'access') || str_contains(strtolower($message),'logged in')) $status=403;
+        $this->json(['success'=>false,'error'=>$message],$status);
     }
 }

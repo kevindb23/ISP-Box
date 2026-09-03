@@ -26,7 +26,8 @@ class StaffAttendanceController extends Controller
         $role = strtoupper((string)($user['role'] ?? ''));
 
         if ($role === 'SUBSCRIBER') {
-            header('Location: /logout');
+            SessionManager::destroy();
+            header('Location: /login');
             exit;
         }
     }

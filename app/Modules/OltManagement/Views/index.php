@@ -1,17 +1,21 @@
 <?php
+$oltLegacyUi = isset($_GET['legacy_ui']) && (string)$_GET['legacy_ui'] === '1';
+if (!$oltLegacyUi):
+    $nxNextManifestPath = BASE_PATH . '/public/build-next/.vite/manifest.json'; $nxNextManifest = is_file($nxNextManifestPath) ? (json_decode((string)file_get_contents($nxNextManifestPath), true) ?: []) : []; $nxNextEntry = $nxNextManifest['src/main.ts'] ?? []; $nxNextVersion = is_file($nxNextManifestPath) ? (string)filemtime($nxNextManifestPath) : (string)time();
+    foreach (($nxNextEntry['css'] ?? []) as $nxNextCss): ?><link rel="stylesheet" href="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextCss, '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"><?php endforeach; ?>
+    <div class="container-fluid nx-page" data-nx-next-root="olt" data-mode="devices"></div>
+    <?php if (!empty($nxNextEntry['file'])): ?><script type="module" src="/build-next/<?= htmlspecialchars(ltrim((string)$nxNextEntry['file'], '/'), ENT_QUOTES, 'UTF-8') ?>?v=<?= htmlspecialchars($nxNextVersion, ENT_QUOTES, 'UTF-8') ?>"></script><?php else: ?><div class="alert alert-warning">The new OLT interface is not built. Use <a href="/olt-management?legacy_ui=1">the legacy interface</a>.</div><?php endif; return;
+endif;
 ?>
 
 <div class="container-fluid nx-page" id="oltManagementPage">
-
-    <link rel="stylesheet" href="/module-assets/OltManagement/css/OltManagement.css">
-
     <div id="oltManagementApp" data-page-mode="devices">
 
         <!-- HERO -->
         <section class="card border-0 mb-0 nx-page-header-card">
             <div class="nx-page-header">
                 <div class="nx-page-header-left">
-                    <div class="olt-hero-badge">
+                    <div class="page-hero-badge">
                         <i class="bi bi-hdd-network"></i>
                         <span>Access & Uplink Infrastructure</span>
                     </div>
@@ -45,10 +49,10 @@
             <div class="olt-table-topline"></div>
 
             <div class="card-body">
-                <div class="olt-section-head">
+                <div class="section-head">
                     <div>
-                        <h2 class="olt-section-title">OLT Devices</h2>
-                        <p class="olt-section-subtitle">Registered OLT connection profiles and quick actions</p>
+                        <h2 class="section-title">OLT Devices</h2>
+                        <p class="section-subtitle">Registered OLT connection profiles and quick actions</p>
                     </div>
                 </div>
 
@@ -108,7 +112,7 @@
                                         </div>
 
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox"
+                                            <input class="form-check-input" type="checkbox" role="switch"
                                                    id="createDeviceOmci"
                                                    name="enable_home_gateway_omci"
                                                    value="1">
@@ -118,7 +122,7 @@
                                         </div>
 
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox"
+                                            <input class="form-check-input" type="checkbox" role="switch"
                                                    id="createDeviceOmciAutoDetect"
                                                    name="auto_detect_omci_support"
                                                    value="1"
@@ -265,7 +269,7 @@
                                         </div>
 
                                         <div class="form-check form-switch mb-2">
-                                            <input class="form-check-input" type="checkbox"
+                                            <input class="form-check-input" type="checkbox" role="switch"
                                                    id="editDeviceOmci"
                                                    name="enable_home_gateway_omci"
                                                    value="1">
@@ -275,7 +279,7 @@
                                         </div>
 
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox"
+                                            <input class="form-check-input" type="checkbox" role="switch"
                                                    id="editDeviceOmciAutoDetect"
                                                    name="auto_detect_omci_support"
                                                    value="1">

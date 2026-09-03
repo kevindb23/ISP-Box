@@ -2,16 +2,18 @@
 
 namespace App\Modules\TechnicianManagement\Controllers;
 
+use App\Modules\TechnicianManagement\DTOs\TechnicianCommandDTO;
 use App\Modules\TechnicianManagement\Services\TechnicianManagementService;
-use Framework\Controller;
+use App\Modules\TechnicianManagement\Validators\TechnicianCommandValidator;
+use Framework\ApiController;
 use Framework\SessionManager;
 use Throwable;
 
-class TechnicianManagementApiController extends Controller
+class TechnicianManagementApiController extends ApiController
 {
     private TechnicianManagementService $service;
 
-    public function __construct(TechnicianManagementService $service)
+    public function __construct(TechnicianManagementService $service, private TechnicianCommandValidator $validator)
     {
         $this->service = $service;
     }
@@ -21,14 +23,9 @@ class TechnicianManagementApiController extends Controller
         try {
             $this->json([
                 'success' => true,
-                'data' => $this->service->dashboard(SessionManager::user() ?? [], $_GET),
+                'data' => $this->service->dashboard(SessionManager::user() ?? [], $this->request()->query()),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function show(int $id): void
@@ -38,12 +35,7 @@ class TechnicianManagementApiController extends Controller
                 'success' => true,
                 'data' => $this->service->technicianDetails(SessionManager::user() ?? [], $id),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function updateStatus(): void
@@ -51,14 +43,9 @@ class TechnicianManagementApiController extends Controller
         try {
             $this->json([
                 'success' => true,
-                'data' => $this->service->updateStatus(SessionManager::user() ?? [], $_POST),
+                'data' => $this->service->updateStatus(SessionManager::user() ?? [], $this->command('status')),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function updateProfile(): void
@@ -66,14 +53,9 @@ class TechnicianManagementApiController extends Controller
         try {
             $this->json([
                 'success' => true,
-                'data' => $this->service->updateProfile(SessionManager::user() ?? [], $_POST),
+                'data' => $this->service->updateProfile(SessionManager::user() ?? [], $this->command('profile')),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function dispatch(): void
@@ -83,12 +65,7 @@ class TechnicianManagementApiController extends Controller
                 'success' => true,
                 'data' => $this->service->dispatchBoard(SessionManager::user() ?? []),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function assignWorkOrder(): void
@@ -96,14 +73,9 @@ class TechnicianManagementApiController extends Controller
         try {
             $this->json([
                 'success' => true,
-                'data' => $this->service->assignWorkOrder(SessionManager::user() ?? [], $_POST),
+                'data' => $this->service->assignWorkOrder(SessionManager::user() ?? [], $this->command('assign')),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
     public function updateWorkOrderStatus(): void
@@ -111,22 +83,25 @@ class TechnicianManagementApiController extends Controller
         try {
             $this->json([
                 'success' => true,
-                'data' => $this->service->updateWorkOrderStatus(SessionManager::user() ?? [], $_POST),
+                'data' => $this->service->updateWorkOrderStatus(SessionManager::user() ?? [], $this->command('work_order_status')),
             ]);
-        } catch (Throwable $e) {
-            $this->json([
-                'success' => false,
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        } catch (Throwable $e) { $this->respondException($e); }
     }
 
-    private function json(array $payload, int $statusCode = 200): void
+    private function command(string $action): array
     {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
+        $dto = new TechnicianCommandDTO($this->request()->input());
+        $errors = $this->validator->validate($dto, $action);
+        if ($errors !== []) throw new \InvalidArgumentException((string)reset($errors));
+        return $dto->toArray();
+    }
 
-        echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        exit;
+    private function respondException(Throwable $e): void
+    {
+        $message = $e->getMessage();
+        $status = $e instanceof \InvalidArgumentException ? 422 : 400;
+        if (str_contains(strtolower($message), 'not found')) $status = 404;
+        if (str_contains(strtolower($message), 'access is restricted') || str_contains(strtolower($message), 'logged in')) $status = 403;
+        $this->json(['success' => false, 'error' => $message], $status);
     }
 }

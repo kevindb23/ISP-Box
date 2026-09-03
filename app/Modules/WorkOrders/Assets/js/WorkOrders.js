@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         assignedCount: $('#workOrdersAssignedCount'),
         activeCount: $('#workOrdersActiveCount'),
         completedCount: $('#workOrdersCompletedCount'),
+        issueCount: $('#workOrdersIssueCount'),
 
         assignForm: $('#workOrderAssignForm'),
         statusForm: $('#workOrderStatusForm'),
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (refs.assignedCount) text(refs.assignedCount, String(summary.assigned_count || 0));
         if (refs.activeCount) text(refs.activeCount, String(summary.active_count || 0));
         if (refs.completedCount) text(refs.completedCount, String(summary.completed_count || 0));
+        if (refs.issueCount) text(refs.issueCount, String(summary.issue_count || 0));
     }
 
     function renderWorkOrdersTable(items) {
@@ -244,8 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderModal(workOrder, tasks, logs, technicians);
         } catch (error) {
-            hideModalLoading();
-            nxToast('error', error?.message || 'Unable to load work order details.');
+            const message = error?.message || 'Unable to load work order details.';
+            showModalError(message);
+            nxToast('error', message);
         }
     }
 
@@ -267,8 +270,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentEl = document.getElementById('workOrderModalContent');
 
         if (statusEl) statusEl.innerHTML = '';
-        if (loadingEl) loadingEl.classList.remove('d-none');
+        if (loadingEl) {
+            loadingEl.classList.remove('d-none');
+            loadingEl.innerHTML = `
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Loading work order details...
+            `;
+        }
         if (contentEl) contentEl.classList.add('d-none');
+    }
+
+    function showModalError(message) {
+        state.selectedWorkOrder = null;
+        state.selectedTasks = [];
+        state.selectedLogs = [];
+        state.assignableTechnicians = [];
+
+        setText('workOrderModalSubtitle', 'Details could not be loaded');
+        const loadingEl = document.getElementById('workOrderModalLoading');
+        const contentEl = document.getElementById('workOrderModalContent');
+        if (contentEl) contentEl.classList.add('d-none');
+        if (loadingEl) {
+            loadingEl.classList.remove('d-none');
+            loadingEl.innerHTML = `
+                <div class="alert alert-danger mb-0 text-start" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>${escape(message)}
+                </div>
+            `;
+        }
     }
 
     function hideModalLoading() {
@@ -291,6 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setValue('workOrderAssignId', workOrder.id || '');
         setValue('workOrderStatusId', workOrder.id || '');
         setValue('workOrderStatusSelect', status || 'OPEN');
+        configureStatusControls(status, workOrder);
 
         setText('workOrderTitle', workOrder.title || '-');
         setText('workOrderType', formatLabel(workOrder.work_order_type || '-'));
@@ -302,10 +332,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setText('workOrderSubscriberAccount', workOrder.account_number ? `Account # ${workOrder.account_number}` : 'Account # -');
         setText('workOrderSubscriberContact', workOrder.contact_number || workOrder.subscriber_contact_number || '-');
         setText('workOrderService', service);
+        setText('workOrderTicket', workOrder.ticket_no
+            ? `${workOrder.ticket_no}${workOrder.ticket_subject ? ` · ${workOrder.ticket_subject}` : ''}`
+            : 'Not linked to a ticket');
         setText('workOrderLocation', workOrder.location || workOrder.subscriber_address || '-');
 
         renderAssignableTechnicians(workOrder.assigned_user_id || 0, technicians);
-        renderTasks(tasks);
+        renderTasks(tasks, status);
         renderStatusLogs(logs);
 
         hideModalLoading();
@@ -323,11 +356,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ${rows.map((user) => {
             const id = Number(user.id || 0);
             const name = user.full_name || user.username || `User #${id}`;
-            const attendance = formatLabel(user.attendance_status || 'OFFLINE');
+            const attendanceRaw = upper(user.attendance_status || 'OFFLINE');
+            const attendance = formatLabel(attendanceRaw);
             const activeCount = Number(user.active_work_order_count || 0);
+            const eligible = attendanceRaw === 'AVAILABLE' || id === selected;
 
             return `
-                    <option value="${id}" ${id === selected ? 'selected' : ''}>
+                    <option value="${id}" ${id === selected ? 'selected' : ''} ${eligible ? '' : 'disabled'}>
                         ${escape(name)} - ${escape(attendance)} (${activeCount} active)
                     </option>
                 `;
@@ -335,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function renderTasks(tasks) {
+    function renderTasks(tasks, workOrderStatus = '') {
         const host = document.getElementById('workOrderTasks');
         const countEl = document.getElementById('workOrderTaskCount');
 
@@ -355,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
         host.innerHTML = rows.map((task) => {
             const taskId = task.id || '';
             const completed = Number(task.is_completed || 0) === 1;
+            const terminal = ['COMPLETED', 'CANCELLED'].includes(upper(workOrderStatus));
 
             return `
                 <div class="work-order-list-item">
@@ -381,6 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-secondary js-work-order-task-reopen"
+                                                    ${terminal ? 'disabled' : ''}
                                                     data-task-id="${escape(taskId)}">
                                                 Reopen
                                             </button>
@@ -388,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     : `
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-success js-work-order-task-complete"
+                                                    ${terminal ? 'disabled' : ''}
                                                     data-task-id="${escape(taskId)}">
                                                 Mark Done
                                             </button>
@@ -486,7 +524,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('work_order_id', workOrderId);
         formData.append('status', status);
-        formData.append('note', `Quick action: ${formatLabel(status)}.`);
+        let note = `Quick action: ${formatLabel(status)}.`;
+        if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(upper(status))) {
+            note = prompt(`Enter a required note for ${formatLabel(status)}:`) || '';
+            if (!note.trim()) { nxToast('warning', 'A note is required.'); return; }
+        }
+        formData.append('note', note);
 
         setButtonLoading(btn, true, 'Updating...');
 
@@ -503,6 +546,27 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             setButtonLoading(btn, false);
         }
+    }
+
+    function configureStatusControls(currentStatus, workOrder = {}) {
+        const transitions = {
+            OPEN: ['ASSIGNED', 'IN_PROGRESS', 'CANCELLED', 'FAILED'],
+            ASSIGNED: ['OPEN', 'IN_PROGRESS', 'CANCELLED', 'FAILED'],
+            IN_PROGRESS: ['ON_SITE', 'COMPLETED', 'CANCELLED', 'FAILED'],
+            ON_SITE: ['IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'FAILED'],
+            FAILED: ['OPEN', 'ASSIGNED', 'CANCELLED'],
+            COMPLETED: [], CANCELLED: []
+        };
+        const current = upper(currentStatus);
+        const allowed = (transitions[current] || []).filter(status => !['IN_PROGRESS','ON_SITE','COMPLETED'].includes(status) || Number(workOrder.assigned_user_id || 0) > 0);
+        document.querySelectorAll('#workOrderStatusSelect option').forEach(option => {
+            option.disabled = option.value !== current && !allowed.includes(option.value);
+        });
+        document.querySelectorAll('.work-order-status-shortcut').forEach(button => {
+            button.disabled = !allowed.includes(upper(button.dataset.status || ''));
+        });
+        const submit = document.getElementById('workOrderStatusSubmitBtn');
+        if (submit) submit.disabled = allowed.length === 0;
     }
 
     async function completeTask(taskId, btn) {
@@ -573,22 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function apiPost(url, formData) {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-            },
-            credentials: 'same-origin',
-            body: formData,
-        });
-
-        const json = await response.json().catch(() => ({}));
-
-        if (!response.ok || json.success === false || json.ok === false) {
-            throw new Error(json.error || json.message || `Request failed: ${response.status}`);
-        }
-
-        return json;
+        return api.form(url, formData);
     }
 
     function assignedDisplay(value, row) {

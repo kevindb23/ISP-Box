@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Presentation\Middleware;
+namespace App\Core\Middleware;
 
-use Core\SessionManager;
+use Framework\SessionManager;
 
 class AuthMiddleware
 {
@@ -16,22 +16,6 @@ class AuthMiddleware
             exit;
 
         }
-
-        $timeout = 1800; // 30 minutes
-
-        if (
-            isset($_SESSION['LAST_ACTIVITY']) &&
-            (time() - $_SESSION['LAST_ACTIVITY'] > $timeout)
-        ) {
-
-            SessionManager::destroy();
-
-            header("Location: /login");
-            exit;
-
-        }
-
-        $_SESSION['LAST_ACTIVITY'] = time();
 
     }
 

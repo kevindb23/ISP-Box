@@ -26,13 +26,14 @@ def ok(message, commands=None, output="", meta=None):
 
 
 def parse_payload():
-    if len(sys.argv) < 2:
-        fail("Missing JSON payload argument.")
+    raw = sys.stdin.read()
+    if not raw.strip():
+        fail("Missing JSON payload.")
 
     try:
-        return json.loads(sys.argv[1])
+        return json.loads(raw)
     except Exception:
-        fail("Invalid JSON payload.", {"raw": sys.argv[1]})
+        fail("Invalid JSON payload.")
 
 
 def build_commands(mode):

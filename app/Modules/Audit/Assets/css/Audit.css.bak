@@ -1,0 +1,293 @@
+/* Module override layer: shared shell, panels, tables, controls, and theme
+   tokens are defined in public/assets/css/nx.css. Keep this file scoped to
+   audit-specific layout and visual exceptions only. */
+#auditPage {
+    --audit-blue: #2563eb;
+    --audit-ink: #0f172a;
+    --audit-muted: #64748b;
+    --audit-line: #e2e8f0;
+    --audit-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+}
+
+#auditPage .nx-page-header-card,
+#auditPage .nx-toolbar-card,
+#auditPage .nx-content-card {
+    border-radius: var(--nx-panel-radius);
+    overflow: hidden;
+    border: 1px solid var(--nx-panel-border-light);
+    background: var(--nx-panel-surface-light);
+    box-shadow: none;
+}
+
+#auditPage .nx-page-header {
+    min-height: 124px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 28px;
+}
+
+#auditPage .audit-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius:3px;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+#auditPage .nx-page-title {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--audit-ink);
+}
+
+#auditPage .nx-page-subtitle {
+    font-size: 14px;
+    color: var(--audit-muted);
+}
+
+#auditPage .nx-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#auditPage .nx-header-btn {
+    height: 40px;
+    padding: 0 16px;
+    border-radius:3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+#auditPage .form-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+#auditPage .form-control,
+#auditPage .form-select {
+    min-height: 42px;
+    border-radius:3px;
+    border-color: #dbe3ef;
+    box-shadow: none;
+    font-size: 14px;
+}
+
+#auditPage .form-control:focus,
+#auditPage .form-select:focus {
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+#auditPage .audit-summary-card {
+    min-height: 118px;
+    border-radius:3px;
+    background: #fff;
+    border: 1px solid var(--audit-line);
+    box-shadow: var(--audit-shadow);
+    padding: 22px 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+#auditPage .audit-summary-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: #2563eb;
+}
+
+#auditPage .audit-summary-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+#auditPage .audit-summary-value {
+    font-size: 26px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+#auditPage .nx-content-card .card-body {
+    padding: 0;
+}
+
+#auditPage #auditContentArea {
+    min-height: 220px;
+}
+
+#auditPage .table thead th {
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: #475569;
+    border-bottom-color: #e2e8f0;
+    padding: 18px 16px 14px;
+    background: #f8fafc;
+}
+
+#auditPage .table tbody td {
+    padding: 16px;
+    border-bottom-color: #edf2f7;
+    vertical-align: middle;
+}
+
+#auditPage .badge {
+    font-size: 11px;
+    padding: 5px 10px;
+    font-weight: 800;
+    letter-spacing: .02em;
+}
+
+@media (max-width: 992px) {
+    #auditPage .nx-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #auditPage .nx-page-actions {
+        width: 100%;
+    }
+}
+/* =========================================================
+   AUDIT LOGS DARK MODE
+========================================================= */
+
+html[data-theme="dark"] #auditPage {
+    --audit-blue: #60a5fa;
+    --audit-ink: #f8fafc;
+    --audit-muted: #9aabc1;
+    --audit-line: #334155;
+    --audit-shadow: 0 12px 26px rgba(0, 0, 0, .28);
+}
+
+html[data-theme="dark"] #auditPage .nx-page-header-card,
+html[data-theme="dark"] #auditPage .nx-toolbar-card,
+html[data-theme="dark"] #auditPage .nx-content-card,
+html[data-theme="dark"] #auditPage .audit-summary-card {
+    background: var(--nx-panel-surface-dark) !important;
+    border-color: var(--nx-panel-border-dark) !important;
+    box-shadow: none !important;
+    color: #e5eefb !important;
+}
+
+html[data-theme="dark"] #auditPage .nx-page-title,
+html[data-theme="dark"] #auditPage .audit-summary-value {
+    color: var(--audit-ink) !important;
+}
+
+html[data-theme="dark"] #auditPage .nx-page-subtitle,
+html[data-theme="dark"] #auditPage .form-label,
+html[data-theme="dark"] #auditPage .audit-summary-label,
+html[data-theme="dark"] #auditPage .text-muted,
+html[data-theme="dark"] #auditPage .small {
+    color: var(--audit-muted) !important;
+}
+
+html[data-theme="dark"] #auditPage .audit-hero-badge {
+    background: rgba(59, 130, 246, .16) !important;
+    color: #93c5fd !important;
+    border: 1px solid rgba(147, 197, 253, .18) !important;
+}
+
+html[data-theme="dark"] #auditPage .form-control,
+html[data-theme="dark"] #auditPage .form-select {
+    background: var(--nx-control-surface-dark) !important;
+    border-color: var(--nx-control-border-dark) !important;
+    color: var(--nx-text) !important;
+}
+
+html[data-theme="dark"] #auditPage .form-control::placeholder {
+    color: #64748b !important;
+}
+
+/* Table */
+html[data-theme="dark"] #auditPage table,
+html[data-theme="dark"] #auditPage .table,
+html[data-theme="dark"] #auditPage #auditContentArea {
+    background: var(--nx-table-row-surface-dark) !important;
+    color: var(--nx-text-soft) !important;
+}
+
+html[data-theme="dark"] #auditPage .table thead,
+html[data-theme="dark"] #auditPage .table thead tr,
+html[data-theme="dark"] #auditPage .table thead th {
+    background: var(--nx-table-head-surface-dark) !important;
+    color: var(--nx-text-muted) !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+html[data-theme="dark"] #auditPage .table tbody,
+html[data-theme="dark"] #auditPage .table tbody tr,
+html[data-theme="dark"] #auditPage .table tbody td {
+    background: var(--nx-table-row-surface-dark) !important;
+    color: var(--nx-text-soft) !important;
+    border-color: var(--nx-table-border-dark) !important;
+}
+
+html[data-theme="dark"] #auditPage .table tbody tr:hover,
+html[data-theme="dark"] #auditPage .table tbody tr:hover td {
+    background: #1d2a40 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] #auditPage .table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] #auditPage .btn-light,
+html[data-theme="dark"] #auditPage .btn-outline-secondary {
+    background: #182235 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] #auditPage .btn-light:hover,
+html[data-theme="dark"] #auditPage .btn-outline-secondary:hover {
+    background: #22324b !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Audit-specific layer ends here. Shared surfaces and controls stay in nx.css. */
+html[data-theme="dark"] #auditPage .audit-card,
+html[data-theme="dark"] #auditPage .audit-panel,
+html[data-theme="dark"] #auditPage .nx-content-card,
+html[data-theme="dark"] #auditPage .nx-toolbar-card {
+    background: var(--nx-panel-surface-dark) !important;
+    border-color: var(--nx-panel-border-dark) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] #auditPage input,
+html[data-theme="dark"] #auditPage select,
+html[data-theme="dark"] #auditPage textarea {
+    background: var(--nx-control-surface-dark) !important;
+    border-color: var(--nx-control-border-dark) !important;
+    color: var(--nx-text) !important;
+}

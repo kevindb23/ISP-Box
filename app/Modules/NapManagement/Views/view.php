@@ -15,7 +15,7 @@
 
 <h6 class="fw-semibold mb-3">
 <?= htmlspecialchars($s['splitter_label']) ?> 
-<span class="text-muted">(<?= $s['splitter_ratio'] ?>)</span>
+<span class="text-muted">(<?= htmlspecialchars((string)$s['splitter_ratio'], ENT_QUOTES, 'UTF-8') ?>)</span>
 </h6>
 
 <div class="d-flex flex-wrap gap-2">
@@ -38,7 +38,7 @@ $color = match($status){
 style="
 width:40px;
 height:40px;
-border-radius:8px;
+border-radius:3px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -48,9 +48,9 @@ font-weight:600;
 background:<?= $color ?>;
 cursor:pointer;
 "
-title="Port <?= $p['port_number'] ?> (<?= $status ?>)"
+title="Port <?= htmlspecialchars((string)$p['port_number'], ENT_QUOTES, 'UTF-8') ?> (<?= htmlspecialchars((string)$status, ENT_QUOTES, 'UTF-8') ?>)"
 >
-<?= $p['port_number'] ?>
+<?= htmlspecialchars((string)$p['port_number'], ENT_QUOTES, 'UTF-8') ?>
 </div>
 
 <?php endforeach; ?>
