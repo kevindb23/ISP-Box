@@ -2,6 +2,9 @@
 .env
 .env.local
 .env.*
+.env.backup
+.env.production
+auth.json
 
 # Logs
 *.log
@@ -41,3 +44,20 @@ public/uploads/
 # Database Dumps
 *.sql
 *.dump
+
+# Laravel/framework artifacts
+bootstrap/compiled.php
+app/storage/
+public/storage
+public/hot
+public_html/storage
+public_html/hot
+storage/*.key
+/storage/pail
+Homestead.yaml
+Homestead.json
+/.vagrant
+.phpunit.result.cache
+.phpactor.json
+npm-debug.log
+yarn-error.log
