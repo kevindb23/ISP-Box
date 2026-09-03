@@ -2854,6 +2854,85 @@ window.NX = (() => {
                 }
             });
         }
+
+        const notificationToggle = document.getElementById('globalNotificationsToggle');
+        const notificationPopover = document.getElementById('globalNotifications');
+        const notificationList = notificationPopover?.querySelector('.nx-notification-list');
+        const notificationRefresh = notificationPopover?.querySelector('.nx-notification-refresh');
+        if (notificationToggle && notificationPopover && notificationList && notificationToggle.dataset.nxNotificationsBound !== '1') {
+            notificationToggle.dataset.nxNotificationsBound = '1';
+            let notificationsLoading = false;
+
+            const renderNotifications = (items) => {
+                notificationList.replaceChildren();
+                if (!items.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'nx-notification-empty';
+                    empty.textContent = 'No security notifications.';
+                    notificationList.appendChild(empty);
+                    return;
+                }
+
+                items.forEach((item) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'nx-notification-item nx-notification-critical';
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-shield-exclamation';
+                    icon.setAttribute('aria-hidden', 'true');
+                    const copy = document.createElement('div');
+                    const title = document.createElement('strong');
+                    title.textContent = 'Critical security event';
+                    const description = document.createElement('span');
+                    description.textContent = item.description || 'Suspicious login activity was rejected.';
+                    const meta = document.createElement('small');
+                    meta.textContent = [item.username, item.ip_address, item.created_at].filter(Boolean).join(' · ');
+                    copy.append(title, description, meta);
+                    entry.append(icon, copy);
+                    notificationList.appendChild(entry);
+                });
+            };
+
+            const loadNotifications = async () => {
+                if (notificationsLoading) return;
+                notificationsLoading = true;
+                notificationList.replaceChildren();
+                const loading = document.createElement('div');
+                loading.className = 'nx-notification-empty';
+                loading.textContent = 'Loading notifications…';
+                notificationList.appendChild(loading);
+                try {
+                    const items = await api.get('/api/v1/notifications');
+                    renderNotifications(Array.isArray(items) ? items : []);
+                } catch (error) {
+                    notificationList.replaceChildren();
+                    const failed = document.createElement('div');
+                    failed.className = 'nx-notification-empty nx-notification-error';
+                    failed.textContent = error.message || 'Unable to load notifications.';
+                    notificationList.appendChild(failed);
+                } finally {
+                    notificationsLoading = false;
+                }
+            };
+
+            const closeNotifications = () => {
+                notificationPopover.hidden = true;
+                notificationToggle.setAttribute('aria-expanded', 'false');
+            };
+
+            notificationToggle.addEventListener('click', () => {
+                const opening = notificationPopover.hidden;
+                notificationPopover.hidden = !opening;
+                notificationToggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
+                if (opening) loadNotifications();
+            });
+            notificationRefresh?.addEventListener('click', loadNotifications);
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('#globalNotifications, #globalNotificationsToggle')) closeNotifications();
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeNotifications();
+            });
+        }
     });
     maps.fixLeafletDefaultIcons();
     return publicAPI;

@@ -28,6 +28,7 @@ class AuthController extends ApiController
     public function login()
     {
         $credentials = new LoginDTO($this->request()->input());
+        $this->auth->recordSuspiciousInput($credentials);
         $errors = $this->validator->validateCredentials($credentials);
         if ($errors !== []) {
             $this->error('Invalid username or password', 422, $errors);

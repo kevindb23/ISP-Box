@@ -37,6 +37,14 @@ class AuditService
         return $row ? (new AuditLog($row))->toArray() : null;
     }
 
+    public function securityNotifications(int $limit = 30): array
+    {
+        return array_map(
+            static fn(array $row): array => (new AuditLog($row))->toArray(),
+            $this->repo->latestSecurityNotifications($limit)
+        );
+    }
+
     public function log(
         string $module,
         string $action,

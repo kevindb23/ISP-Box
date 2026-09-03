@@ -5,6 +5,9 @@ namespace App\Modules\Auth\Controllers;
 use App\Modules\Auth\DTOs\LoginDTO;
 use App\Modules\Auth\Services\AuthService;
 use App\Modules\Auth\Validators\LoginValidator;
+use App\Modules\Auth\Services\LoginSecurityDetector;
+use App\Modules\Audit\DTOs\AuditEventDTO;
+use App\Modules\Audit\Services\AuditService;
 use App\Core\Security\RateLimiter;
 use App\Core\Security\Csrf;
 use Framework\SessionManager;
@@ -17,7 +20,8 @@ class AuthController
         private AuthService $auth,
         private LoginValidator $validator,
         private Request $request,
-        private Response $response
+        private Response $response,
+        private AuditService $audit
     ) {
     }
 
@@ -89,6 +93,8 @@ class AuthController
                 return;
             }
 
+            $this->recordSuspiciousInput($credentials);
+
             /*
             |--------------------------------------------------------------------------
             | Validate Input
@@ -134,6 +140,28 @@ class AuthController
         }
 
         return '/dashboard';
+    }
+
+    private function recordSuspiciousInput(LoginDTO $credentials): void
+    {
+        if (!LoginSecurityDetector::isSuspicious($credentials->username, $credentials->password)) {
+            return;
+        }
+
+        $username = preg_replace('/[^\p{L}\p{N}_.@-]+/u', '_', $credentials->username) ?: 'UNKNOWN';
+        $this->audit->logEvent(new AuditEventDTO(
+            module: 'AUTH',
+            action: 'LOGIN_SECURITY_ALERT',
+            description: 'Suspicious login input detected and rejected.',
+            username: substr($username, 0, 120) ?: 'UNKNOWN',
+            ipAddress: $this->request->ip(),
+            objectType: 'USER_ACCOUNT',
+            result: 'CRITICAL',
+            source: 'WEB',
+            httpMethod: 'POST',
+            route: '/login',
+            metadata: ['security_event' => 'SUSPICIOUS_LOGIN_INPUT']
+        ));
     }
 
 }

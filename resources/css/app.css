@@ -1691,6 +1691,126 @@ td.text-center.text-muted.py-4::before {
     }
 }
 
+/* Header notification popover: anchored to the bell and intentionally quiet
+   until an operator opens it. */
+body#nxApplication .topbar-right {
+    position: relative;
+}
+
+body#nxApplication .nx-notification-popover {
+    position: absolute;
+    z-index: 1200;
+    top: calc(100% + 10px);
+    right: 0;
+    width: min(360px, calc(100vw - 24px));
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 12px;
+    background: var(--nx-bg-card, #fff);
+    color: var(--nx-text, #0f172a);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, .18);
+}
+
+body#nxApplication .nx-notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--nx-border, #e2e8f0);
+}
+
+body#nxApplication .nx-notification-header strong,
+body#nxApplication .nx-notification-header small {
+    display: block;
+}
+
+body#nxApplication .nx-notification-header small {
+    margin-top: 3px;
+    color: var(--nx-text-muted, #64748b);
+    font-size: 11px;
+}
+
+body#nxApplication .nx-notification-refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--nx-text-muted, #64748b);
+}
+
+body#nxApplication .nx-notification-refresh:hover {
+    background: var(--nx-bg-card-soft, #f1f5f9);
+    color: var(--nx-text, #0f172a);
+}
+
+body#nxApplication .nx-notification-list {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+body#nxApplication .nx-notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 14px 16px;
+}
+
+body#nxApplication .nx-notification-item + .nx-notification-item {
+    border-top: 1px solid var(--nx-border, #e2e8f0);
+}
+
+body#nxApplication .nx-notification-item > i {
+    flex: 0 0 auto;
+    color: #dc2626;
+    font-size: 17px;
+}
+
+body#nxApplication .nx-notification-item strong,
+body#nxApplication .nx-notification-item span,
+body#nxApplication .nx-notification-item small {
+    display: block;
+}
+
+body#nxApplication .nx-notification-item span {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+body#nxApplication .nx-notification-item small {
+    margin-top: 6px;
+    color: var(--nx-text-muted, #64748b);
+    font-size: 10px;
+}
+
+body#nxApplication .nx-notification-empty {
+    padding: 24px 16px;
+    color: var(--nx-text-muted, #64748b);
+    font-size: 12px;
+    text-align: center;
+}
+
+body#nxApplication .nx-notification-error {
+    color: #b91c1c;
+}
+
+html[data-theme="dark"] body#nxApplication .nx-notification-popover {
+    border-color: rgba(148, 163, 184, .16);
+    background: #242627;
+    color: #e5e7eb;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .42);
+}
+
+html[data-theme="dark"] body#nxApplication .nx-notification-header,
+html[data-theme="dark"] body#nxApplication .nx-notification-item + .nx-notification-item {
+    border-color: rgba(148, 163, 184, .14);
+}
+
 /* Authoritative header search contract. Keep this single control identical
    across themes and prevent legacy light-mode input chrome from returning. */
 html[data-theme] body#nxApplication .topbar .global-search,

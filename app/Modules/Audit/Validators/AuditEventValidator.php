@@ -7,7 +7,7 @@ use InvalidArgumentException;
 
 class AuditEventValidator
 {
-    private const RESULTS = ['SUCCESS', 'FAILED', 'DENIED', 'PARTIAL', 'SKIPPED', 'REDIRECT'];
+    private const RESULTS = ['SUCCESS', 'FAILED', 'DENIED', 'PARTIAL', 'SKIPPED', 'REDIRECT', 'CRITICAL'];
 
     public function validate(AuditEventDTO $event): void
     {
