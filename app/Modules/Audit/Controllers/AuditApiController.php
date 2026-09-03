@@ -39,4 +39,9 @@ class AuditApiController extends ApiController
 
         $this->success($item);
     }
+
+    public function notifications(): void
+    {
+        $this->success($this->service->securityNotifications());
+    }
 }

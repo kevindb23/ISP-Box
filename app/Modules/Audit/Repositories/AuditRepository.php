@@ -70,6 +70,15 @@ class AuditRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function latestSecurityNotifications(int $limit = 30): array
+    {
+        return $this->latest([
+            'module' => 'AUTH',
+            'action' => 'LOGIN_SECURITY_ALERT',
+            'limit' => $limit,
+        ]);
+    }
+
     public function find(int $id): ?array
     {
         $stmt = $this->db->prepare("

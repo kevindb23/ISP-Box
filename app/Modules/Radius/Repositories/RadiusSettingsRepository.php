@@ -21,6 +21,34 @@ class RadiusSettingsRepository
      */
     public function getConnectionConfig(): array
     {
+        $row = $this->activeConnectionRow();
+
+        if (!$row) {
+            throw new RuntimeException('No active Radius database settings are configured.');
+        }
+
+        return $this->configFromRow($row);
+    }
+
+    public function getOptionalConnectionConfig(): ?array
+    {
+        $row = $this->activeConnectionRow();
+
+        if (!$row) {
+            return null;
+        }
+
+        foreach (['host', 'db_user', 'db_password', 'db_name'] as $field) {
+            if (trim((string)($row[$field] ?? '')) === '') {
+                return null;
+            }
+        }
+
+        return $this->configFromRow($row);
+    }
+
+    private function activeConnectionRow(): ?array
+    {
         $stmt = $this->db->query("
             SELECT host, db_user, db_password, db_name
             FROM radius_settings
@@ -30,11 +58,11 @@ class RadiusSettingsRepository
         ");
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
 
-        if (!$row) {
-            throw new RuntimeException('No active Radius database settings are configured.');
-        }
-
+    private function configFromRow(array $row): array
+    {
         foreach (['host', 'db_user', 'db_password', 'db_name'] as $field) {
             if (trim((string)($row[$field] ?? '')) === '') {
                 throw new RuntimeException('Radius database settings are incomplete.');

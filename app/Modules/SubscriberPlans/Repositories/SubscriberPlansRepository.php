@@ -6,23 +6,27 @@ use App\Infrastructure\Database\DatabaseConnection;
 use App\Modules\Radius\Repositories\RadiusSettingsRepository;
 use PDO;
 use PDOException;
+use RuntimeException;
 
 class SubscriberPlansRepository
 {
     private PDO $db;
     private ?PDO $radiusDb = null;
-    private array $radiusConfig;
+    private ?array $radiusConfig;
 
     public function __construct(DatabaseConnection $database, RadiusSettingsRepository $radiusSettings)
     {
         $this->db = $database->get();
 
-        $this->radiusConfig = $radiusSettings->getConnectionConfig();
+        $this->radiusConfig = $radiusSettings->getOptionalConnectionConfig();
     }
 
     private function radiusDb(): PDO
     {
         if ($this->radiusDb instanceof PDO) return $this->radiusDb;
+        if ($this->radiusConfig === null) {
+            throw new RuntimeException('Radius database settings are required for this operation.');
+        }
         $radius = $this->radiusConfig;
         return $this->radiusDb = new PDO(
             "mysql:host={$radius['host']};dbname={$radius['name']};charset=utf8mb4",

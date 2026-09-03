@@ -55,10 +55,20 @@ $breadcrumb = nexusbox_breadcrumb();
                    aria-expanded="false" aria-autocomplete="list">
             <div id="globalSearchSuggestions" class="nx-search-suggestions" role="listbox" hidden></div>
         </div>
-        <button type="button" class="topbar-alerts" aria-label="View alerts">
+        <button type="button" class="topbar-alerts" id="globalNotificationsToggle" aria-label="View notifications" aria-controls="globalNotifications" aria-expanded="false">
             <i class="bi bi-bell topbar-alert-icon" aria-hidden="true"></i>
             <span>Alerts</span>
         </button>
+        <div id="globalNotifications" class="nx-notification-popover" role="dialog" aria-label="Notifications" hidden>
+            <div class="nx-notification-header">
+                <div>
+                    <strong>Notifications</strong>
+                    <small>Security events</small>
+                </div>
+                <button type="button" class="nx-notification-refresh" aria-label="Refresh notifications" title="Refresh notifications"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
+            </div>
+            <div class="nx-notification-list" role="status" aria-live="polite"><div class="nx-notification-empty">Open notifications to load recent events.</div></div>
+        </div>
 
         <div class="user-menu">
             <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle theme">

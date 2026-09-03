@@ -7,6 +7,7 @@ use App\Modules\Auth\DTOs\LoginDTO;
 use App\Modules\Auth\Repositories\AdminRepository;
 use App\Modules\Auth\Repositories\LoginAttemptRepository;
 use App\Modules\Audit\Services\AuditService;
+use App\Modules\Auth\Services\LoginSecurityDetector;
 use Framework\SessionManager;
 
 class AuthService
@@ -62,6 +63,20 @@ class AuthService
         return true;
     }
 
+    public function recordSuspiciousInput(LoginDTO $credentials): void
+    {
+        if (!LoginSecurityDetector::isSuspicious($credentials->username, $credentials->password)) {
+            return;
+        }
+
+        $this->auditAuthentication(
+            $this->safeUsername($credentials->username),
+            'LOGIN_SECURITY_ALERT',
+            'CRITICAL',
+            'Suspicious login input detected and rejected.'
+        );
+    }
+
     private function auditAuthentication(
         string $username,
         string $action,
@@ -80,5 +95,11 @@ class AuthService
             httpMethod: 'POST',
             route: '/login'
         ));
+    }
+
+    private function safeUsername(string $username): string
+    {
+        $safe = preg_replace('/[^\p{L}\p{N}_.@-]+/u', '_', $username) ?: 'UNKNOWN';
+        return substr($safe, 0, 120) ?: 'UNKNOWN';
     }
 }
