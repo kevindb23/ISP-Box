@@ -93,6 +93,7 @@ $avatarText = strtoupper(substr($avatarSource, 0, 1));
                 ['subscriber-portal', '/subscriber-portal/invoices', 'bi-receipt', 'My Invoices', ['SUBSCRIBER']],
                 ['subscriber-portal', '/subscriber-portal/payments', 'bi-credit-card', 'My Payments', ['SUBSCRIBER']],
                 ['subscriber-portal', '/subscriber-portal/tickets', 'bi-ticket-detailed', 'My Tickets', ['SUBSCRIBER']],
+                ['subscriber-portal', '/subscriber-portal/security', 'bi-shield-lock', 'Security', ['SUBSCRIBER']],
             ],
             'Network' => [
                 ['bng', '/bng', 'bi-router', 'BNG'], ['routers', '/routers', 'bi-signpost-split', 'Routers'],
@@ -118,6 +119,9 @@ $avatarText = strtoupper(substr($avatarSource, 0, 1));
                 ['users', '/users', 'bi-person-gear', 'Users'], ['audit', '/audit', 'bi-shield-check', 'Audit Logs'],
                 ['branding', '/branding', 'bi-palette', 'Branding'], ['system-settings', '/system-settings', 'bi-sliders', 'System Settings'],
                 ['api-tokens', '/api-tokens', 'bi-key', 'API Tokens'],
+            ],
+            'Security' => [
+                ['mfa', '/mfa', 'bi-shield-lock', 'MFA', ['ADMINISTRATOR', 'SUPERADMIN']],
             ],
         ];
         foreach ($rbacNavigation as $group => $items):

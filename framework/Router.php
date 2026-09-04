@@ -213,7 +213,11 @@ class Router
             'GET /',
             'GET /login',
             'POST /login',
+            'POST /login/mfa',
+            'POST /forgot-password/request',
+            'POST /forgot-password/reset',
             'POST /api/v1/login',
+            'POST /api/v1/mfa/login/verify',
             'POST /api/v1/billing/xendit/webhook',
             'POST /api/v1/payment-gateway/paymongo/webhook',
         ];

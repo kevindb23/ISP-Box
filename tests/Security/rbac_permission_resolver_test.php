@@ -33,7 +33,7 @@ foreach (array_filter(array_column($cases, 2)) as $permission) {
     if (!in_array($permission, $known, true)) $failures[] = "Resolved permission {$permission} is missing from the assignable catalog.";
 }
 if (count($known) !== count(array_unique($known))) $failures[] = 'Assignable permission catalog contains duplicates.';
-if (count($known) !== 77) $failures[] = 'Unexpected assignable permission count; review route coverage.';
+if (count($known) !== 80) $failures[] = 'Unexpected assignable permission count; review route coverage.';
 foreach (glob(BASE_PATH . '/app/Modules/*/Routes/*.php') ?: [] as $routeFile) {
     $source = file_get_contents($routeFile);
     preg_match_all('/\$router->(get|post)\(\s*[\'\"]([^\'\"]+)/', $source, $routes, PREG_SET_ORDER);

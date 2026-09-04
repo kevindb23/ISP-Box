@@ -9,6 +9,7 @@ use App\Modules\Auth\Repositories\LoginAttemptRepository;
 use App\Modules\Audit\Services\AuditService;
 use App\Modules\Auth\Services\LoginSecurityDetector;
 use Framework\SessionManager;
+use App\Modules\Mfa\Services\MfaService;
 
 class AuthService
 {
@@ -19,21 +20,33 @@ class AuthService
     public function __construct(
         AdminRepository $users,
         LoginAttemptRepository $attempts,
-        AuditService $audit
+        AuditService $audit,
+        MfaService $mfa
     ) {
         $this->users = $users;
         $this->attempts = $attempts;
         $this->audit = $audit;
+        $this->mfa = $mfa;
     }
 
+    private MfaService $mfa;
+
     public function login(LoginDTO $credentials): bool
+    {
+        $result = $this->authenticate($credentials);
+        if (($result['status'] ?? '') !== 'success') return false;
+        $this->completeLoginById((int)$result['user_id']);
+        return true;
+    }
+
+    public function authenticate(LoginDTO $credentials): array
     {
         $username = $credentials->username;
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
         if ($this->attempts->isLocked($username)) {
             $this->auditAuthentication($username, 'LOGIN_LOCKED', 'DENIED', 'Login denied because the account is temporarily locked.');
-            return false;
+            return ['status' => 'invalid'];
         }
 
         $admin = $this->users->findByUsername($username);
@@ -41,10 +54,23 @@ class AuthService
         if (!$admin || !$admin->isActive() || !$admin->passwordMatches($credentials->password)) {
             $this->attempts->recordFailure($username, $ip);
             $this->auditAuthentication($username, 'LOGIN_FAILED', 'FAILED', 'Login failed because the supplied credentials were invalid.');
-            return false;
+            return ['status' => 'invalid'];
         }
 
         $this->attempts->clear($username);
+
+        if ($this->mfa->isEnabled($admin->id())) {
+            $challenge = $this->mfa->beginLoginChallenge($admin->toSessionArray() + ['id' => $admin->id()]);
+            return ['status' => 'mfa_required', 'user_id' => $admin->id(), 'challenge' => $challenge];
+        }
+
+        return ['status' => 'success', 'user_id' => $admin->id()];
+    }
+
+    public function completeLoginById(int $userId): void
+    {
+        $admin = $this->users->findById($userId);
+        if (!$admin || !$admin->isActive()) throw new \RuntimeException('The account is no longer active.');
 
         $this->users->updateLastLogin($admin->id());
         $sessionUser = $admin->toSessionArray();
@@ -59,8 +85,6 @@ class AuthService
         );
 
         unset($_SESSION['csrf_token']);
-
-        return true;
     }
 
     public function recordSuspiciousInput(LoginDTO $credentials): void
@@ -75,6 +99,16 @@ class AuthService
             'CRITICAL',
             'Suspicious login input detected and rejected.'
         );
+    }
+
+    public function passwordResetChallenge(string $identifier): string
+    {
+        return $this->mfa->beginPasswordReset($identifier);
+    }
+
+    public function resetPassword(string $token, string $code, string $password): void
+    {
+        $this->mfa->resetPassword($token, $code, $password);
     }
 
     private function auditAuthentication(

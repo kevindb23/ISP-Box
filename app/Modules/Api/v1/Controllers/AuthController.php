@@ -35,7 +35,20 @@ class AuthController extends ApiController
             return;
         }
 
-        if ($this->auth->login($credentials)) {
+        $result = $this->auth->authenticate($credentials);
+
+        if (($result['status'] ?? '') === 'mfa_required') {
+            $this->success([
+                'mfa_required' => true,
+                'challenge_token' => $result['challenge']['token'],
+                'method' => $result['challenge']['method'],
+                'expires_in' => $result['challenge']['expires_in'],
+            ], 'Additional verification is required.', 202);
+            return;
+        }
+
+        if (($result['status'] ?? '') === 'success') {
+            $this->auth->completeLoginById((int)$result['user_id']);
 
             $userId = (int)(SessionManager::id() ?? 0);
 

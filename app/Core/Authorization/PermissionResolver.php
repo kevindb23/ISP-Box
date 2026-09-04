@@ -30,6 +30,7 @@ final class PermissionResolver
         'system-settings' => ['view','update'],
         'api-tokens' => ['view','create','delete'],
         'subscriber-portal' => ['view','update'],
+        'mfa' => ['view','configure','update'],
     ];
 
     private const PREFIXES = [
@@ -44,6 +45,7 @@ final class PermissionResolver
         'dashboard' => 'dashboard', 'routers' => 'routers', 'billing' => 'billing',
         'tickets' => 'tickets', 'branding' => 'branding', 'radius' => 'radius',
         'audit' => 'audit', 'users' => 'users', 'cgnat' => 'cgnat', 'bng' => 'bng',
+        'mfa' => 'mfa',
     ];
 
     public function forRoute(string $method, string $uri): ?string
@@ -65,6 +67,7 @@ final class PermissionResolver
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) return $module . '.view';
 
         $tail = strtolower($path);
+        if ($module === 'mfa' && (str_contains($tail, '/login/verify') || str_contains($tail, '/disable'))) return 'mfa.update';
         if ($module === 'users' && str_contains($tail, '/permissions')) return 'users.configure';
         $action = match (true) {
             preg_match('#/(delete|remove|destroy|revoke)(?:/|$)#', $tail) === 1 => 'delete',
