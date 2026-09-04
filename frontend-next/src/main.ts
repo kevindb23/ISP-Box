@@ -24,6 +24,7 @@ import BrandingPage from './modules/branding/BrandingPage.vue';
 import SystemSettingsPage from './modules/system-settings/SystemSettingsPage.vue';
 import ApiTokensPage from './modules/api-tokens/ApiTokensPage.vue';
 import PaymentGatewayPage from './modules/payment-gateway/PaymentGatewayPage.vue';
+import ScheduledDowntimePage from './modules/scheduled-downtime/ScheduledDowntimePage.vue';
 import DashboardPage from './modules/dashboard/DashboardPage.vue';
 import './styles/theme.css';
 
@@ -178,6 +179,12 @@ function mountNextRoots(scope: ParentNode = document): void {
 
     if (root.dataset.nxNextRoot === 'payment-gateway') {
       createApp(PaymentGatewayPage).mount(root);
+      root.dataset.nxNextMounted = '1';
+      return;
+    }
+
+    if (root.dataset.nxNextRoot === 'scheduled-downtime') {
+      createApp(ScheduledDowntimePage).mount(root);
       root.dataset.nxNextMounted = '1';
     }
   });
