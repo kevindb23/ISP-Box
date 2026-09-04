@@ -7,13 +7,15 @@ use App\Modules\PaymentGateway\DTOs\PaymentGatewayCommandDTO;
 use App\Modules\PaymentGateway\DTOs\PayMongoWebhookDTO;
 use App\Modules\PaymentGateway\Services\PaymentGatewayService;
 use Framework\ApiController;
+use App\Modules\SystemMaintenance\Services\SystemMaintenanceService;
+use Framework\SessionManager;
 use Throwable;
 
 class PaymentGatewayApiController extends ApiController
 {
     private PaymentGatewayService $service;
 
-    public function __construct(PaymentGatewayService $service)
+    public function __construct(PaymentGatewayService $service, private SystemMaintenanceService $systemMaintenance)
     {
         $this->service = $service;
     }
@@ -50,6 +52,7 @@ class PaymentGatewayApiController extends ApiController
     public function createCheckout()
     {
         try {
+            $this->ensureSubscriberPortalOperational();
             $payload = PaymentGatewayCommandDTO::fromArray($this->request()->input());
 
             $this->success($this->service->createPayMongoCheckout($payload), 'PayMongo checkout created.');
@@ -78,6 +81,7 @@ class PaymentGatewayApiController extends ApiController
     public function verify()
     {
         try {
+            $this->ensureSubscriberPortalOperational();
             $this->success(
                 $this->service->verifyPayMongoPayment(
                     PaymentGatewayCommandDTO::fromArray($this->request()->input())
@@ -86,6 +90,14 @@ class PaymentGatewayApiController extends ApiController
             );
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 422);
+        }
+    }
+
+    private function ensureSubscriberPortalOperational(): void
+    {
+        $user = SessionManager::user();
+        if (is_array($user) && strtoupper((string)($user['role'] ?? '')) === 'SUBSCRIBER' && $this->systemMaintenance->activeState()['active']) {
+            throw new \RuntimeException('The subscriber portal is temporarily unavailable while system maintenance is in progress.');
         }
     }
 }

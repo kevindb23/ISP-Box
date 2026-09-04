@@ -79,6 +79,37 @@ class AuditRepository
         ]);
     }
 
+    public function securityNotificationsForUser(int $userId, int $limit = 30): array
+    {
+        $stmt = $this->db->prepare('SELECT a.*, CASE WHEN r.notification_id IS NULL THEN 0 ELSE 1 END AS is_read
+            FROM audit_logs a
+            LEFT JOIN notification_reads r ON r.notification_id = a.id AND r.user_id = :user_id
+            WHERE a.module = \'AUTH\' AND a.action = \'LOGIN_SECURITY_ALERT\'
+            ORDER BY a.created_at DESC, a.id DESC LIMIT :limit');
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', max(1, min(100, $limit)), PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function unreadSecurityNotificationCount(int $userId): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM audit_logs a
+            LEFT JOIN notification_reads r ON r.notification_id = a.id AND r.user_id = :user_id
+            WHERE a.module = \'AUTH\' AND a.action = \'LOGIN_SECURITY_ALERT\' AND r.notification_id IS NULL');
+        $stmt->execute(['user_id' => $userId]);
+        return (int)$stmt->fetchColumn();
+    }
+
+    public function markNotificationRead(int $notificationId, int $userId): void
+    {
+        $stmt = $this->db->prepare('INSERT INTO notification_reads (notification_id, user_id)
+            SELECT id, :user_id FROM audit_logs
+            WHERE id = :notification_id AND module = \'AUTH\' AND action = \'LOGIN_SECURITY_ALERT\'
+            ON DUPLICATE KEY UPDATE read_at = CURRENT_TIMESTAMP');
+        $stmt->execute(['notification_id' => $notificationId, 'user_id' => $userId]);
+    }
+
     public function find(int $id): ?array
     {
         $stmt = $this->db->prepare("

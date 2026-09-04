@@ -72,6 +72,8 @@ final class PermissionResolver
         $method = strtoupper($method);
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) return $module . '.view';
         if ($method === 'DELETE') return $module . '.delete';
+        if ($module === 'system-maintenance') return 'system-maintenance.configure';
+        if ($module === 'scheduled-downtime' && $path === 'scheduled-downtime' && $method === 'POST') return 'scheduled-downtime.create';
 
         $tail = strtolower($path);
         if ($module === 'mfa' && (str_contains($tail, '/login/verify') || str_contains($tail, '/disable'))) return 'mfa.update';

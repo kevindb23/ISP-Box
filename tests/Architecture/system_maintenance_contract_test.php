@@ -36,6 +36,8 @@ $apiController = file_get_contents($root . '/app/Modules/SystemMaintenance/Contr
 $apiRoutes = file_get_contents($root . '/app/Modules/SystemMaintenance/Routes/api.php');
 $portalController = file_get_contents($root . '/app/Modules/SubscriberPortal/Controllers/SubscriberPortalController.php');
 $portalApiController = file_get_contents($root . '/app/Modules/SubscriberPortal/Controllers/SubscriberPortalApiController.php');
+$portalApiRoutes = file_get_contents($root . '/app/Modules/SubscriberPortal/Routes/api.php');
+$paymentApiController = file_get_contents($root . '/app/Modules/PaymentGateway/Controllers/PaymentGatewayApiController.php');
 
 foreach (['activeState', 'DateTimeImmutable', 'starts_at', 'ends_at', 'message'] as $needle) {
     if (stripos($service, $needle) === false) {
@@ -75,6 +77,15 @@ foreach (['index', 'account', 'services', 'invoices', 'payments', 'tickets', 'se
 
 if (stripos($portalApiController, "activeState()") === false) {
     fwrite(STDERR, "subscriber API controller does not expose the read-only active state\n");
+    exit(1);
+}
+
+if (stripos($portalApiRoutes, "'/api/v1/subscriber-portal/maintenance'") === false) {
+    fwrite(STDERR, "subscriber maintenance state route is missing\n");
+    exit(1);
+}
+if (stripos($paymentApiController, 'ensureSubscriberPortalOperational') === false) {
+    fwrite(STDERR, "subscriber payment maintenance guard is missing\n");
     exit(1);
 }
 

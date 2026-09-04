@@ -3,6 +3,7 @@
 use App\Modules\SubscriberPortal\Controllers\SubscriberPortalApiController;
 
 $router->get('/api/v1/subscriber-portal/me', [SubscriberPortalApiController::class, 'me']);
+$router->get('/api/v1/subscriber-portal/maintenance', [SubscriberPortalApiController::class, 'maintenance']);
 
 $router->get('/api/v1/subscriber-portal/dashboard', [SubscriberPortalApiController::class, 'dashboard']);
 $router->get('/api/v1/subscriber-portal/summary', [SubscriberPortalApiController::class, 'summary']);
