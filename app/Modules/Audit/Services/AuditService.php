@@ -45,6 +45,32 @@ class AuditService
         );
     }
 
+    public function notificationFeed(int $userId, int $limit = 30, string $role = ''): array
+    {
+        if (strtoupper(trim($role)) === 'SUBSCRIBER') {
+            return [
+                'items' => [],
+                'unread_count' => 0,
+            ];
+        }
+
+        $items = array_map(static function (array $row): array {
+            $item = (new AuditLog($row))->toArray();
+            $item['is_read'] = (bool)($row['is_read'] ?? false);
+            return $item;
+        }, $this->repo->securityNotificationsForUser($userId, $limit));
+
+        return [
+            'items' => $items,
+            'unread_count' => $this->repo->unreadSecurityNotificationCount($userId),
+        ];
+    }
+
+    public function markNotificationRead(int $notificationId, int $userId): void
+    {
+        $this->repo->markNotificationRead($notificationId, $userId);
+    }
+
     public function log(
         string $module,
         string $action,

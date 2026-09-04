@@ -6,6 +6,7 @@ use App\Modules\Audit\DTOs\AuditFilterDTO;
 use App\Modules\Audit\Services\AuditService;
 use App\Modules\Audit\Validators\AuditFilterValidator;
 use Framework\ApiController;
+use Framework\SessionManager;
 
 class AuditApiController extends ApiController
 {
@@ -42,6 +43,23 @@ class AuditApiController extends ApiController
 
     public function notifications(): void
     {
-        $this->success($this->service->securityNotifications());
+        $user = SessionManager::user();
+        if (!is_array($user) || empty($user['id'])) {
+            $this->error('Authentication required.', 401);
+            return;
+        }
+        $role = strtoupper(trim((string)($user['role'] ?? '')));
+        $this->success($this->service->notificationFeed((int)$user['id'], 30, $role));
+    }
+
+    public function markRead($id): void
+    {
+        $user = SessionManager::user();
+        if (!is_array($user) || empty($user['id'])) {
+            $this->error('Authentication required.', 401);
+            return;
+        }
+        $this->service->markNotificationRead((int)$id, (int)$user['id']);
+        $this->success([], 'Notification marked as read.');
     }
 }
