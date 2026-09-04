@@ -1776,6 +1776,34 @@ body#nxApplication .nx-notification-item small {
     display: block;
 }
 
+body#nxApplication .nx-notification-item { cursor: pointer; }
+body#nxApplication .nx-notification-item.is-read { opacity: .58; background: transparent; }
+body#nxApplication .nx-notification-item:focus-visible { outline: 2px solid var(--nx-primary); outline-offset: -2px; }
+body#nxApplication .nx-notification-modal {
+    position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center;
+    padding: 1rem; background: rgb(15 23 42 / 45%);
+}
+body#nxApplication .nx-notification-modal[hidden] { display: none; }
+body#nxApplication .nx-notification-modal-card {
+    width: min(100%, 34rem); overflow: hidden; border: 1px solid var(--nx-border, #e2e8f0);
+    border-radius: 12px; background: var(--nx-surface, #fff); box-shadow: 0 24px 60px rgb(15 23 42 / 24%);
+}
+body#nxApplication .nx-notification-modal-header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--nx-border, #e2e8f0);
+}
+body#nxApplication .nx-notification-modal-header small,
+body#nxApplication .nx-notification-modal-header strong { display: block; }
+body#nxApplication .nx-notification-modal-header small { color: var(--nx-primary, #2563eb); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+body#nxApplication .nx-notification-modal-header strong { margin-top: .25rem; color: var(--nx-text, #0f172a) !important; font-size: 1rem; }
+body#nxApplication .nx-notification-modal-close { border: 0; background: transparent; color: var(--nx-text-muted, #64748b) !important; font-size: 1.5rem; line-height: 1; }
+body#nxApplication .nx-notification-modal-body { padding: 1.25rem; }
+body#nxApplication .nx-notification-modal-body > p { margin: 0 0 1.25rem; color: var(--nx-text, #0f172a) !important; }
+body#nxApplication .nx-notification-modal-body dl { display: grid; gap: .75rem; margin: 0; }
+body#nxApplication .nx-notification-modal-body dl > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .75rem; }
+body#nxApplication .nx-notification-modal-body dt { color: var(--nx-text-muted, #64748b); font-size: .75rem; font-weight: 700; }
+body#nxApplication .nx-notification-modal-body dd { margin: 0; color: var(--nx-text, #0f172a) !important; overflow-wrap: anywhere; font-size: .85rem; }
+
 body#nxApplication .nx-notification-item span {
     margin-top: 4px;
     font-size: 12px;
@@ -27189,6 +27217,27 @@ html[data-theme="dark"] .sidebar {
 .logout-top i {
     margin: 0 !important;
     line-height: 1 !important;
+}
+
+.topbar-alerts { position: relative !important; }
+.topbar-alerts .nx-notification-count {
+    position: absolute !important;
+    top: 1px !important;
+    right: 1px !important;
+    display: inline-flex !important;
+    min-width: 16px !important;
+    height: 16px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 4px !important;
+    border: 2px solid var(--topbar, #202122) !important;
+    border-radius: 999px !important;
+    background: #e53935 !important;
+    color: #fff !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    pointer-events: none !important;
 }
 
 .global-search {

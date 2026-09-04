@@ -57,6 +57,7 @@ $breadcrumb = nexusbox_breadcrumb();
         </div>
         <button type="button" class="topbar-alerts" id="globalNotificationsToggle" aria-label="View notifications" aria-controls="globalNotifications" aria-expanded="false">
             <i class="bi bi-bell topbar-alert-icon" aria-hidden="true"></i>
+            <span class="nx-notification-count" id="globalNotificationsCount" aria-live="polite" aria-atomic="true" hidden></span>
             <span>Alerts</span>
         </button>
         <div id="globalNotifications" class="nx-notification-popover" role="dialog" aria-label="Notifications" hidden>
@@ -68,6 +69,18 @@ $breadcrumb = nexusbox_breadcrumb();
                 <button type="button" class="nx-notification-refresh" aria-label="Refresh notifications" title="Refresh notifications"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
             </div>
             <div class="nx-notification-list" role="status" aria-live="polite"><div class="nx-notification-empty">Open notifications to load recent events.</div></div>
+        </div>
+        <div id="globalNotificationModal" class="nx-notification-modal" role="dialog" aria-modal="true" aria-labelledby="globalNotificationModalTitle" hidden>
+            <div class="nx-notification-modal-card">
+                <div class="nx-notification-modal-header">
+                    <div><small>Security alert</small><strong id="globalNotificationModalTitle">Notification details</strong></div>
+                    <button type="button" class="nx-notification-modal-close" aria-label="Close notification details">&times;</button>
+                </div>
+                <div class="nx-notification-modal-body">
+                    <p id="globalNotificationModalDescription"></p>
+                    <dl><div><dt>User</dt><dd id="globalNotificationModalUser">—</dd></div><div><dt>IP address</dt><dd id="globalNotificationModalIp">—</dd></div><div><dt>Time</dt><dd id="globalNotificationModalTime">—</dd></div></dl>
+                </div>
+            </div>
         </div>
 
         <div class="user-menu">

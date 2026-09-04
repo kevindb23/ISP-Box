@@ -2859,11 +2859,27 @@ window.NX = (() => {
         const notificationPopover = document.getElementById('globalNotifications');
         const notificationList = notificationPopover?.querySelector('.nx-notification-list');
         const notificationRefresh = notificationPopover?.querySelector('.nx-notification-refresh');
+        const notificationCount = document.getElementById('globalNotificationsCount');
+        const notificationModal = document.getElementById('globalNotificationModal');
+        const notificationModalClose = notificationModal?.querySelector('.nx-notification-modal-close');
+        const notificationItems = new Map();
+        let notificationModalPreviousFocus = null;
         if (notificationToggle && notificationPopover && notificationList && notificationToggle.dataset.nxNotificationsBound !== '1') {
             notificationToggle.dataset.nxNotificationsBound = '1';
             let notificationsLoading = false;
+            let unreadNotificationCount = 0;
+
+            const updateNotificationCount = (count) => {
+                if (!notificationCount) return;
+                const total = Number(count) || 0;
+                unreadNotificationCount = total;
+                notificationCount.hidden = total < 1;
+                notificationCount.textContent = total > 99 ? '99+' : String(total);
+                notificationToggle.setAttribute('aria-label', total ? `View notifications (${total} alerts)` : 'View notifications');
+            };
 
             const renderNotifications = (items) => {
+                notificationItems.clear();
                 notificationList.replaceChildren();
                 if (!items.length) {
                     const empty = document.createElement('div');
@@ -2874,8 +2890,13 @@ window.NX = (() => {
                 }
 
                 items.forEach((item) => {
+                    notificationItems.set(String(item.id), item);
                     const entry = document.createElement('div');
-                    entry.className = 'nx-notification-item nx-notification-critical';
+                    entry.className = `nx-notification-item nx-notification-critical${item.is_read ? ' is-read' : ''}`;
+                    entry.dataset.notificationId = String(item.id);
+                    entry.tabIndex = 0;
+                    entry.setAttribute('role', 'button');
+                    entry.setAttribute('aria-label', 'Open security notification');
                     const icon = document.createElement('i');
                     icon.className = 'bi bi-shield-exclamation';
                     icon.setAttribute('aria-hidden', 'true');
@@ -2892,6 +2913,37 @@ window.NX = (() => {
                 });
             };
 
+            const closeNotificationModal = () => {
+                if (!notificationModal) return;
+                notificationModal.hidden = true;
+                notificationModalPreviousFocus?.focus?.();
+                notificationModalPreviousFocus = null;
+            };
+
+            const openNotificationModal = async (item, entry) => {
+                if (!notificationModal) return;
+                const setText = (selector, value) => { const node = notificationModal.querySelector(selector); if (node) node.textContent = value || '—'; };
+                setText('#globalNotificationModalDescription', item.description || 'Suspicious login activity was rejected.');
+                setText('#globalNotificationModalUser', item.username);
+                setText('#globalNotificationModalIp', item.ip_address);
+                setText('#globalNotificationModalTime', item.created_at);
+                notificationModalPreviousFocus = document.activeElement;
+                notificationModal.hidden = false;
+                notificationModalClose?.focus();
+                if (item.is_read || item.reading) return;
+                item.reading = true;
+                try {
+                    await api.post(`/api/v1/notifications/${encodeURIComponent(item.id)}/read`);
+                    item.is_read = true;
+                    entry?.classList.add('is-read');
+                    updateNotificationCount(Math.max(0, unreadNotificationCount - 1));
+                } catch (error) {
+                    dev.warn('Unable to mark notification as read', error);
+                } finally {
+                    item.reading = false;
+                }
+            };
+
             const loadNotifications = async () => {
                 if (notificationsLoading) return;
                 notificationsLoading = true;
@@ -2901,8 +2953,10 @@ window.NX = (() => {
                 loading.textContent = 'Loading notifications…';
                 notificationList.appendChild(loading);
                 try {
-                    const items = await api.get('/api/v1/notifications');
-                    renderNotifications(Array.isArray(items) ? items : []);
+                    const response = await api.get('/api/v1/notifications');
+                    const rows = Array.isArray(response) ? response : (Array.isArray(response?.items) ? response.items : []);
+                    updateNotificationCount(Array.isArray(response) ? rows.filter(item => !item.is_read).length : response?.unread_count);
+                    renderNotifications(rows);
                 } catch (error) {
                     notificationList.replaceChildren();
                     const failed = document.createElement('div');
@@ -2925,7 +2979,22 @@ window.NX = (() => {
                 notificationToggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
                 if (opening) loadNotifications();
             });
+            notificationList.addEventListener('click', (event) => {
+                const entry = event.target.closest('.nx-notification-item');
+                const item = entry ? notificationItems.get(entry.dataset.notificationId) : null;
+                if (entry && item) void openNotificationModal(item, entry);
+            });
+            notificationList.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                const entry = event.target.closest('.nx-notification-item');
+                const item = entry ? notificationItems.get(entry.dataset.notificationId) : null;
+                if (entry && item) { event.preventDefault(); void openNotificationModal(item, entry); }
+            });
             notificationRefresh?.addEventListener('click', loadNotifications);
+            notificationModalClose?.addEventListener('click', closeNotificationModal);
+            notificationModal?.addEventListener('click', (event) => { if (event.target === notificationModal) closeNotificationModal(); });
+            document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeNotificationModal(); });
+            loadNotifications();
             document.addEventListener('click', (event) => {
                 if (!event.target.closest('#globalNotifications, #globalNotificationsToggle')) closeNotifications();
             });
