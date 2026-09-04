@@ -205,6 +205,14 @@ $primaryColor = $branding['primary_color'] ?? '#2563EB';
             line-height: 1.45;
         }
 
+        .auth-link { padding: 0; color: var(--auth-blue); background: transparent; border: 0; font-size: 12px; cursor: pointer; }
+        .auth-link:hover { text-decoration: underline; }
+        .auth-mfa-step h2 { margin: 16px 0 8px; font-size: 20px; font-weight: 600; }
+        .auth-mfa-step p { margin: 0 0 20px; color: var(--auth-muted); font-size: 13px; line-height: 1.5; }
+        .auth-mfa-icon { width: 42px; height: 42px; display:grid; place-items:center; color: var(--auth-blue); background: var(--auth-ring); border-radius: 50%; font-size: 18px; }
+        .auth-mfa-step > .auth-submit { margin-top: 16px; }
+        .auth-back-link { display:block; margin: 16px auto 0; }
+
         .auth-submit {
             width: 100%;
             height: 46px;
@@ -398,8 +406,31 @@ $primaryColor = $branding['primary_color'] ?? '#2563EB';
                     </div>
                 </div>
 
-                <div class="auth-assistance" id="loginAssistance"><span>Forgot your password? Contact your system administrator.</span></div>
+                <div class="auth-assistance" id="loginAssistance"><button type="button" class="auth-link" id="forgotPasswordLink">Forgot your password?</button></div>
                 <button class="auth-submit" id="loginBtn" type="submit">Sign in</button>
+            </form>
+
+            <form id="mfaForm" class="auth-mfa-step" hidden>
+                <input type="hidden" name="csrf_token" value="<?= \App\Core\Security\Csrf::token() ?>">
+                <input type="hidden" name="challenge_token" id="mfaChallengeToken">
+                <div class="auth-mfa-icon"><i class="bi bi-shield-lock"></i></div>
+                <h2>Verify your identity</h2>
+                <p id="mfaPrompt">Enter the six-digit code from your authenticator app.</p>
+                <input class="auth-input" id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required>
+                <button class="auth-submit" id="mfaBtn" type="submit">Verify and continue</button>
+                <button class="auth-link auth-back-link" id="mfaBack" type="button">Back to sign in</button>
+            </form>
+
+            <form id="forgotPasswordForm" class="auth-mfa-step" hidden>
+                <input type="hidden" name="csrf_token" value="<?= \App\Core\Security\Csrf::token() ?>">
+                <input type="hidden" name="challenge_token" id="resetChallengeToken">
+                <div class="auth-mfa-icon"><i class="bi bi-key"></i></div>
+                <h2>Reset your password</h2>
+                <p id="resetPrompt">Enter your username or email to request a verification code.</p>
+                <input class="auth-input" id="resetIdentifier" placeholder="Username or email" autocomplete="username" required>
+                <div id="resetVerificationFields" hidden><input class="auth-input mt-3" id="resetCode" inputmode="numeric" maxlength="6" placeholder="Verification code" autocomplete="one-time-code" required><input class="auth-input mt-3" id="resetPassword" type="password" minlength="12" placeholder="New password (12+ characters)" autocomplete="new-password" required></div>
+                <button class="auth-submit" id="resetBtn" type="submit">Send verification code</button>
+                <button class="auth-link auth-back-link" id="forgotBack" type="button">Back to sign in</button>
             </form>
 
             <div class="auth-security">
@@ -539,51 +570,56 @@ $primaryColor = $branding['primary_color'] ?? '#2563EB';
         setTimeout(() => toast.remove(), 4000);
     }
 
+    const mfaForm = document.getElementById('mfaForm');
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    const showStep = (step) => {
+        loginForm.hidden = step !== 'login';
+        mfaForm.hidden = step !== 'mfa';
+        forgotForm.hidden = step !== 'forgot';
+    };
+    const jsonRequest = async (url, payload) => {
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await response.json();
+        if (!response.ok || data.success === false) throw new Error(data.message || 'Request failed.');
+        return data;
+    };
+
     loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        loginBtn.disabled = true;
-        loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in…';
-
+        event.preventDefault(); loginBtn.disabled = true; loginBtn.textContent = 'Signing in…';
         const formData = new FormData(loginForm);
-        const payload = {
-            username: formData.get('username'),
-            password: formData.get('password'),
-            csrf_token: formData.get('csrf_token')
-        };
-
         try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await response.json();
-
-            if (data.success) {
-                showToast('Logged in successfully');
-                window.setTimeout(() => {
-                    window.location.href = data.data?.redirect_url || data.redirect_url || '/dashboard';
-                }, 450);
-                return;
+            const data = await jsonRequest('/login', { username: formData.get('username'), password: formData.get('password'), csrf_token: formData.get('csrf_token') });
+            const result = data.data || {};
+            if (result.mfa_required) {
+                document.getElementById('mfaChallengeToken').value = result.challenge_token;
+                document.getElementById('mfaPrompt').textContent = result.method === 'EMAIL' ? 'Enter the verification code sent to the account email.' : 'Enter the six-digit code from your authenticator app.';
+                showStep('mfa'); document.getElementById('mfaCode').focus(); return;
             }
+            showToast('Logged in successfully'); window.setTimeout(() => { window.location.href = result.redirect_url || '/dashboard'; }, 450); return;
+        } catch (error) { await Swal.fire({ icon:'error', title:'Login failed', text:error.message, confirmButtonColor:'<?= htmlspecialchars($primaryColor) ?>' }); }
+        loginBtn.disabled = false; loginBtn.textContent = 'Sign in';
+    });
 
-            await Swal.fire({
-                icon: 'error',
-                title: 'Login failed',
-                text: data.message || 'Invalid username or password',
-                confirmButtonColor: '<?= htmlspecialchars($primaryColor) ?>'
-            });
-        } catch (error) {
-            await Swal.fire({
-                icon: 'error',
-                title: 'Server error',
-                text: 'Unable to process login',
-                confirmButtonColor: '<?= htmlspecialchars($primaryColor) ?>'
-            });
-        }
-
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Sign in';
+    mfaForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); const button = document.getElementById('mfaBtn'); button.disabled = true; button.textContent = 'Verifying…';
+        try { const data = await jsonRequest('/login/mfa', { challenge_token: document.getElementById('mfaChallengeToken').value, code: document.getElementById('mfaCode').value, csrf_token: mfaForm.querySelector('[name="csrf_token"]').value }); window.location.href = data.data?.redirect_url || '/dashboard'; }
+        catch (error) { await Swal.fire({ icon:'error', title:'Verification failed', text:error.message }); button.disabled = false; button.textContent = 'Verify and continue'; }
+    });
+    document.getElementById('mfaBack').addEventListener('click', () => { showStep('login'); loginBtn.disabled = false; loginBtn.textContent = 'Sign in'; });
+    document.getElementById('forgotPasswordLink').addEventListener('click', () => showStep('forgot'));
+    document.getElementById('forgotBack').addEventListener('click', () => showStep('login'));
+    forgotForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); const button = document.getElementById('resetBtn'); button.disabled = true; button.textContent = 'Sending…';
+        try {
+            const tokenField = document.getElementById('resetChallengeToken');
+            if (!tokenField.value) {
+                const data = await jsonRequest('/forgot-password/request', { identifier: document.getElementById('resetIdentifier').value, csrf_token: forgotForm.querySelector('[name="csrf_token"]').value });
+                tokenField.value = data.data?.challenge_token || ''; document.getElementById('resetVerificationFields').hidden = false; document.getElementById('resetPrompt').textContent = 'If the account is eligible, enter the code sent to its email and choose a new password.'; button.textContent = 'Reset password'; button.disabled = false; document.getElementById('resetCode').focus(); return;
+            }
+            await jsonRequest('/forgot-password/reset', { challenge_token: tokenField.value, code: document.getElementById('resetCode').value, password: document.getElementById('resetPassword').value, csrf_token: forgotForm.querySelector('[name="csrf_token"]').value });
+            await Swal.fire({ icon:'success', title:'Password reset', text:'You can now sign in with your new password.' }); showStep('login');
+        } catch (error) { await Swal.fire({ icon:'error', title:'Unable to reset password', text:error.message }); }
+        button.disabled = false; button.textContent = document.getElementById('resetChallengeToken').value ? 'Reset password' : 'Send verification code';
     });
 </script>
 </body>

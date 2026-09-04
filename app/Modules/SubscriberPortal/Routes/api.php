@@ -18,6 +18,11 @@ $router->post('/api/v1/subscriber-portal/payments/submit', [SubscriberPortalApiC
 
 $router->post('/api/v1/subscriber-portal/change-password', [SubscriberPortalApiController::class, 'changePassword']);
 
+$router->get('/api/v1/subscriber-portal/security', [SubscriberPortalApiController::class, 'security']);
+$router->post('/api/v1/subscriber-portal/security/enroll', [SubscriberPortalApiController::class, 'enrollMfa']);
+$router->post('/api/v1/subscriber-portal/security/complete', [SubscriberPortalApiController::class, 'completeMfa']);
+$router->post('/api/v1/subscriber-portal/security/disable', [SubscriberPortalApiController::class, 'disableMfa']);
+
 $router->get('/api/v1/subscriber-portal/tickets', [SubscriberPortalApiController::class, 'tickets']);
 
 $router->post('/api/v1/subscriber-portal/tickets', [SubscriberPortalApiController::class, 'createTicket']);

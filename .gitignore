@@ -45,6 +45,8 @@ public/uploads/
 billing.sql
 *.sql
 *.dump
+!database/migrations/20260904_000001_mfa.sql
+!database/migrations/20260904_000002_mfa_pending_enrollment.sql
 
 # Laravel/framework artifacts
 bootstrap/compiled.php

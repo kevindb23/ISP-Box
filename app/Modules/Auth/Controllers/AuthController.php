@@ -112,7 +112,20 @@ class AuthController
             |--------------------------------------------------------------------------
             */
 
-            if ($this->auth->login($credentials)) {
+            $result = $this->auth->authenticate($credentials);
+
+            if (($result['status'] ?? '') === 'mfa_required') {
+                $this->response->success([
+                    'mfa_required' => true,
+                    'challenge_token' => $result['challenge']['token'],
+                    'method' => $result['challenge']['method'],
+                    'expires_in' => $result['challenge']['expires_in'],
+                ], 'Additional verification is required.', 202);
+                return;
+            }
+
+            if (($result['status'] ?? '') === 'success') {
+                $this->auth->completeLoginById((int)$result['user_id']);
                 $this->response->success([
                     'redirect_url' => $this->redirectPathForCurrentUser(),
                 ], 'Login successful.');
@@ -123,6 +136,39 @@ class AuthController
         } catch (\Throwable $e) {
             error_log('[Auth] Login failed: ' . $e->getMessage());
             $this->response->error('Unable to complete login. Please try again.', 500);
+        }
+    }
+
+    public function forgotPasswordRequest(): void
+    {
+        try {
+            $input = json_decode(file_get_contents('php://input'), true) ?: [];
+            if (!Csrf::validate((string)($input['csrf_token'] ?? ''))) {
+                $this->response->error('Invalid request.', 419); return;
+            }
+            $token = $this->auth->passwordResetChallenge((string)($input['identifier'] ?? ''));
+            $this->response->success(['challenge_token' => $token], 'If the account is eligible, a verification code has been sent.');
+        } catch (\Throwable $e) {
+            error_log('[Auth] Password reset request failed: ' . $e->getMessage());
+            $this->response->success([], 'If the account is eligible, a verification code has been sent.');
+        }
+    }
+
+    public function forgotPasswordReset(): void
+    {
+        try {
+            $input = json_decode(file_get_contents('php://input'), true) ?: [];
+            if (!Csrf::validate((string)($input['csrf_token'] ?? ''))) {
+                $this->response->error('Invalid request.', 419); return;
+            }
+            $this->auth->resetPassword(
+                (string)($input['challenge_token'] ?? ''),
+                (string)($input['code'] ?? ''),
+                (string)($input['password'] ?? '')
+            );
+            $this->response->success([], 'Password reset successfully.');
+        } catch (\Throwable $e) {
+            $this->response->error($e->getMessage(), 422);
         }
     }
 

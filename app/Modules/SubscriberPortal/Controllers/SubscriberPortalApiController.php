@@ -3,6 +3,7 @@
 namespace App\Modules\SubscriberPortal\Controllers;
 
 use App\Modules\SubscriberPortal\DTOs\SubscriberPortalCommandDTO;
+use App\Modules\Mfa\Services\MfaService;
 use App\Modules\SubscriberPortal\Services\SubscriberPortalService;
 use Framework\ApiController;
 use Framework\SessionManager;
@@ -12,7 +13,7 @@ class SubscriberPortalApiController extends ApiController
 {
     private SubscriberPortalService $service;
 
-    public function __construct(SubscriberPortalService $service)
+    public function __construct(SubscriberPortalService $service, private MfaService $mfa)
     {
         $this->service = $service;
     }
@@ -136,6 +137,57 @@ class SubscriberPortalApiController extends ApiController
         }
     }
 
+    public function security(): void
+    {
+        try {
+            $user = $this->subscriberUser();
+            $this->success($this->mfa->securityStatus($user['id']), 'Security settings loaded.');
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 403);
+        }
+    }
+
+    public function enrollMfa(): void
+    {
+        try {
+            $user = $this->subscriberUser();
+            $method = (string)($this->request()->input()['method'] ?? '');
+            $this->success(
+                $this->mfa->beginEnrollment($user['id'], $method),
+                'MFA enrollment started.'
+            );
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
+    public function completeMfa(): void
+    {
+        try {
+            $user = $this->subscriberUser();
+            $input = $this->request()->input();
+            $this->mfa->verifyEnrollment(
+                $user['id'],
+                (string)($input['code'] ?? ''),
+                isset($input['challenge_token']) ? (string)$input['challenge_token'] : null
+            );
+            $this->success([], 'MFA enabled successfully.');
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
+    public function disableMfa(): void
+    {
+        try {
+            $user = $this->subscriberUser();
+            $this->mfa->disable($user['id']);
+            $this->success([], 'MFA disabled successfully.');
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 422);
+        }
+    }
+
     public function tickets(): void
     {
         try {
@@ -251,6 +303,16 @@ class SubscriberPortalApiController extends ApiController
             'username' => (string)($user['username'] ?? ''),
             'role' => strtoupper((string)($user['role'] ?? '')),
         ];
+    }
+
+    private function subscriberUser(): array
+    {
+        $user = $this->sessionUser();
+        if ($user['id'] <= 0 || $user['role'] !== 'SUBSCRIBER') {
+            throw new \RuntimeException('Subscriber portal access only.');
+        }
+
+        return $user;
     }
 
 

@@ -1,0 +1,131 @@
+.sp-security-page .sp-security-header-card {
+    border-top: 3px solid var(--nx-primary, #2563eb) !important;
+}
+
+.sp-security-kicker {
+    color: var(--nx-primary, #2563eb);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    margin-bottom: .45rem;
+}
+
+.sp-security-status-icon,
+.sp-security-method-icon {
+    align-items: center;
+    background: var(--nx-surface-muted, #eff6ff);
+    border-radius: .45rem;
+    color: var(--nx-primary, #2563eb);
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 42px;
+    justify-content: center;
+    width: 42px;
+}
+
+.sp-security-method {
+    align-items: flex-start;
+    background: var(--card, #fff);
+    border: 1px solid var(--nx-panel-border-light, #dbe3ee);
+    border-radius: .45rem;
+    cursor: pointer;
+    display: flex;
+    gap: .75rem;
+    position: relative;
+    padding: 1rem;
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+
+.sp-security-method:hover {
+    background: var(--nx-surface-muted, #f8fafc);
+    border-color: var(--nx-primary, #2563eb);
+}
+
+.sp-security-method:focus-within {
+    outline: 3px solid color-mix(in srgb, var(--nx-primary, #2563eb) 22%, transparent);
+    outline-offset: 2px;
+}
+
+.sp-security-method.is-selected,
+.sp-security-method:has(input[type="radio"]:checked) {
+    background: color-mix(in srgb, var(--nx-primary, #2563eb) 7%, var(--card, #fff));
+    border-color: var(--nx-primary, #2563eb);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--nx-primary, #2563eb) 28%, transparent);
+}
+
+.sp-security-method .form-check-input[type="radio"] {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-color: var(--card, #fff) !important;
+    background-image: none !important;
+    border: 2px solid var(--nx-panel-border-light, #94a3b8) !important;
+    border-radius: 50% !important;
+    flex: 0 0 1.125rem;
+    height: 1.125rem;
+    margin: .1rem 0 0 !important;
+    position: relative;
+    width: 1.125rem;
+}
+
+.sp-security-method .form-check-input[type="radio"]:checked {
+    background-color: var(--card, #fff) !important;
+    background-image: radial-gradient(circle, var(--nx-primary, #2563eb) 0 4px, transparent 4.5px) !important;
+    border-color: var(--nx-primary, #2563eb) !important;
+}
+
+.sp-security-method .form-check-input[type="radio"]:focus-visible {
+    outline: 2px solid var(--nx-primary, #2563eb) !important;
+    outline-offset: 2px;
+}
+
+.sp-security-setup {
+    border-top: 1px solid var(--nx-panel-border-light, #dbe3ee);
+    padding-top: 1rem;
+}
+
+.sp-security-setup-content {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.sp-security-setup-content p {
+    margin: 0;
+}
+
+.sp-security-setup-content .sp-mfa-qr {
+    background: #fff;
+    border: 1px solid var(--nx-panel-border-light, #dbe3ee);
+    border-radius: .35rem;
+    height: 200px;
+    max-width: 100%;
+    object-fit: contain;
+    padding: .5rem;
+    width: 200px;
+}
+
+.sp-security-setup-content .sp-mfa-secret {
+    font-family: var(--bs-font-monospace, monospace);
+    font-weight: 700;
+    letter-spacing: .08em;
+    word-break: break-all;
+}
+
+.sp-security-disable {
+    align-items: center;
+    border-top: 1px solid var(--nx-panel-border-light, #dbe3ee);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    padding-top: 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .sp-security-disable .btn,
+    .sp-security-page #spMfaStartBtn,
+    .sp-security-page #spMfaCompleteBtn {
+        width: 100%;
+    }
+}
