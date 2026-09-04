@@ -41,6 +41,16 @@ class Router
         $this->addRoute('POST', $uri, $action, $middleware);
     }
 
+    public function put($uri, $action, $middleware = [])
+    {
+        $this->addRoute('PUT', $uri, $action, $middleware);
+    }
+
+    public function delete($uri, $action, $middleware = [])
+    {
+        $this->addRoute('DELETE', $uri, $action, $middleware);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Add Route
@@ -263,6 +273,16 @@ class Router
         }
 
         if ($authenticatedBySession && !$authenticatedByToken && !$this->sessionRoleCanAccess($authorizationMethod, $uri)) {
+            if (!SessionManager::check()) {
+                if (str_starts_with($uri, '/api/')) {
+                    $this->securityJson('Your session has expired. Please sign in again.', 401);
+                } else {
+                    header('Location: /login');
+                }
+
+                return false;
+            }
+
             try {
                 $this->container->get(AuditService::class)->log(
                     'AUTHORIZATION',
@@ -347,6 +367,14 @@ class Router
 
         try {
             $authorization = $this->container->get(AuthorizationService::class);
+            $identity = $authorization->identity($userId);
+            $sessionUpdatedAt = SessionManager::identityUpdatedAt();
+
+            if (!$identity || ($sessionUpdatedAt !== null && (string)($identity['updated_at'] ?? '') !== $sessionUpdatedAt)) {
+                SessionManager::destroy();
+                return false;
+            }
+
             AuthorizationContext::set($authorization, $userId);
             $allowed = $authorization->authorizeRoute($userId, $method, $uri);
             $identity = $authorization->identity($userId);

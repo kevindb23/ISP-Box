@@ -44,3 +44,30 @@ export async function postForm<T>(url: string, form: FormData): Promise<ApiEnvel
   }
   return envelope;
 }
+
+async function jsonMutation<T>(method: 'PUT' | 'DELETE', url: string, body?: Record<string, unknown>): Promise<ApiEnvelope<T>> {
+  const token = csrfToken();
+  const response = await fetch(url, {
+    method,
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json',
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(token ? { 'X-CSRF-TOKEN': token } : {}),
+    },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  });
+  const envelope = await response.json() as ApiEnvelope<T>;
+  if (!response.ok || !envelope.ok) {
+    throw new Error(envelope.message || `Request failed (${response.status})`);
+  }
+  return envelope;
+}
+
+export function putJson<T>(url: string, body: Record<string, unknown>): Promise<ApiEnvelope<T>> {
+  return jsonMutation<T>('PUT', url, body);
+}
+
+export function deleteJson<T>(url: string): Promise<ApiEnvelope<T>> {
+  return jsonMutation<T>('DELETE', url);
+}

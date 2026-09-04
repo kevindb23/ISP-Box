@@ -22,7 +22,7 @@ class ScheduledDowntimeApiController extends ApiController
             $this->requireAdmin();
             $this->success(['items' => $this->service->list()], 'Scheduled downtime loaded.');
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), $e->getMessage() === 'Administrator access only.' ? 403 : 500);
+            $this->error($e->getMessage(), $this->errorStatus($e, 500));
         }
     }
 
@@ -36,7 +36,7 @@ class ScheduledDowntimeApiController extends ApiController
                 201
             );
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), $e->getMessage() === 'Administrator access only.' ? 403 : 422);
+            $this->error($e->getMessage(), $this->errorStatus($e, 422));
         }
     }
 
@@ -46,7 +46,7 @@ class ScheduledDowntimeApiController extends ApiController
             $this->requireAdmin();
             $this->success($this->service->update((int)$id, $this->request()->input()), 'Scheduled downtime updated.');
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), $e->getMessage() === 'Administrator access only.' ? 403 : 422);
+            $this->error($e->getMessage(), $this->errorStatus($e, 422));
         }
     }
 
@@ -57,7 +57,7 @@ class ScheduledDowntimeApiController extends ApiController
             $this->service->delete((int)$id);
             $this->success([], 'Scheduled downtime deleted.');
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), $e->getMessage() === 'Administrator access only.' ? 403 : 422);
+            $this->error($e->getMessage(), $this->errorStatus($e, 422));
         }
     }
 
@@ -65,10 +65,13 @@ class ScheduledDowntimeApiController extends ApiController
     {
         try {
             $this->requireAdmin();
-            $enabled = filter_var($this->request()->value('enabled', true), FILTER_VALIDATE_BOOLEAN);
+            $enabled = filter_var($this->request()->value('enabled', null), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($enabled === null) {
+                throw new \InvalidArgumentException('Enabled must be a boolean value.');
+            }
             $this->success($this->service->toggle((int)$id, $enabled), 'Scheduled downtime status updated.');
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), $e->getMessage() === 'Administrator access only.' ? 403 : 422);
+            $this->error($e->getMessage(), $this->errorStatus($e, 422));
         }
     }
 
@@ -87,5 +90,14 @@ class ScheduledDowntimeApiController extends ApiController
         }
 
         return $user;
+    }
+
+    private function errorStatus(Throwable $e, int $fallback): int
+    {
+        return match ($e->getMessage()) {
+            'You must be logged in.' => 401,
+            'Administrator access only.' => 403,
+            default => $fallback,
+        };
     }
 }

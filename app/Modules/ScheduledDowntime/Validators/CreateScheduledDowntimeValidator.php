@@ -16,6 +16,10 @@ class CreateScheduledDowntimeValidator
             $errors['message'][] = 'Message is required.';
         }
 
+        if (array_key_exists('enabled', $input) && filter_var($input['enabled'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === null) {
+            $errors['enabled'][] = 'Enabled must be a boolean value.';
+        }
+
         $startsAt = $this->parseTimestamp($input['starts_at'] ?? null);
         if ($startsAt === null) {
             $errors['starts_at'][] = 'Start time must be a valid timestamp.';

@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import ScheduledDowntimePage from './ScheduledDowntimePage.vue';
-import { getJson, postForm } from '../../lib/api';
+import { deleteJson, getJson, postForm, putJson } from '../../lib/api';
 
 vi.mock('../../lib/api', () => ({
   getJson: vi.fn(),
   postForm: vi.fn(),
+  putJson: vi.fn(),
+  deleteJson: vi.fn(),
 }));
 
 const getJsonMock = vi.mocked(getJson);
@@ -21,6 +23,13 @@ const rows = [{
   enabled: 1,
   created_at: '2026-09-04 09:00:00',
   updated_at: '2026-09-04 09:00:00',
+}, {
+  id: 5,
+  title: 'Planned billing maintenance',
+  message: 'Billing access will remain available.',
+  starts_at: '2026-09-20 22:00:00',
+  ends_at: '2026-09-20 23:00:00',
+  enabled: 0,
 }];
 
 function renderPage(): VueWrapper {
@@ -44,8 +53,29 @@ describe('ScheduledDowntimePage', () => {
     expect(wrapper.text()).toContain('Scheduled Downtime');
     expect(wrapper.text()).toContain('Core router maintenance');
     expect(wrapper.text()).toContain('ENABLED');
+    expect(wrapper.text()).toContain('DISABLED');
     expect(wrapper.text()).toContain('Edit');
     expect(wrapper.text()).toContain('Delete');
+  });
+
+  it('uses REST mutation helpers for editing and deleting a window', async () => {
+    const wrapper = renderPage();
+    await flushPromises();
+    vi.mocked(putJson).mockResolvedValue({ ok: true, success: true, data: {}, message: 'Updated' } as never);
+    vi.mocked(deleteJson).mockResolvedValue({ ok: true, success: true, data: {}, message: 'Deleted' } as never);
+    window.confirm = vi.fn(() => true);
+
+    const buttons = wrapper.findAll('button');
+    await buttons.find((button) => button.text() === 'Edit')?.trigger('click');
+    const form = document.body.querySelector('form');
+    expect(form).not.toBeNull();
+    form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await flushPromises();
+    expect(putJson).toHaveBeenCalledWith('/api/v1/scheduled-downtime/4', expect.any(Object));
+
+    await buttons.find((button) => button.text() === 'Delete')?.trigger('click');
+    await flushPromises();
+    expect(deleteJson).toHaveBeenCalledWith('/api/v1/scheduled-downtime/4');
   });
 
   it('rejects an empty customer message and an end time before the start time', async () => {

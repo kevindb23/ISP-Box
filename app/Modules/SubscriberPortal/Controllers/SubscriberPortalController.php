@@ -103,6 +103,10 @@ class SubscriberPortalController extends Controller
             return;
         }
 
+        if ($this->renderMaintenanceResponse()) {
+            return;
+        }
+
         $subscriber = $this->findSubscriberByUserId((int)$user['id']);
 
         if (!$subscriber) {
@@ -218,6 +222,10 @@ class SubscriberPortalController extends Controller
             return;
         }
 
+        if ($this->renderMaintenanceResponse()) {
+            return;
+        }
+
         $subscriber = $this->findSubscriberByUserId((int)$user['id']);
 
         if (!$subscriber) {
@@ -256,5 +264,18 @@ class SubscriberPortalController extends Controller
             'tin' => $settings['company_tin'] ?? '',
             'website' => $settings['company_website'] ?? '',
         ];
+    }
+
+    private function renderMaintenanceResponse(): bool
+    {
+        $state = $this->systemMaintenance->activeState();
+        if (empty($state['active'])) {
+            return false;
+        }
+
+        $message = trim((string)($state['message'] ?? '')) ?: 'We are performing scheduled maintenance. Please try again soon.';
+        http_response_code(503);
+        echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>System maintenance</title><style>body{font-family:system-ui,sans-serif;background:#f8fafc;color:#172033;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px}.card{max-width:680px;background:#fff;border:1px solid #dbe3ef;border-radius:14px;padding:42px;text-align:center;box-shadow:0 10px 30px rgba(23,32,51,.08)}h1{margin:0 0 16px}p{line-height:1.6;color:#53627a;white-space:pre-line}</style></head><body><main class="card"><div aria-hidden="true">🔧</div><h1>We are sorry for the interruption</h1><p>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</p><p>Please check back shortly.</p></main></body></html>';
+        return true;
     }
 }

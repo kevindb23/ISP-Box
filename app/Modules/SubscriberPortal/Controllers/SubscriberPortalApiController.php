@@ -53,7 +53,7 @@ class SubscriberPortalApiController extends ApiController
     public function maintenance(): void
     {
         try {
-            $this->subscriberUser();
+            $this->subscriberUser(false);
             $this->success(
                 $this->systemMaintenance->activeState(),
                 'Subscriber maintenance state loaded.'
@@ -148,6 +148,12 @@ class SubscriberPortalApiController extends ApiController
                 $this->sessionUser(),
                 (new SubscriberPortalCommandDTO($this->request()->input()))->toArray()
             );
+
+            // End the current session after a successful credential change.
+            // The updated users.updated_at value invalidates every other
+            // existing portal session on its next request.
+            SessionManager::destroy();
+            $result['logout_required'] = true;
 
             $this->success(
                 $result,
@@ -310,7 +316,7 @@ class SubscriberPortalApiController extends ApiController
             $this->error($e->getMessage(), 422);
         }
     }
-    private function sessionUser(): array
+    private function sessionUser(bool $enforceMaintenance = true): array
     {
         $user = SessionManager::user();
 
@@ -318,17 +324,23 @@ class SubscriberPortalApiController extends ApiController
             $user = [];
         }
 
-        return [
+        $identity = [
             'id' => (int)($user['id'] ?? 0),
             'user_id' => (int)($user['id'] ?? 0),
             'username' => (string)($user['username'] ?? ''),
             'role' => strtoupper((string)($user['role'] ?? '')),
         ];
+
+        if ($enforceMaintenance && $this->systemMaintenance->activeState()['active']) {
+            throw new \RuntimeException('The subscriber portal is temporarily unavailable while system maintenance is in progress.');
+        }
+
+        return $identity;
     }
 
-    private function subscriberUser(): array
+    private function subscriberUser(bool $enforceMaintenance = true): array
     {
-        $user = $this->sessionUser();
+        $user = $this->sessionUser($enforceMaintenance);
         if ($user['id'] <= 0 || $user['role'] !== 'SUBSCRIBER') {
             throw new \RuntimeException('Subscriber portal access only.');
         }

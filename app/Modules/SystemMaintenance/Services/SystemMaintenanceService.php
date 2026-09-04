@@ -18,9 +18,8 @@ class SystemMaintenanceService
 
     public function summary(): array
     {
-        $settings = $this->settings();
-        $settings['active'] = $this->activeState()['active'];
-        return $settings;
+        $row = $this->repo->get();
+        return $this->adminPayload($row);
     }
 
     public function settings(): array
@@ -33,7 +32,7 @@ class SystemMaintenanceService
         $errors = $this->validator->validate($input);
 
         if ($errors !== []) {
-            throw new RuntimeException((string)reset($errors));
+            throw new RuntimeException($this->validationMessage($errors));
         }
 
         $saved = $this->repo->save([
@@ -48,8 +47,13 @@ class SystemMaintenanceService
 
     public function activeState(?DateTimeImmutable $now = null): array
     {
-        $settings = $this->repo->get();
-        $active = $this->isActive($settings, $now);
+        try {
+            $settings = $this->repo->get();
+            $active = $this->isActive($settings, $now);
+        } catch (\Throwable $e) {
+            // A missing or unavailable configuration must never lock out the portal.
+            return ['active' => false, 'message' => ''];
+        }
 
         return [
             'active' => $active,
@@ -133,5 +137,15 @@ class SystemMaintenanceService
 
         $date = $this->parseInputTimestamp($value);
         return $date ?: null;
+    }
+
+    private function validationMessage(array $errors): string
+    {
+        $first = reset($errors);
+        if (is_array($first)) {
+            return implode(' ', array_map('strval', $first));
+        }
+
+        return (string)$first;
     }
 }

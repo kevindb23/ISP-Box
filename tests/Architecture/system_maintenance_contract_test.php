@@ -78,6 +78,13 @@ if (stripos($portalApiController, "activeState()") === false) {
     exit(1);
 }
 
+foreach (['sessionUser(bool $enforceMaintenance', 'subscriberUser(false)', 'printInvoice', 'printPaymentReceipt', 'temporarily unavailable'] as $needle) {
+    if (stripos($portalController . $portalApiController, $needle) === false) {
+        fwrite(STDERR, "subscriber maintenance access guard missing {$needle}\n");
+        exit(1);
+    }
+}
+
 require_once $root . '/app/Modules/SystemMaintenance/Entities/SystemMaintenance.php';
 require_once $root . '/app/Modules/SystemMaintenance/Repositories/SystemMaintenanceRepository.php';
 require_once $root . '/app/Modules/SystemMaintenance/Validators/CreateSystemMaintenanceValidator.php';
@@ -119,6 +126,12 @@ if ($validator->validate([
     'ends_at' => '2026-09-04T12:00',
 ]) === []) {
     fwrite(STDERR, "invalid maintenance schedule was accepted\n");
+    exit(1);
+}
+
+$serviceSource = file_get_contents($root . '/app/Modules/SystemMaintenance/Services/SystemMaintenanceService.php');
+if (strpos($serviceSource, 'function validationMessage') === false || strpos($serviceSource, "array_map('strval'") === false) {
+    fwrite(STDERR, "system maintenance validation errors are not converted safely\n");
     exit(1);
 }
 

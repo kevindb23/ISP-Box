@@ -27,6 +27,9 @@ import PaymentGatewayPage from './modules/payment-gateway/PaymentGatewayPage.vue
 import ScheduledDowntimePage from './modules/scheduled-downtime/ScheduledDowntimePage.vue';
 import SystemMaintenancePage from './modules/system-maintenance/SystemMaintenancePage.vue';
 import DashboardPage from './modules/dashboard/DashboardPage.vue';
+import EmailPage from './modules/email/EmailPage.vue';
+import NotificationsPage from './modules/notifications/NotificationsPage.vue';
+import MfaPage from './modules/mfa/MfaPage.vue';
 import './styles/theme.css';
 
 function mountNextRoots(scope: ParentNode = document): void {
@@ -191,6 +194,21 @@ function mountNextRoots(scope: ParentNode = document): void {
 
     if (root.dataset.nxNextRoot === 'system-maintenance') {
       createApp(SystemMaintenancePage).mount(root);
+      root.dataset.nxNextMounted = '1';
+    }
+
+    if (root.dataset.nxNextRoot === 'email') {
+      createApp(EmailPage).mount(root);
+      root.dataset.nxNextMounted = '1';
+    }
+
+    if (root.dataset.nxNextRoot === 'notifications') {
+      createApp(NotificationsPage).mount(root);
+      root.dataset.nxNextMounted = '1';
+    }
+
+    if (root.dataset.nxNextRoot === 'mfa') {
+      createApp(MfaPage).mount(root);
       root.dataset.nxNextMounted = '1';
     }
   });

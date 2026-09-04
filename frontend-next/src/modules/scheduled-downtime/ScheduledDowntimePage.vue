@@ -7,7 +7,7 @@ import NxCard from '../../components/ui/NxCard.vue';
 import NxModal from '../../components/ui/NxModal.vue';
 import NxPageHeader from '../../components/ui/NxPageHeader.vue';
 import NxTableShell from '../../components/ui/NxTableShell.vue';
-import { getJson, postForm } from '../../lib/api';
+import { deleteJson, getJson, postForm, putJson } from '../../lib/api';
 
 type Downtime = {
   id: number;
@@ -90,8 +90,14 @@ async function save(): Promise<void> {
     payload.set('starts_at', form.value.starts_at);
     payload.set('ends_at', form.value.ends_at);
     payload.set('enabled', form.value.enabled ? '1' : '0');
-    const url = editing.value ? `/api/v1/scheduled-downtime/${editing.value.id}` : '/api/v1/scheduled-downtime';
-    await postForm<Downtime>(url, payload);
+    if (editing.value) {
+      await putJson<Downtime>(`/api/v1/scheduled-downtime/${editing.value.id}`, {
+        title: form.value.title.trim(), message: form.value.message.trim(), starts_at: form.value.starts_at,
+        ends_at: form.value.ends_at, enabled: Boolean(form.value.enabled),
+      });
+    } else {
+      await postForm<Downtime>('/api/v1/scheduled-downtime', payload);
+    }
     const message = editing.value ? 'Scheduled downtime updated.' : 'Scheduled downtime created.';
     modalOpen.value = false;
     await load();
@@ -116,7 +122,7 @@ async function remove(item: Downtime): Promise<void> {
   if (!window.confirm(`Delete “${item.title}”?`)) return;
   resetMessages();
   try {
-    await postForm<unknown>(`/api/v1/scheduled-downtime/${item.id}/delete`, new FormData());
+    await deleteJson<unknown>(`/api/v1/scheduled-downtime/${item.id}`);
     notice.value = 'Scheduled downtime deleted.';
     await load();
   } catch (caught) { error.value = caught instanceof Error ? caught.message : 'Unable to delete scheduled downtime.'; }

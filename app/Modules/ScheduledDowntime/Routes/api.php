@@ -7,3 +7,5 @@ $router->post('/api/v1/scheduled-downtime', [ScheduledDowntimeApiController::cla
 $router->post('/api/v1/scheduled-downtime/{id}/delete', [ScheduledDowntimeApiController::class, 'delete']);
 $router->post('/api/v1/scheduled-downtime/{id}/toggle', [ScheduledDowntimeApiController::class, 'toggle']);
 $router->post('/api/v1/scheduled-downtime/{id}', [ScheduledDowntimeApiController::class, 'update']);
+$router->put('/api/v1/scheduled-downtime/{id}', [ScheduledDowntimeApiController::class, 'update']);
+$router->delete('/api/v1/scheduled-downtime/{id}', [ScheduledDowntimeApiController::class, 'delete']);

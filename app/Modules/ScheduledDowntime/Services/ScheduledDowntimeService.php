@@ -38,10 +38,14 @@ class ScheduledDowntimeService
             throw new RuntimeException('Scheduled downtime not found.');
         }
 
-        $data = array_merge($existing, CreateScheduledDowntimeDTO::fromArray($input)->toArray());
+        $changes = CreateScheduledDowntimeDTO::fromArray($input)->toArray();
+        if (!array_key_exists('enabled', $input)) {
+            $changes['enabled'] = (int)($existing['enabled'] ?? 0);
+        }
+        $data = array_merge($existing, $changes);
         $errors = $this->validator->validate($data);
         if ($errors !== []) {
-            throw new RuntimeException((string)reset($errors));
+            throw new RuntimeException($this->validationMessage($errors));
         }
 
         $updated = $this->repo->update($id, $this->validator->normalise($data));
@@ -81,7 +85,7 @@ class ScheduledDowntimeService
     {
         $errors = $this->validator->validate($input);
         if ($errors !== []) {
-            throw new RuntimeException((string)reset($errors));
+            throw new RuntimeException($this->validationMessage($errors));
         }
 
         $created = $this->repo->create($this->validator->normalise($input), $userId);
@@ -90,5 +94,15 @@ class ScheduledDowntimeService
         }
 
         return (new ScheduledDowntime($created))->toArray();
+    }
+
+    private function validationMessage(array $errors): string
+    {
+        $first = reset($errors);
+        if (is_array($first)) {
+            return implode(' ', array_map('strval', $first));
+        }
+
+        return (string)$first;
     }
 }

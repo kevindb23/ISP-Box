@@ -22,7 +22,7 @@ class SystemMaintenanceApiController extends ApiController
             $this->requireAdmin();
             $this->success($this->service->summary(), 'System maintenance settings loaded.');
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), 403);
+            $this->error($e->getMessage(), $this->errorStatus($e, 500));
         }
     }
 
@@ -35,7 +35,7 @@ class SystemMaintenanceApiController extends ApiController
                 'System maintenance settings saved.'
             );
         } catch (Throwable $e) {
-            $this->error($e->getMessage(), 422);
+            $this->error($e->getMessage(), $this->errorStatus($e, 422));
         }
     }
 
@@ -52,5 +52,14 @@ class SystemMaintenanceApiController extends ApiController
         if (!in_array($role, ['ADMINISTRATOR', 'SUPERADMIN'], true)) {
             throw new \Exception('Administrator access only.');
         }
+    }
+
+    private function errorStatus(Throwable $e, int $fallback): int
+    {
+        return match ($e->getMessage()) {
+            'You must be logged in.' => 401,
+            'Administrator access only.' => 403,
+            default => $fallback,
+        };
     }
 }

@@ -31,6 +31,10 @@ final class PermissionResolver
         'api-tokens' => ['view','create','delete'],
         'subscriber-portal' => ['view','update'],
         'mfa' => ['view','configure','update'],
+        'scheduled-downtime' => ['view','create','update','delete'],
+        'system-maintenance' => ['view','configure'],
+        'email' => ['view','configure'],
+        'notifications' => ['view','configure'],
     ];
 
     private const PREFIXES = [
@@ -46,6 +50,8 @@ final class PermissionResolver
         'tickets' => 'tickets', 'branding' => 'branding', 'radius' => 'radius',
         'audit' => 'audit', 'users' => 'users', 'cgnat' => 'cgnat', 'bng' => 'bng',
         'mfa' => 'mfa',
+        'scheduled-downtime' => 'scheduled-downtime', 'system-maintenance' => 'system-maintenance',
+        'email' => 'email', 'notifications' => 'notifications',
     ];
 
     public function forRoute(string $method, string $uri): ?string
@@ -65,9 +71,11 @@ final class PermissionResolver
 
         $method = strtoupper($method);
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) return $module . '.view';
+        if ($method === 'DELETE') return $module . '.delete';
 
         $tail = strtolower($path);
         if ($module === 'mfa' && (str_contains($tail, '/login/verify') || str_contains($tail, '/disable'))) return 'mfa.update';
+        if (in_array($module, ['email', 'notifications'], true)) return $module . '.configure';
         if ($module === 'users' && str_contains($tail, '/permissions')) return 'users.configure';
         $action = match (true) {
             preg_match('#/(delete|remove|destroy|revoke)(?:/|$)#', $tail) === 1 => 'delete',
