@@ -6,6 +6,7 @@ use App\Modules\Billing\Repositories\BillingSettingsRepository;
 use App\Modules\Billing\Repositories\InvoiceRepository;
 use App\Modules\Billing\Repositories\PaymentRepository;
 use App\Modules\SubscriberPortal\Repositories\SubscriberPortalRepository;
+use App\Modules\SystemMaintenance\Services\SystemMaintenanceService;
 use Framework\Controller;
 use Framework\SessionManager;
 use Throwable;
@@ -20,7 +21,8 @@ class SubscriberPortalController extends Controller
         InvoiceRepository $invoiceRepo,
         PaymentRepository $paymentRepo,
         BillingSettingsRepository $settingsRepo,
-        private SubscriberPortalRepository $subscriberRepo
+        private SubscriberPortalRepository $subscriberRepo,
+        private SystemMaintenanceService $systemMaintenance
     )
     {
         $this->invoiceRepo = $invoiceRepo;
@@ -32,42 +34,42 @@ class SubscriberPortalController extends Controller
     {
         $this->requireSubscriber();
 
-        return $this->view('SubscriberPortal/account');
+        return $this->portalView('SubscriberPortal/account');
     }
 
     public function services()
     {
         $this->requireSubscriber();
 
-        return $this->view('SubscriberPortal/services');
+        return $this->portalView('SubscriberPortal/services');
     }
 
     public function invoices()
     {
         $this->requireSubscriber();
 
-        return $this->view('SubscriberPortal/invoices');
+        return $this->portalView('SubscriberPortal/invoices');
     }
 
     public function payments()
     {
         $this->requireSubscriber();
 
-        return $this->view('SubscriberPortal/payments');
+        return $this->portalView('SubscriberPortal/payments');
     }
 
     public function tickets()
     {
         $this->requireSubscriber();
 
-        return $this->view('SubscriberPortal/tickets');
+        return $this->portalView('SubscriberPortal/tickets');
     }
 
     public function security()
     {
         $this->requireSubscriber();
 
-        return $this->view('SubscriberPortal/security');
+        return $this->portalView('SubscriberPortal/security');
     }
 
     public function index()
@@ -161,6 +163,13 @@ class SubscriberPortalController extends Controller
     private function findSubscriberByUserId(int $userId): ?array
     {
         return $this->subscriberRepo->findSubscriberByUserId($userId);
+    }
+
+    private function portalView(string $view)
+    {
+        return $this->view($view, [
+            'maintenanceState' => $this->systemMaintenance->activeState(),
+        ]);
     }
 
     private function getBillingSettingsMap(): array

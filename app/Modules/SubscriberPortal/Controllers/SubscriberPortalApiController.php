@@ -5,6 +5,7 @@ namespace App\Modules\SubscriberPortal\Controllers;
 use App\Modules\SubscriberPortal\DTOs\SubscriberPortalCommandDTO;
 use App\Modules\Mfa\Services\MfaService;
 use App\Modules\SubscriberPortal\Services\SubscriberPortalService;
+use App\Modules\SystemMaintenance\Services\SystemMaintenanceService;
 use Framework\ApiController;
 use Framework\SessionManager;
 use Throwable;
@@ -13,7 +14,11 @@ class SubscriberPortalApiController extends ApiController
 {
     private SubscriberPortalService $service;
 
-    public function __construct(SubscriberPortalService $service, private MfaService $mfa)
+    public function __construct(
+        SubscriberPortalService $service,
+        private MfaService $mfa,
+        private SystemMaintenanceService $systemMaintenance
+    )
     {
         $this->service = $service;
     }
@@ -36,6 +41,22 @@ class SubscriberPortalApiController extends ApiController
             $this->success(
                 $this->service->dashboard($this->sessionUser()),
                 'Subscriber dashboard loaded.'
+            );
+        } catch (Throwable $e) {
+            $this->error($e->getMessage(), 403);
+        }
+    }
+
+    /**
+     * Expose only the public maintenance state to an authenticated subscriber.
+     */
+    public function maintenance(): void
+    {
+        try {
+            $this->subscriberUser();
+            $this->success(
+                $this->systemMaintenance->activeState(),
+                'Subscriber maintenance state loaded.'
             );
         } catch (Throwable $e) {
             $this->error($e->getMessage(), 403);

@@ -25,6 +25,7 @@ import SystemSettingsPage from './modules/system-settings/SystemSettingsPage.vue
 import ApiTokensPage from './modules/api-tokens/ApiTokensPage.vue';
 import PaymentGatewayPage from './modules/payment-gateway/PaymentGatewayPage.vue';
 import ScheduledDowntimePage from './modules/scheduled-downtime/ScheduledDowntimePage.vue';
+import SystemMaintenancePage from './modules/system-maintenance/SystemMaintenancePage.vue';
 import DashboardPage from './modules/dashboard/DashboardPage.vue';
 import './styles/theme.css';
 
@@ -185,6 +186,11 @@ function mountNextRoots(scope: ParentNode = document): void {
 
     if (root.dataset.nxNextRoot === 'scheduled-downtime') {
       createApp(ScheduledDowntimePage).mount(root);
+      root.dataset.nxNextMounted = '1';
+    }
+
+    if (root.dataset.nxNextRoot === 'system-maintenance') {
+      createApp(SystemMaintenancePage).mount(root);
       root.dataset.nxNextMounted = '1';
     }
   });

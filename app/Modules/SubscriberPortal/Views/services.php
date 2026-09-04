@@ -1,3 +1,22 @@
+<?php
+$maintenanceState = is_array($maintenanceState ?? null) ? $maintenanceState : [];
+if (!empty($maintenanceState['active'])):
+    $maintenanceMessage = trim((string)($maintenanceState['message'] ?? '')) ?: 'We are performing scheduled maintenance. Please try again soon.';
+?>
+<div class="container-fluid nx-page subscriber-portal-page d-flex min-vh-75 align-items-center justify-content-center" id="subscriberMaintenancePage">
+    <div class="card border-0 shadow-sm text-center" style="max-width: 680px;">
+        <div class="card-body p-4 p-md-5">
+            <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary" style="width: 64px; height: 64px;">
+                <i class="bi bi-tools fs-3" aria-hidden="true"></i>
+            </div>
+            <div class="text-primary small fw-semibold text-uppercase" style="letter-spacing: .08em;">System maintenance</div>
+            <h1 class="h3 mt-2">We are sorry for the interruption</h1>
+            <p class="lead mb-0"><?= nl2br(htmlspecialchars($maintenanceMessage, ENT_QUOTES, 'UTF-8')) ?></p>
+            <p class="text-muted mt-3 mb-0">Thank you for your patience. Please check back shortly.</p>
+        </div>
+    </div>
+</div>
+<?php return; endif; ?>
 <div class="container-fluid nx-page subscriber-portal-page sp-page" data-sp-page="services">
     <div id="subscriberPortalAlert"></div>
 
