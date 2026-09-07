@@ -1,10 +1,6 @@
 {
   "src/main.ts": {
-<<<<<<< HEAD
     "file": "assets/main-Dd-Y0LKq.js",
-=======
-    "file": "assets/main-BDzG7c90.js",
->>>>>>> origin/main
     "name": "main",
     "src": "src/main.ts",
     "isEntry": true,
