@@ -23,7 +23,7 @@ final class BngManagementApiController extends ApiController
     {
         $payload=$this->request()->input(); $errors=$this->validator->validate($payload);
         if($errors){$this->error('Validation failed.',422,$errors);return null;}
-        try{$before=$this->bng->getSetting();$saved=$this->bng->saveSetting(new UpdateBngSettingDTO($payload));$this->accel->synchronizeParentInterface((string)($before['bng_parent_interface']??''),(string)($saved['bng_parent_interface']??''),(int)SessionManager::id());return $this->jsonMessage($saved,'BNG connection saved.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),422);}
+        try{$saved=$this->bng->saveSetting(new UpdateBngSettingDTO($payload));return $this->jsonMessage($saved,'BNG connection saved.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),422);}
     }
     public function deleteSetting(): mixed { try{$this->bng->deleteSetting();return $this->jsonMessage(true,'BNG connection deleted.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),422);} }
     public function testConnection(): mixed { try{return $this->jsonMessage($this->bng->testConnection(),'BNG connection test completed.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }

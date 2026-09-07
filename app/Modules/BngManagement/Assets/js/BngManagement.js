@@ -82,7 +82,13 @@
                 bngModal?.hide();
                 ui.toast('success', result?.message || 'BNG settings saved.');
                 await loadSetting();
-                await refreshRuntime(false);
+                if (state.setting?.host_key_trusted) {
+                    await refreshRuntime(false);
+                } else {
+                    state.runtime = {};
+                    renderRuntime();
+                    renderSummary();
+                }
             } catch (error) {
                 ui.closeLoading();
                 ui.toast('error', error.message || 'Failed to save BNG settings.');
