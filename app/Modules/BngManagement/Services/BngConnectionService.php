@@ -31,8 +31,8 @@ class BngConnectionService
 
     public function getSetting(): ?array
     {
-        $row = $this->repo->get();
-        return $row ? (new BngSetting($row))->toArray(false) : null;
+        $row = $this->repo->getMetadata();
+        return $row ? array_merge($row, ['password' => null]) : null;
     }
 
     public function getSettings(): array
@@ -462,7 +462,7 @@ class BngConnectionService
 
     public function scanHostKey(): array
     {
-        $row=$this->repo->get(); if(!$row)throw new InvalidArgumentException('BNG connection is not configured.');
+        $row=$this->repo->getMetadata(); if(!$row)throw new InvalidArgumentException('BNG connection is not configured.');
         $binary='/usr/bin/ssh-keyscan'; if(!is_executable($binary))throw new InvalidArgumentException('ssh-keyscan is not installed.');
         $result=$this->networkRunner->run([$binary,'-T','8','-p',(string)(int)$row['port'],(string)$row['host']],'',15);
         $lines=array_values(array_filter(preg_split('/\R/',$result->stdout)?:[],static fn($line)=>$line!==''&&!str_starts_with($line,'#')));
@@ -475,7 +475,7 @@ class BngConnectionService
     public function trustHostKey(string $expectedFingerprint): array
     {
         $scan=$this->scanHostKey(); if(!hash_equals($scan['fingerprint'],trim($expectedFingerprint)))throw new InvalidArgumentException('SSH host-key fingerprint changed before confirmation.');
-        $row=$this->repo->get();$this->repo->trustHostKey((int)$row['id'],$scan['key'],$scan['fingerprint']);
+        $row=$this->repo->getMetadata();$this->repo->trustHostKey((int)$row['id'],$scan['key'],$scan['fingerprint']);
         $this->auditLog('TRUST_BNG_HOST_KEY','Trusted BNG SSH host key '.$scan['fingerprint'].' for '.$scan['host'].':'.$scan['port'].'.');
         unset($scan['key']);return $scan+['trusted'=>true];
     }

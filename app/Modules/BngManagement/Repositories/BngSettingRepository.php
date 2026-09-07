@@ -29,6 +29,16 @@ class BngSettingRepository
         return $row;
     }
 
+    public function getMetadata(): ?array
+    {
+        $stmt = $this->db->query('SELECT * FROM bng_settings ORDER BY id ASC LIMIT 1');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return null;
+        $row['password'] = null;
+        $row['host_key_trusted'] = !empty($row['known_host_key']);
+        return $row;
+    }
+
     public function list(): array
     {
         $rows = $this->db->query('SELECT * FROM bng_settings ORDER BY enabled DESC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -42,7 +52,7 @@ class BngSettingRepository
 
     public function save(array $data): int
     {
-        $existing = isset($data['id']) ? $this->find((int)$data['id']) : null;
+        $existing = isset($data['id']) ? $this->findRaw((int)$data['id']) : null;
 
         $payload = [
             'enabled' => (int)($data['enabled'] ?? 1),
@@ -141,6 +151,13 @@ class BngSettingRepository
         if (!$row) return null;
         $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
         return $row;
+    }
+
+    private function findRaw(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM bng_settings WHERE id=:id LIMIT 1');
+        $stmt->execute([':id'=>$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
     public function deleteById(int $id): bool
     {

@@ -13,6 +13,7 @@ class BngSetting
     public ?string $password = null;
     public ?string $known_host_key = null;
     public ?string $host_key_fingerprint = null;
+    public bool $host_key_trusted = false;
     public ?string $ssh_key_path = null;
     public ?string $preferred_interface = null;
 
@@ -36,6 +37,9 @@ class BngSetting
         $this->password = array_key_exists('password', $data) ? $data['password'] : null;
         $this->known_host_key = isset($data['known_host_key']) ? (string)$data['known_host_key'] : null;
         $this->host_key_fingerprint = isset($data['host_key_fingerprint']) ? (string)$data['host_key_fingerprint'] : null;
+        $this->host_key_trusted = array_key_exists('host_key_trusted', $data)
+            ? (bool)$data['host_key_trusted']
+            : ($this->known_host_key !== null && $this->known_host_key !== '');
         $this->ssh_key_path = isset($data['ssh_key_path']) ? trim((string)$data['ssh_key_path']) : null;
         $this->preferred_interface = isset($data['preferred_interface']) ? trim((string)$data['preferred_interface']) : null;
 
@@ -77,7 +81,7 @@ class BngSetting
             'updated_at' => $this->updated_at,
             'has_password' => $this->password !== null && $this->password !== '',
             'host_key_fingerprint' => $this->host_key_fingerprint,
-            'host_key_trusted' => $this->known_host_key !== null && $this->known_host_key !== '',
+            'host_key_trusted' => $this->host_key_trusted,
         ];
 
         if ($includeSecrets) {
