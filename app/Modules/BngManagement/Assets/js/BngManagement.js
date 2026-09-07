@@ -162,7 +162,10 @@
             const row = state.setting || {};
             const query = state.search.trim().toLowerCase();
             const matches = !query || JSON.stringify(row).toLowerCase().includes(query);
-            refs.add?.classList.toggle('d-none', Boolean(row.id));
+            const hasSetting = Boolean(row.id);
+            refs.add?.toggleAttribute('disabled', hasSetting);
+            refs.add?.setAttribute('aria-disabled', hasSetting ? 'true' : 'false');
+            refs.add?.setAttribute('title', hasSetting ? 'Only one BNG connection is supported.' : 'Add BNG');
             refs.test?.toggleAttribute('disabled', !row.id);
             refs.trustHost?.toggleAttribute('disabled', !row.id);
             refs.installRecovery?.toggleAttribute('disabled', !row.id || !row.host_key_trusted);
