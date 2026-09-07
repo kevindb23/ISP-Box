@@ -30,6 +30,18 @@ define('BASE_PATH', dirname(__DIR__));
 $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
     || strtolower((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
 
+// HTTPS enforcement is deployment-controlled so an HTTP-only development
+// instance remains reachable until its TLS virtual host is configured.
+$forceHttps = filter_var(getenv('APP_FORCE_HTTPS') ?: '0', FILTER_VALIDATE_BOOLEAN);
+if ($forceHttps && !$isHttps) {
+    $host = (string)($_SERVER['HTTP_HOST'] ?? '');
+    $uri = (string)($_SERVER['REQUEST_URI'] ?? '/');
+    if ($host !== '' && !preg_match('/[\\r\\n]/', $host . $uri)) {
+        header('Location: https://' . $host . $uri, true, 308);
+        exit;
+    }
+}
+
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',

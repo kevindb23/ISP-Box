@@ -23,14 +23,14 @@ class SubscriberPlansApiController extends ApiController
     {
         $result = $this->service->create($this->request()->input());
 
-        $this->serviceResult($result, 201);
+        $this->serviceResult($result, 201, (int)($result['error_status'] ?? 422));
     }
 
     public function update($id): void
     {
         $result = $this->service->update($id, $this->request()->input());
 
-        $this->serviceResult($result);
+        $this->serviceResult($result, 200, (int)($result['error_status'] ?? 422));
     }
 
     public function delete(): void
@@ -39,6 +39,6 @@ class SubscriberPlansApiController extends ApiController
 
         $result = $this->service->delete($id);
 
-        $this->serviceResult($result);
+        $this->serviceResult($result, 200, (int)($result['error_status'] ?? 422));
     }
 }

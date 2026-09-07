@@ -92,6 +92,31 @@ class AuditRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function maintenanceNotificationsForUser(int $userId, int $limit = 30): array
+    {
+        $stmt = $this->db->prepare('SELECT n.*, CASE WHEN r.notification_id IS NULL THEN 0 ELSE 1 END AS is_read
+            FROM (' . $this->maintenanceNotificationSourceSql() . ') n
+            LEFT JOIN notification_reads r ON r.notification_id = n.id AND r.user_id = :user_id
+            ORDER BY COALESCE(n.starts_at, n.created_at) ASC, n.id ASC
+            LIMIT :limit');
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', max(1, min(100, $limit)), PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function unreadMaintenanceNotificationCount(int $userId): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*)
+            FROM (' . $this->maintenanceNotificationSourceSql() . ') n
+            LEFT JOIN notification_reads r ON r.notification_id = n.id AND r.user_id = :user_id
+            WHERE r.notification_id IS NULL');
+        $stmt->execute(['user_id' => $userId]);
+
+        return (int)$stmt->fetchColumn();
+    }
+
     public function unreadSecurityNotificationCount(int $userId): int
     {
         $stmt = $this->db->prepare('SELECT COUNT(*) FROM audit_logs a
@@ -108,6 +133,44 @@ class AuditRepository
             WHERE id = :notification_id AND module = \'AUTH\' AND action = \'LOGIN_SECURITY_ALERT\'
             ON DUPLICATE KEY UPDATE read_at = CURRENT_TIMESTAMP');
         $stmt->execute(['notification_id' => $notificationId, 'user_id' => $userId]);
+
+        if ($stmt->rowCount() > 0) return;
+
+        $maintenance = $this->db->prepare('SELECT 1
+            FROM (' . $this->maintenanceNotificationSourceSql() . ') n
+            WHERE n.id = :notification_id
+            LIMIT 1');
+        $maintenance->execute(['notification_id' => $notificationId]);
+        if (!$maintenance->fetchColumn()) return;
+
+        $read = $this->db->prepare('INSERT INTO notification_reads (notification_id, user_id)
+            VALUES (:notification_id, :user_id)
+            ON DUPLICATE KEY UPDATE read_at = CURRENT_TIMESTAMP');
+        $read->execute(['notification_id' => $notificationId, 'user_id' => $userId]);
+    }
+
+    private function maintenanceNotificationSourceSql(): string
+    {
+        return "SELECT CAST(1000000000000000000 + id AS UNSIGNED) AS id,
+                       'SCHEDULED_DOWNTIME' AS notification_type,
+                       title,
+                       message AS description,
+                       starts_at,
+                       ends_at,
+                       updated_at AS created_at
+                FROM scheduled_downtime
+                WHERE enabled = 1 AND ends_at >= CURRENT_TIMESTAMP
+                UNION ALL
+                SELECT CAST(2000000000000000000 + id AS UNSIGNED) AS id,
+                       'SYSTEM_MAINTENANCE' AS notification_type,
+                       'System maintenance' AS title,
+                       message AS description,
+                       starts_at,
+                       ends_at,
+                       updated_at AS created_at
+                FROM system_maintenance
+                WHERE id = 1 AND enabled = 1
+                  AND (ends_at IS NULL OR ends_at >= CURRENT_TIMESTAMP)";
     }
 
     public function find(int $id): ?array

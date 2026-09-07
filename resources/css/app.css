@@ -20,6 +20,16 @@
     --audit-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
 }
 
+/* The modal is rendered inside the fixed topbar. Raise that parent stacking
+   context while open so the modal covers the mobile navigation drawer. */
+html body#nxApplication.notification-modal-open .topbar {
+    z-index: 3100 !important;
+}
+
+html body#nxApplication.notification-modal-open .nx-notification-modal {
+    z-index: 3200 !important;
+}
+
 .nx-page-header-card,
 .nx-toolbar-card,
 .nx-content-card {
@@ -1768,6 +1778,10 @@ body#nxApplication .nx-notification-item > i {
     flex: 0 0 auto;
     color: #dc2626;
     font-size: 17px;
+}
+
+body#nxApplication .nx-notification-item.nx-notification-maintenance > i {
+    color: var(--nx-primary, #2563eb);
 }
 
 body#nxApplication .nx-notification-item strong,
@@ -27240,6 +27254,10 @@ html[data-theme="dark"] .sidebar {
     pointer-events: none !important;
 }
 
+.topbar-alerts .nx-notification-count[hidden] {
+    display: none !important;
+}
+
 .global-search {
     position: relative !important;
     width: 220px !important;
@@ -30523,4 +30541,156 @@ html[data-theme] body#nxApplication .topbar .nx-header-search {
         max-width: 100%;
         overflow-x: auto;
     }
+}
+
+/* Mobile navigation drawer. The compact rail remains visible by default;
+   the header toggle expands the full sidebar over the page and the scrim
+   closes it without changing the content layout. */
+@media (max-width: 767.98px) {
+    html body#nxApplication .sidebar-scrim {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 1990 !important;
+        display: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        border: 0 !important;
+        background: rgb(15 23 42 / 42%) !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar-scrim {
+        display: block !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar {
+        width: 240px !important;
+        z-index: 2100 !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .main-wrapper {
+        margin-left: 56px !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .topbar {
+        left: 56px !important;
+        /* Keep the header controls actionable while the navigation drawer is
+           open. The scrim covers the page, but must not intercept the bell or
+           the drawer toggle in the topbar. Notification modals still raise
+           this stacking context above the sidebar below. */
+        z-index: 2050 !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar-header {
+        height: 64px !important;
+        min-height: 64px !important;
+        padding: 0 20px !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar .logo-text,
+    html body#nxApplication.sidebar-mobile-open .sidebar .menu-item span,
+    html body#nxApplication.sidebar-mobile-open .sidebar .menu-section,
+    html body#nxApplication.sidebar-mobile-open .sidebar .sidebar-user .user-info,
+    html body#nxApplication.sidebar-mobile-open .sidebar .sidebar-user .logout-btn {
+        display: block !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar-menu {
+        padding: 12px !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar .menu-item,
+    html body#nxApplication.sidebar-mobile-open .sidebar .menu-item a {
+        width: 100% !important;
+        min-height: 42px !important;
+        height: auto !important;
+        padding: .65rem .75rem !important;
+        justify-content: flex-start !important;
+    }
+
+    html body#nxApplication.sidebar-mobile-open .sidebar .menu-item a i {
+        width: 1.25rem !important;
+        margin-right: .5rem !important;
+    }
+}
+/* Collapsed rail contract: section accordions only control expanded
+   navigation; every destination remains available as an icon in the rail. */
+html.sidebar-collapsed-preload body#nxApplication .sidebar-menu > .menu-item,
+body.sidebar-collapsed#nxApplication .sidebar-menu > .menu-item,
+html.sidebar-collapsed-preload body#nxApplication .sidebar-menu > .menu-item[hidden],
+body.sidebar-collapsed#nxApplication .sidebar-menu > .menu-item[hidden],
+html.sidebar-collapsed-preload body#nxApplication .sidebar-menu > .menu-item.is-collapsed-item,
+body.sidebar-collapsed#nxApplication .sidebar-menu > .menu-item.is-collapsed-item {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    max-height: 3rem !important;
+    min-height: 34px !important;
+    margin: 0 0 4px !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+}
+
+html.sidebar-collapsed-preload body#nxApplication .sidebar-menu > .menu-item > a,
+body.sidebar-collapsed#nxApplication .sidebar-menu > .menu-item > a {
+    width: 40px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+}
+
+/* Keep the notification control inside the narrow topbar. The search field
+   and alert label are secondary at phone widths; the bell remains visible,
+   clickable, and within the available inline space. */
+@media (max-width: 767.98px) {
+    html body#nxApplication .topbar {
+        width: auto !important;
+        right: 0 !important;
+        padding: 0 8px !important;
+        gap: 8px !important;
+        overflow: visible !important;
+    }
+    html body#nxApplication .topbar-left {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        overflow: hidden !important;
+    }
+    html body#nxApplication .workspace-breadcrumb {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    html body#nxApplication .topbar-right {
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+        gap: 4px !important;
+    }
+    html body#nxApplication .topbar-right .global-search {
+        display: none !important;
+    }
+    html body#nxApplication .topbar-right .topbar-alerts {
+        display: inline-flex !important;
+        flex: 0 0 36px !important;
+        width: 36px !important;
+        min-width: 36px !important;
+        padding: 0 !important;
+    }
+    html body#nxApplication .topbar-right .topbar-alerts > span:not(.nx-notification-count) {
+        display: none !important;
+    }
+}
+
+/* The accordion animation must not run in the compact rail. Without this,
+   collapsed sections briefly render their icons and then transition them to
+   opacity/visibility hidden. */
+html.sidebar-collapsed-preload body#nxApplication .sidebar-menu > .menu-item,
+body.sidebar-collapsed#nxApplication .sidebar-menu > .menu-item,
+html.sidebar-collapsed-preload body#nxApplication .sidebar-menu > .menu-item.is-collapsed-item,
+body.sidebar-collapsed#nxApplication .sidebar-menu > .menu-item.is-collapsed-item {
+    animation: none !important;
+    transition: none !important;
 }

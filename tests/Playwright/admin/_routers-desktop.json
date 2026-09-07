@@ -1,0 +1,227 @@
+{
+  "route": "/routers",
+  "source": "admin navigation",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "status": "PASS",
+  "httpStatus": 200,
+  "finalPath": "/routers",
+  "ready": {
+    "pending": [],
+    "visibleLoadingIndicators": 0,
+    "elapsedMs": 1052
+  },
+  "events": [
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/routers",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/routers",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 200,
+      "resource": "fetch"
+    }
+  ],
+  "controls": [
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Toggle navigation",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Operations",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Network",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Support Ticket",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Workforce",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Admin",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Maintenance",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Security",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View notifications (5 alerts)",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Switch to dark mode",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh Drafts",
+      "disabled": false
+    },
+    {
+      "role": "searchbox",
+      "name": "Search accessible modules",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Core Router",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "FRR Router",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Trust Host Key",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh Runtime",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Save Draft",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Apply to Core Router",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Management IP / host",
+      "disabled": false
+    },
+    {
+      "role": "spinbutton",
+      "name": "SSH port",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Username",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Password",
+      "disabled": false
+    },
+    {
+      "role": "spinbutton",
+      "name": "Local AS",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Default next hop",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Public prefix",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "BNG next hop",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "BGP group",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "BGP local address",
+      "disabled": false
+    },
+    {
+      "role": "spinbutton",
+      "name": "Peer AS",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "BGP neighbor",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "BNG link interface",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Interface description",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Interface address",
+      "disabled": false
+    }
+  ],
+  "headings": [
+    "Routers",
+    "Juniper Core Router",
+    "Generated Junos configuration",
+    "Live runtime"
+  ]
+}

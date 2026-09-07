@@ -1,0 +1,1531 @@
+{
+  "target": "http://10.0.10.155/login",
+  "startedAt": "2026-09-06T01:54:25.026Z",
+  "completedAt": "2026-09-06T01:56:18.515Z",
+  "checks": [
+    {
+      "id": "PORTALS-0001",
+      "portal": "subscriber",
+      "area": "authentication",
+      "name": "Single valid login",
+      "status": "PASS",
+      "expected": "Authenticated portal reached",
+      "actual": "Landing path /subscriber-portal; one login attempt",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0002",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0003",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0004",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":2}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0005",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0006",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0007",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0008",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal/account",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal/account; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_account.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0009",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal/account",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_account.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0010",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal/account",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":2}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_account.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0011",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal/account",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_account.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0012",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal/account",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal_account.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0013",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal/account",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal_account.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0014",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal/services",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal/services; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_services.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0015",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal/services",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_services.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0016",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal/services",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":1}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_services.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0017",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal/services",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_services.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0018",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal/services",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal_services.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0019",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal/services",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal_services.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0020",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal/invoices; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_invoices.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0021",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_invoices.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0022",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":3}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_invoices.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0023",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_invoices.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0024",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal_invoices.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0025",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal_invoices.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0026",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal/payments; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_payments.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0027",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_payments.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0028",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":1}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_payments.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0029",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_payments.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0030",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal_payments.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0031",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal_payments.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0032",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal/tickets; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_tickets.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0033",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_tickets.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0034",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":3}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_tickets.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0035",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_tickets.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0036",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal_tickets.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0037",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal_tickets.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0038",
+      "portal": "subscriber",
+      "area": "routes",
+      "name": "Load /subscriber-portal/security",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /subscriber-portal/security; raw exception false",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_security.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0039",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "Runtime/network /subscriber-portal/security",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_security.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0040",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Structure /subscriber-portal/security",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":3}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_security.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0041",
+      "portal": "subscriber",
+      "area": "accessibility",
+      "name": "Keyboard focus /subscriber-portal/security",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "subscriber/retest-portals/desktop_subscriber-portal_security.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0042",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "390px overflow /subscriber-portal/security",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "subscriber/retest-portals/width390_subscriber-portal_security.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0043",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "768px overflow /subscriber-portal/security",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "subscriber/retest-portals/width768_subscriber-portal_security.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0044",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/me",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"profile\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0045",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/maintenance",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"active\",\"message\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0046",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/dashboard",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"profile\",\"overview\",\"services\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0047",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/summary",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"profile\",\"overview\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0048",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/services",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"items\",\"total\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0049",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/invoices",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"items\",\"total\",\"filters\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0050",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/payments",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"items\",\"total\",\"summary\",\"filters\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0051",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/security",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"enabled\",\"method\",\"pending_method\",\"verified_at\",\"email\",\"email_available\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0052",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/tickets",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"items\",\"total\",\"filters\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0053",
+      "portal": "subscriber",
+      "area": "api",
+      "name": "GET /api/v1/subscriber-portal/tickets/visit-slots?date=2026-09-06",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"date\",\"capacity\",\"slots\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0054",
+      "portal": "subscriber",
+      "area": "details",
+      "name": "tickets record 18",
+      "status": "PASS",
+      "expected": "Returned own/assigned record detail loads",
+      "actual": "{\"path\":\"/api/v1/subscriber-portal/tickets/show/18\",\"status\":200}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0055",
+      "portal": "subscriber",
+      "area": "modal",
+      "name": "tickets open and content",
+      "status": "PASS",
+      "expected": "Detail dialog visible and populated",
+      "actual": "{\"visible\":true,\"errors\":[]}",
+      "evidence": [
+        "subscriber/retest-portals/tickets-detail.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0056",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "tickets detail runtime/network",
+      "status": "PASS",
+      "expected": "No errors while opening record details",
+      "actual": "No observed errors",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0057",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "tickets mobile modal",
+      "status": "PASS",
+      "expected": "Dialog fits 390px viewport",
+      "actual": "{\"x\":8,\"y\":28,\"width\":374,\"height\":828}",
+      "evidence": [
+        "subscriber/retest-portals/tickets-detail-mobile.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0058",
+      "portal": "subscriber",
+      "area": "modal",
+      "name": "tickets close",
+      "status": "PASS",
+      "expected": "Dialog dismisses without writing",
+      "actual": "Visibility after dismissal: false",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0059",
+      "portal": "subscriber",
+      "area": "details",
+      "name": "invoices record 16",
+      "status": "PASS",
+      "expected": "Returned own/assigned record detail loads",
+      "actual": "{\"path\":\"/api/v1/subscriber-portal/invoices/show/16\",\"status\":200}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0060",
+      "portal": "subscriber",
+      "area": "modal",
+      "name": "invoices open and content",
+      "status": "PASS",
+      "expected": "Detail dialog visible and populated",
+      "actual": "{\"visible\":true,\"errors\":[]}",
+      "evidence": [
+        "subscriber/retest-portals/invoices-detail.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0061",
+      "portal": "subscriber",
+      "area": "diagnostics",
+      "name": "invoices detail runtime/network",
+      "status": "PASS",
+      "expected": "No errors while opening record details",
+      "actual": "No observed errors",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0062",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "invoices mobile modal",
+      "status": "PASS",
+      "expected": "Dialog fits 390px viewport",
+      "actual": "{\"x\":8,\"y\":28,\"width\":374,\"height\":828}",
+      "evidence": [
+        "subscriber/retest-portals/invoices-detail-mobile.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0063",
+      "portal": "subscriber",
+      "area": "modal",
+      "name": "invoices close",
+      "status": "PASS",
+      "expected": "Dialog dismisses without writing",
+      "actual": "Visibility after dismissal: false",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0064",
+      "portal": "subscriber",
+      "area": "details",
+      "name": "payments record 16",
+      "status": "PASS",
+      "expected": "Returned own/assigned record detail loads",
+      "actual": "{\"path\":\"/subscriber-portal/payments/receipt/16\",\"status\":200}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0065",
+      "portal": "subscriber",
+      "area": "responsive",
+      "name": "Mobile navigation opens",
+      "status": "PASS",
+      "expected": "Sidebar opens from toggle",
+      "actual": "sidebar-mobile-open=true",
+      "evidence": [
+        "subscriber/retest-portals/mobile-navigation.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0066",
+      "portal": "subscriber",
+      "area": "notifications",
+      "name": "Notification dropdown",
+      "status": "PASS",
+      "expected": "Notification panel opens without changing read state",
+      "actual": "{\"visible\":true,\"errors\":[]}",
+      "evidence": [
+        "subscriber/retest-portals/notifications.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0067",
+      "portal": "subscriber",
+      "area": "notifications",
+      "name": "Zero badge suppression",
+      "status": "PASS",
+      "expected": "Zero-count badge hidden",
+      "actual": "Zero-count visibility checked",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0068",
+      "portal": "subscriber",
+      "area": "filters",
+      "name": "List filter controls",
+      "status": "BLOCKED",
+      "expected": "Visible list filter to exercise",
+      "actual": "No visible filter select on list page",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0069",
+      "portal": "subscriber",
+      "area": "attendance",
+      "name": "Attendance display and controls",
+      "status": "BLOCKED",
+      "expected": "Read-only attendance display available",
+      "actual": "No attendance controls identified on portal landing page",
+      "evidence": [
+        "subscriber/retest-portals/attendance-inventory.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0070",
+      "portal": "subscriber",
+      "area": "forms",
+      "name": "Create ticket dialog required fields",
+      "status": "PASS",
+      "expected": "Create form opens and empty required fields are invalid",
+      "actual": "[{\"name\":\"category\",\"valid\":true},{\"name\":\"subject\",\"valid\":false},{\"name\":\"description\",\"valid\":false}]",
+      "evidence": [
+        "subscriber/retest-portals/ticket-create-empty.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0071",
+      "portal": "subscriber",
+      "area": "forms",
+      "name": "Cancel ticket creation",
+      "status": "PASS",
+      "expected": "Cancel dismisses without saving",
+      "actual": "Visible=false",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0072",
+      "portal": "subscriber",
+      "area": "crud",
+      "name": "Create/update/delete QA tickets or work orders",
+      "status": "BLOCKED",
+      "expected": "Safe authorized fixture/control available",
+      "actual": "Inspected portal and management routes: no supported ticket/work-order delete/archive cleanup endpoint; no mutation attempted.",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0073",
+      "portal": "subscriber",
+      "area": "ownership",
+      "name": "Cross-account QA fixture ownership",
+      "status": "BLOCKED",
+      "expected": "Safe authorized fixture/control available",
+      "actual": "No cleanup-safe QA fixture available; existing record ID enumeration prohibited.",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0074",
+      "portal": "subscriber",
+      "area": "attendance",
+      "name": "Attendance mutation and status transitions",
+      "status": "BLOCKED",
+      "expected": "Safe authorized fixture/control available",
+      "actual": "Explicitly excluded by user; existing attendance/status untouched.",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0075",
+      "portal": "technician",
+      "area": "authentication",
+      "name": "Single valid login",
+      "status": "PASS",
+      "expected": "Authenticated portal reached",
+      "actual": "Landing path /staff-attendance; one login attempt",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0076",
+      "portal": "technician",
+      "area": "routes",
+      "name": "Load /technician-portal",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /technician-portal; raw exception false",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0077",
+      "portal": "technician",
+      "area": "diagnostics",
+      "name": "Runtime/network /technician-portal",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0078",
+      "portal": "technician",
+      "area": "accessibility",
+      "name": "Structure /technician-portal",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":2}",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0079",
+      "portal": "technician",
+      "area": "accessibility",
+      "name": "Keyboard focus /technician-portal",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0080",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "390px overflow /technician-portal",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "technician/retest-portals/width390_technician-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0081",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "768px overflow /technician-portal",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "technician/retest-portals/width768_technician-portal.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0082",
+      "portal": "technician",
+      "area": "routes",
+      "name": "Load /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /technician-portal/work-orders; raw exception false",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal_work-orders.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0083",
+      "portal": "technician",
+      "area": "diagnostics",
+      "name": "Runtime/network /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal_work-orders.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0084",
+      "portal": "technician",
+      "area": "accessibility",
+      "name": "Structure /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":2}",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal_work-orders.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0085",
+      "portal": "technician",
+      "area": "accessibility",
+      "name": "Keyboard focus /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "technician/retest-portals/desktop_technician-portal_work-orders.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0086",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "390px overflow /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "technician/retest-portals/width390_technician-portal_work-orders.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0087",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "768px overflow /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "technician/retest-portals/width768_technician-portal_work-orders.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0088",
+      "portal": "technician",
+      "area": "routes",
+      "name": "Load /staff-attendance",
+      "status": "PASS",
+      "expected": "Authenticated page, HTTP <400, no raw server exception",
+      "actual": "HTTP 200; final /staff-attendance; raw exception false",
+      "evidence": [
+        "technician/retest-portals/desktop_staff-attendance.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0089",
+      "portal": "technician",
+      "area": "diagnostics",
+      "name": "Runtime/network /staff-attendance",
+      "status": "PASS",
+      "expected": "No HTTP >=400, failed requests, console errors or page exceptions",
+      "actual": "No observed errors",
+      "evidence": [
+        "technician/retest-portals/desktop_staff-attendance.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0090",
+      "portal": "technician",
+      "area": "accessibility",
+      "name": "Structure /staff-attendance",
+      "status": "PASS",
+      "expected": "Unique IDs and visible buttons have accessible labels (smoke heuristic)",
+      "actual": "{\"duplicateIds\":[],\"unnamedButtons\":[],\"headings\":3}",
+      "evidence": [
+        "technician/retest-portals/desktop_staff-attendance.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0091",
+      "portal": "technician",
+      "area": "accessibility",
+      "name": "Keyboard focus /staff-attendance",
+      "status": "PASS",
+      "expected": "Tab moves focus to a control",
+      "actual": "{\"tag\":\"BUTTON\",\"outline\":\"auto\",\"shadow\":\"none\"}",
+      "evidence": [
+        "technician/retest-portals/desktop_staff-attendance.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0092",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "390px overflow /staff-attendance",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":390,\"body\":390,\"document\":390}",
+      "evidence": [
+        "technician/retest-portals/width390_staff-attendance.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0093",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "768px overflow /staff-attendance",
+      "status": "PASS",
+      "expected": "No document horizontal overflow",
+      "actual": "{\"viewport\":768,\"body\":768,\"document\":768}",
+      "evidence": [
+        "technician/retest-portals/width768_staff-attendance.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0094",
+      "portal": "technician",
+      "area": "api",
+      "name": "GET /api/v1/technician-portal/dashboard",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"attendance\",\"summary\",\"work_orders\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0095",
+      "portal": "technician",
+      "area": "api",
+      "name": "GET /api/v1/technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "HTTP 2xx and successful JSON response",
+      "actual": "{\"status\":200,\"keys\":[\"items\",\"total\",\"summary\"]}",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0096",
+      "portal": "technician",
+      "area": "details",
+      "name": "work-orders details",
+      "status": "BLOCKED",
+      "expected": "At least one owned/assigned record available",
+      "actual": "No returned record IDs; no fixture created because cleanup unsupported",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0097",
+      "portal": "technician",
+      "area": "responsive",
+      "name": "Mobile navigation opens",
+      "status": "PASS",
+      "expected": "Sidebar opens from toggle",
+      "actual": "sidebar-mobile-open=true",
+      "evidence": [
+        "technician/retest-portals/mobile-navigation.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0098",
+      "portal": "technician",
+      "area": "notifications",
+      "name": "Notification dropdown",
+      "status": "PASS",
+      "expected": "Notification panel opens without changing read state",
+      "actual": "{\"visible\":true,\"errors\":[]}",
+      "evidence": [
+        "technician/retest-portals/notifications.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0099",
+      "portal": "technician",
+      "area": "notifications",
+      "name": "Zero badge suppression",
+      "status": "PASS",
+      "expected": "Zero-count badge hidden",
+      "actual": "Zero-count visibility checked",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0100",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter All Status",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-all.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0101",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter Assigned",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-ASSIGNED.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0102",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter On Site",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-ON_SITE.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0103",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter In Progress",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-IN_PROGRESS.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0104",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter Completed",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-COMPLETED.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0105",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter Failed",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-FAILED.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0106",
+      "portal": "technician",
+      "area": "filters",
+      "name": "techStatusFilter Cancelled",
+      "status": "PASS",
+      "expected": "Filter settles without API/runtime errors",
+      "actual": "Filter selected; result semantics not independently verified",
+      "evidence": [
+        "technician/retest-portals/filter-techStatusFilter-CANCELLED.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0107",
+      "portal": "technician",
+      "area": "attendance",
+      "name": "Attendance display and controls",
+      "status": "PASS",
+      "expected": "Read-only attendance display available",
+      "actual": "[{\"tag\":\"SELECT\",\"id\":\"techStatusFilter\"}]",
+      "evidence": [
+        "technician/retest-portals/attendance-inventory.png"
+      ],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0108",
+      "portal": "technician",
+      "area": "crud",
+      "name": "Create/update/delete QA tickets or work orders",
+      "status": "BLOCKED",
+      "expected": "Safe authorized fixture/control available",
+      "actual": "Inspected portal and management routes: no supported ticket/work-order delete/archive cleanup endpoint; no mutation attempted.",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0109",
+      "portal": "technician",
+      "area": "ownership",
+      "name": "Cross-account QA fixture ownership",
+      "status": "BLOCKED",
+      "expected": "Safe authorized fixture/control available",
+      "actual": "No cleanup-safe QA fixture available; existing record ID enumeration prohibited.",
+      "evidence": [],
+      "severity": "info"
+    },
+    {
+      "id": "PORTALS-0110",
+      "portal": "technician",
+      "area": "attendance",
+      "name": "Attendance mutation and status transitions",
+      "status": "BLOCKED",
+      "expected": "Safe authorized fixture/control available",
+      "actual": "Explicitly excluded by user; existing attendance/status untouched.",
+      "evidence": [],
+      "severity": "info"
+    }
+  ],
+  "cleanup": [
+    {
+      "portal": "subscriber",
+      "createdRecords": 0,
+      "mutatedRecords": 0,
+      "cleanupRequired": false,
+      "preventedRequests": [],
+      "contextClosed": true
+    },
+    {
+      "portal": "technician",
+      "createdRecords": 0,
+      "mutatedRecords": 0,
+      "cleanupRequired": false,
+      "preventedRequests": [],
+      "contextClosed": true
+    }
+  ],
+  "coverage": [
+    {
+      "portal": "subscriber",
+      "browser": "151.0.7922.34",
+      "routes": [
+        "/subscriber-portal",
+        "/subscriber-portal/account",
+        "/subscriber-portal/services",
+        "/subscriber-portal/invoices",
+        "/subscriber-portal/payments",
+        "/subscriber-portal/tickets",
+        "/subscriber-portal/security"
+      ],
+      "navigation": [
+        {
+          "href": "/subscriber-portal",
+          "label": "My Account"
+        },
+        {
+          "href": "/subscriber-portal/services",
+          "label": "My Services"
+        },
+        {
+          "href": "/subscriber-portal/invoices",
+          "label": "My Invoices"
+        },
+        {
+          "href": "/subscriber-portal/payments",
+          "label": "My Payments"
+        },
+        {
+          "href": "/subscriber-portal/tickets",
+          "label": "My Tickets"
+        },
+        {
+          "href": "/subscriber-portal/security",
+          "label": "Security"
+        },
+        {
+          "href": "/subscriber-portal/services",
+          "label": "My Services\n                                    View plan and service status"
+        },
+        {
+          "href": "/subscriber-portal/invoices",
+          "label": "My Invoices\n                                    View balances and due dates"
+        },
+        {
+          "href": "/subscriber-portal/payments",
+          "label": "My Payments\n                                    View payment history"
+        },
+        {
+          "href": "/subscriber-portal/invoices",
+          "label": "View Invoices"
+        }
+      ],
+      "viewports": [
+        {
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 768,
+          "height": 1024
+        }
+      ]
+    },
+    {
+      "portal": "subscriber",
+      "collection": "tickets",
+      "availableOnFetchedPage": 1,
+      "detailsAttempted": 1,
+      "pagination": "Only returned list page; no guessed existing record IDs"
+    },
+    {
+      "portal": "subscriber",
+      "collection": "invoices",
+      "availableOnFetchedPage": 1,
+      "detailsAttempted": 1,
+      "pagination": "Only returned list page; no guessed existing record IDs"
+    },
+    {
+      "portal": "subscriber",
+      "collection": "payments",
+      "availableOnFetchedPage": 1,
+      "detailsAttempted": 1,
+      "pagination": "Only returned list page; no guessed existing record IDs"
+    },
+    {
+      "portal": "technician",
+      "browser": "151.0.7922.34",
+      "routes": [
+        "/technician-portal",
+        "/technician-portal/work-orders",
+        "/staff-attendance"
+      ],
+      "navigation": [
+        {
+          "href": "/staff-attendance",
+          "label": "Attendance"
+        },
+        {
+          "href": "/technician-portal",
+          "label": "My Work Orders"
+        }
+      ],
+      "viewports": [
+        {
+          "width": 1440,
+          "height": 900
+        },
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 768,
+          "height": 1024
+        }
+      ]
+    },
+    {
+      "portal": "technician",
+      "collection": "work-orders",
+      "availableOnFetchedPage": 0,
+      "detailsAttempted": 0,
+      "pagination": "Only returned list page; no guessed existing record IDs"
+    }
+  ],
+  "limitations": [
+    "technician: initial HTTP 429; one retry after 65 seconds.",
+    "Security login probes, logout/session-expiry and credential/MFA changes deliberately excluded. One login attempt per role; contexts reused.",
+    "CRUD and fixture ownership blocked by absent supported cleanup endpoints. No existing record mutations attempted.",
+    "Read-only page navigation can cause application-managed access/audit logs. Non-GET browser requests except initial login blocked.",
+    "Chromium only. Accessibility checks are smoke heuristics, not a WCAG audit. No full response bodies, traces, cookies, tokens or credentials retained.",
+    "Details cover records returned on first API list page; no exhaustive historical pagination, export/download attachment content, destructive recovery or concurrency checks."
+  ]
+}

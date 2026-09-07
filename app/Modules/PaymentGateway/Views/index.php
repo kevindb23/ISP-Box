@@ -40,12 +40,12 @@
                     <form id="paymentGatewaySettingsForm">
                         <div class="pg-toggle-box mb-3">
                             <div>
-                                <div class="fw-semibold">Enable PayMongo</div>
+                                <div class="fw-semibold" id="paymongoEnabledLabel">Enable PayMongo payments</div>
                                 <div class="text-muted small">Allow subscribers to pay invoices using PayMongo checkout.</div>
                             </div>
 
                             <div class="form-check form-switch m-0">
-                                <input class="form-check-input" type="checkbox" id="paymongoEnabled" role="switch" aria-label="Enable PayMongo">
+                                <input class="form-check-input" type="checkbox" id="paymongoEnabled" role="switch" aria-labelledby="paymongoEnabledLabel" aria-checked="false">
                             </div>
                         </div>
 

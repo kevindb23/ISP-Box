@@ -7,6 +7,11 @@ $root = $base . '/app/Modules';
 $failures = [];
 
 foreach (glob($root . '/*', GLOB_ONLYDIR) ?: [] as $modulePath) {
+    // Vue/Nuxt modules mount into a stable root and render their controls
+    // after PHP view output. Their selectors are validated by the frontend
+    // tests, so the PHP selector audit should not report those runtime-only
+    // IDs as missing from the server-rendered shell.
+    $moduleSlug = strtolower(preg_replace('/(?<!^)[A-Z]/', '-$0', basename($modulePath)));
     $views = '';
     $javascript = '';
     foreach (glob($modulePath . '/Views/*.php') ?: [] as $file) $views .= file_get_contents($file) . "\n";
@@ -16,6 +21,9 @@ foreach (glob($root . '/*', GLOB_ONLYDIR) ?: [] as $modulePath) {
     preg_match_all('/(?:getElementById|\$)\(\s*["\']([A-Za-z][A-Za-z0-9_:-]+)["\']\s*\)/', $javascript, $matches);
     foreach (array_unique($matches[1]) as $id) {
         if (!preg_match('/id\s*=\s*["\']' . preg_quote($id, '/') . '["\']/', $views . $javascript)) {
+            if (preg_match('/data-nx-next-root\s*=\s*["\']' . preg_quote($moduleSlug, '/') . '["\']/', $views)) {
+                continue;
+            }
             $failures[] = basename($modulePath) . ": JavaScript references missing DOM ID {$id}";
         }
     }

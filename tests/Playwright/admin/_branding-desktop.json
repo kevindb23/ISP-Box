@@ -1,0 +1,169 @@
+{
+  "route": "/branding",
+  "source": "admin navigation",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "status": "PASS",
+  "httpStatus": 200,
+  "finalPath": "/branding",
+  "ready": {
+    "pending": [],
+    "visibleLoadingIndicators": 0,
+    "elapsedMs": 1051
+  },
+  "events": [
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/branding",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/branding",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 200,
+      "resource": "fetch"
+    }
+  ],
+  "controls": [
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Toggle navigation",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Operations",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Network",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Support Ticket",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Workforce",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Admin",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Maintenance",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Security",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View notifications (5 alerts)",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Switch to dark mode",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Save Branding",
+      "disabled": true
+    },
+    {
+      "role": "button",
+      "name": "Remove Logo",
+      "disabled": false
+    },
+    {
+      "role": "searchbox",
+      "name": "Search accessible modules",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Company Name",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Logo Text Displayed beside the logo on the login page.",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Company Address",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Support Email",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Support Phone",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "TIN",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Website",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Choose a logo Browse from this device",
+      "disabled": false
+    }
+  ],
+  "headings": [
+    "Branding"
+  ]
+}

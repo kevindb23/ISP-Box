@@ -47,6 +47,10 @@ billing.sql
 *.dump
 !database/migrations/20260904_000001_mfa.sql
 !database/migrations/20260904_000002_mfa_pending_enrollment.sql
+!database/migrations/20260904_000003_email_notifications.sql
+!database/migrations/20260904_000003_email_notifications.sql
+!database/migrations/20260904_000007_maintenance_permissions.sql
+!database/migrations/20260904_000008_notification_feed_permission.sql
 
 # Laravel/framework artifacts
 bootstrap/compiled.php

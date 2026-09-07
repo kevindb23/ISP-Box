@@ -1,0 +1,20 @@
+[
+  {
+    "portal": "admin",
+    "home": "/dashboard",
+    "read": "/api/v1/users/0",
+    "post": "/api/v1/users/update/0"
+  },
+  {
+    "portal": "subscriber",
+    "home": "/subscriber-portal",
+    "read": "/api/v1/subscriber-portal/tickets/show/0",
+    "post": "/api/v1/subscriber-portal/tickets/reply"
+  },
+  {
+    "portal": "technician",
+    "home": "/technician-portal",
+    "read": "/api/v1/technician-portal/work-orders/show/0",
+    "post": "/api/v1/technician-portal/work-orders/add-note"
+  }
+]

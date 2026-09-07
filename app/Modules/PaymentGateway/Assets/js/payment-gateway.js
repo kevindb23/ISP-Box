@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function applySettingsToForm(settings = {}) {
         if (refs.enabled) {
             refs.enabled.checked = Number(settings.paymongo_enabled || 0) === 1;
+            refs.enabled.setAttribute('aria-checked', refs.enabled.checked ? 'true' : 'false');
         }
 
         if (refs.mode) {

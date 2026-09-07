@@ -168,13 +168,14 @@ class SubscriberService
             return ['ok' => false, 'message' => 'Failed to update subscriber.'];
         }
 
+        $expiresAt = null;
+        if (($plan['plan_type'] ?? 'POSTPAID') === 'PREPAID') {
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+' . (int)$plan['validity_days'] . ' days'));
+        }
+
         try {
-            $expiresAt = null;
-
-            if (($plan['plan_type'] ?? 'POSTPAID') === 'PREPAID') {
-                $expiresAt = date('Y-m-d H:i:s', strtotime('+' . (int)$plan['validity_days'] . ' days'));
-            }
-
+            // Keep authentication and service authorization authoritative in
+            // Radius for every subscriber update, including profile edits.
             $this->repo->syncRadiusPlan(
                 $existing['ppp_username'],
                 $plan['plan_name'],

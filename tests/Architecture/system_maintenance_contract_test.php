@@ -11,6 +11,7 @@ $requiredFiles = [
     'app/Modules/SystemMaintenance/Routes/web.php',
     'app/Modules/SystemMaintenance/Routes/api.php',
     'app/Modules/SystemMaintenance/Views/index.php',
+    'app/UI/Views/layouts/maintenance.php',
     'database/migrations/20260904_000006_system_maintenance.sql',
     'frontend-next/src/modules/system-maintenance/SystemMaintenancePage.vue',
 ];
@@ -38,6 +39,7 @@ $portalController = file_get_contents($root . '/app/Modules/SubscriberPortal/Con
 $portalApiController = file_get_contents($root . '/app/Modules/SubscriberPortal/Controllers/SubscriberPortalApiController.php');
 $portalApiRoutes = file_get_contents($root . '/app/Modules/SubscriberPortal/Routes/api.php');
 $paymentApiController = file_get_contents($root . '/app/Modules/PaymentGateway/Controllers/PaymentGatewayApiController.php');
+$maintenanceLayout = file_get_contents($root . '/app/UI/Views/layouts/maintenance.php');
 
 foreach (['activeState', 'DateTimeImmutable', 'starts_at', 'ends_at', 'message'] as $needle) {
     if (stripos($service, $needle) === false) {
@@ -62,6 +64,24 @@ foreach (['requireAdmin', 'GET', 'POST', 'system-maintenance'] as $needle) {
 
 if (stripos($portalController . $portalApiController, 'maintenance') === false) {
     fwrite(STDERR, "subscriber portal maintenance guard missing\n");
+    exit(1);
+}
+
+foreach (["!empty(\$maintenanceState['active'])", "'maintenance'", "'app'"] as $needle) {
+    if (strpos($portalController, $needle) === false) {
+        fwrite(STDERR, "subscriber controller does not select the maintenance-only layout: {$needle}\n");
+        exit(1);
+    }
+}
+
+foreach (['min-height: 100vh', 'align-items: center', 'justify-content: center'] as $needle) {
+    if (stripos((string)$maintenanceLayout, $needle) === false) {
+        fwrite(STDERR, "maintenance layout missing centered viewport styling: {$needle}\n");
+        exit(1);
+    }
+}
+if (stripos((string)$maintenanceLayout, 'sidebar.php') !== false || stripos((string)$maintenanceLayout, 'header.php') !== false) {
+    fwrite(STDERR, "maintenance layout must not render the shared header or sidebar\n");
     exit(1);
 }
 

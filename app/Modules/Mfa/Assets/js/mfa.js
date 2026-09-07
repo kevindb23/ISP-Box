@@ -3,12 +3,20 @@
     if (!page) return;
     const tableBody = document.querySelector('#mfaUsersTable tbody');
     const csrf = page.dataset.csrf;
+    const api = window.NX?.api;
+    if (!api) return;
 
     async function request(url, options = {}) {
-        const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf, ...(options.headers || {}) } });
-        const data = await response.json();
-        if (!response.ok || data.success === false) throw new Error(data.message || 'Request failed.');
-        return data.data || {};
+        const method = String(options.method || 'GET').toUpperCase();
+        if (method === 'GET') return api.get(url);
+
+        let body = options.body ?? {};
+        if (typeof body === 'string') {
+            try { body = body ? JSON.parse(body) : {}; } catch { body = {}; }
+        }
+        return api.post(url, body, {
+            headers: { 'X-CSRF-Token': csrf, ...(options.headers || {}) }
+        });
     }
 
     function escapeHtml(value) {

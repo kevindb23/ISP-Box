@@ -1,0 +1,175 @@
+{
+  "route": "/nap-management",
+  "source": "admin navigation",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "status": "PASS",
+  "httpStatus": 200,
+  "finalPath": "/nap-management",
+  "ready": {
+    "pending": [],
+    "visibleLoadingIndicators": 0,
+    "elapsedMs": 1059
+  },
+  "events": [
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/nap-management",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/nap-management/odfs",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/nap-management/lcps",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/nap-management/planner/objects",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/nap-management/naps",
+      "status": 200,
+      "resource": "fetch"
+    }
+  ],
+  "controls": [
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Toggle navigation",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Operations",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Network",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Support Ticket",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Workforce",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Admin",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Maintenance",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Security",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View notifications (5 alerts)",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Switch to dark mode",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh",
+      "disabled": false
+    },
+    {
+      "role": "searchbox",
+      "name": "Search infrastructure…",
+      "disabled": false
+    },
+    {
+      "role": "searchbox",
+      "name": "Search accessible modules",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Nodes",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Links",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "ODF",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "LCP",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "NAP",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View",
+      "disabled": false
+    }
+  ],
+  "headings": [
+    "NAP Management"
+  ]
+}

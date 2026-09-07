@@ -1,0 +1,2462 @@
+[
+  {
+    "method": "GET",
+    "route": "/api-tokens",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/api-tokens/create",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/api-tokens/{id}/revoke",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/api-tokens/monitoring-identity",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/api-tokens/monitoring-operations",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/api-tokens/monitoring-settings",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/api-tokens/monitoring-test",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/api-tokens/monitoring-retry",
+    "module": "ApiTokens",
+    "source": "app/Modules/ApiTokens/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/audit",
+    "module": "Audit",
+    "source": "app/Modules/Audit/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit",
+    "module": "Audit",
+    "source": "app/Modules/Audit/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/notifications",
+    "module": "Audit",
+    "source": "app/Modules/Audit/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/notifications/{id}/read",
+    "module": "Audit",
+    "source": "app/Modules/Audit/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/audit/{id}",
+    "module": "Audit",
+    "source": "app/Modules/Audit/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/",
+    "module": "Auth",
+    "source": "app/Modules/Auth/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/login",
+    "module": "Auth",
+    "source": "app/Modules/Auth/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/login",
+    "module": "Auth",
+    "source": "app/Modules/Auth/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/forgot-password/request",
+    "module": "Auth",
+    "source": "app/Modules/Auth/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/forgot-password/reset",
+    "module": "Auth",
+    "source": "app/Modules/Auth/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/billing",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/billing/invoices/print/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/billing/payments/receipt/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/overview",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/settings",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/settings/save",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/support/subscribers",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/support/services",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/support/plans",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/invoices/list",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/invoices/show/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/invoices/create",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/invoices/cancel/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/invoices/recalculate/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/invoices/mark-overdue",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/payments/list",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/payments/show/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/payments/create",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/payments/by-invoice/{invoiceId}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/payments/void/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/generate-due-invoices",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/runs/list",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/runs/show/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/xendit/create-payment-link",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/xendit/webhook",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/adjustments/list",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/adjustments/show/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/adjustments/create",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/adjustments/void/{id}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/adjustments/by-invoice/{invoiceId}",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/collections/aging",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/payments/{id}/approve",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/billing/payments/{id}/reject",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/billing/payments/{id}/proof",
+    "module": "Billing",
+    "source": "app/Modules/Billing/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/bng",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/bng/setting",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/setting",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/setting/delete",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/setting/test",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/bng/setting/host-key",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/setting/host-key/trust",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/bng/runtime",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/bng/accel-ppp",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/accel-ppp",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/bng/accel-ppp/preview",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/accel-ppp/preview-draft",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/accel-ppp/stage",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/accel-ppp/activate-maintenance",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/bng/reconciliation/install",
+    "module": "BngManagement",
+    "source": "app/Modules/BngManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/branding",
+    "module": "Branding",
+    "source": "app/Modules/Branding/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/branding",
+    "module": "Branding",
+    "source": "app/Modules/Branding/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/branding",
+    "module": "Branding",
+    "source": "app/Modules/Branding/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/cgnat",
+    "module": "CgnatManagement",
+    "source": "app/Modules/CgnatManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/cgnat/config",
+    "module": "CgnatManagement",
+    "source": "app/Modules/CgnatManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/cgnat/config",
+    "module": "CgnatManagement",
+    "source": "app/Modules/CgnatManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/cgnat/config/apply",
+    "module": "CgnatManagement",
+    "source": "app/Modules/CgnatManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/cgnat/postrouting/remove",
+    "module": "CgnatManagement",
+    "source": "app/Modules/CgnatManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/dashboard",
+    "module": "Dashboard",
+    "source": "app/Modules/Dashboard/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/logout",
+    "module": "Dashboard",
+    "source": "app/Modules/Dashboard/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/dashboard/stats",
+    "module": "Dashboard",
+    "source": "app/Modules/Dashboard/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/email",
+    "module": "Email",
+    "source": "app/Modules/Email/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/email",
+    "module": "Email",
+    "source": "app/Modules/Email/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/email",
+    "module": "Email",
+    "source": "app/Modules/Email/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/email/test",
+    "module": "Email",
+    "source": "app/Modules/Email/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/email/test-email",
+    "module": "Email",
+    "source": "app/Modules/Email/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/mfa",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/login/mfa",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/mfa",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/mfa/{id}/enroll",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/mfa/{id}/complete",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/mfa/{id}/disable",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/mfa/{id}/reset",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/mfa/login/verify",
+    "module": "Mfa",
+    "source": "app/Modules/Mfa/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/nap-management",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/nap-management/lcp/store",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/nap-management/lcp/update/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/nap-management/lcp/delete",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/nap-management/store",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/nap-management/update/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/nap-management/delete",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/nap-management/lcp-ports/{lcpId}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/odfs",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/odf/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/lcps",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/lcp/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/naps",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/nap/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/odf-ports/{odfId}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/lcp-ports/{lcpId}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/nap-parent-ports/{napId}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/odf-port-grid",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/lcp-port-grid",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/nap-port-grid",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/odf-candidates",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/lcp-candidates",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/nap-candidates",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/topology",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/topology/objects",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/design-profiles",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/odf/create",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/odf/update/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/odf/delete",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/lcp/create",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/lcp/update/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/lcp/delete",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/nap/create",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/nap/update/{id}",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/nap/delete",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/nap-management/planner/objects",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/connect",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/delete-link",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/object-connect",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/object-delete-link",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/rebuild",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/topology/object/create",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/topology/link/create",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/topology/link/delete",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/generate-design",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/odf/{id}/maintenance",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/lcp/{id}/maintenance",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/nap/{id}/maintenance",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/node-position",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/nap-management/planner/reset-layout",
+    "module": "NapManagement",
+    "source": "app/Modules/NapManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/notifications",
+    "module": "Notifications",
+    "source": "app/Modules/Notifications/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/notifications/settings",
+    "module": "Notifications",
+    "source": "app/Modules/Notifications/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/notifications/settings",
+    "module": "Notifications",
+    "source": "app/Modules/Notifications/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/notifications/test",
+    "module": "Notifications",
+    "source": "app/Modules/Notifications/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/olt-management",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/olt-management/ports",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/olt-management/profiles",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/device/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/device/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/device/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/port/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/port/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/port/fetch",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/olt-management/port/import-fetched",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/devices",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/device/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/device/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/device/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/device/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/ports",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/ports/by-olt/{oltId}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/port/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/available-ports/{oltId}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/port/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/port/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/port/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/port/fetch",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/port/import-fetched",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/dba-profiles",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/dba-profile/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/dba-profile/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/dba-profile/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/dba-profile/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/dba-profile/{id}/cli-preview",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/line-profiles",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/line-profile/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/line-profile/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/line-profile/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/line-profile/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/line-profile/{id}/cli-preview",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/wan-profiles",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/wan-profile/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/wan-profile/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/wan-profile/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/wan-profile/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/wan-profile/{id}/cli-preview",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/tr069-profiles",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/tr069-profile/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/tr069-profile/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/tr069-profile/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/tr069-profile/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/tr069-profile/{id}/cli-preview",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/srv-profiles",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/srv-profile/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/srv-profile/create",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/srv-profile/update/{id}",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/srv-profile/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/srv-profile/{id}/cli-preview",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/control-board/{oltId}/vlan-workspace",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/control-board/{oltId}/vlan-options",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/control-board/vlan-bindings",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/control-board/vlan-bindings/delete",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/olt-management/pon-port/{oltId}/svlan-options",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/pon-port/assign-svlan",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/olt-management/pon-port/unassign-svlan",
+    "module": "OltManagement",
+    "source": "app/Modules/OltManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/ont-devices",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/ont-devices/acs-device/{id}",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/inventory",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/inventory/{id}",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/subscribers",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/discovery",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/discover",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/add-to-inventory",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/acs",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/store",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/update/{id}",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/delete",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/acs/devices",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/acs/device/{id}",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/acs/device/{id}/parameters",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/ping",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/refresh",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/reboot",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/factory-reset",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/wifi-config",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/device/{id}/optical",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/ont-devices/acs/device/{id}/cached-optical",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/wan/create",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/wan/update",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/ont-devices/acs/wan/delete",
+    "module": "OntDevices",
+    "source": "app/Modules/OntDevices/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/payment-gateway",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/payment-gateway/settings",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/payment-gateway/settings/save",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/payment-gateway/transactions",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/payment-gateway/paymongo/checkout",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/payment-gateway/paymongo/webhook",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/payment-gateway/paymongo/verify",
+    "module": "PaymentGateway",
+    "source": "app/Modules/PaymentGateway/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/radius",
+    "module": "Radius",
+    "source": "app/Modules/Radius/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/radius/settings",
+    "module": "Radius",
+    "source": "app/Modules/Radius/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/radius/settings/{id}",
+    "module": "Radius",
+    "source": "app/Modules/Radius/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/radius/settings",
+    "module": "Radius",
+    "source": "app/Modules/Radius/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/radius/settings/delete",
+    "module": "Radius",
+    "source": "app/Modules/Radius/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/radius/settings/{id}",
+    "module": "Radius",
+    "source": "app/Modules/Radius/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/routers",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/routers",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/routers/core",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/routers/core/host-key",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/routers/core/host-key/trust",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/routers/core/runtime",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/routers/core/apply",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/routers/frr",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/routers/frr/runtime",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/routers/frr/apply",
+    "module": "RouterManagement",
+    "source": "app/Modules/RouterManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/scheduled-downtime",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/scheduled-downtime",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/scheduled-downtime",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/scheduled-downtime/{id}/delete",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/scheduled-downtime/{id}/toggle",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/scheduled-downtime/{id}",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "PUT",
+    "route": "/api/v1/scheduled-downtime/{id}",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "DELETE",
+    "route": "/api/v1/scheduled-downtime/{id}",
+    "module": "ScheduledDowntime",
+    "source": "app/Modules/ScheduledDowntime/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/service-provisioning",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/list",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/{id}",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/validate",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/create",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/run",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/check-acs/{jobId}",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/logs/{jobId}",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/provision",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/subscribers",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/plans",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/olts",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/olt-ports",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/network-boxes",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/splitters",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/splitter-output-ports",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/service-provisioning/support/onts",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/retry/{jobId}",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/service-provisioning/cancel/{jobId}",
+    "module": "ServiceProvisioning",
+    "source": "app/Modules/ServiceProvisioning/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/staff-attendance",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/staff-attendance/today",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/staff-attendance/history",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/staff-attendance/available-technicians",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/staff-attendance/time-in",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/staff-attendance/time-out",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/staff-attendance/status",
+    "module": "StaffAttendance",
+    "source": "app/Modules/StaffAttendance/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-plans",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscriber-plans/store",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscriber-plans/update/{id}",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscriber-plans/delete",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-plans",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-plans/store",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-plans/update/{id}",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-plans/delete",
+    "module": "SubscriberPlans",
+    "source": "app/Modules/SubscriberPlans/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/account",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/services",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/invoices",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/payments",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/tickets",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/security",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/invoices/print/{id}",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscriber-portal/payments/receipt/{id}",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/me",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/maintenance",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/dashboard",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/summary",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/services",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/invoices",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/invoices/show/{id}",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/payments",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/payments/submit",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/change-password",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/security",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/security/enroll",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/security/complete",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/security/disable",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/tickets",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/tickets",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/tickets/visit-slots",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscriber-portal/tickets/show/{id}",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/tickets/reply",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscriber-portal/tickets/schedule-visit",
+    "module": "SubscriberPortal",
+    "source": "app/Modules/SubscriberPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/subscribers",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/create",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/update/{id}",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/suspend",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/reactivate",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/reset-password",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/reset-portal-password",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "POST",
+    "route": "/subscribers/delete",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscribers",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscribers/sessions",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscribers/plans",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/create",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/update/{id}",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/suspend",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/reactivate",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/reset-password",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/reset-portal-password",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/subscribers/delete",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/subscribers/{id}",
+    "module": "Subscribers",
+    "source": "app/Modules/Subscribers/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/system-maintenance",
+    "module": "SystemMaintenance",
+    "source": "app/Modules/SystemMaintenance/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/system-maintenance",
+    "module": "SystemMaintenance",
+    "source": "app/Modules/SystemMaintenance/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/system-maintenance",
+    "module": "SystemMaintenance",
+    "source": "app/Modules/SystemMaintenance/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/system-settings",
+    "module": "SystemSettings",
+    "source": "app/Modules/SystemSettings/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/system-settings/general",
+    "module": "SystemSettings",
+    "source": "app/Modules/SystemSettings/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/system-settings/general",
+    "module": "SystemSettings",
+    "source": "app/Modules/SystemSettings/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/technician-management",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-management",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-management/technicians/{id}",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-management/status",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-management/profile",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-management/dispatch",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-management/assign-work-order",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-management/work-order-status",
+    "module": "TechnicianManagement",
+    "source": "app/Modules/TechnicianManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/technician-portal",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/technician-portal/work-orders",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-portal/dashboard",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-portal/work-orders",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-portal/work-orders/show/{id}",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/technician-portal/attachments/{id}/download",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/check-in",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/start",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/complete",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/complete-task",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/add-note",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/attendance/time-in",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/attendance/time-out",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/attendance/status",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/upload-photo",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/technician-portal/work-orders/delete-photo",
+    "module": "TechnicianPortal",
+    "source": "app/Modules/TechnicianPortal/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/tickets",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/tickets",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/tickets/show/{id}",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/tickets/reply",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/tickets/internal-note",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/tickets/status",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/tickets/priority",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/tickets/assign",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/tickets/request-schedule",
+    "module": "Tickets",
+    "source": "app/Modules/Tickets/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/users",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/users",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/users/{id}",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/users/store",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/users/update/{id}",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/users/delete",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/users/reset-password/{id}",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/users/{id}/permissions",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/users/{id}/permissions",
+    "module": "Users",
+    "source": "app/Modules/Users/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/vlan-management",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/vlan-management/summary",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/vlan-management/vlans",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/vlan-management/vlans",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/vlan-management/vlans/{id}/update",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/vlan-management/vlans/{id}/retry",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/vlan-management/vlans/{id}/delete",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/vlan-management/mgmt-vlans",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/vlan-management/mgmt-vlans",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/vlan-management/mgmt-vlans/{id}/delete",
+    "module": "VlanManagement",
+    "source": "app/Modules/VlanManagement/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/work-orders",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/web.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/work-orders",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  },
+  {
+    "method": "GET",
+    "route": "/api/v1/work-orders/show/{id}",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/work-orders/create-from-ticket",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/work-orders/assign",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/work-orders/status",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/work-orders/tasks/complete",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  },
+  {
+    "method": "POST",
+    "route": "/api/v1/work-orders/tasks/reopen",
+    "module": "WorkOrders",
+    "source": "app/Modules/WorkOrders/Routes/api.php"
+  }
+]

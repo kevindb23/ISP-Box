@@ -461,7 +461,14 @@ class Router
 
     private function securityJson(string $message, int $status): void
     {
-        http_response_code($status);
+        // Emit an explicit reason phrase as well as the numeric status. Some
+        // Apache/PHP combinations normalize non-standard application status
+        // codes such as 419 to 500 when only http_response_code() is used.
+        if ($status === 419) {
+            header('HTTP/1.1 419 Authentication Timeout', true, 419);
+        } else {
+            http_response_code($status);
+        }
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'ok' => false,

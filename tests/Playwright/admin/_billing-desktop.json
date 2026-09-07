@@ -1,0 +1,230 @@
+{
+  "route": "/billing",
+  "source": "admin navigation",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "status": "PASS",
+  "httpStatus": 200,
+  "finalPath": "/billing",
+  "ready": {
+    "pending": [],
+    "visibleLoadingIndicators": 0,
+    "elapsedMs": 1055
+  },
+  "events": [
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/billing",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/overview",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/payments/list",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/invoices/list",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/collections/aging",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/adjustments/list",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/runs/list",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/settings",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/billing/support/services",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 200,
+      "resource": "fetch"
+    }
+  ],
+  "controls": [
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Toggle navigation",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Operations",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Network",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Support Ticket",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Workforce",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Admin",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Maintenance",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Security",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View notifications (5 alerts)",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Switch to dark mode",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Generate Due Invoices",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "New Invoice",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Record Payment",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "INV-2026-000016 John Doe · Due 9/4/2026 ₱0.00",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "PAY-2026-000016 John Doe · GCASH ₱1,099.00",
+      "disabled": false
+    },
+    {
+      "role": "searchbox",
+      "name": "Search accessible modules",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Overview",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Invoices",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Payments",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Adjustments",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Collections",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing Runs",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Settings",
+      "disabled": false
+    }
+  ],
+  "headings": [
+    "Billing Center",
+    "Recent Invoices",
+    "Recent Payments"
+  ]
+}

@@ -1,0 +1,114 @@
+[
+  {
+    "route": "/dashboard",
+    "label": "Dashboard"
+  },
+  {
+    "route": "/subscriber-plans",
+    "label": "Plans"
+  },
+  {
+    "route": "/subscribers",
+    "label": "Subscribers"
+  },
+  {
+    "route": "/bng",
+    "label": "BNG"
+  },
+  {
+    "route": "/routers",
+    "label": "Routers"
+  },
+  {
+    "route": "/cgnat",
+    "label": "CGNAT"
+  },
+  {
+    "route": "/vlan-management",
+    "label": "VLAN"
+  },
+  {
+    "route": "/radius",
+    "label": "RADIUS"
+  },
+  {
+    "route": "/olt-management",
+    "label": "OLT"
+  },
+  {
+    "route": "/nap-management",
+    "label": "NAP"
+  },
+  {
+    "route": "/ont-devices",
+    "label": "ONT"
+  },
+  {
+    "route": "/service-provisioning",
+    "label": "Provisioning"
+  },
+  {
+    "route": "/billing",
+    "label": "Billing"
+  },
+  {
+    "route": "/payment-gateway",
+    "label": "Payment Gateway"
+  },
+  {
+    "route": "/tickets",
+    "label": "Tickets"
+  },
+  {
+    "route": "/staff-attendance",
+    "label": "Attendance"
+  },
+  {
+    "route": "/technician-management",
+    "label": "Technicians"
+  },
+  {
+    "route": "/work-orders",
+    "label": "Work Orders"
+  },
+  {
+    "route": "/users",
+    "label": "Users"
+  },
+  {
+    "route": "/audit",
+    "label": "Audit Logs"
+  },
+  {
+    "route": "/branding",
+    "label": "Branding"
+  },
+  {
+    "route": "/system-settings",
+    "label": "System Settings"
+  },
+  {
+    "route": "/api-tokens",
+    "label": "API Tokens"
+  },
+  {
+    "route": "/email",
+    "label": "Email"
+  },
+  {
+    "route": "/notifications",
+    "label": "Notifications"
+  },
+  {
+    "route": "/scheduled-downtime",
+    "label": "Scheduled Downtime"
+  },
+  {
+    "route": "/system-maintenance",
+    "label": "System Maintenance"
+  },
+  {
+    "route": "/mfa",
+    "label": "MFA"
+  }
+]

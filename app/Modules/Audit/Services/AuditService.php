@@ -47,15 +47,33 @@ class AuditService
 
     public function notificationFeed(int $userId, int $limit = 30, string $role = ''): array
     {
-        if (strtoupper(trim($role)) === 'SUBSCRIBER') {
+        if (in_array(strtoupper(trim($role)), ['SUBSCRIBER', 'TECHNICIAN'], true)) {
+            $items = array_map(static function (array $row): array {
+                return [
+                    // Maintenance IDs are deliberately namespaced above BIGINT
+                    // audit IDs. Keep them as strings so JavaScript cannot round
+                    // them past Number.MAX_SAFE_INTEGER before marking them read.
+                    'id' => (string)($row['id'] ?? '0'),
+                    'notification_type' => (string)($row['notification_type'] ?? 'MAINTENANCE'),
+                    'title' => (string)($row['title'] ?? 'Maintenance notice'),
+                    'description' => (string)($row['description'] ?? ''),
+                    'starts_at' => $row['starts_at'] ?? null,
+                    'ends_at' => $row['ends_at'] ?? null,
+                    'created_at' => $row['created_at'] ?? null,
+                    'is_read' => (bool)($row['is_read'] ?? false),
+                ];
+            }, $this->repo->maintenanceNotificationsForUser($userId, $limit));
+
             return [
-                'items' => [],
-                'unread_count' => 0,
+                'items' => $items,
+                'unread_count' => $this->repo->unreadMaintenanceNotificationCount($userId),
             ];
         }
 
         $items = array_map(static function (array $row): array {
             $item = (new AuditLog($row))->toArray();
+            $item['notification_type'] = 'SECURITY';
+            $item['title'] = 'Critical security event';
             $item['is_read'] = (bool)($row['is_read'] ?? false);
             return $item;
         }, $this->repo->securityNotificationsForUser($userId, $limit));

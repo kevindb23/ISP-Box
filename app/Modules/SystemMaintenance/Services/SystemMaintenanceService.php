@@ -2,6 +2,7 @@
 
 namespace App\Modules\SystemMaintenance\Services;
 
+use App\Modules\SystemMaintenance\DTOs\CreateSystemMaintenanceDTO;
 use App\Modules\SystemMaintenance\Entities\SystemMaintenance;
 use App\Modules\SystemMaintenance\Repositories\SystemMaintenanceRepository;
 use App\Modules\SystemMaintenance\Validators\CreateSystemMaintenanceValidator;
@@ -29,6 +30,7 @@ class SystemMaintenanceService
 
     public function saveSettings(array $input): array
     {
+        $input = CreateSystemMaintenanceDTO::fromArray($input)->toArray();
         $errors = $this->validator->validate($input);
 
         if ($errors !== []) {

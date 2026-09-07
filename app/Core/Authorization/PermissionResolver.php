@@ -34,7 +34,7 @@ final class PermissionResolver
         'scheduled-downtime' => ['view','create','update','delete'],
         'system-maintenance' => ['view','configure'],
         'email' => ['view','configure'],
-        'notifications' => ['view','configure'],
+        'notifications' => ['view','configure','feed'],
     ];
 
     private const PREFIXES = [
@@ -60,6 +60,12 @@ final class PermissionResolver
         $path = trim((string)$path, '/');
         if ($path === '' || $path === 'logout') return null;
 
+        // The shared notification feed has its own permission because the
+        // subscriber drawer is not an admin settings endpoint.
+        $method = strtoupper($method);
+        if ($method === 'GET' && $path === 'notifications') return 'notifications.feed';
+        if ($method === 'POST' && preg_match('#^notifications/[^/]+/read$#', $path) === 1) return 'notifications.feed';
+
         $module = null;
         foreach (self::PREFIXES as $prefix => $candidate) {
             if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
@@ -69,7 +75,6 @@ final class PermissionResolver
         }
         if ($module === null) return null;
 
-        $method = strtoupper($method);
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) return $module . '.view';
         if ($method === 'DELETE') return $module . '.delete';
         if ($module === 'system-maintenance') return 'system-maintenance.configure';

@@ -15,6 +15,13 @@ final class AuthorizationService
         if (!$identity || strtoupper((string)$identity['status']) !== 'ACTIVE') return false;
         if (strtoupper((string)$identity['role']) === 'SUPERADMIN') return true;
         $permission = $this->resolver->forRoute($method, $uri);
+        // The shared notification feed is intentionally available to portal
+        // roles. The controller/service still filters the feed by role and
+        // event type; this route check only prevents a portal drawer from
+        // receiving an authorization error before that filtering runs.
+        if ($permission === 'notifications.feed' && in_array(strtoupper((string)$identity['role']), ['SUBSCRIBER', 'TECHNICIAN'], true)) {
+            return true;
+        }
         return $permission === null || $this->can($userId, $permission, $identity);
     }
 

@@ -1,0 +1,145 @@
+{
+  "route": "/notifications",
+  "source": "admin navigation",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "status": "PASS",
+  "httpStatus": 200,
+  "finalPath": "/notifications",
+  "ready": {
+    "pending": [],
+    "visibleLoadingIndicators": 0,
+    "elapsedMs": 1056
+  },
+  "events": [
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/notifications",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications/settings",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 200,
+      "resource": "fetch"
+    }
+  ],
+  "controls": [
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Toggle navigation",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Operations",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Network",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Support Ticket",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Workforce",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Admin",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Maintenance",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Security",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View notifications (5 alerts)",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Switch to dark mode",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Send test",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Save settings",
+      "disabled": true
+    },
+    {
+      "role": "searchbox",
+      "name": "Search accessible modules",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "switch",
+      "name": "Telegram notifications",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Bot token Leave blank to keep the saved token.",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Chat ID The chat or channel where alerts should be sent.",
+      "disabled": false
+    }
+  ],
+  "headings": [
+    "Notifications",
+    "Telegram notifications"
+  ]
+}

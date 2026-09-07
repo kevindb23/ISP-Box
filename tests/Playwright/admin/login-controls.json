@@ -1,0 +1,27 @@
+[
+  {
+    "role": "textbox",
+    "name": "Username",
+    "disabled": false
+  },
+  {
+    "role": "button",
+    "name": "Sign in",
+    "disabled": false
+  },
+  {
+    "role": "textbox",
+    "name": "Password",
+    "disabled": false
+  },
+  {
+    "role": "button",
+    "name": "Show password",
+    "disabled": false
+  },
+  {
+    "role": "button",
+    "name": "Forgot your password?",
+    "disabled": false
+  }
+]

@@ -2,7 +2,9 @@
 
 namespace App\Modules\Email\Controllers;
 
+use App\Modules\Email\DTOs\CreateEmailDTO;
 use App\Modules\Email\Services\EmailService;
+use App\Modules\Email\Validators\CreateEmailValidator;
 use Framework\ApiController;
 use Framework\SessionManager;
 use Throwable;
@@ -11,7 +13,7 @@ class EmailApiController extends ApiController
 {
     private EmailService $service;
 
-    public function __construct(EmailService $service)
+    public function __construct(EmailService $service, private CreateEmailValidator $validator)
     {
         $this->service = $service;
     }
@@ -28,7 +30,16 @@ class EmailApiController extends ApiController
 
     public function save(): void
     {
-        try { $this->requireAdmin(); $this->success($this->service->save($this->request()->input()), 'Email settings saved.'); }
+        try {
+            $this->requireAdmin();
+            $input = CreateEmailDTO::fromArray($this->request()->input())->toArray();
+            $errors = $this->validator->validate($input);
+            if ($errors !== []) {
+                $this->error('Please correct the highlighted fields.', 422, $errors);
+                return;
+            }
+            $this->success($this->service->save($input), 'Email settings saved.');
+        }
         catch (Throwable $e) { $this->error($e->getMessage(), 422); }
     }
 

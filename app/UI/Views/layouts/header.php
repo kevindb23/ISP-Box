@@ -30,7 +30,7 @@ $breadcrumb = nexusbox_breadcrumb();
 
 ?>
 
-<div class="topbar">
+<div class="topbar" data-session-timeout="<?= SessionManager::timeoutSeconds() ?>">
 
     <div class="topbar-left">
 
@@ -60,11 +60,11 @@ $breadcrumb = nexusbox_breadcrumb();
             <span class="nx-notification-count" id="globalNotificationsCount" aria-live="polite" aria-atomic="true" hidden></span>
             <span>Alerts</span>
         </button>
-        <div id="globalNotifications" class="nx-notification-popover" role="dialog" aria-label="Notifications" hidden>
+        <div id="globalNotifications" class="nx-notification-popover" role="dialog" aria-label="Notifications" data-notification-context="<?= $isSubscriber ? 'maintenance' : 'security' ?>" hidden>
             <div class="nx-notification-header">
                 <div>
                     <strong>Notifications</strong>
-                    <small>Security events</small>
+                    <small id="globalNotificationContextLabel"><?= $isSubscriber ? 'Maintenance updates' : 'Security events' ?></small>
                 </div>
                 <button type="button" class="nx-notification-refresh" aria-label="Refresh notifications" title="Refresh notifications"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
             </div>
@@ -73,12 +73,12 @@ $breadcrumb = nexusbox_breadcrumb();
         <div id="globalNotificationModal" class="nx-notification-modal" role="dialog" aria-modal="true" aria-labelledby="globalNotificationModalTitle" hidden>
             <div class="nx-notification-modal-card">
                 <div class="nx-notification-modal-header">
-                    <div><small>Security alert</small><strong id="globalNotificationModalTitle">Notification details</strong></div>
+                    <div><small id="globalNotificationModalContext">Security alert</small><strong id="globalNotificationModalTitle">Notification details</strong></div>
                     <button type="button" class="nx-notification-modal-close" aria-label="Close notification details">&times;</button>
                 </div>
                 <div class="nx-notification-modal-body">
                     <p id="globalNotificationModalDescription"></p>
-                    <dl><div><dt>User</dt><dd id="globalNotificationModalUser">—</dd></div><div><dt>IP address</dt><dd id="globalNotificationModalIp">—</dd></div><div><dt>Time</dt><dd id="globalNotificationModalTime">—</dd></div></dl>
+                    <dl><div><dt id="globalNotificationModalUserLabel">User</dt><dd id="globalNotificationModalUser">—</dd></div><div><dt id="globalNotificationModalIpLabel">IP address</dt><dd id="globalNotificationModalIp">—</dd></div><div><dt id="globalNotificationModalTimeLabel">Time</dt><dd id="globalNotificationModalTime">—</dd></div></dl>
                 </div>
             </div>
         </div>

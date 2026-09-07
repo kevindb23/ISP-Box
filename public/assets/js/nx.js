@@ -75,6 +75,29 @@ window.NX = (() => {
 
         return json;
     };
+    let sessionRedirecting = false;
+    const redirectExpiredSession = () => {
+        if (sessionRedirecting || window.location.pathname === '/login') return;
+        sessionRedirecting = true;
+        window.location.replace('/login');
+    };
+    const sessionWatchdog = (() => {
+        let timer = null;
+        const reset = () => {
+            const topbar = document.querySelector('.topbar[data-session-timeout]');
+            const seconds = Number(topbar?.dataset.sessionTimeout || 0);
+            if (!seconds) return;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => window.location.reload(), seconds * 1000);
+        };
+        const init = () => {
+            ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((eventName) => {
+                document.addEventListener(eventName, reset, { passive: true });
+            });
+            reset();
+        };
+        return { init };
+    })();
     const request = async (url, options = {}) => {
         const ctx = { url, options, response: null };
 
@@ -88,6 +111,8 @@ window.NX = (() => {
                 ...ctx.options,
                 headers
             });
+
+            if (res.status === 401) redirectExpiredSession();
 
             ctx.response = await parseJson(res);
         });
@@ -1915,6 +1940,16 @@ window.NX = (() => {
                 document.documentElement.classList.remove('sidebar-collapsed-preload');
             }
             document.body.classList.toggle('sidebar-collapsed', Boolean(collapsed));
+            // Reconcile section visibility after the shell toggle. Section
+            // state may have been initialized while expanded, so simply
+            // changing the body class is not enough to restore icon items.
+            document.querySelectorAll('.sidebar .menu-item[data-sidebar-section-item]').forEach((item) => {
+                const sectionId = item.dataset.sidebarSectionItem;
+                const sectionToggle = document.querySelector(`[data-sidebar-section="${sectionId}"]`);
+                const sectionExpanded = sectionToggle?.getAttribute('aria-expanded') === 'true';
+                item.hidden = false;
+                item.classList.toggle('is-collapsed-item', !collapsed && !sectionExpanded);
+            });
             updateControl({ collapsed: Boolean(collapsed) });
         };
 
@@ -1925,7 +1960,10 @@ window.NX = (() => {
 
             if (isMobile()) {
                 document.documentElement.classList.remove('sidebar-collapsed-preload');
-                document.body.classList.remove('sidebar-collapsed');
+                // A closed mobile drawer is the compact icon rail. Keep the
+                // same collapsed state used by desktop so section accordion
+                // state cannot hide destinations from the closed rail.
+                apply(!next);
             }
 
             document.body.classList.toggle('sidebar-mobile-open', next);
@@ -1990,6 +2028,20 @@ window.NX = (() => {
                     link.setAttribute('aria-label', label);
                 }
             });
+
+            // Legacy module views contain a few unlabeled filter/select and
+            // switch controls. Give controls a stable accessible name from
+            // their associated label or nearby field text without changing
+            // the visual design.
+            document.querySelectorAll('#nxApplication select, #nxApplication input[type="checkbox"], #nxApplication input[role="switch"], #nxApplication [role="switch"], #nxApplication [role="combobox"]').forEach((control) => {
+                if (control.getAttribute('aria-label') || control.getAttribute('aria-labelledby')) return;
+                const id = control.id;
+                const label = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`) : null;
+                const nearby = label?.textContent?.trim()
+                    || control.closest('.form-check, .input-group, .field, .mb-3')?.querySelector('label, .form-label')?.textContent?.trim()
+                    || (control.tagName === 'SELECT' ? 'Filter' : 'Setting');
+                if (nearby) control.setAttribute('aria-label', nearby.replace(/\s+/g, ' ').trim());
+            });
         };
 
         const sectionStorageKey = 'nexusbox.sidebar.sections';
@@ -2004,8 +2056,13 @@ window.NX = (() => {
             toggle.querySelector('i')?.classList.toggle('bi-chevron-down', Boolean(expanded));
 
             document.querySelectorAll(`[data-sidebar-section-item="${sectionId}"]`).forEach((item) => {
+                // Section accordions control the full-width navigation only.
+                // In the compact rail every authorized destination remains
+                // visible as an icon, even when its section is closed.
+                const compactRail = document.body.classList.contains('sidebar-collapsed')
+                    || document.documentElement.classList.contains('sidebar-collapsed-preload');
                 item.hidden = false;
-                item.classList.toggle('is-collapsed-item', !expanded);
+                item.classList.toggle('is-collapsed-item', !expanded && !compactRail);
             });
         };
 
@@ -2091,6 +2148,10 @@ window.NX = (() => {
 
         const init = () => {
             initLabels();
+            // Vue modules mount after this shared script. Re-apply accessible
+            // names when their controls are added to the DOM.
+            const labelObserver = new MutationObserver(() => initLabels());
+            labelObserver.observe(document.body, { childList: true, subtree: true });
             initSections();
             bindTooltipEvents();
 
@@ -2347,6 +2408,8 @@ window.NX = (() => {
                         'X-NexusBox-Ajax': '1'
                     }
                 });
+
+                if (res.status === 401) redirectExpiredSession();
 
                 const json = await res.json();
 
@@ -2632,6 +2695,7 @@ window.NX = (() => {
         sidebar.init();
         navigation.init();
         theme.init();
+        sessionWatchdog.init();
 
         const searchInput = document.getElementById('globalSearchInput');
         const suggestions = document.getElementById('globalSearchSuggestions');
@@ -2862,6 +2926,7 @@ window.NX = (() => {
         const notificationCount = document.getElementById('globalNotificationsCount');
         const notificationModal = document.getElementById('globalNotificationModal');
         const notificationModalClose = notificationModal?.querySelector('.nx-notification-modal-close');
+        const notificationContext = notificationPopover?.dataset.notificationContext || 'security';
         const notificationItems = new Map();
         let notificationModalPreviousFocus = null;
         if (notificationToggle && notificationPopover && notificationList && notificationToggle.dataset.nxNotificationsBound !== '1') {
@@ -2884,7 +2949,7 @@ window.NX = (() => {
                 if (!items.length) {
                     const empty = document.createElement('div');
                     empty.className = 'nx-notification-empty';
-                    empty.textContent = 'No security notifications.';
+                    empty.textContent = notificationContext === 'maintenance' ? 'No maintenance updates.' : 'No security notifications.';
                     notificationList.appendChild(empty);
                     return;
                 }
@@ -2892,21 +2957,24 @@ window.NX = (() => {
                 items.forEach((item) => {
                     notificationItems.set(String(item.id), item);
                     const entry = document.createElement('div');
-                    entry.className = `nx-notification-item nx-notification-critical${item.is_read ? ' is-read' : ''}`;
+                    const isMaintenance = item.notification_type !== 'SECURITY';
+                    entry.className = `nx-notification-item ${isMaintenance ? 'nx-notification-maintenance' : 'nx-notification-critical'}${item.is_read ? ' is-read' : ''}`;
                     entry.dataset.notificationId = String(item.id);
                     entry.tabIndex = 0;
                     entry.setAttribute('role', 'button');
-                    entry.setAttribute('aria-label', 'Open security notification');
+                    entry.setAttribute('aria-label', `Open ${isMaintenance ? 'maintenance' : 'security'} notification`);
                     const icon = document.createElement('i');
-                    icon.className = 'bi bi-shield-exclamation';
+                    icon.className = `bi ${isMaintenance ? 'bi-calendar2-event' : 'bi-shield-exclamation'}`;
                     icon.setAttribute('aria-hidden', 'true');
                     const copy = document.createElement('div');
                     const title = document.createElement('strong');
-                    title.textContent = 'Critical security event';
+                    title.textContent = item.title || (isMaintenance ? 'Maintenance notice' : 'Critical security event');
                     const description = document.createElement('span');
-                    description.textContent = item.description || 'Suspicious login activity was rejected.';
+                    description.textContent = item.description || (isMaintenance ? 'The system has a scheduled maintenance update.' : 'Suspicious login activity was rejected.');
                     const meta = document.createElement('small');
-                    meta.textContent = [item.username, item.ip_address, item.created_at].filter(Boolean).join(' · ');
+                    meta.textContent = isMaintenance
+                        ? [item.starts_at, item.ends_at].filter(Boolean).join(' · ')
+                        : [item.username, item.ip_address, item.created_at].filter(Boolean).join(' · ');
                     copy.append(title, description, meta);
                     entry.append(icon, copy);
                     notificationList.appendChild(entry);
@@ -2916,6 +2984,7 @@ window.NX = (() => {
             const closeNotificationModal = () => {
                 if (!notificationModal) return;
                 notificationModal.hidden = true;
+                document.body.classList.remove('notification-modal-open');
                 notificationModalPreviousFocus?.focus?.();
                 notificationModalPreviousFocus = null;
             };
@@ -2923,21 +2992,32 @@ window.NX = (() => {
             const openNotificationModal = async (item, entry) => {
                 if (!notificationModal) return;
                 const setText = (selector, value) => { const node = notificationModal.querySelector(selector); if (node) node.textContent = value || '—'; };
-                setText('#globalNotificationModalDescription', item.description || 'Suspicious login activity was rejected.');
-                setText('#globalNotificationModalUser', item.username);
-                setText('#globalNotificationModalIp', item.ip_address);
+                const isMaintenance = item.notification_type !== 'SECURITY';
+                setText('#globalNotificationModalContext', isMaintenance ? 'Maintenance update' : 'Security alert');
+                setText('#globalNotificationModalTitle', item.title || (isMaintenance ? 'Maintenance notice' : 'Notification details'));
+                setText('#globalNotificationModalDescription', item.description || (isMaintenance ? 'The system has a scheduled maintenance update.' : 'Suspicious login activity was rejected.'));
+                setText('#globalNotificationModalUser', isMaintenance ? 'All subscribers' : item.username);
+                setText('#globalNotificationModalIp', isMaintenance ? [item.starts_at, item.ends_at].filter(Boolean).join(' · ') : item.ip_address);
                 setText('#globalNotificationModalTime', item.created_at);
+                const setLabel = (selector, value) => { const node = notificationModal.querySelector(selector); if (node) node.textContent = value; };
+                setLabel('#globalNotificationModalUserLabel', isMaintenance ? 'Audience' : 'User');
+                setLabel('#globalNotificationModalIpLabel', isMaintenance ? 'Maintenance window' : 'IP address');
+                setLabel('#globalNotificationModalTimeLabel', isMaintenance ? 'Published' : 'Time');
                 notificationModalPreviousFocus = document.activeElement;
+                document.body.classList.add('notification-modal-open');
                 notificationModal.hidden = false;
                 notificationModalClose?.focus();
                 if (item.is_read || item.reading) return;
                 item.reading = true;
+                item.is_read = true;
+                entry?.classList.add('is-read');
+                updateNotificationCount(Math.max(0, unreadNotificationCount - 1));
                 try {
                     await api.post(`/api/v1/notifications/${encodeURIComponent(item.id)}/read`);
-                    item.is_read = true;
-                    entry?.classList.add('is-read');
-                    updateNotificationCount(Math.max(0, unreadNotificationCount - 1));
                 } catch (error) {
+                    item.is_read = false;
+                    entry?.classList.remove('is-read');
+                    updateNotificationCount(unreadNotificationCount + 1);
                     dev.warn('Unable to mark notification as read', error);
                 } finally {
                     item.reading = false;

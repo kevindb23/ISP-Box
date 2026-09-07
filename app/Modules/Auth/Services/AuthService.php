@@ -73,6 +73,11 @@ class AuthService
         if (!$admin || !$admin->isActive()) throw new \RuntimeException('The account is no longer active.');
 
         $this->users->updateLastLogin($admin->id());
+        // updateLastLogin may advance users.updated_at through the database
+        // timestamp rule. Reload the identity before storing its session
+        // version so a fresh login is not rejected as stale immediately.
+        $admin = $this->users->findById($userId);
+        if (!$admin || !$admin->isActive()) throw new \RuntimeException('The account is no longer active.');
         $sessionUser = $admin->toSessionArray();
         $sessionUser['last_login'] = date('Y-m-d H:i:s');
 

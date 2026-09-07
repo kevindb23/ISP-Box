@@ -26,6 +26,30 @@ class AdminRepository
         ]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Subscriber portal accounts historically could retain a stale
+        // users.username after the subscriber email changed. Resolve the
+        // linked subscriber email as a compatibility path while the account
+        // is repaired by the next portal-password reset/update.
+        if (!$row) {
+            $stmt = $this->db->prepare(
+                "SELECT u.*
+                 FROM users u
+                 INNER JOIN subscribers s
+                    ON s.user_id = u.id
+                   AND s.deleted_at IS NULL
+                 WHERE u.role = 'SUBSCRIBER'
+                   AND s.email = :subscriber_email
+                 LIMIT 1"
+            );
+
+            $stmt->execute([
+                'subscriber_email' => $username,
+            ]);
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
         return $row ? new AuthenticatedUser($row) : null;
     }
 

@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-09-06T01:57:02.186Z",
+  "source": "/var/www/nexusbox/public/assets/.doc/qa-retest-2026-09-05/qa-retest-results.json",
+  "counts": {
+    "PASS": 273,
+    "FAIL": 0,
+    "BLOCKED": 11,
+    "SKIP": 0
+  },
+  "rootCauses": [
+    [
+      "R1",
+      "High",
+      "Technician work-orders page fails with HTTP 500.",
+      "PORTALS-0081/82; AUTH-022/24",
+      "Trace the server exception and dependency/query failure; add a friendly 5xx boundary and controller test."
+    ],
+    [
+      "R2",
+      "High",
+      "Login is available over HTTP without HTTPS redirect.",
+      "AUTH-025",
+      "Force HTTPS at reverse proxy and application layer; enable HSTS only after HTTPS is reliable."
+    ],
+    [
+      "R3",
+      "High",
+      "Plan CRUD responses are inconsistent with persistence. Create returned 500 while ID 79 existed; update/delete returned 422.",
+      "ADMIN-094/96/97/98",
+      "Make service transactions and response status match commit outcome; validate exact payload contract; add create-update-delete integration coverage."
+    ],
+    [
+      "R4",
+      "Medium",
+      "Invalid/missing CSRF is rejected but returns HTTP 500 instead of 419/403.",
+      "AUTH-034/35/47/48/60/61",
+      "Handle CSRF exceptions at the API boundary with a consistent 419 or 403 JSON response and no error-level server failure."
+    ],
+    [
+      "R5",
+      "Medium",
+      "Technician pages request notifications and receive HTTP 403.",
+      "PORTALS-0076/88",
+      "Separate portal notification feed permissions from admin/security events; return an allowed maintenance-only feed or avoid the request."
+    ],
+    [
+      "R6",
+      "Medium",
+      "Collapsed/mobile sidebar notification bell is outside the viewport and click times out.",
+      "ADMIN-107; PORTALS-0066/97",
+      "Unify mobile drawer and compact-rail state; constrain topbar layout at 390px; verify bell bounds after toggle."
+    ],
+    [
+      "R7",
+      "Low",
+      "Six admin pages contain unnamed combobox/switch controls.",
+      "ADMIN-007/43/46/52/55/70",
+      "Add explicit labels or aria-label/aria-labelledby tied to visible field labels; add accessibility assertions."
+    ]
+  ],
+  "failedCheckIds": [],
+  "blockedCheckIds": [
+    "PORTALS-0068",
+    "PORTALS-0069",
+    "PORTALS-0072",
+    "PORTALS-0073",
+    "PORTALS-0074",
+    "PORTALS-0096",
+    "PORTALS-0108",
+    "PORTALS-0109",
+    "PORTALS-0110",
+    "AUTH-025",
+    "AUTH-062"
+  ]
+}

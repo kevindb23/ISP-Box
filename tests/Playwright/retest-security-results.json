@@ -1,0 +1,1806 @@
+{
+  "target": "http://10.0.10.155",
+  "startedAt": "2026-09-06T01:56:29.489Z",
+  "completedAt": "2026-09-06T01:56:50.933Z",
+  "checks": [
+    {
+      "id": "AUTH-001",
+      "portal": "admin",
+      "area": "authentication",
+      "name": "single browser login",
+      "status": "PASS",
+      "expected": "Successful response and expected authenticated landing page",
+      "actual": "{\"status\":200,\"landing\":\"/dashboard\"}",
+      "evidence": {
+        "status": 200,
+        "landing": "/dashboard"
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-002",
+      "portal": "subscriber",
+      "area": "authentication",
+      "name": "single browser login",
+      "status": "PASS",
+      "expected": "Successful response and expected authenticated landing page",
+      "actual": "{\"status\":200,\"landing\":\"/subscriber-portal\"}",
+      "evidence": {
+        "status": 200,
+        "landing": "/subscriber-portal"
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-003",
+      "portal": "technician",
+      "area": "authentication",
+      "name": "single browser login",
+      "status": "PASS",
+      "expected": "Successful response and expected authenticated landing page",
+      "actual": "{\"status\":200,\"landing\":\"/staff-attendance\"}",
+      "evidence": {
+        "status": 200,
+        "landing": "/staff-attendance"
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-004",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET /dashboard",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 302,
+        "location": "/login",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-005",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET /api/v1/users/0",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-006",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "POST /api/v1/users/update/0",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-007",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET /subscriber-portal",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 302,
+        "location": "/login",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-008",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET /api/v1/subscriber-portal/tickets/show/0",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-009",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "POST /api/v1/subscriber-portal/tickets/reply",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-010",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET /technician-portal",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 302,
+        "location": "/login",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-011",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET /api/v1/technician-portal/work-orders/show/0",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-012",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "POST /api/v1/technician-portal/work-orders/add-note",
+      "status": "PASS",
+      "expected": "Authentication rejection without response data",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-013",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/ports",
+      "status": "PASS",
+      "expected": "Anonymous redirected to login",
+      "actual": "{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 302,
+        "location": "/login",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-014",
+      "portal": "admin",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/ports",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-015",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/ports",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-016",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/ports",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-017",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/profiles",
+      "status": "PASS",
+      "expected": "Anonymous redirected to login",
+      "actual": "{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 302,
+        "location": "/login",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-018",
+      "portal": "admin",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/profiles",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-019",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/profiles",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-020",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET subpage /olt-management/profiles",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-021",
+      "portal": "anonymous",
+      "area": "authorization",
+      "name": "GET subpage /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Anonymous redirected to login",
+      "actual": "{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 302,
+        "location": "/login",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-022",
+      "portal": "admin",
+      "area": "authorization",
+      "name": "GET subpage /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-023",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET subpage /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-024",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET subpage /technician-portal/work-orders",
+      "status": "PASS",
+      "expected": "Allowed role returns 200; other roles return 403",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-025",
+      "portal": "shared",
+      "area": "headers",
+      "name": "HTTPS enforcement",
+      "status": "BLOCKED",
+      "expected": "HTTPS deferred: private-IP HTTP deployment exception",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-026",
+      "portal": "shared",
+      "area": "headers",
+      "name": "no-store login",
+      "status": "PASS",
+      "expected": "Cache-Control includes no-store",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-027",
+      "portal": "shared",
+      "area": "headers",
+      "name": "MIME sniffing protection",
+      "status": "PASS",
+      "expected": "X-Content-Type-Options: nosniff",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-028",
+      "portal": "shared",
+      "area": "headers",
+      "name": "frame protection",
+      "status": "PASS",
+      "expected": "X-Frame-Options or CSP frame-ancestors",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-029",
+      "portal": "shared",
+      "area": "headers",
+      "name": "content security policy",
+      "status": "PASS",
+      "expected": "Content-Security-Policy present",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-030",
+      "portal": "shared",
+      "area": "headers",
+      "name": "referrer policy",
+      "status": "PASS",
+      "expected": "Referrer-Policy present",
+      "actual": "{\"status\":200,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate, max-age=0\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 200,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate, max-age=0",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-031",
+      "portal": "admin",
+      "area": "session",
+      "name": "session ID rotates on login",
+      "status": "PASS",
+      "expected": "Pre-login and authenticated session IDs differ",
+      "actual": "Only comparison retained",
+      "evidence": {
+        "preLoginPresent": true,
+        "postLoginPresent": true,
+        "changed": true
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-032",
+      "portal": "admin",
+      "area": "session",
+      "name": "session cookie attributes",
+      "status": "PASS",
+      "expected": "HttpOnly and SameSite=Lax",
+      "actual": "Cookie values omitted",
+      "evidence": {
+        "httpOnly": true,
+        "sameSite": "Lax",
+        "secure": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-033",
+      "portal": "admin",
+      "area": "session",
+      "name": "pre-login session cannot authenticate",
+      "status": "PASS",
+      "expected": "Old session rejected",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-034",
+      "portal": "admin",
+      "area": "csrf",
+      "name": "missing token on /api/v1/users/update/0",
+      "status": "PASS",
+      "expected": "419 explicit CSRF rejection for invalid ID 0",
+      "actual": "{\"status\":419,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":true,\"message\":\"Invalid or expired CSRF token.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 419,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": true,
+        "message": "Invalid or expired CSRF token.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-035",
+      "portal": "admin",
+      "area": "csrf",
+      "name": "incorrect token on /api/v1/users/update/0",
+      "status": "PASS",
+      "expected": "419 explicit CSRF rejection for invalid ID 0",
+      "actual": "{\"status\":419,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":true,\"message\":\"Invalid or expired CSRF token.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 419,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": true,
+        "message": "Invalid or expired CSRF token.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-036",
+      "portal": "admin",
+      "area": "validation",
+      "name": "valid CSRF with invalid ID 0: /api/v1/users/update/0",
+      "status": "PASS",
+      "expected": "422 invalid ID validation, no internal error",
+      "actual": "{\"status\":422,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Invalid user ID.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 422,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Invalid user ID.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-037",
+      "portal": "admin",
+      "area": "session",
+      "name": "logout server invalidation with replay",
+      "status": "PASS",
+      "expected": "Valid logout redirects; old authenticated session rejected on replay",
+      "actual": "{\"before\":{\"status\":200},\"logout\":{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false},\"after\":{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}}",
+      "evidence": {
+        "before": {
+          "status": 200
+        },
+        "logout": {
+          "status": 302,
+          "location": "/login",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "text/html; charset=UTF-8"
+          },
+          "csrfRejection": false,
+          "message": "[body omitted]",
+          "internalError": false,
+          "mfa": false
+        },
+        "after": {
+          "status": 302,
+          "location": "/login",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "text/html; charset=UTF-8"
+          },
+          "csrfRejection": false,
+          "message": "[body omitted]",
+          "internalError": false,
+          "mfa": false
+        }
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-038",
+      "portal": "subscriber",
+      "area": "session",
+      "name": "session ID rotates on login",
+      "status": "PASS",
+      "expected": "Pre-login and authenticated session IDs differ",
+      "actual": "Only comparison retained",
+      "evidence": {
+        "preLoginPresent": true,
+        "postLoginPresent": true,
+        "changed": true
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-039",
+      "portal": "subscriber",
+      "area": "session",
+      "name": "session cookie attributes",
+      "status": "PASS",
+      "expected": "HttpOnly and SameSite=Lax",
+      "actual": "Cookie values omitted",
+      "evidence": {
+        "httpOnly": true,
+        "sameSite": "Lax",
+        "secure": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-040",
+      "portal": "subscriber",
+      "area": "session",
+      "name": "pre-login session cannot authenticate",
+      "status": "PASS",
+      "expected": "Old session rejected",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-041",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET /dashboard",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-042",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET /api/v1/users/0",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-043",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "POST /api/v1/users/update/0",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-044",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET /technician-portal",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-045",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "GET /api/v1/technician-portal/work-orders/show/0",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-046",
+      "portal": "subscriber",
+      "area": "authorization",
+      "name": "POST /api/v1/technician-portal/work-orders/add-note",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-047",
+      "portal": "subscriber",
+      "area": "csrf",
+      "name": "missing token on /api/v1/subscriber-portal/tickets/reply",
+      "status": "PASS",
+      "expected": "419 explicit CSRF rejection for invalid ID 0",
+      "actual": "{\"status\":419,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":true,\"message\":\"Invalid or expired CSRF token.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 419,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": true,
+        "message": "Invalid or expired CSRF token.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-048",
+      "portal": "subscriber",
+      "area": "csrf",
+      "name": "incorrect token on /api/v1/subscriber-portal/tickets/reply",
+      "status": "PASS",
+      "expected": "419 explicit CSRF rejection for invalid ID 0",
+      "actual": "{\"status\":419,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":true,\"message\":\"Invalid or expired CSRF token.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 419,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": true,
+        "message": "Invalid or expired CSRF token.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-049",
+      "portal": "subscriber",
+      "area": "validation",
+      "name": "valid CSRF with invalid ID 0: /api/v1/subscriber-portal/tickets/reply",
+      "status": "PASS",
+      "expected": "422 invalid ID validation, no internal error",
+      "actual": "{\"status\":422,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Invalid ticket ID.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 422,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Invalid ticket ID.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-050",
+      "portal": "subscriber",
+      "area": "session",
+      "name": "logout server invalidation with replay",
+      "status": "PASS",
+      "expected": "Valid logout redirects; old authenticated session rejected on replay",
+      "actual": "{\"before\":{\"status\":200},\"logout\":{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false},\"after\":{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}}",
+      "evidence": {
+        "before": {
+          "status": 200
+        },
+        "logout": {
+          "status": 302,
+          "location": "/login",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "text/html; charset=UTF-8"
+          },
+          "csrfRejection": false,
+          "message": "[body omitted]",
+          "internalError": false,
+          "mfa": false
+        },
+        "after": {
+          "status": 302,
+          "location": "/login",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "text/html; charset=UTF-8"
+          },
+          "csrfRejection": false,
+          "message": "[body omitted]",
+          "internalError": false,
+          "mfa": false
+        }
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-051",
+      "portal": "technician",
+      "area": "session",
+      "name": "session ID rotates on login",
+      "status": "PASS",
+      "expected": "Pre-login and authenticated session IDs differ",
+      "actual": "Only comparison retained",
+      "evidence": {
+        "preLoginPresent": true,
+        "postLoginPresent": true,
+        "changed": true
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-052",
+      "portal": "technician",
+      "area": "session",
+      "name": "session cookie attributes",
+      "status": "PASS",
+      "expected": "HttpOnly and SameSite=Lax",
+      "actual": "Cookie values omitted",
+      "evidence": {
+        "httpOnly": true,
+        "sameSite": "Lax",
+        "secure": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-053",
+      "portal": "technician",
+      "area": "session",
+      "name": "pre-login session cannot authenticate",
+      "status": "PASS",
+      "expected": "Old session rejected",
+      "actual": "{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Authentication required.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 401,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Authentication required.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-054",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET /dashboard",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-055",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET /api/v1/users/0",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-056",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "POST /api/v1/users/update/0",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-057",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET /subscriber-portal",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "text/html; charset=UTF-8"
+        },
+        "csrfRejection": false,
+        "message": "[body omitted]",
+        "internalError": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-058",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "GET /api/v1/subscriber-portal/tickets/show/0",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-059",
+      "portal": "technician",
+      "area": "authorization",
+      "name": "POST /api/v1/subscriber-portal/tickets/reply",
+      "status": "PASS",
+      "expected": "403 role rejection",
+      "actual": "{\"status\":403,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"You are not authorized to perform this action.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 403,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "You are not authorized to perform this action.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-060",
+      "portal": "technician",
+      "area": "csrf",
+      "name": "missing token on /api/v1/technician-portal/work-orders/add-note",
+      "status": "PASS",
+      "expected": "419 explicit CSRF rejection for invalid ID 0",
+      "actual": "{\"status\":419,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":true,\"message\":\"Invalid or expired CSRF token.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 419,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": true,
+        "message": "Invalid or expired CSRF token.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-061",
+      "portal": "technician",
+      "area": "csrf",
+      "name": "incorrect token on /api/v1/technician-portal/work-orders/add-note",
+      "status": "PASS",
+      "expected": "419 explicit CSRF rejection for invalid ID 0",
+      "actual": "{\"status\":419,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":true,\"message\":\"Invalid or expired CSRF token.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 419,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": true,
+        "message": "Invalid or expired CSRF token.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-062",
+      "portal": "technician",
+      "area": "validation",
+      "name": "valid CSRF with invalid ID 0: /api/v1/technician-portal/work-orders/add-note",
+      "status": "PASS",
+      "expected": "422 invalid ID validation, no internal error",
+      "actual": "{\"status\":422,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Invalid work order ID.\",\"internalError\":false,\"success\":false,\"mfa\":false}",
+      "evidence": {
+        "status": 422,
+        "location": "",
+        "headers": {
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+          "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+          "content-type": "application/json; charset=utf-8"
+        },
+        "csrfRejection": false,
+        "message": "Invalid work order ID.",
+        "internalError": false,
+        "success": false,
+        "mfa": false
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-063",
+      "portal": "technician",
+      "area": "session",
+      "name": "logout server invalidation with replay",
+      "status": "PASS",
+      "expected": "Valid logout redirects; old authenticated session rejected on replay",
+      "actual": "{\"before\":{\"status\":200},\"logout\":{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false},\"after\":{\"status\":302,\"location\":\"/login\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"text/html; charset=UTF-8\"},\"csrfRejection\":false,\"message\":\"[body omitted]\",\"internalError\":false,\"mfa\":false}}",
+      "evidence": {
+        "before": {
+          "status": 200
+        },
+        "logout": {
+          "status": 302,
+          "location": "/login",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "text/html; charset=UTF-8"
+          },
+          "csrfRejection": false,
+          "message": "[body omitted]",
+          "internalError": false,
+          "mfa": false
+        },
+        "after": {
+          "status": 302,
+          "location": "/login",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "text/html; charset=UTF-8"
+          },
+          "csrfRejection": false,
+          "message": "[body omitted]",
+          "internalError": false,
+          "mfa": false
+        }
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-064",
+      "portal": "shared",
+      "area": "authentication",
+      "name": "blank input rejection",
+      "status": "PASS",
+      "expected": "401/422 with generic Invalid username or password; protected API remains 401",
+      "actual": "{\"response\":{\"status\":422,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Invalid username or password\",\"internalError\":false,\"success\":false,\"mfa\":false},\"protectedStatus\":401}",
+      "evidence": {
+        "response": {
+          "status": 422,
+          "location": "",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "csrfRejection": false,
+          "message": "Invalid username or password",
+          "internalError": false,
+          "success": false,
+          "mfa": false
+        },
+        "protectedStatus": 401
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-065",
+      "portal": "shared",
+      "area": "authentication",
+      "name": "invalid input rejection",
+      "status": "PASS",
+      "expected": "401/422 with generic Invalid username or password; protected API remains 401",
+      "actual": "{\"response\":{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Invalid username or password\",\"internalError\":false,\"success\":false,\"mfa\":false},\"protectedStatus\":401}",
+      "evidence": {
+        "response": {
+          "status": 401,
+          "location": "",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "csrfRejection": false,
+          "message": "Invalid username or password",
+          "internalError": false,
+          "success": false,
+          "mfa": false
+        },
+        "protectedStatus": 401
+      },
+      "severity": "info"
+    },
+    {
+      "id": "AUTH-066",
+      "portal": "shared",
+      "area": "authentication",
+      "name": "harmless SQLi input rejection",
+      "status": "PASS",
+      "expected": "401/422 with generic Invalid username or password; protected API remains 401",
+      "actual": "{\"response\":{\"status\":401,\"location\":\"\",\"headers\":{\"cache-control\":\"no-store, no-cache, must-revalidate\",\"x-frame-options\":\"SAMEORIGIN\",\"x-content-type-options\":\"nosniff\",\"referrer-policy\":\"strict-origin-when-cross-origin\",\"permissions-policy\":\"camera=(), microphone=(), geolocation=(self)\",\"content-security-policy\":\"default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org\",\"content-type\":\"application/json; charset=utf-8\"},\"csrfRejection\":false,\"message\":\"Invalid username or password\",\"internalError\":false,\"success\":false,\"mfa\":false},\"protectedStatus\":401}",
+      "evidence": {
+        "response": {
+          "status": 401,
+          "location": "",
+          "headers": {
+            "cache-control": "no-store, no-cache, must-revalidate",
+            "x-frame-options": "SAMEORIGIN",
+            "x-content-type-options": "nosniff",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=(self)",
+            "content-security-policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://api.paymongo.com https://api.xendit.co https://nominatim.openstreetmap.org",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "csrfRejection": false,
+          "message": "Invalid username or password",
+          "internalError": false,
+          "success": false,
+          "mfa": false
+        },
+        "protectedStatus": 401
+      },
+      "severity": "info"
+    }
+  ],
+  "cleanup": [
+    {
+      "portal": "admin",
+      "action": "logout",
+      "status": "PASS"
+    },
+    {
+      "portal": "subscriber",
+      "action": "logout",
+      "status": "PASS"
+    },
+    {
+      "portal": "technician",
+      "action": "logout",
+      "status": "PASS"
+    }
+  ],
+  "coverage": [
+    "Single browser login per role; anonymous protected GET/POST; lower-role direct web/API boundaries; CSRF negative and valid-token controls on ID 0; headers; cookie flags; session rotation and old-ID rejection; logout replay; invalid-ID validation."
+  ],
+  "limitations": [
+    "HTTPS enforcement deferred: target is a private IP over HTTP and no domain certificate is available.",
+    "30-minute idle expiry not exercised: read-only framework/SessionManager.php inspection shows SESSION_TIMEOUT=1800, check() destroys expired sessions and refreshes last_activity. Local source is not proof of deployed timeout behavior."
+  ]
+}

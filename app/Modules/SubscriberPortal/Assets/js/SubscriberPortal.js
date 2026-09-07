@@ -816,6 +816,7 @@
             closeBootstrapModalAndCleanup('spChangePasswordModal');
 
             showToast('success', response.message || 'Password changed successfully.');
+            window.setTimeout(() => window.location.assign('/login'), 700);
         } catch (error) {
             showToast('error', error.message || 'Unable to change password.');
         } finally {

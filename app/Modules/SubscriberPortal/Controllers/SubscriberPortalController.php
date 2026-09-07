@@ -171,9 +171,11 @@ class SubscriberPortalController extends Controller
 
     private function portalView(string $view)
     {
+        $maintenanceState = $this->systemMaintenance->activeState();
+
         return $this->view($view, [
-            'maintenanceState' => $this->systemMaintenance->activeState(),
-        ]);
+            'maintenanceState' => $maintenanceState,
+        ], !empty($maintenanceState['active']) ? 'maintenance' : 'app');
     }
 
     private function getBillingSettingsMap(): array

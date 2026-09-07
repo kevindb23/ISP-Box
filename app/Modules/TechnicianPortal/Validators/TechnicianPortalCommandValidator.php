@@ -12,7 +12,7 @@ final class TechnicianPortalCommandValidator
         $errors = [];
         if (!in_array($action, ['time_in', 'time_out', 'attendance_status', 'delete_photo', 'complete_task'], true)
             && (int)($data['work_order_id'] ?? 0) <= 0) {
-            $errors['work_order_id'] = 'A valid work order is required.';
+            $errors['work_order_id'] = 'Invalid work order ID.';
         }
         if ($action === 'complete_task' && (int)($data['task_id'] ?? 0) <= 0) {
             $errors['task_id'] = 'A valid task is required.';

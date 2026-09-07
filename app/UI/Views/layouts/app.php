@@ -756,7 +756,7 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $appPrimaryColor)) {
         }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
     })();
 </script>
-    <script src="/assets/js/nx.js?v=9"></script>
+    <script src="/assets/js/nx.js?v=13"></script>
 
 </body>
 </html>

@@ -1,0 +1,181 @@
+{
+  "route": "/email",
+  "source": "admin navigation",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "status": "PASS",
+  "httpStatus": 200,
+  "finalPath": "/email",
+  "ready": {
+    "pending": [],
+    "visibleLoadingIndicators": 0,
+    "elapsedMs": 1054
+  },
+  "events": [
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/email",
+      "status": 200,
+      "resource": "document"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/email",
+      "status": 200,
+      "resource": "fetch"
+    },
+    {
+      "type": "http",
+      "method": "GET",
+      "url": "/api/v1/notifications",
+      "status": 200,
+      "resource": "fetch"
+    }
+  ],
+  "controls": [
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Toggle navigation",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Operations",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Network",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Billing",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Support Ticket",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Workforce",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Admin",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Maintenance",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Security",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "View notifications (5 alerts)",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Switch to dark mode",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Refresh",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Test connection",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Save settings",
+      "disabled": true
+    },
+    {
+      "role": "searchbox",
+      "name": "Search accessible modules",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Log out",
+      "disabled": false
+    },
+    {
+      "role": "button",
+      "name": "Send test email",
+      "disabled": true
+    },
+    {
+      "role": "combobox",
+      "name": "Filter",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "SMTP host",
+      "disabled": false
+    },
+    {
+      "role": "spinbutton",
+      "name": "Port",
+      "disabled": false
+    },
+    {
+      "role": "combobox",
+      "name": "Filter",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Username",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Password Leave blank to keep the saved password.",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "From name",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "From email",
+      "disabled": false
+    },
+    {
+      "role": "textbox",
+      "name": "Test email recipient Sends a real test message using the current saved SMTP settings.",
+      "disabled": false
+    }
+  ],
+  "headings": [
+    "Email delivery",
+    "SMTP server",
+    "Sender identity"
+  ]
+}

@@ -6,6 +6,11 @@ class SessionManager
 {
     private const SESSION_TIMEOUT = 1800; // 30 minutes
 
+    public static function timeoutSeconds(): int
+    {
+        return self::SESSION_TIMEOUT;
+    }
+
     private static function start()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -35,6 +40,7 @@ class SessionManager
         $_SESSION['email'] = $user['email'] ?? null;
         $_SESSION['role'] = $user['role'] ?? null;
         $_SESSION['status'] = $user['status'] ?? null;
+        $_SESSION['identity_updated_at'] = $user['updated_at'] ?? null;
 
         $_SESSION['user'] = [
             'id' => $_SESSION['user_id'],
@@ -106,6 +112,7 @@ class SessionManager
         foreach (['username', 'full_name', 'email', 'role', 'status'] as $field) {
             if (array_key_exists($field, $user)) $_SESSION[$field] = $user[$field];
         }
+        if (array_key_exists('updated_at', $user)) $_SESSION['identity_updated_at'] = $user['updated_at'];
         $_SESSION['user'] = [
             'id' => $_SESSION['user_id'] ?? null,
             'username' => $_SESSION['username'] ?? null,
@@ -121,6 +128,13 @@ class SessionManager
         self::start();
 
         return strtoupper((string)($_SESSION['role'] ?? '')) === strtoupper((string)$role);
+    }
+
+    public static function identityUpdatedAt(): ?string
+    {
+        self::start();
+        $value = $_SESSION['identity_updated_at'] ?? null;
+        return $value !== null ? (string)$value : null;
     }
 
     public static function destroy()

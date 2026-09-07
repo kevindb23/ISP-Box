@@ -1,0 +1,14 @@
+/* Canonical ONT table layout. Keep the table inside its scroll container and
+   reserve a stable actions column for row controls. */
+#ontDevicesPage .nx-table-wrap > table,
+#ontDevicesPage .nx-table-wrap > .table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+}
+
+#ontDevicesPage .ont-table-actions {
+    display: inline-flex;
+    gap: .35rem;
+    white-space: nowrap;
+}

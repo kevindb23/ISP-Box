@@ -118,7 +118,12 @@ $avatarText = strtoupper(substr($avatarSource, 0, 1));
             'Admin' => [
                 ['users', '/users', 'bi-person-gear', 'Users'], ['audit', '/audit', 'bi-shield-check', 'Audit Logs'],
                 ['branding', '/branding', 'bi-palette', 'Branding'], ['system-settings', '/system-settings', 'bi-sliders', 'System Settings'],
-                ['api-tokens', '/api-tokens', 'bi-key', 'API Tokens'],
+                ['api-tokens', '/api-tokens', 'bi-key', 'API Tokens'], ['email', '/email', 'bi-envelope-at', 'Email'],
+                ['notifications', '/notifications', 'bi-bell', 'Notifications'],
+            ],
+            'Maintenance' => [
+                ['scheduled-downtime', '/scheduled-downtime', 'bi-calendar2-week', 'Scheduled Downtime'],
+                ['system-maintenance', '/system-maintenance', 'bi-cone-striped', 'System Maintenance'],
             ],
             'Security' => [
                 ['mfa', '/mfa', 'bi-shield-lock', 'MFA', ['ADMINISTRATOR', 'SUPERADMIN']],

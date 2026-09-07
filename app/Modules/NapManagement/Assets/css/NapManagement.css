@@ -1,0 +1,24 @@
+/* NAP map picker sizing must remain owned by the module so shared modal and
+   legacy layout rules cannot collapse the map before Leaflet initializes. */
+.nx-modal .nx-map-picker {
+    height: 320px !important;
+    min-height: 320px !important;
+}
+
+.nx-modal .nx-map-picker.leaflet-container,
+.nx-modal .nx-map-picker .leaflet-container {
+    height: 100% !important;
+    min-height: 320px !important;
+}
+
+#napManagementApp .nap-nodes-table {
+    width: 100%;
+    min-width: 1120px;
+    table-layout: fixed;
+}
+
+#napManagementApp .nap-nodes-table th:nth-child(6),
+#napManagementApp .nap-nodes-table td:nth-child(6) {
+    width: 180px;
+    min-width: 180px;
+}

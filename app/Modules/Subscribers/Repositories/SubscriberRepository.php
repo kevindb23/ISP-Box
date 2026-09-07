@@ -95,6 +95,7 @@ class SubscriberRepository
         $baseSelect = "
             SELECT
                 s.id,
+                s.user_id,
                 s.account_number,
                 s.full_name,
                 s.address,
@@ -218,6 +219,7 @@ class SubscriberRepository
         $stmt = $this->db->prepare("
             SELECT
                 s.id,
+                s.user_id,
                 s.account_number,
                 s.full_name,
                 s.address,
@@ -657,6 +659,18 @@ class SubscriberRepository
             $id,
         ]);
 
+        $stmtUser = $this->db->prepare("
+            UPDATE users
+            SET username = ?, email = ?
+            WHERE id = (SELECT user_id FROM subscribers WHERE id = ? LIMIT 1)
+              AND role = 'SUBSCRIBER'
+        ");
+        $okUser = $stmtUser->execute([
+            $data['email'],
+            $data['email'],
+            $id,
+        ]);
+
         $nextDueDate = null;
         $expiresAt = null;
 
@@ -684,7 +698,7 @@ class SubscriberRepository
             $id,
         ]);
 
-            if (!$ok1 || !$ok2) {
+            if (!$ok1 || !$okUser || !$ok2) {
                 throw new PDOException('Unable to update subscriber records.');
             }
 
@@ -713,6 +727,18 @@ class SubscriberRepository
                 $existing['full_name'] ?? '',
                 $existing['address'] ?? '',
                 $existing['contact_number'] ?? '',
+                $existing['email'] ?? '',
+                $id,
+            ]);
+
+            $stmt = $this->db->prepare("
+                UPDATE users
+                SET username = ?, email = ?
+                WHERE id = (SELECT user_id FROM subscribers WHERE id = ? LIMIT 1)
+                  AND role = 'SUBSCRIBER'
+            ");
+            $stmt->execute([
+                $existing['email'] ?? '',
                 $existing['email'] ?? '',
                 $id,
             ]);
@@ -1034,9 +1060,13 @@ class SubscriberRepository
             ];
         }
 
+        $portalEmail = trim((string)($row['email'] ?? ''));
+
         $stmtUpdate = $this->db->prepare("
         UPDATE users
         SET
+            username = COALESCE(NULLIF(?, ''), username),
+            email = COALESCE(NULLIF(?, ''), email),
             password = ?,
             status = 'ACTIVE',
             updated_at = NOW()
@@ -1046,6 +1076,8 @@ class SubscriberRepository
     ");
 
         $ok = $stmtUpdate->execute([
+            $portalEmail,
+            $portalEmail,
             password_hash($newPassword, PASSWORD_DEFAULT),
             $userId,
         ]);
@@ -1059,7 +1091,7 @@ class SubscriberRepository
 
         return [
             'ok' => true,
-            'portal_username' => $row['username'] ?: ($row['user_email'] ?: $row['email']),
+            'portal_username' => $portalEmail ?: ($row['username'] ?: $row['user_email']),
         ];
     }
 }

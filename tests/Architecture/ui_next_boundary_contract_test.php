@@ -89,7 +89,11 @@ $liveNextViews = [];
 foreach (glob($root . '/app/Modules/*/Views/*.php') ?: [] as $viewPath) {
     if (str_contains((string)file_get_contents($viewPath), '/build-next/')) $liveNextViews[] = $viewPath;
 }
-$check(count($liveNextViews) === 12, 'UI Next live mount count is unexpected.');
+// The isolated UI Next bundle is now opted into across the complete admin
+// surface, including the original 12 migration targets plus the remaining
+// operational modules. Keep this count explicit so duplicate mounts or
+// accidental legacy regressions are still detected.
+$check(count($liveNextViews) === 30, 'UI Next live mount count is unexpected.');
 $check(count(array_filter($liveNextViews, static fn(string $path): bool => str_contains($path, '/SubscriberPlans/'))) === 1, 'Plans UI Next mount is missing or duplicated.');
 $check(count(array_filter($liveNextViews, static fn(string $path): bool => str_contains($path, '/Subscribers/'))) === 1, 'Subscribers UI Next mount is missing or duplicated.');
 $check(count(array_filter($liveNextViews, static fn(string $path): bool => str_contains($path, '/BngManagement/'))) === 1, 'BNG UI Next mount is missing or duplicated.');

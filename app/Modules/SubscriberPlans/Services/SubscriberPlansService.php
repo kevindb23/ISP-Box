@@ -60,7 +60,23 @@ class SubscriberPlansService
             return $result;
         }
 
-        $this->repo->syncRadiusProfile($payload['plan_name'], $payload['speed_mbps']);
+        try {
+            $this->repo->syncRadiusProfile($payload['plan_name'], $payload['speed_mbps']);
+        } catch (Throwable $e) {
+            // A plan without its RADIUS authorization profile must never be
+            // left persisted as if provisioning were complete.
+            try {
+                $this->repo->delete((int)$result['id']);
+            } catch (Throwable $rollback) {
+                error_log('[SubscriberPlans] create rollback failed: ' . $rollback->getMessage());
+            }
+            error_log('[SubscriberPlans] create RADIUS sync failed: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error_status' => 503,
+                'message' => 'Plan was not saved because RADIUS synchronization failed. Check the active RADIUS database settings and try again.',
+            ];
+        }
 
         $this->safeAudit(
             'PLANS',
@@ -130,11 +146,24 @@ class SubscriberPlansService
             return $result;
         }
 
-        if ($oldPlanName !== $newPlanName) {
-            $this->repo->deleteRadiusProfile($oldPlanName);
+        try {
+            if ($oldPlanName !== $newPlanName) {
+                $this->repo->deleteRadiusProfile($oldPlanName);
+            }
+            $this->repo->syncRadiusProfile($newPlanName, $payload['speed_mbps']);
+        } catch (Throwable $e) {
+            try {
+                $this->repo->update($id, $existing);
+            } catch (Throwable $rollback) {
+                error_log('[SubscriberPlans] update rollback failed: ' . $rollback->getMessage());
+            }
+            error_log('[SubscriberPlans] update RADIUS sync failed: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error_status' => 503,
+                'message' => 'Plan was not updated because RADIUS synchronization failed. Check the active RADIUS database settings and try again.',
+            ];
         }
-
-        $this->repo->syncRadiusProfile($newPlanName, $payload['speed_mbps']);
 
         $this->safeAudit(
             'PLANS',
@@ -185,6 +214,9 @@ class SubscriberPlansService
         }
 
         try {
+            // Keep the portal plan if the authorization database is down.
+            $this->repo->deleteRadiusProfile($existing['plan_name']);
+
             $ok = $this->repo->delete($id);
 
             if (!$ok) {
@@ -193,8 +225,6 @@ class SubscriberPlansService
                     'message' => 'Failed to delete plan.',
                 ];
             }
-
-            $this->repo->deleteRadiusProfile($existing['plan_name']);
 
             $this->safeAudit(
                 'PLANS',
@@ -213,7 +243,8 @@ class SubscriberPlansService
         } catch (Throwable $e) {
             return [
                 'success' => false,
-                'message' => 'Delete failed due to database constraint.',
+                'error_status' => 503,
+                'message' => 'Plan was not deleted because RADIUS synchronization failed. Check the active RADIUS database settings and try again.',
             ];
         }
     }

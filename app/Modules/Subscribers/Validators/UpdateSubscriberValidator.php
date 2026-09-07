@@ -17,7 +17,9 @@ class UpdateSubscriberValidator
         }
 
         $email = trim((string)($data['email'] ?? ''));
-        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if ($email === '') {
+            $errors[] = 'Subscriber email is required for portal login.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Invalid email address.';
         }
 
