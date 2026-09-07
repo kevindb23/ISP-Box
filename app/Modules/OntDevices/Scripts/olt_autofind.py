@@ -53,7 +53,7 @@ def main():
         return
 
     device = {
-        "device_type": "huawei_olt",
+        "device_type": "huawei",
         "host": str(data.get("host", "")).strip(),
         "username": str(data.get("username", "")).strip(),
         "password": str(data.get("password", "")).strip(),

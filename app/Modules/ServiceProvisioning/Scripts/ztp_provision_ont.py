@@ -171,7 +171,7 @@ def main():
         fail("Missing required payload fields", {"missing": missing})
 
     device = {
-        "device_type": "huawei_olt",
+        "device_type": "huawei",
         "host": data["host"],
         "username": data["username"],
         "password": data["password"],

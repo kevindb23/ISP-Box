@@ -185,7 +185,7 @@ def main():
             )
 
         device = {
-            "device_type": "huawei_olt",
+            "device_type": "huawei",
             "host": host,
             "username": username,
             "password": password,

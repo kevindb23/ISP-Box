@@ -102,7 +102,7 @@ def main():
         commands = build_commands(vlan_id, vlan_type, data.get("frame"), data.get("slot"), data.get("port_no"))
 
         device = {
-            "device_type": "huawei_olt",
+            "device_type": "huawei",
             "host": host,
             "username": username,
             "password": password,
