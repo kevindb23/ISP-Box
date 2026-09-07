@@ -36,6 +36,7 @@ class BngSettingRepository
         if (!$row) return null;
         $row['password'] = null;
         $row['host_key_trusted'] = !empty($row['known_host_key']);
+        unset($row['known_host_key']);
         return $row;
     }
 

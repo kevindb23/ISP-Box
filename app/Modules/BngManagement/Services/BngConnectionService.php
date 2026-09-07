@@ -43,7 +43,10 @@ class BngConnectionService
     public function saveSetting(UpdateBngSettingDTO $dto): array
     {
         $id = $this->repo->save($dto->toArray());
-        $row = $this->repo->find($id);
+        // Return safe metadata after saving. Rendering the BNG row and enabling
+        // host-key trust must not depend on decrypting an older password that
+        // may have been encrypted with a key from another installation.
+        $row = $this->repo->getMetadata();
 
         if (!$row || (int)$row['id'] !== $id) {
             throw new InvalidArgumentException('Failed to save BNG setting.');
