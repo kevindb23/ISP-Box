@@ -79,7 +79,6 @@ class AuditRepository
         ]);
     }
 
-<<<<<<< HEAD
     public function securityNotificationsForUser(int $userId, int $limit = 30): array
     {
         $stmt = $this->db->prepare('SELECT a.*, CASE WHEN r.notification_id IS NULL THEN 0 ELSE 1 END AS is_read
@@ -174,8 +173,6 @@ class AuditRepository
                   AND (ends_at IS NULL OR ends_at >= CURRENT_TIMESTAMP)";
     }
 
-=======
->>>>>>> origin/main
     public function find(int $id): ?array
     {
         $stmt = $this->db->prepare("

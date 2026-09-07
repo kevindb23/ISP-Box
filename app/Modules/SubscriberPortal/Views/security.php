@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 $maintenanceState = is_array($maintenanceState ?? null) ? $maintenanceState : [];
 if (!empty($maintenanceState['active'])):
@@ -18,8 +17,6 @@ if (!empty($maintenanceState['active'])):
     </div>
 </div>
 <?php return; endif; ?>
-=======
->>>>>>> origin/main
 <div class="container-fluid nx-page subscriber-portal-page sp-security-page" id="subscriberSecurityPage">
     <div id="subscriberSecurityAlert" role="status" aria-live="polite"></div>
 

@@ -72,13 +72,6 @@ class SubscriberPortalController extends Controller
         return $this->portalView('SubscriberPortal/security');
     }
 
-    public function security()
-    {
-        $this->requireSubscriber();
-
-        return $this->view('SubscriberPortal/security');
-    }
-
     public function index()
     {
         return $this->account();

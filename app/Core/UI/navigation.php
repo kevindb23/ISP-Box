@@ -14,11 +14,7 @@ if (!function_exists('nexusbox_breadcrumb')) {
             'tickets' => 'Tickets', 'payment-gateway' => 'Payment Gateway',
             'staff-attendance' => 'Attendance', 'technician-management' => 'Technicians',
             'work-orders' => 'Work Orders', 'users' => 'Users', 'audit' => 'Audit Logs',
-<<<<<<< HEAD
             'branding' => 'Branding', 'system-settings' => 'System Settings', 'api-tokens' => 'API Tokens', 'email' => 'Email', 'notifications' => 'Notifications', 'scheduled-downtime' => 'Scheduled Downtime', 'system-maintenance' => 'System Maintenance', 'mfa' => 'MFA', 'subscriber-portal' => 'My Account',
-=======
-            'branding' => 'Branding', 'system-settings' => 'System Settings', 'api-tokens' => 'API Tokens', 'mfa' => 'MFA', 'subscriber-portal' => 'My Account',
->>>>>>> origin/main
         ];
         $groups = [
             '' => 'Operations', 'dashboard' => 'Operations', 'subscriber-plans' => 'Operations', 'subscribers' => 'Operations',
@@ -27,11 +23,7 @@ if (!function_exists('nexusbox_breadcrumb')) {
             'service-provisioning' => 'Network', 'billing' => 'Business', 'tickets' => 'Business',
             'payment-gateway' => 'Business', 'staff-attendance' => 'Workforce',
             'technician-management' => 'Workforce', 'work-orders' => 'Workforce',
-<<<<<<< HEAD
             'users' => 'Administration', 'audit' => 'Administration', 'branding' => 'Administration', 'system-settings' => 'Administration', 'api-tokens' => 'Administration', 'email' => 'Administration', 'notifications' => 'Administration', 'scheduled-downtime' => 'Maintenance', 'system-maintenance' => 'Maintenance', 'mfa' => 'Security',
-=======
-            'users' => 'Administration', 'audit' => 'Administration', 'branding' => 'Administration', 'system-settings' => 'Administration', 'api-tokens' => 'Administration', 'mfa' => 'Security',
->>>>>>> origin/main
             'subscriber-portal' => 'Subscriber portal',
         ];
         $current = $pages[$section] ?? ucwords(str_replace('-', ' ', $section));

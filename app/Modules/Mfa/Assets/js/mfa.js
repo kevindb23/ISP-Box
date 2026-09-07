@@ -3,7 +3,6 @@
     if (!page) return;
     const tableBody = document.querySelector('#mfaUsersTable tbody');
     const csrf = page.dataset.csrf;
-<<<<<<< HEAD
     const api = window.NX?.api;
     if (!api) return;
 
@@ -18,14 +17,6 @@
         return api.post(url, body, {
             headers: { 'X-CSRF-Token': csrf, ...(options.headers || {}) }
         });
-=======
-
-    async function request(url, options = {}) {
-        const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf, ...(options.headers || {}) } });
-        const data = await response.json();
-        if (!response.ok || data.success === false) throw new Error(data.message || 'Request failed.');
-        return data.data || {};
->>>>>>> origin/main
     }
 
     function escapeHtml(value) {
