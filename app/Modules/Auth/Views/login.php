@@ -6,6 +6,13 @@ $branding = \App\Core\Branding::get();
 $companyName = $branding['company_name'] ?? $branding['client_name'] ?? 'ISP-in-a-Box';
 $logoText = trim((string)($branding['logo_text'] ?? $branding['portal_title'] ?? ''));
 $logoPath = trim((string)($branding['logo_path'] ?? ''));
+$logoFile = '';
+if ($logoPath !== '' && str_starts_with($logoPath, '/')) {
+    $logoFile = BASE_PATH . '/public' . parse_url($logoPath, PHP_URL_PATH);
+    if (!is_file($logoFile)) {
+        $logoPath = '';
+    }
+}
 $primaryColor = $branding['primary_color'] ?? '#2563EB';
 
 ?>
@@ -448,7 +455,9 @@ $primaryColor = $branding['primary_color'] ?? '#2563EB';
 </main>
 
 <script src="/assets/js/sweetalert2.all.min.js"></script>
+<?php if (is_file(BASE_PATH . '/public/assets/vendor/particles/particles.min.js')): ?>
 <script src="/assets/vendor/particles/particles.min.js"></script>
+<?php endif; ?>
 <script>
     const togglePassword = document.getElementById('togglePassword');
     const password = document.getElementById('password');
