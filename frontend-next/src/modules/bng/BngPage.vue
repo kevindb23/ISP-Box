@@ -9,7 +9,7 @@ import NxModal from '../../components/ui/NxModal.vue';
 import NxPageHeader from '../../components/ui/NxPageHeader.vue';
 import NxTableShell from '../../components/ui/NxTableShell.vue';
 import NxToolbar from '../../components/ui/NxToolbar.vue';
-import { activateAccelConfig, deleteBngSetting, getAccelConfig, getBngRuntime, getBngSetting, installBootRecovery, previewAccelConfig, saveAccelConfig, saveBngSetting, scanBngHostKey, stageAccelConfig, testBngConnection, trustBngHostKey } from './api';
+import { activateAccelConfig, deleteBngSetting, getAccelConfig, getBngRuntime, getBngSetting, getBngSettings, installBootRecovery, previewAccelConfig, saveAccelConfig, saveBngSetting, scanBngHostKey, stageAccelConfig, testBngConnection, trustBngHostKey } from './api';
 import type { AccelProfile, BngRuntime, BngRuntimeRow, BngSetting } from './contracts';
 
 type Tab = 'settings' | 'accel' | 'svlan' | 'cvlan' | 'ppp';
@@ -17,7 +17,7 @@ type ActionKind = 'test' | 'trust' | 'recovery' | 'delete' | 'stage' | 'activate
 const tab = ref<Tab>('settings'); const search = ref(''); const loading = ref(false); const saving = ref(false);
 const error = ref(''); const notice = ref(''); const dialogError = ref(''); const settingOpen = ref(false); const previewOpen = ref(false);
 const pendingAction = ref<ActionKind | null>(null); const confirmation = ref(''); const scannedFingerprint = ref('');
-const setting = ref<BngSetting>({}); const runtime = ref<BngRuntime>({}); const accelProfile = ref<AccelProfile>({});
+const settings = ref<BngSetting[]>([]); const setting = ref<BngSetting>({}); const runtime = ref<BngRuntime>({}); const accelProfile = ref<AccelProfile>({});
 const integrationWarnings = ref<string[]>([]); const preview = ref('');
 const settingForm = reactive({ enabled: 1, host: '', port: 22, username: '', password: '', bng_parent_interface: '', preferred_interface: '' });
 const accelForm = reactive<Record<string, string | number>>({});

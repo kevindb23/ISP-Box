@@ -63,7 +63,7 @@ class Branding
             'support_phone' => $config['company_phone'] ?? '',
             'tin' => $config['company_tin'] ?? '',
             'website' => $config['company_website'] ?? '',
-            'logo_path' => $config['logo'] ?? '/assets/img/logo.png',
+            'logo_path' => $config['logo'] ?? '/assets/img/light-background.png',
             'primary_color' => $config['primary_color'] ?? '#3b82f6',
             'powered_by' => $config['powered_by'] ?? (defined('POWERED_BY') ? POWERED_BY : '1WAN'),
         ];

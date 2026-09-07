@@ -29,9 +29,20 @@ class BngSettingRepository
         return $row;
     }
 
+    public function list(): array
+    {
+        $rows = $this->db->query('SELECT * FROM bng_settings ORDER BY enabled DESC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($rows as &$row) {
+            $row['password'] = null;
+            $row['host_key_trusted'] = !empty($row['known_host_key']);
+        }
+        unset($row);
+        return $rows;
+    }
+
     public function save(array $data): int
     {
-        $existing = $this->get();
+        $existing = isset($data['id']) ? $this->find((int)$data['id']) : null;
 
         $payload = [
             'enabled' => (int)($data['enabled'] ?? 1),
@@ -121,6 +132,21 @@ class BngSettingRepository
     public function delete(): bool
     {
         return $this->db->exec('DELETE FROM bng_settings') !== false;
+    }
+    public function find(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM bng_settings WHERE id=:id LIMIT 1');
+        $stmt->execute([':id'=>$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return null;
+        $row['password'] = $this->secrets->decrypt($row['password'] ?? null);
+        return $row;
+    }
+    public function deleteById(int $id): bool
+    {
+        $stmt = $this->db->prepare('DELETE FROM bng_settings WHERE id=:id');
+        $stmt->execute([':id'=>$id]);
+        return $stmt->rowCount() > 0;
     }
     public function trustHostKey(int $id,string $key,string $fingerprint): void { $stmt=$this->db->prepare('UPDATE bng_settings SET known_host_key=:key,host_key_fingerprint=:fingerprint WHERE id=:id');$stmt->execute([':id'=>$id,':key'=>$key,':fingerprint'=>$fingerprint]); }
     private function clearTrustedHostKey(int $id): void { $stmt=$this->db->prepare('UPDATE bng_settings SET known_host_key=NULL,host_key_fingerprint=NULL WHERE id=:id');$stmt->execute([':id'=>$id]); }

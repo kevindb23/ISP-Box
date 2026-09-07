@@ -18,6 +18,7 @@ final class BngManagementApiController extends ApiController
     }
 
     public function setting(): mixed { try{return $this->jsonOk($this->bng->getSetting());}catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }
+    public function settings(): mixed { try{return $this->jsonOk($this->bng->getSettings());}catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }
     public function saveSetting(): mixed
     {
         $payload=$this->request()->input(); $errors=$this->validator->validate($payload);
@@ -28,7 +29,7 @@ final class BngManagementApiController extends ApiController
     public function testConnection(): mixed { try{return $this->jsonMessage($this->bng->testConnection(),'BNG connection test completed.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }
     public function scanHostKey(): mixed { try{return $this->jsonOk($this->bng->scanHostKey());}catch(Throwable $e){return $this->jsonError($e->getMessage(),422);} }
     public function trustHostKey(): mixed { try{return $this->jsonMessage($this->bng->trustHostKey((string)($this->request()->input()['fingerprint']??'')),'BNG SSH host key trusted.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),422);} }
-    public function runtime(): mixed { try{return $this->jsonOk($this->bng->getRuntimeStatus());}catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }
+    public function runtime(): mixed { try { if (!$this->bng->getSetting()) return $this->jsonOk(['svlan_groups'=>[], 'client_vlan_interfaces'=>[], 'bng_interfaces'=>[]]); return $this->jsonOk($this->bng->getRuntimeStatus()); } catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }
     public function accel(): mixed { try{return $this->jsonOk($this->accel->get());}catch(Throwable $e){return $this->jsonError($e->getMessage(),500);} }
     public function saveAccel(): mixed { try{return $this->jsonMessage($this->accel->save(new UpdateAccelPppConfigDTO($this->request()->input()),(int)SessionManager::id()),'Accel-PPP draft saved.');}catch(Throwable $e){return $this->jsonError($e->getMessage(),422);} }
     public function previewAccel(): mixed { try{return $this->jsonOk($this->accel->preview());}catch(Throwable $e){return $this->jsonError($e->getMessage(),404);} }

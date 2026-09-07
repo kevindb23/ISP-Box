@@ -5,6 +5,7 @@ const ENDPOINT = '/api/v1/bng';
 function formOf(values: Record<string, unknown>): FormData { const form = new FormData(); Object.entries(values).forEach(([key, value]) => form.set(key, Array.isArray(value) ? value.join(',') : String(value ?? ''))); return form; }
 
 export const getBngSetting = () => getJson<BngSetting>(`${ENDPOINT}/setting`);
+export const getBngSettings = () => getJson<BngSetting[]>(`${ENDPOINT}/settings`);
 export const getBngRuntime = () => getJson<BngRuntime>(`${ENDPOINT}/runtime`);
 export const getAccelConfig = () => getJson<AccelResponse>(`${ENDPOINT}/accel-ppp`);
 export const previewAccelConfig = (values: Record<string, unknown>) => postForm<{ config?: string }>(`${ENDPOINT}/accel-ppp/preview-draft`, formOf(values));

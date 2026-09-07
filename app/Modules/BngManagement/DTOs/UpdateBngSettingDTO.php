@@ -4,6 +4,7 @@ namespace App\Modules\BngManagement\DTOs;
 
 class UpdateBngSettingDTO
 {
+    public ?int $id;
     public int $enabled;
     public string $host;
     public int $port;
@@ -21,6 +22,7 @@ class UpdateBngSettingDTO
 
     public function __construct(array $data = [])
     {
+        $this->id = isset($data['id']) && (int)$data['id'] > 0 ? (int)$data['id'] : null;
         $this->enabled = isset($data['enabled']) ? (int)$data['enabled'] : 1;
         $this->host = trim((string)($data['host'] ?? ''));
         $this->port = isset($data['port']) ? (int)$data['port'] : 22;
@@ -44,6 +46,7 @@ class UpdateBngSettingDTO
     public function toArray(): array
     {
         return [
+            'id' => $this->id,
             'enabled' => $this->enabled,
             'host' => $this->host,
             'port' => $this->port,

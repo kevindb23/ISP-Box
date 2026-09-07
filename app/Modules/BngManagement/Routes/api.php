@@ -3,6 +3,7 @@
 use App\Modules\BngManagement\Controllers\BngManagementApiController;
 
 $router->get('/api/v1/bng/setting', [BngManagementApiController::class, 'setting']);
+$router->get('/api/v1/bng/settings', [BngManagementApiController::class, 'settings']);
 $router->post('/api/v1/bng/setting', [BngManagementApiController::class, 'saveSetting']);
 $router->post('/api/v1/bng/setting/delete', [BngManagementApiController::class, 'deleteSetting']);
 $router->post('/api/v1/bng/setting/test', [BngManagementApiController::class, 'testConnection']);

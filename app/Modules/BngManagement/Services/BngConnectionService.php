@@ -35,10 +35,15 @@ class BngConnectionService
         return $row ? (new BngSetting($row))->toArray(false) : null;
     }
 
+    public function getSettings(): array
+    {
+        return array_map(fn(array $row) => (new BngSetting($row))->toArray(false), $this->repo->list());
+    }
+
     public function saveSetting(UpdateBngSettingDTO $dto): array
     {
         $id = $this->repo->save($dto->toArray());
-        $row = $this->repo->get();
+        $row = $this->repo->find($id);
 
         if (!$row || (int)$row['id'] !== $id) {
             throw new InvalidArgumentException('Failed to save BNG setting.');
