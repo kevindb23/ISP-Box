@@ -194,7 +194,7 @@ def parse_control_board(output: str, frame: int, slot: int, board_name: str, boa
 
 def fetch_ports(host, username, password, frame=0):
     device = {
-        "device_type": "huawei",
+        "device_type": "huawei_olt",
         "host": host,
         "username": username,
         "password": password,
