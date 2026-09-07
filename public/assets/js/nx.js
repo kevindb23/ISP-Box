@@ -2923,6 +2923,7 @@ window.NX = (() => {
         const notificationPopover = document.getElementById('globalNotifications');
         const notificationList = notificationPopover?.querySelector('.nx-notification-list');
         const notificationRefresh = notificationPopover?.querySelector('.nx-notification-refresh');
+<<<<<<< HEAD
         const notificationCount = document.getElementById('globalNotificationsCount');
         const notificationModal = document.getElementById('globalNotificationModal');
         const notificationModalClose = notificationModal?.querySelector('.nx-notification-modal-close');
@@ -2945,16 +2946,28 @@ window.NX = (() => {
 
             const renderNotifications = (items) => {
                 notificationItems.clear();
+=======
+        if (notificationToggle && notificationPopover && notificationList && notificationToggle.dataset.nxNotificationsBound !== '1') {
+            notificationToggle.dataset.nxNotificationsBound = '1';
+            let notificationsLoading = false;
+
+            const renderNotifications = (items) => {
+>>>>>>> origin/main
                 notificationList.replaceChildren();
                 if (!items.length) {
                     const empty = document.createElement('div');
                     empty.className = 'nx-notification-empty';
+<<<<<<< HEAD
                     empty.textContent = notificationContext === 'maintenance' ? 'No maintenance updates.' : 'No security notifications.';
+=======
+                    empty.textContent = 'No security notifications.';
+>>>>>>> origin/main
                     notificationList.appendChild(empty);
                     return;
                 }
 
                 items.forEach((item) => {
+<<<<<<< HEAD
                     notificationItems.set(String(item.id), item);
                     const entry = document.createElement('div');
                     const isMaintenance = item.notification_type !== 'SECURITY';
@@ -2975,12 +2988,27 @@ window.NX = (() => {
                     meta.textContent = isMaintenance
                         ? [item.starts_at, item.ends_at].filter(Boolean).join(' · ')
                         : [item.username, item.ip_address, item.created_at].filter(Boolean).join(' · ');
+=======
+                    const entry = document.createElement('div');
+                    entry.className = 'nx-notification-item nx-notification-critical';
+                    const icon = document.createElement('i');
+                    icon.className = 'bi bi-shield-exclamation';
+                    icon.setAttribute('aria-hidden', 'true');
+                    const copy = document.createElement('div');
+                    const title = document.createElement('strong');
+                    title.textContent = 'Critical security event';
+                    const description = document.createElement('span');
+                    description.textContent = item.description || 'Suspicious login activity was rejected.';
+                    const meta = document.createElement('small');
+                    meta.textContent = [item.username, item.ip_address, item.created_at].filter(Boolean).join(' · ');
+>>>>>>> origin/main
                     copy.append(title, description, meta);
                     entry.append(icon, copy);
                     notificationList.appendChild(entry);
                 });
             };
 
+<<<<<<< HEAD
             const closeNotificationModal = () => {
                 if (!notificationModal) return;
                 notificationModal.hidden = true;
@@ -3024,6 +3052,8 @@ window.NX = (() => {
                 }
             };
 
+=======
+>>>>>>> origin/main
             const loadNotifications = async () => {
                 if (notificationsLoading) return;
                 notificationsLoading = true;
@@ -3033,10 +3063,15 @@ window.NX = (() => {
                 loading.textContent = 'Loading notifications…';
                 notificationList.appendChild(loading);
                 try {
+<<<<<<< HEAD
                     const response = await api.get('/api/v1/notifications');
                     const rows = Array.isArray(response) ? response : (Array.isArray(response?.items) ? response.items : []);
                     updateNotificationCount(Array.isArray(response) ? rows.filter(item => !item.is_read).length : response?.unread_count);
                     renderNotifications(rows);
+=======
+                    const items = await api.get('/api/v1/notifications');
+                    renderNotifications(Array.isArray(items) ? items : []);
+>>>>>>> origin/main
                 } catch (error) {
                     notificationList.replaceChildren();
                     const failed = document.createElement('div');
@@ -3059,6 +3094,7 @@ window.NX = (() => {
                 notificationToggle.setAttribute('aria-expanded', opening ? 'true' : 'false');
                 if (opening) loadNotifications();
             });
+<<<<<<< HEAD
             notificationList.addEventListener('click', (event) => {
                 const entry = event.target.closest('.nx-notification-item');
                 const item = entry ? notificationItems.get(entry.dataset.notificationId) : null;
@@ -3075,6 +3111,9 @@ window.NX = (() => {
             notificationModal?.addEventListener('click', (event) => { if (event.target === notificationModal) closeNotificationModal(); });
             document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeNotificationModal(); });
             loadNotifications();
+=======
+            notificationRefresh?.addEventListener('click', loadNotifications);
+>>>>>>> origin/main
             document.addEventListener('click', (event) => {
                 if (!event.target.closest('#globalNotifications, #globalNotificationsToggle')) closeNotifications();
             });

@@ -60,16 +60,25 @@ $breadcrumb = nexusbox_breadcrumb();
             <span class="nx-notification-count" id="globalNotificationsCount" aria-live="polite" aria-atomic="true" hidden></span>
             <span>Alerts</span>
         </button>
+<<<<<<< HEAD
         <div id="globalNotifications" class="nx-notification-popover" role="dialog" aria-label="Notifications" data-notification-context="<?= $isSubscriber ? 'maintenance' : 'security' ?>" hidden>
             <div class="nx-notification-header">
                 <div>
                     <strong>Notifications</strong>
                     <small id="globalNotificationContextLabel"><?= $isSubscriber ? 'Maintenance updates' : 'Security events' ?></small>
+=======
+        <div id="globalNotifications" class="nx-notification-popover" role="dialog" aria-label="Notifications" hidden>
+            <div class="nx-notification-header">
+                <div>
+                    <strong>Notifications</strong>
+                    <small>Security events</small>
+>>>>>>> origin/main
                 </div>
                 <button type="button" class="nx-notification-refresh" aria-label="Refresh notifications" title="Refresh notifications"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button>
             </div>
             <div class="nx-notification-list" role="status" aria-live="polite"><div class="nx-notification-empty">Open notifications to load recent events.</div></div>
         </div>
+<<<<<<< HEAD
         <div id="globalNotificationModal" class="nx-notification-modal" role="dialog" aria-modal="true" aria-labelledby="globalNotificationModalTitle" hidden>
             <div class="nx-notification-modal-card">
                 <div class="nx-notification-modal-header">
@@ -82,6 +91,8 @@ $breadcrumb = nexusbox_breadcrumb();
                 </div>
             </div>
         </div>
+=======
+>>>>>>> origin/main
 
         <div class="user-menu">
             <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle theme">

@@ -43,6 +43,7 @@ class AuditApiController extends ApiController
 
     public function notifications(): void
     {
+<<<<<<< HEAD
         $user = SessionManager::user();
         if (!is_array($user) || empty($user['id'])) {
             $this->error('Authentication required.', 401);
@@ -61,5 +62,8 @@ class AuditApiController extends ApiController
         }
         $this->service->markNotificationRead((int)$id, (int)$user['id']);
         $this->success([], 'Notification marked as read.');
+=======
+        $this->success($this->service->securityNotifications());
+>>>>>>> origin/main
     }
 }

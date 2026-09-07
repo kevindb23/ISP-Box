@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 <?php $p=BASE_PATH.'/public/build-next/.vite/manifest.json';$m=is_file($p)?(json_decode((string)file_get_contents($p),true)?:[]):[];$e=$m['src/main.ts']??[];$v=is_file($p)?(string)filemtime($p):(string)time();foreach(($e['css']??[])as$c):?><link rel="stylesheet" href="/build-next/<?=htmlspecialchars(ltrim((string)$c,'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"><?php endforeach;?><div class="container-fluid nx-page" data-nx-next-root="mfa"></div><?php if(!empty($e['file'])):?><script type="module" src="/build-next/<?=htmlspecialchars(ltrim((string)$e['file'],'/'),ENT_QUOTES,'UTF-8')?>?v=<?=htmlspecialchars($v,ENT_QUOTES,'UTF-8')?>"></script><?php endif;return;?>
 <?php if(false): ?>
+=======
+<?php
+$csrf = \App\Core\Security\Csrf::token();
+?>
+>>>>>>> origin/main
 <div class="container-fluid nx-page mfa-page" id="mfaPage" data-csrf="<?= htmlspecialchars($csrf) ?>">
     <link rel="stylesheet" href="/module-assets/Mfa/css/mfa.css?v=1">
     <div class="card border-0 shadow-sm nx-page-header-card"><div class="card-body nx-page-header">
@@ -10,4 +16,7 @@
     <div class="card border-0 shadow-sm nx-content-card"><div class="card-body p-0"><div class="mfa-table-heading"><div><h2>Account coverage</h2><p>Configure MFA for every account type, including subscriber portal users.</p></div><button type="button" class="btn btn-outline-secondary btn-sm" id="mfaRefresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button></div><div class="table-responsive"><table class="table align-middle mb-0" id="mfaUsersTable"><thead><tr><th>Account</th><th>Role</th><th>Email</th><th>Method</th><th>Status</th><th class="text-end">Action</th></tr></thead><tbody><tr><td colspan="6" class="text-center text-muted py-5">Loading security settings…</td></tr></tbody></table></div></div></div>
     <script src="/module-assets/Mfa/js/mfa.js?v=2"></script>
 </div>
+<<<<<<< HEAD
 <?php endif; ?>
+=======
+>>>>>>> origin/main

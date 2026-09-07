@@ -45,6 +45,7 @@ class AuditService
         );
     }
 
+<<<<<<< HEAD
     public function notificationFeed(int $userId, int $limit = 30, string $role = ''): array
     {
         if (in_array(strtoupper(trim($role)), ['SUBSCRIBER', 'TECHNICIAN'], true)) {
@@ -89,6 +90,8 @@ class AuditService
         $this->repo->markNotificationRead($notificationId, $userId);
     }
 
+=======
+>>>>>>> origin/main
     public function log(
         string $module,
         string $action,

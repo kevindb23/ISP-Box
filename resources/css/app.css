@@ -1780,16 +1780,20 @@ body#nxApplication .nx-notification-item > i {
     font-size: 17px;
 }
 
+<<<<<<< HEAD
 body#nxApplication .nx-notification-item.nx-notification-maintenance > i {
     color: var(--nx-primary, #2563eb);
 }
 
+=======
+>>>>>>> origin/main
 body#nxApplication .nx-notification-item strong,
 body#nxApplication .nx-notification-item span,
 body#nxApplication .nx-notification-item small {
     display: block;
 }
 
+<<<<<<< HEAD
 body#nxApplication .nx-notification-item { cursor: pointer; }
 body#nxApplication .nx-notification-item.is-read { opacity: .58; background: transparent; }
 body#nxApplication .nx-notification-item:focus-visible { outline: 2px solid var(--nx-primary); outline-offset: -2px; }
@@ -1818,6 +1822,8 @@ body#nxApplication .nx-notification-modal-body dl > div { display: grid; grid-te
 body#nxApplication .nx-notification-modal-body dt { color: var(--nx-text-muted, #64748b); font-size: .75rem; font-weight: 700; }
 body#nxApplication .nx-notification-modal-body dd { margin: 0; color: var(--nx-text, #0f172a) !important; overflow-wrap: anywhere; font-size: .85rem; }
 
+=======
+>>>>>>> origin/main
 body#nxApplication .nx-notification-item span {
     margin-top: 4px;
     font-size: 12px;

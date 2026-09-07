@@ -2,12 +2,17 @@
 
 namespace App\Modules\Mfa\Services;
 
+<<<<<<< HEAD
 use App\Modules\Email\Services\EmailService;
 
 final class NodeIntegrationService
 {
     public function __construct(private EmailService $email) {}
 
+=======
+final class NodeIntegrationService
+{
+>>>>>>> origin/main
     public function qrDataUri(string $otpauthUri): string
     {
         return trim($this->run('qr-code.mjs', $otpauthUri));
@@ -15,7 +20,16 @@ final class NodeIntegrationService
 
     public function sendEmail(string $to, string $subject, string $text, string $html): void
     {
+<<<<<<< HEAD
         $this->email->sendMessage($to, $subject, $text, $html);
+=======
+        $this->run('send-email.mjs', json_encode([
+            'to' => $to,
+            'subject' => $subject,
+            'text' => $text,
+            'html' => $html,
+        ], JSON_THROW_ON_ERROR));
+>>>>>>> origin/main
     }
 
     private function run(string $script, string $input): string

@@ -14,11 +14,15 @@ class SubscriberPortalApiController extends ApiController
 {
     private SubscriberPortalService $service;
 
+<<<<<<< HEAD
     public function __construct(
         SubscriberPortalService $service,
         private MfaService $mfa,
         private SystemMaintenanceService $systemMaintenance
     )
+=======
+    public function __construct(SubscriberPortalService $service, private MfaService $mfa)
+>>>>>>> origin/main
     {
         $this->service = $service;
     }
@@ -341,6 +345,16 @@ class SubscriberPortalApiController extends ApiController
     private function subscriberUser(bool $enforceMaintenance = true): array
     {
         $user = $this->sessionUser($enforceMaintenance);
+        if ($user['id'] <= 0 || $user['role'] !== 'SUBSCRIBER') {
+            throw new \RuntimeException('Subscriber portal access only.');
+        }
+
+        return $user;
+    }
+
+    private function subscriberUser(): array
+    {
+        $user = $this->sessionUser();
         if ($user['id'] <= 0 || $user['role'] !== 'SUBSCRIBER') {
             throw new \RuntimeException('Subscriber portal access only.');
         }

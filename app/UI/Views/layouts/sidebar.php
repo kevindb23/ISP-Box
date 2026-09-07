@@ -128,6 +128,9 @@ $avatarText = strtoupper(substr($avatarSource, 0, 1));
             'Security' => [
                 ['mfa', '/mfa', 'bi-shield-lock', 'MFA', ['ADMINISTRATOR', 'SUPERADMIN']],
             ],
+            'Security' => [
+                ['mfa', '/mfa', 'bi-shield-lock', 'MFA', ['ADMINISTRATOR', 'SUPERADMIN']],
+            ],
         ];
         foreach ($rbacNavigation as $group => $items):
             $groupId = 'sidebar-group-' . preg_replace('/[^a-z0-9]+/i', '-', strtolower($group));
