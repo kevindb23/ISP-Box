@@ -36,6 +36,14 @@ foreach (['ensureSvlanInterface', 'ensureCvlanInterface'] as $method) {
 foreach (['ensure_svlan', 'set_svlan_up', 'ensure_cvlan', 'set_cvlan_up', 'verify'] as $step) {
     if (!str_contains($bng, "'{$step}'")) $failures[] = "missing idempotent BNG step {$step}";
 }
+foreach (['ensureSvlanInterface', 'ensureCvlanInterface'] as $method) {
+    $start = strpos($bng, "function {$method}");
+    $end = strpos($bng, "\n    public function ", $start + 10);
+    $body = substr($bng, $start, $end === false ? null : $end - $start);
+    foreach (['netplan set', '--origin-hint ispbox-network', 'netplan generate', 'netplan apply', "'persist_netplan'"] as $netplanContract) {
+        if (!str_contains($body, $netplanContract)) $failures[] = "{$method} does not persist VLAN state with {$netplanContract}";
+    }
+}
 
 foreach (['SecretCipher', '->decrypt('] as $credentialContract) {
     if (!str_contains($repo, $credentialContract)) {

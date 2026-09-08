@@ -306,9 +306,15 @@ class BngConnectionService
         }
 
         $iface = $parent . '.' . $svlan;
+        $netplanKey = str_replace('.', '\\.', $iface);
 
         $commands = [
             'check_parent' => "/usr/sbin/ip link show " . escapeshellarg($parent),
+            'persist_netplan' => "/usr/sbin/netplan set --origin-hint ispbox-network " . escapeshellarg(
+                'network.vlans.' . $netplanKey . '={id: ' . $svlan . ', link: ' . $parent . '}'
+            ),
+            'validate_netplan' => '/usr/sbin/netplan generate',
+            'apply_netplan' => '/usr/sbin/netplan apply',
             'ensure_vlan' => "/usr/sbin/ip link show " . escapeshellarg($iface) .
                 " || /usr/sbin/ip link add link " . escapeshellarg($parent) .
                 " name " . escapeshellarg($iface) .
@@ -388,8 +394,18 @@ class BngConnectionService
 
         $svlanInterface = $parent . '.' . $svlan;
         $cvlanInterface = $svlanInterface . '.' . $cvlan;
+        $netplanSvlanKey = str_replace('.', '\\.', $svlanInterface);
+        $netplanCvlanKey = str_replace('.', '\\.', $cvlanInterface);
         $commands = [
             'check_parent' => '/usr/sbin/ip link show ' . escapeshellarg($parent),
+            'persist_netplan_parent' => '/usr/sbin/netplan set --origin-hint ispbox-network ' . escapeshellarg(
+                'network.vlans.' . $netplanSvlanKey . '={id: ' . $svlan . ', link: ' . $parent . '}'
+            ),
+            'persist_netplan' => '/usr/sbin/netplan set --origin-hint ispbox-network ' . escapeshellarg(
+                'network.vlans.' . $netplanCvlanKey . '={id: ' . $cvlan . ', link: ' . $svlanInterface . '}'
+            ),
+            'validate_netplan' => '/usr/sbin/netplan generate',
+            'apply_netplan' => '/usr/sbin/netplan apply',
             'ensure_svlan' => '/usr/sbin/ip link show ' . escapeshellarg($svlanInterface)
                 . ' || /usr/sbin/ip link add link ' . escapeshellarg($parent)
                 . ' name ' . escapeshellarg($svlanInterface)
