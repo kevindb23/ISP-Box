@@ -12,6 +12,7 @@ $controller = file_get_contents($base . '/app/Modules/BngManagement/Controllers/
 $vlanController = file_get_contents($base . '/app/Modules/VlanManagement/Controllers/VlanManagementApiController.php');
 $vlanRoutes = file_get_contents($base . '/app/Modules/VlanManagement/Routes/api.php');
 $vlanJs = file_get_contents($base . '/app/Modules/VlanManagement/Assets/js/VlanManagement.js');
+$nextVlan = file_get_contents($base . '/frontend-next/src/modules/vlans/VlansPage.vue');
 $deployScript = file_get_contents($base . '/app/Modules/VlanManagement/Scripts/deploy_vlan.py');
 $deleteScript = file_get_contents($base . '/app/Modules/VlanManagement/Scripts/delete_vlan.py');
 $mgmtMigration = file_get_contents($base . '/database/migrations/20260901_000001_mgmt_vlan_olt_port.sql');
@@ -35,6 +36,25 @@ foreach (['ensureSvlanInterface', 'ensureCvlanInterface'] as $method) {
 }
 foreach (['ensure_svlan', 'set_svlan_up', 'ensure_cvlan', 'set_cvlan_up', 'verify'] as $step) {
     if (!str_contains($bng, "'{$step}'")) $failures[] = "missing idempotent BNG step {$step}";
+}
+
+foreach ([
+    'undo port vlan {vlan_id} {int(frame)}/{int(slot)} {int(port_no)}',
+    'vlan forwarding {vlan_id} vlan-mac',
+    'undo vlan attrib {vlan_id}',
+    'undo vlan {vlan_id}',
+] as $svlanQinqDeleteContract) {
+    if (!str_contains($deleteScript, $svlanQinqDeleteContract)) {
+        $failures[] = "S-VLAN QinQ deletion does not remove {$svlanQinqDeleteContract}";
+    }
+}
+foreach (['display current-configuration', 'service-port', 'qinq_ranges', 'undo vlan attrib {start} to {end} q-in-q', 'vlan forwarding {vlan_id} vlan-mac', 'undo vlan {vlan_id}'] as $svlanDependencyContract) {
+    if (!str_contains($deleteScript, $svlanDependencyContract)) {
+        $failures[] = "S-VLAN QinQ deletion does not handle {$svlanDependencyContract}";
+    }
+}
+if (!str_contains($deleteScript, 'port_no') || !str_contains($vlan, "'frame' =>") || !str_contains($vlan, "'slot' =>") || !str_contains($vlan, "'port_no' =>")) {
+    $failures[] = 'S-VLAN OLT port coordinates are not passed to QinQ deletion';
 }
 foreach (['ensureSvlanInterface', 'ensureCvlanInterface'] as $method) {
     $start = strpos($bng, "function {$method}");
@@ -72,6 +92,11 @@ foreach (['assignedSvlanPortIds', 'assignedPortIds', 'sVlanPortExists'] as $port
 }
 foreach (['H901MPSA', 'olt_port_id'] as $mgmtPortContract) {
     if (!str_contains($vlan . $repo . $vlanJs . file_get_contents($base . '/frontend-next/src/modules/vlans/VlansPage.vue') . $mgmtMigration, $mgmtPortContract)) $failures[] = "MGMT-VLAN port selection is incomplete: {$mgmtPortContract}";
+}
+foreach (["tab==='qinq'", 'qinqRows', 'Q-in-Q'] as $qinqUiContract) {
+    if (!str_contains($vlanJs . file_get_contents($base . '/app/Modules/VlanManagement/Views/index.php') . $nextVlan, $qinqUiContract)) {
+        $failures[] = "Q-in-Q VLAN view is missing {$qinqUiContract}";
+    }
 }
 if (!str_contains($deployScript, 'port vlan {vlan_id}') || !str_contains($deleteScript, 'undo port vlan {vlan_id}')) $failures[] = 'MGMT-VLAN deployment does not apply/remove its H901MPSA port binding';
 

@@ -665,6 +665,10 @@ class VlanManagementService
             throw new RuntimeException('Assigned OLT not found.');
         }
 
+        if (strtoupper((string)($row['vlan_type'] ?? '')) === 'S_VLAN' && $this->repo->countChildVlans($id) > 0) {
+            throw new RuntimeException('This S-VLAN cannot be deleted while child C-VLAN records exist.');
+        }
+
         $script = BASE_PATH . '/app/Modules/VlanManagement/Scripts/delete_vlan.py';
         if (!is_file($script)) {
             throw new RuntimeException('Delete script not found: ' . $script);
